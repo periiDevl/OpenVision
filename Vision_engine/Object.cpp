@@ -1,5 +1,4 @@
 #include "Object.h"
-#include<bullet/btBulletDynamicsCommon.h>
 Object::Object(std::vector <Vertex>& vertices, std::vector <GLuint>& indices)
 {
 	Object::vertices = vertices;
