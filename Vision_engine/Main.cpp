@@ -1,5 +1,10 @@
 #include"Object.h"
 #include"Math.h"
+
+#include"imgui.h"
+#include"imgui_impl_glfw.h"
+#include"imgui_impl_opengl3.h"
+
 #include <iostream>
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 
@@ -118,6 +123,12 @@ int main()
 	gladLoadGL();
 	glViewport(0, 0, width, height);
 
+	IMGUI_CHECKVERSION();
+	ImGui::CreateContext();
+	ImGuiIO& io = ImGui::GetIO(); (void)io;
+	ImGui::StyleColorsDark();
+	ImGui_ImplGlfw_InitForOpenGL(window, true);
+	ImGui_ImplOpenGL3_Init("#version 330");
 
 	GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
 	glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
@@ -132,7 +143,6 @@ int main()
 	glAttachShader(shaderProgram, fragmentShader);
 	glLinkProgram(shaderProgram);
 
-	
 
 
 	std::vector <Vertex> verts(vertices, vertices + sizeof(vertices) / sizeof(Vertex));
@@ -161,7 +171,7 @@ int main()
 
 
 	Camera camera(width, height, glm::vec3(0.0f, 0.0f, 2.0f));
-
+	float rotateSpeed = 1;
 
 	const float fixed_timestep = 1.0f / 60.0;
 	while (!glfwWindowShouldClose(window))
@@ -177,6 +187,10 @@ int main()
 		timeDiff = crntTime - prevTime;
 		counter++;
 
+		ImGui_ImplOpenGL3_NewFrame();
+		ImGui_ImplGlfw_NewFrame();
+		ImGui::NewFrame();
+
 		if (timeDiff >= fixed_timestep) {
 			std::string FPS = std::to_string((1.0 / timeDiff) * counter);
 			std::string newTitle = "OpenVision - periidev & itaymadeit ~" + FPS + "FPS";
@@ -185,24 +199,34 @@ int main()
 			counter = 0;
 		}
 
+
 		texas.Bind();
 		box.Draw(shaderProgram, camera, 0, 0, 6, 4, Deg(180), glm::vec3(0, 0, 1));
 
 		itay.Bind();
-		box.Draw(shaderProgram, camera, -0.4, 0, 2.5, 2.5, Deg(crntTime * 40), glm::vec3(-1, -1, -1));
+		box.Draw(shaderProgram, camera, -0.4, 0, 2.5, 2.5, Deg(crntTime * 40 * rotateSpeed) , glm::vec3(-1, -1, -1));
 		
 		perii.Bind();
-		box.Draw(shaderProgram, camera, 0.4, 0, 2, 2, Deg(-crntTime * 400), glm::vec3(1, 1, 1));
+		box.Draw(shaderProgram, camera, 0.4, 0, 2, 2, Deg(-crntTime * 400 * rotateSpeed), glm::vec3(1, 1, 1));
 
 		ohio.Bind();
-		box.Draw(shaderProgram, camera, 1, -0.7, 1.5, 1.5, Deg((-crntTime * 1000)), glm::vec3(0, 0, 1));
+		box.Draw(shaderProgram, camera, 1, -0.7, 1.5, 1.5, Deg((-crntTime * 1000 * rotateSpeed)), glm::vec3(0, 0, 1));
 		
 		us.Bind();
-		box.Draw(shaderProgram, camera, 1, 0.7, 1.5, 0.3, Deg((crntTime * 40)), glm::vec3(0, 0, 1));
+		box.Draw(shaderProgram, camera, 1, 0.7, 1.5, 0.3, Deg((crntTime * 40 * rotateSpeed)), glm::vec3(0, 0, 1));
 
 		flops.Bind();
-		box.Draw(shaderProgram, camera, -1, 0.0, 2, 2, Deg((crntTime * 250)), glm::vec3(0, 1, 0));
+		box.Draw(shaderProgram, camera, -1, 0.0, 2, 2, Deg((crntTime * 250 * rotateSpeed)), glm::vec3(0, 1, 0));
 
+		ImGui::Begin("HELLO 1");
+		{
+
+			ImGui::InputFloat("Normal speed", &rotateSpeed, 0.3f, 1, "%.3f", 0);
+		}
+		ImGui::End();
+
+		ImGui::Render();
+		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}
