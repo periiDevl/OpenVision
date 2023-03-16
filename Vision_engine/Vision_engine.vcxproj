@@ -141,7 +141,7 @@
   <ItemGroup>
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="EBO.cpp" />
-    <ClCompile Include="G:\VIDS\ScoreSpace Jam\glad.c" />
+    <ClCompile Include="glad.c" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Object.cpp" />
     <ClCompile Include="stb.cpp" />
