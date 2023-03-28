@@ -221,8 +221,14 @@ int main()
 		// Fetches the coordinates of the cursor
 		glfwGetCursorPos(window, &mouseX, &mouseY);
 
+		// Center the object at the mouse position
+		float ndcMouseX = (float)mouseX / (float)(90 * 16) * 2.0f - 1.0f;
+		float ndcMouseY = (float)mouseY / (float)(90 * 9) * 2.0f - 1.0f;
+		ndcMouseX *= 16 * 4; // Increase speed
+		ndcMouseY *= 9 * 4; // Increase speed
+
 		flops.Bind();
-		box.Draw(shaderProgram, camera, mouseX ,mouseY, 20, 20, Deg((crntTime * 250 * rotateSpeed)), glm::vec3(0, 1, 0));
+		box.Draw(shaderProgram, camera, ndcMouseX ,ndcMouseY, 20, 20, Deg((crntTime * 250 * rotateSpeed)), glm::vec3(0, 1, 0));
 
 		ImGui::Begin("HELLO 1");
 		{

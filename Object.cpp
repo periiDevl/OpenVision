@@ -17,21 +17,17 @@ Object::Object(std::vector <Vertex>& vertices, std::vector <GLuint>& indices)
 	EBO.Unbind();
 }
 
-void Object::Draw(GLuint shader, Camera& camera, double mouseX, double mouseY, float scalex, float scaley, float angle, glm::vec3 axis)
+void Object::Draw(GLuint shader, Camera& camera, double positionX, double positionY, float scalex, float scaley, float angle, glm::vec3 axis)
 {
     glUseProgram(shader);
     VAO.Bind();
 
     unsigned int numDiffuse = 0;
 
-    // Center the object at the mouse position
-    float ndcMouseX = (float)mouseX / (float)(90 * 16) * 2.0f - 1.0f;
-    float ndcMouseY = (float)mouseY / (float)(90 * 9) * 2.0f - 1.0f;
-    ndcMouseX *= 16 * 4; // Increase speed
-    ndcMouseY *= 9 * 4; // Increase speed
+   
 
     glm::mat4 model = glm::mat4(1.0f);
-    model = glm::translate(model, glm::vec3(ndcMouseX, -ndcMouseY, 0.0f));
+    model = glm::translate(model, glm::vec3(positionX, -positionY, 0.0f));
 
     model = glm::rotate(model, angle, axis);
     model = glm::scale(model, glm::vec3(scalex, scaley, 1.0f));
