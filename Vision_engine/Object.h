@@ -18,6 +18,6 @@ public:
 
 	Object(std::vector <Vertex>& vertices, std::vector <GLuint>& indices);
 
-	void Draw(GLuint shader, Camera& camera, float posx, float posy, float scalex, float scaley, float angle, glm::vec3 axis);
+	void Draw(GLuint shader, Camera& camera, double mouseX, double mouseY, float scalex, float scaley, float angle, glm::vec3 axis);
 };
 #endif

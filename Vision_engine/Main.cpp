@@ -170,7 +170,7 @@ int main()
 	unsigned int counter = 0;
 
 
-	Camera camera(width, height, glm::vec3(0.0f, 0.0f, 2.0f));
+	Camera camera(width, height, glm::vec3(0.0f, 0.0f, 80.0f));
 	float rotateSpeed = 1;
 
 	const float fixed_timestep = 1.0f / 60.0;
@@ -215,8 +215,14 @@ int main()
 		us.Bind();
 		box.Draw(shaderProgram, camera, 1, 0.7, 1.5, 0.3, Deg((crntTime * 40 * rotateSpeed)), glm::vec3(0, 0, 1));
 
+		// Stores the coordinates of the cursor
+		double mouseX;
+		double mouseY;
+		// Fetches the coordinates of the cursor
+		glfwGetCursorPos(window, &mouseX, &mouseY);
+
 		flops.Bind();
-		box.Draw(shaderProgram, camera, -1, 0.0, 2, 2, Deg((crntTime * 250 * rotateSpeed)), glm::vec3(0, 1, 0));
+		box.Draw(shaderProgram, camera, mouseX ,mouseY, 20, 20, Deg((crntTime * 250 * rotateSpeed)), glm::vec3(0, 1, 0));
 
 		ImGui::Begin("HELLO 1");
 		{
