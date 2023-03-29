@@ -9,20 +9,23 @@
 #include<glm/gtx/rotate_vector.hpp>
 #include<glm/gtx/vector_angle.hpp>
 
+using namespace glm;
+
 class Camera
 {
 public:
-	glm::vec3 Position;
-	glm::mat4 cameraMatrix = glm::mat4(1.0f);
+	vec3 Position;
+	mat4 cameraMatrix = mat4(1.0f);
 
 
 	int width;
 	int height;
 
 
-	Camera(int width, int height, glm::vec3 position);
+	Camera(int width, int height, vec3 position);
 
 	void updateMatrix(float FOVdeg, float nearPlane, float farPlane);
 	void Matrix(GLuint shader, const char* uniform);
+	vec2 PixelToWorldPos(vec2 pixelPosition, GLFWwindow* window);
 };
 #endif

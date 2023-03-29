@@ -24,6 +24,15 @@ void Camera::Matrix(GLuint shader, const char* uniform)
 {
 	glUniformMatrix4fv(glGetUniformLocation(shader, uniform), 1, GL_FALSE, glm::value_ptr(cameraMatrix));
 }
+vec2 Camera::PixelToWorldPos(vec2 pixelPosition, GLFWwindow* window)
+{
+    double mouseX, mouseY;
+    glfwGetCursorPos(window, &mouseX, &mouseY);
+	// Idk how to do it
+	float ratioX = 4.8f;
+	float ratioY = 2.8f;
+    return vec2(mouseX / width * ratioX - (1.0f/2.0f * ratioX), mouseY / -height * ratioY - (1.0f/-2.0f * ratioY));
+}
 
 
 

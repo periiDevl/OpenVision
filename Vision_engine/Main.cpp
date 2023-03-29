@@ -1,6 +1,9 @@
 #include"Object.h"
 #include"Math.h"
 #include <iostream>
+
+#include "PhysicsWorld.h"
+
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 
 const unsigned int width = 90 * 16;
@@ -100,6 +103,8 @@ int main()
 		vertices[i].position.z *= scale;
 	}
 
+
+	
 	glfwInit();
 
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -160,16 +165,25 @@ int main()
 	unsigned int counter = 0;
 
 
-	Camera camera(width, height, glm::vec3(0.0f, 0.0f, 2.0f));
+	Camera camera(width, height, glm::vec3(0.0f, 0.0f, 5.0f));
 
+	PhysicsBody body1 = PhysicsBody(vec2(-1.2f,  0.0f), 0, vec2(0.5f), 5, 2, 3, 0.5f, 1);
+	body1.SetVelocity(vec2(1, 0.0f));
 
-	const float fixed_timestep = 1.0f / 60.0;
+	PhysicsBody body2 = PhysicsBody(vec2( 1.2f,  0.0f), 0, vec2(0.5f), 5, 2, 3, 0.5f, 1);
+	body2.SetVelocity(vec2(-1, 0.0f));
+
+	PhysicsWorld world(vec3(0, 0, 0), 30);
+	world.AddBody(&body2);
+	world.AddBody(&body1);
+
+	const float fixed_timestep = 1.0f / 50.0;
 	while (!glfwWindowShouldClose(window))
 	{
 		glClearColor(1.0f, 1.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		camera.updateMatrix(45.0f, 0.1f, 100.0f);
+		camera.updateMatrix(30.0f, 0.1f, 100.0f);
 
 
 		
@@ -179,29 +193,31 @@ int main()
 
 		if (timeDiff >= fixed_timestep) {
 			std::string FPS = std::to_string((1.0 / timeDiff) * counter);
-			std::string newTitle = "OpenVision - periidev & itaymadeit ~" + FPS + "FPS";
+			std::string newTitle = "| OpenVision | periiDev & ItayMadeIt [ " + FPS + " FPS ]";
 			glfwSetWindowTitle(window, newTitle.c_str());
 			prevTime = crntTime;
 			counter = 0;
+			
+			double xpos, ypos;
+			glfwGetCursorPos(window, &xpos, &ypos);
+
+			if (glfwGetKey(window, GLFW_KEY_A))
+				body1.SetVelocity(camera.PixelToWorldPos(vec2(xpos, ypos), window) - vec2(body1.GetPosition()));
+
+			if (glfwGetKey(window, GLFW_KEY_D))
+				body2.SetVelocity(camera.PixelToWorldPos(vec2(xpos, ypos), window) - vec2(body2.GetPosition()));
+
+			world.Step(fixed_timestep);
 		}
 
 		texas.Bind();
-		box.Draw(shaderProgram, camera, 0, 0, 6, 4, Deg(180), glm::vec3(0, 0, 1));
+		box.Draw(shaderProgram, camera, 0, 0, 6, 4, Deg2Rad(180), glm::vec3(0, 0, 1));
 
 		itay.Bind();
-		box.Draw(shaderProgram, camera, -0.4, 0, 2.5, 2.5, Deg(crntTime * 40), glm::vec3(-1, -1, -1));
+		box.Draw(shaderProgram, camera, body1.GetPosition().x, body1.GetPosition().y, body1.GetScale().x*2, body1.GetScale().y*2, Deg2Rad(body1.GetRotation()), glm::vec3(-1, -1, -1));
 		
 		perii.Bind();
-		box.Draw(shaderProgram, camera, 0.4, 0, 2, 2, Deg(-crntTime * 400), glm::vec3(1, 1, 1));
-
-		ohio.Bind();
-		box.Draw(shaderProgram, camera, 1, -0.7, 1.5, 1.5, Deg((-crntTime * 1000)), glm::vec3(0, 0, 1));
-		
-		us.Bind();
-		box.Draw(shaderProgram, camera, 1, 0.7, 1.5, 0.3, Deg((crntTime * 40)), glm::vec3(0, 0, 1));
-
-		flops.Bind();
-		box.Draw(shaderProgram, camera, -1, 0.0, 2, 2, Deg((crntTime * 250)), glm::vec3(0, 1, 0));
+		box.Draw(shaderProgram, camera, body2.GetPosition().x, body2.GetPosition().y, body2.GetScale().x*2, body2.GetScale().y*2, body2.GetRotation(), glm::vec3(-1, -1, -1));
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
