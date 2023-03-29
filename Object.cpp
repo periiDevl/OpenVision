@@ -17,15 +17,39 @@ Object::Object(std::vector <Vertex>& vertices, std::vector <GLuint>& indices)
 	EBO.Unbind();
 }
 
-void Object::Draw(GLuint shader, Camera& camera, double positionX, double positionY, float scalex, float scaley, float angle, glm::vec3 axis)
+bool click;
+void Object::Draw(GLFWwindow* window, GLuint shader, Camera& camera, double positionX, double positionY, float scalex, float scaley, float angle, glm::vec3 axis, float width, float height, glm::vec2 ratio)
 {
     glUseProgram(shader);
     VAO.Bind();
 
+	double mouseX;
+	double mouseY;
+	glfwGetCursorPos(window, &mouseX, &mouseY);
+
+	float ndcMouseX = (float)mouseX / (float)width * 2.0f - 1.0f;
+	float ndcMouseY = (float)mouseY / (float)height * 2.0f - 1.0f;
+	ndcMouseX *= ratio.x * 4;
+	ndcMouseY *= ratio.y * 4;
+
+	if (-positionX - scalex / 3 < ndcMouseX && positionX + scalex / 3 > ndcMouseX && -positionY - scaley / 3 < ndcMouseY && positionY + scaley / 3 > ndcMouseY 
+		&& glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
+	{
+		click = true;
+		printf("gig");
+	}
+	if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_RELEASE)
+	{
+		click = false;
+	}
+	if (click == true)
+	{
+		positionX = positionX + ndcMouseX;
+		positionY = positionY + ndcMouseY;
+
+	}
+
     unsigned int numDiffuse = 0;
-
-   
-
     glm::mat4 model = glm::mat4(1.0f);
     model = glm::translate(model, glm::vec3(positionX, -positionY, 0.0f));
 

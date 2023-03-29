@@ -203,32 +203,24 @@ int main()
 
 
 		texas.Bind();
-		box.Draw(shaderProgram, camera, 0, 0, 6, 4, Deg(180), glm::vec3(0, 0, 1));
+		box.Draw(window,shaderProgram, camera, 0, 0, 6, 4, Deg(180), glm::vec3(0, 0, 1), width, height, ratio);
 
 		itay.Bind();
-		box.Draw(shaderProgram, camera, -0.4, 0, 2.5, 2.5, Deg(crntTime * 40 * rotateSpeed) , glm::vec3(-1, -1, -1));
+		box.Draw(window, shaderProgram, camera, -0.4, 0, 2.5, 2.5, Deg(crntTime * 40 * rotateSpeed) , glm::vec3(-1, -1, -1), width, height, ratio);
 		
 		perii.Bind();
-		box.Draw(shaderProgram, camera, 0.4, 0, 2, 2, Deg(-crntTime * 400 * rotateSpeed), glm::vec3(1, 1, 1));
+		box.Draw(window, shaderProgram, camera, 0.4, 0, 2, 2, Deg(-crntTime * 400 * rotateSpeed), glm::vec3(1, 1, 1), width, height, ratio);
 
 		ohio.Bind();
-		box.Draw(shaderProgram, camera, 1, -0.7, 1.5, 1.5, Deg((-crntTime * 1000 * rotateSpeed)), glm::vec3(0, 0, 1));
+		box.Draw(window, shaderProgram, camera, 1, -0.7, 1.5, 1.5, Deg((-crntTime * 1000 * rotateSpeed)), glm::vec3(0, 0, 1), width, height, ratio);
 		
 		us.Bind();
-		box.Draw(shaderProgram, camera, 1, 0.7, 1.5, 0.3, Deg((crntTime * 40 * rotateSpeed)), glm::vec3(0, 0, 1));
+		box.Draw(window, shaderProgram, camera, 1, 0.7, 1.5, 0.3, Deg((crntTime * 40 * rotateSpeed)), glm::vec3(0, 0, 1), width, height, ratio);
 
-		//mouse position
-		double mouseX;
-		double mouseY;
-		glfwGetCursorPos(window, &mouseX, &mouseY);
-
-		float ndcMouseX = (float)mouseX / (float)width * 2.0f - 1.0f;
-		float ndcMouseY = (float)mouseY / (float)height * 2.0f - 1.0f;
-		ndcMouseX *= ratio.x * 4;
-		ndcMouseY *= ratio.y * 4;
+		
 
 		flops.Bind();
-		box.Draw(shaderProgram, camera, ndcMouseX ,ndcMouseY, 20, 20, Deg((crntTime * 250 * rotateSpeed)), glm::vec3(0, 1, 0));
+		box.Draw(window, shaderProgram, camera, 0 ,0, 20, 20, Deg((crntTime * 250 * rotateSpeed)), glm::vec3(0, 1, 0), width, height, ratio);
 
 		ImGui::Begin("HELLO 1");
 		{
