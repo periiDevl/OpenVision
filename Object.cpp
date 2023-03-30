@@ -18,6 +18,8 @@ Object::Object(std::vector <Vertex>& vertices, std::vector <GLuint>& indices)
 }
 
 bool click;
+double beforeMouseX;
+double beforeMouseY;
 void Object::Draw(GLFWwindow* window, GLuint shader, Camera& camera, double positionX, double positionY, float scalex, float scaley, float angle, glm::vec3 axis, float width, float height, glm::vec2 ratio)
 {
     glUseProgram(shader);
@@ -26,13 +28,21 @@ void Object::Draw(GLFWwindow* window, GLuint shader, Camera& camera, double posi
 	double mouseX;
 	double mouseY;
 	glfwGetCursorPos(window, &mouseX, &mouseY);
+	float newPosX;
+	float newPosY;
 
 	float ndcMouseX = (float)mouseX / (float)width * 2.0f - 1.0f;
 	float ndcMouseY = (float)mouseY / (float)height * 2.0f - 1.0f;
 	ndcMouseX *= ratio.x * 4;
 	ndcMouseY *= ratio.y * 4;
 
-	if (-positionX - scalex / 3 < ndcMouseX && positionX + scalex / 3 > ndcMouseX && -positionY - scaley / 3 < ndcMouseY && positionY + scaley / 3 > ndcMouseY 
+	newPosX = positionX + beforeMouseX;
+	newPosY = positionY + beforeMouseY;
+
+	if (newPosX - scalex / 3 < ndcMouseX &&
+		newPosX + scalex / 3 > ndcMouseX &&
+		newPosY + scaley / 3 > ndcMouseY &&
+		newPosY - scaley / 3 < ndcMouseY
 		&& glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
 	{
 		click = true;
@@ -44,14 +54,15 @@ void Object::Draw(GLFWwindow* window, GLuint shader, Camera& camera, double posi
 	}
 	if (click == true)
 	{
-		positionX = positionX + ndcMouseX;
-		positionY = positionY + ndcMouseY;
+		beforeMouseX = ndcMouseX;
+		beforeMouseY = ndcMouseY;
 
 	}
 
+	
     unsigned int numDiffuse = 0;
     glm::mat4 model = glm::mat4(1.0f);
-    model = glm::translate(model, glm::vec3(positionX, -positionY, 0.0f));
+    model = glm::translate(model, glm::vec3(newPosX, -newPosY, 0.0f));
 
     model = glm::rotate(model, angle, axis);
     model = glm::scale(model, glm::vec3(scalex, scaley, 1.0f));

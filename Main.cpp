@@ -215,7 +215,7 @@ int main()
 		box.Draw(window, shaderProgram, camera, 1, -0.7, 1.5, 1.5, Deg((-crntTime * 1000 * rotateSpeed)), glm::vec3(0, 0, 1), width, height, ratio);
 		
 		us.Bind();
-		box.Draw(window, shaderProgram, camera, 1, 0.7, 1.5, 0.3, Deg((crntTime * 40 * rotateSpeed)), glm::vec3(0, 0, 1), width, height, ratio);
+		box.Draw(window, shaderProgram, camera, 1, 10.7, 1.5, 0.3, Deg((crntTime * 40 * rotateSpeed)), glm::vec3(0, 0, 1), width, height, ratio);
 
 		
 
