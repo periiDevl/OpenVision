@@ -202,20 +202,6 @@ int main()
 		}
 
 
-		texas.Bind();
-		box.Draw(window,shaderProgram, camera, 0, 0, 6, 4, Deg(180), glm::vec3(0, 0, 1), width, height, ratio);
-
-		itay.Bind();
-		box.Draw(window, shaderProgram, camera, -0.4, 0, 2.5, 2.5, Deg(crntTime * 40 * rotateSpeed) , glm::vec3(-1, -1, -1), width, height, ratio);
-		
-		perii.Bind();
-		box.Draw(window, shaderProgram, camera, 0.4, 0, 2, 2, Deg(-crntTime * 400 * rotateSpeed), glm::vec3(1, 1, 1), width, height, ratio);
-
-		ohio.Bind();
-		box.Draw(window, shaderProgram, camera, 1, -0.7, 1.5, 1.5, Deg((-crntTime * 1000 * rotateSpeed)), glm::vec3(0, 0, 1), width, height, ratio);
-		
-		us.Bind();
-		box.Draw(window, shaderProgram, camera, 1, 10.7, 1.5, 0.3, Deg((crntTime * 40 * rotateSpeed)), glm::vec3(0, 0, 1), width, height, ratio);
 
 		
 
