@@ -27,7 +27,6 @@ int main()
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-
 	GLFWwindow* window = glfwCreateWindow(width, height, "Loading...", NULL, NULL);
 	if (window == NULL)
 	{
@@ -79,7 +78,8 @@ int main()
 	Texture flops = Texture("flops.jpeg", "diffuse", 0);
 	
 
-	Object box(verts, ind);
+
+	Object sceneObjects[] = { Object(verts, ind)};
 
 	double prevTime = 0.0;
 	double crntTime = 0.0;
@@ -87,9 +87,8 @@ int main()
 	unsigned int counter = 0;
 
 
-	Camera camera(width, height, glm::vec3(0.0f, 0.0f, 80.0f));
-	float rotateSpeed = 1;
 
+	Camera camera(width, height, glm::vec3(0.0f, 0.0f, 80.0f));
 	const float fixed_timestep = 1.0f / 60.0;
 	while (!glfwWindowShouldClose(window))
 	{
@@ -121,13 +120,31 @@ int main()
 		
 
 		flops.Bind();
-		box.Draw(window, shaderProgram, camera, 0 ,0, 20, 20, Deg((crntTime * 250 * rotateSpeed)), glm::vec3(0, 1, 0), width, height, ratio);
+		
 
-		ImGui::Begin("HELLO 1");
+		for (size_t i = 0; i < sizeof(sceneObjects) / sizeof(sceneObjects[0]); i++)
 		{
 
-			ImGui::InputFloat("Normal speed", &rotateSpeed, 0.3f, 1, "%.3f", 0);
+			float posX, posY;
+			float scaleX, scaleY;
+			ImGui::Begin("Object Inspector" + i);
+			{
+				ImGui::InputFloat("Position X", &posX, 0.3f, 1, "%.3f", 0);
+				ImGui::InputFloat("Position Y", &posY, 0.3f, 1, "%.3f", 0);
+
+				ImGui::InputFloat("Scale X", &scaleX, 0.3f, 1, "%.3f", 0);
+				ImGui::InputFloat("Scale Y", &scaleY, 0.3f, 1, "%.3f", 0);
+			}
+
+			sceneObjects[i].PositionX = posX;
+			sceneObjects[i].PositionY = posY;
+			sceneObjects[i].ScaleX = scaleX;
+			sceneObjects[i].ScaleY = scaleY;
+
+			sceneObjects[i].Draw(window, shaderProgram, camera, 0, glm::vec3(0, 0, 1), width, height, ratio);
 		}
+
+
 		ImGui::End();
 
 		ImGui::Render();
