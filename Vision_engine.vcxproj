@@ -170,6 +170,7 @@
     <ClInclude Include="imgui\imstb_truetype.h" />
     <ClInclude Include="Math.h" />
     <ClInclude Include="Object.h" />
+    <ClInclude Include="Settings.h" />
     <ClInclude Include="Tex.h" />
     <ClInclude Include="VAO.h" />
     <ClInclude Include="VBO.h" />
