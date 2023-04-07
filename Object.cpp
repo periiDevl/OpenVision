@@ -1,4 +1,5 @@
 #include "Object.h"
+
 Object::Object(std::vector <Vertex>& vertices, std::vector <GLuint>& indices)
 {
 	Object::vertices = vertices;
@@ -17,54 +18,63 @@ Object::Object(std::vector <Vertex>& vertices, std::vector <GLuint>& indices)
 	EBO.Unbind();
 }
 
-bool click;
-double beforeMouseX;
-double beforeMouseY;
-void Object::Draw(GLFWwindow* window, GLuint shader, Camera& camera, float angle, glm::vec3 axis, float width, float height, glm::vec2 ratio)
+
+
+void Object::Draw(GLFWwindow* window, GLuint shader, Camera& camera, glm::vec3 axis, float width, float height, glm::vec2 ratio)
 {
     glUseProgram(shader);
     VAO.Bind();
+	tex.Bind();
 
-	double mouseX;
-	double mouseY;
+	
 	glfwGetCursorPos(window, &mouseX, &mouseY);
-	float newPosX;
-	float newPosY;
 
-	float ndcMouseX = (float)mouseX / (float)width * 2.0f - 1.0f;
-	float ndcMouseY = (float)mouseY / (float)height * 2.0f - 1.0f;
+	ndcMouseX = (float)mouseX / (float)width * 2.0f - 1.0f;
+	ndcMouseY = (float)mouseY / (float)height * 2.0f - 1.0f;
 	ndcMouseX *= ratio.x * 4;
 	ndcMouseY *= ratio.y * 4;
 
-	newPosX = PositionX + beforeMouseX;
-	newPosY = PositionY + beforeMouseY;
 
-	if (newPosX - ScaleX / 3 < ndcMouseX &&
-		newPosX + ScaleX / 3 > ndcMouseX &&
-		newPosY + ScaleY / 3 > ndcMouseY &&
-		newPosY - ScaleY / 3 < ndcMouseY
-		&& glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
-	{
-		click = true;
-		printf("gig");
-	}
-	if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_RELEASE)
-	{
-		click = false;
-	}
-	if (click == true)
-	{
-		beforeMouseX = ndcMouseX;
-		beforeMouseY = ndcMouseY;
 
-	}
+    if (calculatedPosition.x - ScaleX / 3 < ndcMouseX &&
+        calculatedPosition.x + ScaleX / 3 > ndcMouseX &&
+        calculatedPosition.y + ScaleY / 3 > ndcMouseY &&
+        calculatedPosition.y - ScaleY / 3 < ndcMouseY
+        && glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
+    {
+        if (!selected) {
+            // if the object was just selected, store the initial mouse position
+            beforeMouseX = ndcMouseX;
+            beforeMouseY = ndcMouseY;
+        }
+        else {
+            // if the object was already selected, calculate the difference between the current and previous mouse positions
+            float dx = ndcMouseX - beforeMouseX;
+            float dy = ndcMouseY - beforeMouseY;
 
+            // update the object's position based on the difference in mouse positions
+            calculatedPosition.x += dx;
+            calculatedPosition.y += dy;
+
+            // store the current mouse position as the previous mouse position for the next frame
+            beforeMouseX = ndcMouseX;
+            beforeMouseY = ndcMouseY;
+        }
+
+        selected = true;
+    }
+    else {
+        selected = false;
+    }
+
+
+	
 	
     unsigned int numDiffuse = 0;
     glm::mat4 model = glm::mat4(1.0f);
-    model = glm::translate(model, glm::vec3(newPosX, -newPosY, 0.0f));
+    model = glm::translate(model, glm::vec3(calculatedPosition.x, -calculatedPosition.y, 0.0f));
 
-    model = glm::rotate(model, angle, axis);
+    model = glm::rotate(model, Deg(angle), axis);
     model = glm::scale(model, glm::vec3(ScaleX, ScaleY, 1.0f));
 
     glUniformMatrix4fv(glGetUniformLocation(shader, "model"), 1, GL_FALSE, glm::value_ptr(model));

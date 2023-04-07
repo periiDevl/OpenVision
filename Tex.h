@@ -10,6 +10,7 @@ class Texture
 public:
 	GLuint ID;
 	const char* type;
+	const char* ImageFile = "Texture not loaded";
 	GLuint unit;
 
 	Texture(const char* image, const char* texType, GLuint slot);

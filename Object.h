@@ -11,8 +11,13 @@
 class Object
 {
 public:
+	bool selected;
+	Texture tex = Texture("epicphoto.jpg", "diffuse", 0);
 	float PositionX = 0;
 	float PositionY = 0;
+	glm::vec2 calculatedPosition;
+	float angle = 0;
+
 
 	float ScaleY = 0;
 	float ScaleX = 0;
@@ -21,7 +26,21 @@ public:
 	std::vector <Texture> textures;
 	VAO VAO;
 
+	float Deg(float radians)
+	{
+
+		return radians * 3.14159 / 180;
+	}
+
 	Object(std::vector <Vertex>& vertices, std::vector <GLuint>& indices);
-	void Draw(GLFWwindow* window, GLuint shader, Camera& camera, float angle, glm::vec3 axis, float width, float height, glm::vec2 ratio);
+	void Draw(GLFWwindow* window, GLuint shader, Camera& camera,glm::vec3 axis, float width, float height, glm::vec2 ratio);
+
+private :
+	float ndcMouseX;
+	float ndcMouseY;
+	double mouseX;
+	double mouseY;
+	double beforeMouseX;
+	double beforeMouseY;
 };
 #endif
