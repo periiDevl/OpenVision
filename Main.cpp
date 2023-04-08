@@ -59,7 +59,17 @@ int main()
 	glAttachShader(shaderProgram, fragmentShader);
 	glLinkProgram(shaderProgram);
 
+	GLuint unlitFragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+	glShaderSource(unlitFragmentShader, 1, &UnlitFragment, NULL);
+	glCompileShader(unlitFragmentShader);
 
+	GLuint unlitProgram = glCreateProgram();
+	glAttachShader(unlitProgram, vertexShader);
+	glAttachShader(unlitProgram, unlitFragmentShader);
+	glLinkProgram(unlitProgram);
+
+	glUseProgram(unlitProgram);
+	glUniform4f(glGetUniformLocation(unlitProgram, "color"), 1.00, 0.56, 0.13, 1);
 
 	std::vector <Vertex> verts(vertices, vertices + sizeof(vertices) / sizeof(Vertex));
 	std::vector <GLuint> ind(indices, indices + sizeof(indices) / sizeof(GLuint));
@@ -67,20 +77,20 @@ int main()
 
 
 
-	
+
 	
 	
 	Texture textures[] = { Texture("epicphoto.jpg", "diffuse", 0), Texture("itay.png", "diffuse", 0), Texture("texas.png", "diffuse", 0), Texture("ohio.png", "diffuse", 0),
 	Texture("US.png", "diffuse", 0), Texture("flops.jpeg", "diffuse", 0) };
 
 	
-	Object sceneObjects[] = { Object(verts, ind), Object(verts, ind) };
+	std::vector<Object> sceneObjects;
 
 	double prevTime = 0.0;
 	double crntTime = 0.0;
 	double timeDiff;
 	unsigned int counter = 0;
-	int selectedObject = 0;
+	int selectedObject = -1;
 	
 
 	Camera camera(width, height, glm::vec3(0.0f, 0.0f, 80.0f));
@@ -91,7 +101,8 @@ int main()
 
 	while (!glfwWindowShouldClose(window))
 	{
-		glClearColor(1.0f, 1.0f, 0.0f, 1.0f);
+		
+		glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		camera.updateMatrix(45.0f, 0.1f, 100.0f);
@@ -113,6 +124,7 @@ int main()
 			prevTime = crntTime;
 			counter = 0;
 		}
+
 
 
 
@@ -139,71 +151,70 @@ int main()
 		
 		con.Draw();
 		ImGui::Begin("Object Inspector");
+		if (ImGui::Button("Add object"))
 		{
-			for (size_t i = 0; i < sizeof(sceneObjects) / sizeof(sceneObjects[0]); i++)
+			Object obj(verts, ind);
+			sceneObjects.push_back(obj);
+
+		}
+		{
+			for (size_t i = 0; i < sceneObjects.size(); i++)
 			{
 				if (sceneObjects[i].selected)
 				{
+
 					selectedObject = i;
 					con.log(("User Select [" + std::to_string(selectedObject) + "]").c_str());
+
 				}
 
-				ImGui::Separator();
-				ImGui::Separator();
+				if (sceneObjects[i].deleted == false) {
 
-				if (ImGui::Button(("Remove object##" + std::to_string(i)).c_str()))
-				{
-					//I want to store it to the save system and remove the object afterward...
-					sceneObjects[i].ScaleX = 0;
-					sceneObjects[i].ScaleY = 0;
-				}
-
-
-				ImGui::Columns(2, nullptr, true);
-
-				ImGui::InputFloat(("Position X##" + std::to_string(i)).c_str(), &sceneObjects[i].calculatedPosition.x, 0.3f, 1, "%.3f", 0);
-				ImGui::NextColumn();
-				ImGui::InputFloat(("Position Y##" + std::to_string(i)).c_str(), &sceneObjects[i].calculatedPosition.y, 0.3f, 1, "%.3f", 0);
-
-				ImGui::Columns(1, nullptr, true);
-				ImGui::Separator();
-				ImGui::Columns(2, nullptr, true);
-				ImGui::InputFloat(("Scale X##" + std::to_string(i)).c_str(), &sceneObjects[i].ScaleX, 0.3f, 1, "%.3f", 0);
-				ImGui::NextColumn();
-
-				ImGui::InputFloat(("Scale Y##" + std::to_string(i)).c_str(), &sceneObjects[i].ScaleY, 0.3f, 1, "%.3f", 0);
-
-				ImGui::Columns(1, nullptr, true);
-				ImGui::InputFloat(("Angle ##" + std::to_string(i)).c_str(), &sceneObjects[i].angle, 0.3f, 1, "%.3f", 0);
-
-				
-				if (ImGui::CollapsingHeader("Quick-Actions")) {
-					for (size_t k = 0; k < sizeof(textures) / sizeof(textures[0]); k++)
-					{
-						ImGui::Separator();
-
-
-						if (ImGui::Selectable(("Bind : " + std::string(textures[k].ImageFile) + std::to_string(i)).c_str()))
+					if (ImGui::CollapsingHeader(("Vision Object" + std::to_string(i)).c_str())) {
+						if (ImGui::Button(("Delete Object##" + std::to_string(i)).c_str()))
 						{
-							sceneObjects[i].tex = textures[k];
+							sceneObjects[i].deleted = true;
+
 						}
 
-						ImGui::Separator();
+
+						ImGui::Columns(2, nullptr, true);
+
+						ImGui::InputFloat(("Position X##" + std::to_string(i)).c_str(), &sceneObjects[i].calculatedPosition.x, 0.3f, 1, "%.3f", 0);
+						ImGui::NextColumn();
+						ImGui::InputFloat(("Position Y##" + std::to_string(i)).c_str(), &sceneObjects[i].calculatedPosition.y, 0.3f, 1, "%.3f", 0);
+
+						ImGui::Columns(1, nullptr, true);
+						ImGui::Columns(2, nullptr, true);
+						ImGui::InputFloat(("Scale X##" + std::to_string(i)).c_str(), &sceneObjects[i].ScaleX, 0.3f, 1, "%.3f", 0);
+						ImGui::NextColumn();
+
+						ImGui::InputFloat(("Scale Y##" + std::to_string(i)).c_str(), &sceneObjects[i].ScaleY, 0.3f, 1, "%.3f", 0);
+
+						ImGui::Columns(1, nullptr, true);
+						ImGui::InputFloat(("Angle ##" + std::to_string(i)).c_str(), &sceneObjects[i].angle, 0.3f, 1, "%.3f", 0);
+
+
+
+
+
+
+
 					}
+					ImGui::Separator();
+
+
+					sceneObjects[i].Draw(window, shaderProgram, camera, glm::vec3(0, 0, 1), width, height, ratio);
+
+					glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+					glLineWidth(5.0f);
+					sceneObjects[selectedObject].Draw(window, unlitProgram, camera, glm::vec3(0, 0, 1), width, height, ratio);
+					glLineWidth(1.0f);
+					glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
 				}
-
-
-
-
-
-				ImGui::Separator();
-				ImGui::Separator();
-
-
-				sceneObjects[i].Draw(window, shaderProgram, camera, glm::vec3(0, 0, 1), width, height, ratio);
 			}
 		}
-
 
 
 		ImGui::End();

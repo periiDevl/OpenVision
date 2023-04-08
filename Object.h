@@ -11,6 +11,7 @@
 class Object
 {
 public:
+	bool deleted = false;
 	bool selected;
 	Texture tex = Texture("epicphoto.jpg", "diffuse", 0);
 	float PositionX = 0;
@@ -19,8 +20,8 @@ public:
 	float angle = 0;
 
 
-	float ScaleY = 0;
-	float ScaleX = 0;
+	float ScaleY = 20;
+	float ScaleX = 20;
 	std::vector <Vertex> vertices;
 	std::vector <GLuint> indices;
 	std::vector <Texture> textures;
