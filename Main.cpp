@@ -8,13 +8,18 @@
 #include"imgui_impl_glfw.h"
 #include"imgui_impl_opengl3.h"
 #include <iostream>
+#include <cstdlib>
+#include <fstream>
+#include <sstream>
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 
 Console con;
 Scripting scr;
 int main()
 {
-	
+	//Running the py script at the start
+	std::system("start /B python script.py");
+
 	for (int i = 0; i < 4; i++) {
 		vertices[i].position.x *= GlobalWorldScale;
 		vertices[i].position.y *= GlobalWorldScale;
@@ -76,6 +81,9 @@ int main()
 	
 
 
+
+
+	
 
 
 	
@@ -167,7 +175,10 @@ int main()
 
 		
 		con.Draw();
+
+
 		ImGui::Begin("Object Inspector");
+
 		if (ImGui::Button("Add object"))
 		{
 			
@@ -220,6 +231,47 @@ int main()
 					}
 					ImGui::Separator();
 
+					float ndcMouseX;
+					float ndcMouseY;
+					double mouseX;
+					double mouseY;
+					double beforeMouseX;
+					double beforeMouseY;
+					glfwGetCursorPos(window, &mouseX, &mouseY);
+
+					ndcMouseX = (float)mouseX / (float)width * 2.0f - 1.0f;
+					ndcMouseY = (float)mouseY / (float)height * 2.0f - 1.0f;
+					ndcMouseX *= ratio.x * 4;
+					ndcMouseY *= ratio.y * 4;
+
+
+
+					if (sceneObjects[i].calculatedPosition.x - sceneObjects[i].ScaleX / 3 < ndcMouseX &&
+						sceneObjects[i].calculatedPosition.x + sceneObjects[i].ScaleX / 3 > ndcMouseX &&
+						sceneObjects[i].calculatedPosition.y + sceneObjects[i].ScaleY / 3 > ndcMouseY &&
+						sceneObjects[i].calculatedPosition.y - sceneObjects[i].ScaleY / 3 < ndcMouseY
+						&& glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
+					{
+						if (!sceneObjects[i].selected) {
+							beforeMouseX = ndcMouseX;
+							beforeMouseY = ndcMouseY;
+						}
+						else {
+							float dx = ndcMouseX - beforeMouseX;
+							float dy = ndcMouseY - beforeMouseY;
+
+							sceneObjects[i].calculatedPosition.x += dx;
+							sceneObjects[i].calculatedPosition.y += dy;
+
+							beforeMouseX = ndcMouseX;
+							beforeMouseY = ndcMouseY;
+						}
+
+						sceneObjects[i].selected = true;
+					}
+					else {
+						sceneObjects[i].selected = false;
+					}
 
 					sceneObjects[i].Draw(window, shaderProgram, camera, glm::vec3(0, 0, 1), width, height, ratio);
 

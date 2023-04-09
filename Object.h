@@ -37,11 +37,6 @@ public:
 	void Draw(GLFWwindow* window, GLuint shader, Camera& camera,glm::vec3 axis, float width, float height, glm::vec2 ratio);
 
 private :
-	float ndcMouseX;
-	float ndcMouseY;
-	double mouseX;
-	double mouseY;
-	double beforeMouseX;
-	double beforeMouseY;
+	
 };
 #endif
