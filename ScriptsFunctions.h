@@ -13,13 +13,22 @@ public:
     {
 
     }
-    std::tuple<int, float, bool> SetPosX(const std::string& filename);
 
-    std::tuple<int, float, bool> SetPosY(const std::string& filename);
+    std::tuple<int, float, bool> SetFloat(const std::string& filename, std::string keyword);
 
-    void LoadTranslation(std::string filename, std::vector<Object> sceneObjects);
+
+
+    void Load(std::string filename, std::vector<Object>& sceneObjects);
+
+
     void Relase(std::string filename)
     {
         std::ofstream ofs(filename, std::ios::out);
     }
+private:
+    void MicroLoadF(std::vector<Object>& sceneObjects, std::string filename, std::string keyword, float& value);
+    int first;
+    float second;
+    bool exists;
+
 };

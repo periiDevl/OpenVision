@@ -56,8 +56,8 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 
 int main()
 {
-	//Start by running the py script at the start
-	std::system("start /B python script.py");
+
+	
 
 
 	for (int i = 0; i < 4; i++) {
@@ -79,6 +79,7 @@ int main()
 		return -1;
 	}
 	glfwMakeContextCurrent(window);
+	glfwSetWindowAttrib(window, GLFW_RESIZABLE, GLFW_FALSE);
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 	glfwSetScrollCallback(window, scroll_callback);
 	gladLoadGL();
@@ -114,8 +115,7 @@ int main()
 	glAttachShader(unlitProgram, unlitFragmentShader);
 	glLinkProgram(unlitProgram);
 
-	glUseProgram(unlitProgram);
-	glUniform4f(glGetUniformLocation(unlitProgram, "color"), 1.00, 0.56, 0.13, 1);
+	
 
 	std::vector <Vertex> verts(vertices, vertices + sizeof(vertices) / sizeof(Vertex));
 	std::vector <GLuint> ind(indices, indices + sizeof(indices) / sizeof(GLuint));
@@ -128,8 +128,8 @@ int main()
 	double mouseY;
 	double beforeMouseX;
 	double beforeMouseY;
-
-	
+	bool run = false;
+	bool startCompiling = false;
 
 
 	
@@ -155,6 +155,11 @@ int main()
 
 	while (!glfwWindowShouldClose(window))
 	{
+		
+		if (glfwGetKey(window, GLFW_KEY_ESCAPE))
+		{
+			run = false;
+		}
 		glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
@@ -177,151 +182,179 @@ int main()
 			prevTime = crntTime;
 			counter = 0;
 		}
-
-		//Reading an applying script
-		auto result = scr.SetPosX("ov.rtsm");
-
-		int first = std::get<0>(result);
-		float second = std::get<1>(result);
-		bool exists = std::get<2>(result);
-
-		if (sceneObjects.size() > 0 && exists)
-		{
-			sceneObjects[first].calculatedPosition.x = second;
-		}
-		result = scr.SetPosY("ov.rtsm");
-
-		first = std::get<0>(result);
-		second = std::get<1>(result);
-		exists = std::get<2>(result);
-		if (sceneObjects.size() > 0 && exists)
-		{
-			sceneObjects[first].calculatedPosition.y = second;
+		if (run) {
+			scr.Load("ov.rtsm", sceneObjects);
 		}
 
 		
-		ImGui::Begin("Assets");
+		
+		ImGui::Begin("Execute");
+		if (ImGui::Button("run"))
 		{
-			for (size_t k = 0; k < sizeof(textures) / sizeof(textures[0]); k++)
+			if (run == false) {
+				run = true;
+			}
+			else if (run == true)
 			{
-				ImGui::Separator();
-
-
-				if (ImGui::Selectable(("Bind : " + std::string(textures[k].ImageFile)).c_str())) {
-					sceneObjects[selectedObject].tex = textures[k];
-
-					con.log(("File : " + std::string(textures[k].ImageFile) + "Binded To : " + std::to_string(selectedObject)).c_str());
-
-				}
-
-
-				ImGui::Separator();
+				run = false;
 			}
 		}
-		
-
+		ImGui::End();
 		
 		con.Draw();
 
+		if (!run) {
+			if (!startCompiling) {
+				std::system("taskkill /F /IM python.exe");
+				startCompiling = true;
+			}
 
-		ImGui::Begin("Object Inspector");
-
-		if (ImGui::Button("Add object"))
-		{
-			
-			sceneObjects.push_back(Object(verts, ind));
-
-		}
-		{
-			for (size_t i = 0; i < sceneObjects.size(); i++)
+			ImGui::Begin("Assets");
 			{
-				if (sceneObjects[i].selected)
+				for (size_t k = 0; k < sizeof(textures) / sizeof(textures[0]); k++)
 				{
-
-					selectedObject = i;
-					con.log(("User Select [" + std::to_string(selectedObject) + "]").c_str());
-
-				}
-
-				if (sceneObjects[i].deleted == false) {
-
-					if (ImGui::CollapsingHeader(("Vision Object" + std::to_string(i)).c_str())) {
-						if (ImGui::Button(("Delete Object##" + std::to_string(i)).c_str()))
-						{
-							sceneObjects[i].deleted = true;
-
-						}
-
-
-						ImGui::Columns(2, nullptr, true);
-
-						ImGui::InputFloat(("Position X##" + std::to_string(i)).c_str(), &sceneObjects[i].calculatedPosition.x, 0.3f, 1, "%.3f", 0);
-						ImGui::NextColumn();
-						ImGui::InputFloat(("Position Y##" + std::to_string(i)).c_str(), &sceneObjects[i].calculatedPosition.y, 0.3f, 1, "%.3f", 0);
-
-						ImGui::Columns(1, nullptr, true);
-						ImGui::Columns(2, nullptr, true);
-						ImGui::InputFloat(("Scale X##" + std::to_string(i)).c_str(), &sceneObjects[i].ScaleX, 0.3f, 1, "%.3f", 0);
-						ImGui::NextColumn();
-
-						ImGui::InputFloat(("Scale Y##" + std::to_string(i)).c_str(), &sceneObjects[i].ScaleY, 0.3f, 1, "%.3f", 0);
-
-						ImGui::Columns(1, nullptr, true);
-						ImGui::InputFloat(("Angle ##" + std::to_string(i)).c_str(), &sceneObjects[i].angle, 0.3f, 1, "%.3f", 0);
-
-
-
-
-
-
-
-					}
 					ImGui::Separator();
 
-					
-					glfwGetCursorPos(window, &mouseX, &mouseY);
 
-					ndcMouseX = (float)mouseX / (float)width * 2.0f - 1.0f;
-					ndcMouseY = (float)mouseY / (float)height * 2.0f - 1.0f;
-					ndcMouseX *= ratio.x * 4;
-					ndcMouseY *= ratio.y * 4;
-					if ((sceneObjects[i].calculatedPosition.x - sceneObjects[i].ScaleX / 3) - camera.Position.x < ndcMouseX &&
-						(sceneObjects[i].calculatedPosition.x + sceneObjects[i].ScaleX / 3) + camera.Position.x > ndcMouseX &&
-						(sceneObjects[i].calculatedPosition.y + sceneObjects[i].ScaleY / 3) - camera.Position.y > ndcMouseY &&
-						(sceneObjects[i].calculatedPosition.y - sceneObjects[i].ScaleY / 3) + camera.Position.y < ndcMouseY
-						&& glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
-					{
-						if (!sceneObjects[i].selected) {
-							beforeMouseX = ndcMouseX;
-							beforeMouseY = ndcMouseY;
-						}
-						else {
-							float dx = ndcMouseX - beforeMouseX;
-							float dy = ndcMouseY - beforeMouseY;
+					if (ImGui::Selectable(("Bind : " + std::string(textures[k].ImageFile)).c_str())) {
+						sceneObjects[selectedObject].tex = textures[k];
 
-							sceneObjects[i].calculatedPosition.x += dx;
-							sceneObjects[i].calculatedPosition.y += dy;
+						con.log(("File : " + std::string(textures[k].ImageFile) + "Binded To : " + std::to_string(selectedObject)).c_str());
 
-							beforeMouseX = ndcMouseX;
-							beforeMouseY = ndcMouseY;
-						}
-
-						sceneObjects[i].selected = true;
-					}
-					else {
-						sceneObjects[i].selected = false;
 					}
 
-					sceneObjects[i].Draw(window, shaderProgram, camera, glm::vec3(0, 0, 1), width, height, ratio);
 
-					glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-					glLineWidth(5.0f);
-					sceneObjects[selectedObject].Draw(window, unlitProgram, camera, glm::vec3(0, 0, 1), width, height, ratio);
-					glLineWidth(1.0f);
-					glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-
+					ImGui::Separator();
 				}
 			}
+
+			ImGui::Begin("Object Inspector");
+
+			if (ImGui::Button("Add object"))
+			{
+
+				sceneObjects.push_back(Object(verts, ind));
+
+			}
+			{
+				for (size_t i = 0; i < sceneObjects.size(); i++)
+				{
+					if (sceneObjects[i].selected)
+					{
+
+						selectedObject = i;
+						con.log(("User Select [" + std::to_string(selectedObject) + "]").c_str());
+
+					}
+
+					if (sceneObjects[i].deleted == false) {
+
+						if (ImGui::CollapsingHeader(("Vision Object" + std::to_string(i)).c_str())) {
+							if (ImGui::Button(("Delete Object##" + std::to_string(i)).c_str()))
+							{
+								sceneObjects[i].deleted = true;
+
+							}
+
+
+							ImGui::Columns(2, nullptr, true);
+
+							ImGui::InputFloat(("Position X##" + std::to_string(i)).c_str(), &sceneObjects[i].calculatedPosition.x, 0.3f, 1, "%.3f", 0);
+							ImGui::NextColumn();
+							ImGui::InputFloat(("Position Y##" + std::to_string(i)).c_str(), &sceneObjects[i].calculatedPosition.y, 0.3f, 1, "%.3f", 0);
+
+							ImGui::Columns(1, nullptr, true);
+							ImGui::Columns(2, nullptr, true);
+							ImGui::InputFloat(("Scale X##" + std::to_string(i)).c_str(), &sceneObjects[i].ScaleX, 0.3f, 1, "%.3f", 0);
+							ImGui::NextColumn();
+
+							ImGui::InputFloat(("Scale Y##" + std::to_string(i)).c_str(), &sceneObjects[i].ScaleY, 0.3f, 1, "%.3f", 0);
+
+							ImGui::Columns(1, nullptr, true);
+							ImGui::InputFloat(("Angle ##" + std::to_string(i)).c_str(), &sceneObjects[i].angle, 0.3f, 1, "%.3f", 0);
+
+
+
+
+
+
+
+						}
+						ImGui::Separator();
+
+
+						glfwGetCursorPos(window, &mouseX, &mouseY);
+
+						ndcMouseX = (float)mouseX / (float)width * 2.0f - 1.0f;
+						ndcMouseY = (float)mouseY / (float)height * 2.0f - 1.0f;
+						ndcMouseX *= ratio.x * 4;
+						ndcMouseY *= ratio.y * 4;
+						if ((sceneObjects[i].calculatedPosition.x - sceneObjects[i].ScaleX / 3) - camera.Position.x < ndcMouseX &&
+							(sceneObjects[i].calculatedPosition.x + sceneObjects[i].ScaleX / 3) + camera.Position.x > ndcMouseX &&
+							(sceneObjects[i].calculatedPosition.y + sceneObjects[i].ScaleY / 3) - camera.Position.y > ndcMouseY &&
+							(sceneObjects[i].calculatedPosition.y - sceneObjects[i].ScaleY / 3) + camera.Position.y < ndcMouseY
+							&& glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
+						{
+							if (!sceneObjects[i].selected) {
+								beforeMouseX = ndcMouseX;
+								beforeMouseY = ndcMouseY;
+							}
+							else {
+								float dx = ndcMouseX - beforeMouseX;
+								float dy = ndcMouseY - beforeMouseY;
+
+								sceneObjects[i].calculatedPosition.x += dx;
+								sceneObjects[i].calculatedPosition.y += dy;
+
+								beforeMouseX = ndcMouseX;
+								beforeMouseY = ndcMouseY;
+							}
+
+							sceneObjects[i].selected = true;
+						}
+						else {
+							sceneObjects[i].selected = false;
+						}
+
+						
+
+						sceneObjects[i].Draw(window, shaderProgram, camera, glm::vec3(0, 0, 1), width, height, ratio);
+						glUseProgram(unlitProgram);
+						glUniform4f(glGetUniformLocation(unlitProgram, "color"), 1.00, 0.56, 0.13, 1);
+
+						glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+						glLineWidth(3.0f);
+						sceneObjects[selectedObject].Draw(window, unlitProgram, camera, glm::vec3(0, 0, 1), width, height, ratio);
+						glLineWidth(0.0f);
+						glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+					}
+				}
+			}
+		}
+
+		if (run) {
+			if (startCompiling)
+			{
+
+				std::system("start /B python script.py");
+				startCompiling = false;
+			}
+			for (size_t i = 0; i < sceneObjects.size(); i++)
+			{
+				glLineWidth(0.0f);
+				glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+				glUseProgram(unlitProgram);
+				glUniform4f(glGetUniformLocation(unlitProgram, "color"), sceneObjects[i].OutlineColor.x, sceneObjects[i].OutlineColor.y, sceneObjects[i].OutlineColor.z, 1);
+				glLineWidth(sceneObjects[i].outlineWidth);
+				if (sceneObjects[i].outlineWidth > 0) {
+					sceneObjects[i].Draw(window, unlitProgram, camera, glm::vec3(0, 0, 1), width, height, ratio);
+				}
+				glLineWidth(0.0f);
+				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+				sceneObjects[i].Draw(window, shaderProgram, camera, glm::vec3(0, 0, 1), width, height, ratio);
+			}
+
 		}
 
 
@@ -337,7 +370,7 @@ int main()
 	}
 
 
-	std::system("taskkill /F /IM python.exe");
+	
 	scr.Relase("ov.rtsm");
 	remove("ov.rtsm");
 

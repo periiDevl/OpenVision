@@ -8,6 +8,8 @@ glm::vec2 ratio(16, 9);
 
 const unsigned int width = 90 * ratio.x;
 const unsigned int height = 90 * ratio.y;
+//const unsigned int width = 1920;
+//const unsigned int height = 1080;
 
 //Technical sttings
 Vertex vertices[] =

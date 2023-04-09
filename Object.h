@@ -16,6 +16,8 @@ public:
 	Texture tex = Texture("epicphoto.jpg", "diffuse", 0);
 	float PositionX = 0;
 	float PositionY = 0;
+	float outlineWidth = 0;
+	glm::vec3 OutlineColor = glm::vec3(0,0,0);
 	glm::vec2 calculatedPosition;
 	float angle = 0;
 

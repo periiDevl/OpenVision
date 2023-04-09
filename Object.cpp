@@ -25,9 +25,6 @@ void Object::Draw(GLFWwindow* window, GLuint shader, Camera& camera, glm::vec3 a
     glUseProgram(shader);
     VAO.Bind();
 	tex.Bind();
-
-
-
 	
     unsigned int numDiffuse = 0;
     glm::mat4 model = glm::mat4(1.0f);
