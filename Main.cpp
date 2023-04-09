@@ -15,10 +15,50 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 
 Console con;
 Scripting scr;
+
+
+double scroll_offset = 45.0;
+
+Camera camera(width, height, glm::vec3(0.0f, 0.0f, 80.0f));
+
+void mouse_callback(GLFWwindow* window, double xpos, double ypos)
+{
+	static double lastX = xpos;
+	static double lastY = ypos;
+
+	// Calculate the change in mouse position
+	double deltaX = xpos - lastX;
+	double deltaY = ypos - lastY;
+
+	// Update last position
+	lastX = xpos;
+	lastY = ypos;
+
+	// Calculate normalized device coordinates (NDC) of mouse position
+	int width, height;
+	glfwGetFramebufferSize(window, &width, &height);
+	float ndcMouseX = (float)xpos / (float)width * 2.0f - 1.0f;
+	float ndcMouseY = (float)ypos / (float)height * 2.0f - 1.0f;
+	ndcMouseX *= ratio.x * 4;
+	ndcMouseY *= ratio.y * 4;
+
+	// Move 2D coordinate based on change in mouse position
+	if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS) {
+		camera.Position.x -= deltaX * 0.1f;
+		camera.Position.y += deltaY * 0.1f; // invert Y axis
+	}
+}
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
+{
+	scroll_offset += yoffset;
+	printf("Scrolled by %f units\n", scroll_offset);
+}
+
 int main()
 {
-	//Running the py script at the start
+	//Start by running the py script at the start
 	std::system("start /B python script.py");
+
 
 	for (int i = 0; i < 4; i++) {
 		vertices[i].position.x *= GlobalWorldScale;
@@ -40,6 +80,7 @@ int main()
 	}
 	glfwMakeContextCurrent(window);
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+	glfwSetScrollCallback(window, scroll_callback);
 	gladLoadGL();
 	glViewport(0, 0, width, height);
 
@@ -81,7 +122,12 @@ int main()
 	
 
 
-
+	float ndcMouseX;
+	float ndcMouseY;
+	double mouseX;
+	double mouseY;
+	double beforeMouseX;
+	double beforeMouseY;
 
 	
 
@@ -98,10 +144,10 @@ int main()
 	double crntTime = 0.0;
 	double timeDiff;
 	unsigned int counter = 0;
-	int selectedObject = -1;
+	int selectedObject = 0;
 	
 
-	Camera camera(width, height, glm::vec3(0.0f, 0.0f, 80.0f));
+
 	const float fixed_timestep = 1.0f / 60.0;
 	DefaultTheme();
 
@@ -112,7 +158,7 @@ int main()
 		glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		camera.updateMatrix(45.0f, 0.1f, 100.0f);
+		camera.updateMatrix(scroll_offset, 0.1f, 100.0f);
 
 
 		
@@ -152,6 +198,7 @@ int main()
 		{
 			sceneObjects[first].calculatedPosition.y = second;
 		}
+
 		
 		ImGui::Begin("Assets");
 		{
@@ -231,22 +278,14 @@ int main()
 					}
 					ImGui::Separator();
 
-					float ndcMouseX;
-					float ndcMouseY;
-					double mouseX;
-					double mouseY;
-					double beforeMouseX;
-					double beforeMouseY;
+					
 					glfwGetCursorPos(window, &mouseX, &mouseY);
 
 					ndcMouseX = (float)mouseX / (float)width * 2.0f - 1.0f;
 					ndcMouseY = (float)mouseY / (float)height * 2.0f - 1.0f;
 					ndcMouseX *= ratio.x * 4;
 					ndcMouseY *= ratio.y * 4;
-
-
-
-					if (sceneObjects[i].calculatedPosition.x - sceneObjects[i].ScaleX / 3 < ndcMouseX &&
+					if (sceneObjects[i].calculatedPosition.x - sceneObjects[i].ScaleX / 3 < ndcMouseX  &&
 						sceneObjects[i].calculatedPosition.x + sceneObjects[i].ScaleX / 3 > ndcMouseX &&
 						sceneObjects[i].calculatedPosition.y + sceneObjects[i].ScaleY / 3 > ndcMouseY &&
 						sceneObjects[i].calculatedPosition.y - sceneObjects[i].ScaleY / 3 < ndcMouseY
@@ -292,14 +331,22 @@ int main()
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 		glfwSwapBuffers(window);
 		glfwPollEvents();
+
+		glfwSetCursorPosCallback(window, mouse_callback);
+		scr.Relase("ov.rtsm");
 	}
 
+
+	std::system("taskkill /F /IM python.exe");
+	scr.Relase("ov.rtsm");
+	remove("ov.rtsm");
 
 	glDeleteShader(vertexShader);
 	glDeleteShader(fragmentShader);
 	
 	glfwDestroyWindow(window);
 	glfwTerminate();
+
 	return 0;
 }
 

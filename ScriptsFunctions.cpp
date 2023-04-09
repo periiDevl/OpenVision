@@ -52,6 +52,7 @@ std::tuple<int, float, bool> Scripting::SetPosY(const std::string& filename) {
         if (line.find("stoy") != std::string::npos) {
             input = line;
         }
+
     }
 
     infile.close();

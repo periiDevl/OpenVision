@@ -18,4 +18,8 @@ public:
     std::tuple<int, float, bool> SetPosY(const std::string& filename);
 
     void LoadTranslation(std::string filename, std::vector<Object> sceneObjects);
+    void Relase(std::string filename)
+    {
+        std::ofstream ofs(filename, std::ios::out);
+    }
 };
