@@ -154,6 +154,7 @@
     <ClCompile Include="imgui\imgui_widgets.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Object.cpp" />
+    <ClCompile Include="ScriptsFunctions.cpp" />
     <ClCompile Include="stb.cpp" />
     <ClCompile Include="Tex.cpp" />
     <ClCompile Include="VAO.cpp" />
@@ -161,6 +162,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h" />
+    <ClInclude Include="CodeReciver.h" />
     <ClInclude Include="Console.h" />
     <ClInclude Include="EBO.h" />
     <ClInclude Include="IMGUITheme.h" />
@@ -174,6 +176,7 @@
     <ClInclude Include="imgui\imstb_truetype.h" />
     <ClInclude Include="Math.h" />
     <ClInclude Include="Object.h" />
+    <ClInclude Include="ScriptsFunctions.h" />
     <ClInclude Include="Settings.h" />
     <ClInclude Include="Tex.h" />
     <ClInclude Include="VAO.h" />

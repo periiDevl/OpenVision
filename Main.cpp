@@ -3,18 +3,18 @@
 #include"Settings.h"
 #include"Console.h"
 #include"IMGUITheme.h"
-
+#include"ScriptsFunctions.h"
 #include"imgui.h"
 #include"imgui_impl_glfw.h"
 #include"imgui_impl_opengl3.h"
-
 #include <iostream>
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 
 Console con;
-
+Scripting scr;
 int main()
 {
+	
 	for (int i = 0; i < 4; i++) {
 		vertices[i].position.x *= GlobalWorldScale;
 		vertices[i].position.y *= GlobalWorldScale;
@@ -101,7 +101,6 @@ int main()
 
 	while (!glfwWindowShouldClose(window))
 	{
-		
 		glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
@@ -125,9 +124,27 @@ int main()
 			counter = 0;
 		}
 
+		//Reading an applying script
+		auto result = scr.SetPosX("ov.rtsm");
 
+		int first = std::get<0>(result);
+		float second = std::get<1>(result);
+		bool exists = std::get<2>(result);
 
+		if (sceneObjects.size() > 0 && exists)
+		{
+			sceneObjects[first].calculatedPosition.x = second;
+		}
+		result = scr.SetPosY("ov.rtsm");
 
+		first = std::get<0>(result);
+		second = std::get<1>(result);
+		exists = std::get<2>(result);
+		if (sceneObjects.size() > 0 && exists)
+		{
+			sceneObjects[first].calculatedPosition.y = second;
+		}
+		
 		ImGui::Begin("Assets");
 		{
 			for (size_t k = 0; k < sizeof(textures) / sizeof(textures[0]); k++)
@@ -153,8 +170,8 @@ int main()
 		ImGui::Begin("Object Inspector");
 		if (ImGui::Button("Add object"))
 		{
-			Object obj(verts, ind);
-			sceneObjects.push_back(obj);
+			
+			sceneObjects.push_back(Object(verts, ind));
 
 		}
 		{
