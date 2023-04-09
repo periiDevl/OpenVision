@@ -134,8 +134,9 @@ int main()
 
 	
 	
-	Texture textures[] = { Texture("epicphoto.jpg", "diffuse", 0), Texture("itay.png", "diffuse", 0), Texture("texas.png", "diffuse", 0), Texture("ohio.png", "diffuse", 0),
-	Texture("US.png", "diffuse", 0), Texture("flops.jpeg", "diffuse", 0) };
+	std::vector<Texture> textures = { Texture("epicphoto.jpg", "diffuse", 0), Texture("itay.png", "diffuse", 0), Texture("texas.png", "diffuse", 0), Texture("ohio.png", "diffuse", 0),
+		Texture("US.png", "diffuse", 0), Texture("flops.jpeg", "diffuse", 0) };
+
 
 	
 	std::vector<Object> sceneObjects;
@@ -183,7 +184,7 @@ int main()
 			counter = 0;
 		}
 		if (run) {
-			scr.Load("ov.rtsm", sceneObjects);
+			scr.Load("ov.rtsm", sceneObjects, textures);
 		}
 
 		
@@ -211,7 +212,7 @@ int main()
 
 			ImGui::Begin("Assets");
 			{
-				for (size_t k = 0; k < sizeof(textures) / sizeof(textures[0]); k++)
+				for (size_t k = 0; k < textures.size(); k++)
 				{
 					ImGui::Separator();
 

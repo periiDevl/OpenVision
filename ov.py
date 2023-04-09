@@ -30,6 +30,11 @@ def OutlineColor(objloc, r, g, b):
 	f.flush()
 
 
+def BindLocation(objloc, Texture):
+	f.write("bt_l:" + str(objloc) + ":" + str(Texture) + "\n")
+	f.flush()
+
+
 
 
 def done():

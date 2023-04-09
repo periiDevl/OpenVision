@@ -6,6 +6,7 @@ while True:
 	ov.PosY(0, 0)
 	ov.ScaleX(0,20)
 	ov.ScaleY(0, 20)
+	ov.BindLocation(0, "texas.png")
 	ov.OutlineWidth(0, 4)
 	ov.OutlineColor(0, 1, 0, 0)
 
