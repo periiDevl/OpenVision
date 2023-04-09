@@ -158,7 +158,7 @@ int main()
 		glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		camera.updateMatrix(scroll_offset, 0.1f, 100.0f);
+		camera.updateMatrix(45.0f, 0.1f, 100.0f);
 
 
 		
@@ -285,10 +285,10 @@ int main()
 					ndcMouseY = (float)mouseY / (float)height * 2.0f - 1.0f;
 					ndcMouseX *= ratio.x * 4;
 					ndcMouseY *= ratio.y * 4;
-					if (sceneObjects[i].calculatedPosition.x - sceneObjects[i].ScaleX / 3 < ndcMouseX  &&
-						sceneObjects[i].calculatedPosition.x + sceneObjects[i].ScaleX / 3 > ndcMouseX &&
-						sceneObjects[i].calculatedPosition.y + sceneObjects[i].ScaleY / 3 > ndcMouseY &&
-						sceneObjects[i].calculatedPosition.y - sceneObjects[i].ScaleY / 3 < ndcMouseY
+					if ((sceneObjects[i].calculatedPosition.x - sceneObjects[i].ScaleX / 3) - camera.Position.x < ndcMouseX &&
+						(sceneObjects[i].calculatedPosition.x + sceneObjects[i].ScaleX / 3) + camera.Position.x > ndcMouseX &&
+						(sceneObjects[i].calculatedPosition.y + sceneObjects[i].ScaleY / 3) - camera.Position.y > ndcMouseY &&
+						(sceneObjects[i].calculatedPosition.y - sceneObjects[i].ScaleY / 3) + camera.Position.y < ndcMouseY
 						&& glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
 					{
 						if (!sceneObjects[i].selected) {
