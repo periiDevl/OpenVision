@@ -5,69 +5,62 @@
 std::tuple<int, float, bool> Scripting::SetFloat(const std::string& filename, std::string keyword) {
     std::ifstream infile(filename);
 
-    // Read the last line from the file that contains "sto"
     std::string input;
-    std::string line;
-    while (std::getline(infile, line)) {
+    bool exists = false;
+
+    // Iterate over each line in the file until we find the keyword we are looking for
+    for (std::string line; std::getline(infile, line);) {
         if (line.find(keyword) != std::string::npos) {
             input = line;
+            exists = true;
         }
-
     }
 
     infile.close();
 
-    bool exists;
-
-    // Return (-1, -1) if "sto" line is not found
-    if (input.empty()) {
-        exists = false;
-        return std::make_tuple(0, 0, exists);
+    // Return (-1, -1) if the keyword line is not found
+    if (!exists) {
+        return std::make_tuple(0, 0, false);
     }
 
-    std::stringstream ss(input);
-    std::string token;
-
+    // Extract the integer and float values from the keyword line
     int first;
     float second;
+    std::stringstream ss(input);
+    std::string token;
     std::getline(ss, token, ':');
     std::getline(ss, token, ':');
     first = std::stoi(token);
-    std::getline(ss, token);
-    second = std::stoi(token);
-    std::getline(ss, token);
+    std::getline(ss, token, ':');
+    second = std::stof(token);
 
-    // Delete the contents of the file
+    // Clear the contents of the file
     std::ofstream outfile(filename, std::ofstream::out | std::ofstream::trunc);
     outfile.close();
-    exists = true;
-    return std::make_tuple(first, second, exists);
+
+    return std::make_tuple(first, second, true);
 }
+
 
 std::tuple<int, std::string, bool> Scripting::SetString(const std::string& filename, std::string keyword) {
     std::ifstream infile(filename);
 
-    // Read the last line from the file that contains "sto"
-    std::string input;
-    std::string line;
+    std::string input, line;
     while (std::getline(infile, line)) {
         if (line.find(keyword) != std::string::npos) {
             input = line;
         }
-
     }
 
     infile.close();
 
     bool exists;
-
-    // Return (-1, -1) if "sto" line is not found
     if (input.empty()) {
         exists = false;
         return std::make_tuple(0, "", exists);
     }
 
-    std::stringstream ss(input);
+    std::istringstream ss(input);
     std::string token;
 
     int first;
@@ -75,30 +68,25 @@ std::tuple<int, std::string, bool> Scripting::SetString(const std::string& filen
     std::getline(ss, token, ':');
     std::getline(ss, token, ':');
     first = std::stoi(token);
-    std::getline(ss, token);
-    second = token;
-    std::getline(ss, token);
+    std::getline(ss, second);
+    exists = true;
 
-    // Delete the contents of the file
     std::ofstream outfile(filename, std::ofstream::out | std::ofstream::trunc);
     outfile.close();
-    exists = true;
+
     return std::make_tuple(first, second, exists);
 }
 
-void Scripting::MicroLoadF(std::vector<Object>& sceneObjects,std::string filename,std::string keyword, float& value)
+
+void Scripting::MicroLoadF(std::vector<Object>& sceneObjects, std::string filename, std::string keyword, float& value)
 {
-    auto result = SetFloat(filename, keyword);
+    auto [first, second, exists] = SetFloat(filename, keyword);
 
-    first = std::get<0>(result);
-    second = std::get<1>(result);
-    exists = std::get<2>(result);
-
-    if (sceneObjects.size() > 0 && exists)
-    {
+    if (exists) {
         value = second;
     }
 }
+
 
 
 void Scripting::MicroLoadLocationTex(std::vector<Object>& sceneObjects, std::string filename, std::string keyword, std::vector<Texture>& textures)
