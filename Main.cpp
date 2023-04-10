@@ -66,16 +66,7 @@ int main()
 
 	const std::filesystem::path directory_path = std::filesystem::current_path();
 
-	for (const auto& entry : std::filesystem::directory_iterator(directory_path)) {
-		if (entry.is_regular_file() && entry.path().extension() == ".py" && entry.path().filename() != "ov.py") {
-			py_files.push_back(entry.path().filename().string());
-			// Use path().stem().string() to get the filename without the extension
-		}
-	}
-
-	for (const auto& pyfile : py_files) {
-		std::cout << pyfile << std::endl;
-	}
+	
 
 
 	for (int i = 0; i < 4; i++) {
@@ -154,9 +145,9 @@ int main()
 	
 	std::vector<Texture> textures = { Texture("epicphoto.jpg", "diffuse", 0), Texture("itay.png", "diffuse", 0), Texture("texas.png", "diffuse", 0), Texture("ohio.png", "diffuse", 0),
 		Texture("US.png", "diffuse", 0), Texture("flops.jpeg", "diffuse", 0) };
-
-
 	
+
+
 	std::vector<Object> sceneObjects;
 
 	double prevTime = 0.0;
@@ -175,6 +166,7 @@ int main()
 	while (!glfwWindowShouldClose(window))
 	{
 		
+
 		if (glfwGetKey(window, GLFW_KEY_ESCAPE))
 		{
 			run = false;
@@ -225,6 +217,10 @@ int main()
 		if (!run) {
 			if (!startCompiling) {
 				std::system("taskkill /F /IM python.exe");
+
+
+
+
 				startCompiling = true;
 			}
 
@@ -355,8 +351,15 @@ int main()
 		if (run) {
 			if (startCompiling)
 			{
+				py_files.clear();
+				for (const auto& entry : std::filesystem::directory_iterator(directory_path)) {
+					if (entry.is_regular_file() && entry.path().extension() == ".py" && entry.path().filename() != "ov.py") {
+						py_files.push_back(entry.path().filename().string());
+					}
+				}
 
 				for (const auto& pyfile : py_files) {
+					std::cout << pyfile << std::endl;
 					std::string command = "start /B python " + pyfile;
 					std::system(command.c_str());
 				}
