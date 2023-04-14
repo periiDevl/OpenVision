@@ -91,6 +91,18 @@ int main()
 	glfwSetWindowAttrib(window, GLFW_RESIZABLE, GLFW_FALSE);
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 	glfwSetScrollCallback(window, scroll_callback);
+
+	//load Icon
+	int wid, hei;
+	int channels;
+	unsigned char* pixels = stbi_load("OpenVisionIcon.png", &wid, &hei, &channels, 4);
+
+	GLFWimage images[1];
+	images[0].width = wid;
+	images[0].height = hei;
+	images[0].pixels = pixels;
+	glfwSetWindowIcon(window, 1, images);
+
 	gladLoadGL();
 	glViewport(0, 0, width, height);
 
@@ -156,7 +168,7 @@ int main()
 	unsigned int counter = 0;
 	int selectedObject = 0;
 	
-
+	char addedfile[256] = "";
 
 	const float fixed_timestep = 1.0f / 60.0;
 	DefaultTheme();
@@ -226,6 +238,14 @@ int main()
 
 			ImGui::Begin("Assets");
 			{
+				if (ImGui::Button("Add Texture"))
+				{
+					
+					textures.push_back(Texture(addedfile, "diffuse", 0));
+				}
+
+				ImGui::InputText("Path : ", addedfile, sizeof(addedfile));
+
 				for (size_t k = 0; k < textures.size(); k++)
 				{
 					ImGui::Separator();
