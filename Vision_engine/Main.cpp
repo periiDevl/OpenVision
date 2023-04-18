@@ -143,6 +143,7 @@ int main()
 	std::vector <Vertex> verts(vertices, vertices + sizeof(vertices) / sizeof(Vertex));
 	std::vector <GLuint> ind(indices, indices + sizeof(indices) / sizeof(GLuint));
 	
+	Texture mario = Texture("mario.png", "diffuse", 0);
 
 	Texture perii = Texture("epicphoto.jpg", "diffuse", 0);
 
@@ -167,17 +168,16 @@ int main()
 
 	Camera camera(width, height, glm::vec3(0.0f, 0.0f, 5.0f));
 
-	PhysicsBody body1 = PhysicsBody(vec2(-1.2f,  0.0f), 0, vec2(0.5f), 5, 2, 3, 0.5f, 1);
-	body1.SetVelocity(vec2(1, 0.0f));
+	PhysicsBody body1 = PhysicsBody(vec2(-1.5f, 2.0f), 0, vec2(0.3f,0.5f), 5, 2, 3, 0.7f, 1, false);
+	body1.SetVelocity(vec2(1.5f, 0.0f));
 
-	PhysicsBody body2 = PhysicsBody(vec2( 1.2f,  0.0f), 0, vec2(0.5f), 5, 2, 3, 0.5f, 1);
-	body2.SetVelocity(vec2(-1, 0.0f));
-
-	PhysicsWorld world(vec3(0, 0, 0), 30);
-	world.AddBody(&body2);
+	PhysicsBody body2 = PhysicsBody(vec2(0.0f, 0.0f), 0, vec2(5, 0.5f), 5, 2, 3, 0.0f, 1, true);
+	
+	PhysicsWorld world(vec3(0, -5.0f, 0), 10);
 	world.AddBody(&body1);
+	world.AddBody(&body2);
 
-	const float fixed_timestep = 1.0f / 50.0;
+	const float fixed_timestep = 1.0f / 300.0;
 	while (!glfwWindowShouldClose(window))
 	{
 		glClearColor(1.0f, 1.0f, 0.0f, 1.0f);
@@ -201,26 +201,37 @@ int main()
 			double xpos, ypos;
 			glfwGetCursorPos(window, &xpos, &ypos);
 
-			if (glfwGetKey(window, GLFW_KEY_A))
-				body1.SetVelocity(camera.PixelToWorldPos(vec2(xpos, ypos), window) - vec2(body1.GetPosition()));
 
-			if (glfwGetKey(window, GLFW_KEY_D))
-				body2.SetVelocity(camera.PixelToWorldPos(vec2(xpos, ypos), window) - vec2(body2.GetPosition()));
+			float D = glfwGetKey(window, GLFW_KEY_D) ? 1 : 0;
+			float A = glfwGetKey(window, GLFW_KEY_A) ? 1 : 0;
+			float horizontal = D - A;
+
+
+			float speed = 5;
+
+
+			body1.SetVelocity(vec2(horizontal * speed, body1.GetVelocity().y));
+			
+			if (glfwGetKey(window, GLFW_KEY_SPACE))
+				body1.SetVelocity(vec2(horizontal * speed, 1.5f));
+			
 
 			world.Step(fixed_timestep);
 		}
 
 		texas.Bind();
-		box.Draw(shaderProgram, camera, 0, 0, 6, 4, Deg2Rad(180), glm::vec3(0, 0, 1));
+		box.Draw(shaderProgram, camera, 0, 0, 6, 4, radians(90.0f), glm::vec3(0, 0, 1));
 
-		itay.Bind();
-		box.Draw(shaderProgram, camera, body1.GetPosition().x, body1.GetPosition().y, body1.GetScale().x*2, body1.GetScale().y*2, Deg2Rad(body1.GetRotation()), glm::vec3(-1, -1, -1));
+		mario.Bind();
+		box.Draw(shaderProgram, camera, body1.GetPosition().x, body1.GetPosition().y, body1.GetScale().x*2, body1.GetScale().y*2, radians(body1.GetRotation()), glm::vec3(0, 0, 1));
 		
 		perii.Bind();
-		box.Draw(shaderProgram, camera, body2.GetPosition().x, body2.GetPosition().y, body2.GetScale().x*2, body2.GetScale().y*2, body2.GetRotation(), glm::vec3(-1, -1, -1));
+		box.Draw(shaderProgram, camera, body2.GetPosition().x, body2.GetPosition().y, body2.GetScale().x*2, body2.GetScale().y*2, radians(body2.GetRotation()), glm::vec3(-1, -1, -1));
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
+		camera.Position = vec3(body1.GetPosition().x, camera.Position.y, camera.Position.z);
+
 	}
 
 

@@ -10,26 +10,29 @@
 #include <iostream>
 #include <vector>
 #include "Collider.h"
-#include "BoxCollider.h"
+#include "PolygonCollider.h"
+#include "CircleCollider.h"
 
-using namespace std;
+
 using namespace glm;
+using namespace std;
 
 class PhysicsBody
 {
 public:
-	PhysicsBody(vec2 pos, float rot, vec2 sca, float mass, float area, float density, float restitution, float inertia);
+	PhysicsBody(vec2 pos, float rot, vec2 sca, float mass, float area, float density, float restitution, float inertia, bool isStatic);
 
 	void Step(float deltaTime);
 
-	vec3 GetPosition();
+	vec2 GetPosition();
 	float GetRotation();
-	vec3 GetScale();
+	vec2 GetScale();
 	float GetMass();
 	float GetArea();
 	float GetDensity();
 	float GetRestituion();
 	float GetInertia();
+	bool GetIsStatic();
 
 	Collider* GetCollider();
 	
@@ -41,11 +44,12 @@ public:
 
 	void SetGravity(vec2 newGravity);
 private:
-	vec3 position, scale;
+	vec2 position, scale;
 	float rotation;
 
 
 	float mass, area, density, restitution, inertia;
+	bool isStatic;
 
 	vec2 force, velocity;
 	float angularVelocity;

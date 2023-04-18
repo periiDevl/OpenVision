@@ -7,8 +7,9 @@
 #include<glm/gtx/rotate_vector.hpp>
 #include<glm/gtx/vector_angle.hpp>
 #include <vector>
-
+#include "Collider.h"
 #include "PhysicsBody.h"
+#include "CollisionManager.h"
 
 using namespace std;
 using namespace glm;
