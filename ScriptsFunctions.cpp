@@ -1,5 +1,5 @@
 #include "ScriptsFunctions.h"
-
+#include <future> // for std::async
 
 
 std::tuple<int, float, bool> Scripting::SetFloat(const std::string& filename, std::string keyword) {
@@ -34,9 +34,6 @@ std::tuple<int, float, bool> Scripting::SetFloat(const std::string& filename, st
     std::getline(ss, token, ':');
     second = std::stof(token);
 
-    // Clear the contents of the file
-    std::ofstream outfile(filename, std::ofstream::out | std::ofstream::trunc);
-    outfile.close();
 
     return std::make_tuple(first, second, true);
 }
@@ -71,8 +68,6 @@ std::tuple<int, std::string, bool> Scripting::SetString(const std::string& filen
     std::getline(ss, second);
     exists = true;
 
-    std::ofstream outfile(filename, std::ofstream::out | std::ofstream::trunc);
-    outfile.close();
 
     return std::make_tuple(first, second, exists);
 }
@@ -113,25 +108,31 @@ void Scripting::MicroLoadLocationTex(std::vector<Object>& sceneObjects, std::str
 
 void Scripting::Load(std::string filename, std::vector<Object>& sceneObjects, std::vector<Texture>& textures)
 {
+    std::vector<std::future<void>> futures; // Vector to hold the futures of each async call
+
     //Position
     //X
-    MicroLoadF(sceneObjects, filename, "px", sceneObjects[first].calculatedPosition.x);
+    futures.push_back(std::async(std::launch::async, &Scripting::MicroLoadF, this, std::ref(sceneObjects), filename, "px", std::ref(sceneObjects[first].calculatedPosition.x)));
 
-    MicroLoadF(sceneObjects, filename, "py", sceneObjects[first].calculatedPosition.y);
-    MicroLoadF(sceneObjects, filename, "scax", sceneObjects[first].ScaleX);
-    MicroLoadF(sceneObjects, filename, "scay", sceneObjects[first].ScaleY);
-    MicroLoadF(sceneObjects, filename, "ang", sceneObjects[first].angle);
-    MicroLoadF(sceneObjects, filename, "oulw", sceneObjects[first].outlineWidth);
+    futures.push_back(std::async(std::launch::async, &Scripting::MicroLoadF, this, std::ref(sceneObjects), filename, "py", std::ref(sceneObjects[first].calculatedPosition.y)));
+    futures.push_back(std::async(std::launch::async, &Scripting::MicroLoadF, this, std::ref(sceneObjects), filename, "scax", std::ref(sceneObjects[first].ScaleX)));
+    futures.push_back(std::async(std::launch::async, &Scripting::MicroLoadF, this, std::ref(sceneObjects), filename, "scay", std::ref(sceneObjects[first].ScaleY)));
+    futures.push_back(std::async(std::launch::async, &Scripting::MicroLoadF, this, std::ref(sceneObjects), filename, "ang", std::ref(sceneObjects[first].angle)));
+    futures.push_back(std::async(std::launch::async, &Scripting::MicroLoadF, this, std::ref(sceneObjects), filename, "oulw", std::ref(sceneObjects[first].outlineWidth)));
+
     //Rgb
-    MicroLoadF(sceneObjects, filename, "oulR", sceneObjects[first].OutlineColor.x);
-    MicroLoadF(sceneObjects, filename, "oulG", sceneObjects[first].OutlineColor.y);
-    MicroLoadF(sceneObjects, filename, "oulB", sceneObjects[first].OutlineColor.z);
+    futures.push_back(std::async(std::launch::async, &Scripting::MicroLoadF, this, std::ref(sceneObjects), filename, "oulR", std::ref(sceneObjects[first].OutlineColor.x)));
+    futures.push_back(std::async(std::launch::async, &Scripting::MicroLoadF, this, std::ref(sceneObjects), filename, "oulG", std::ref(sceneObjects[first].OutlineColor.y)));
+    futures.push_back(std::async(std::launch::async, &Scripting::MicroLoadF, this, std::ref(sceneObjects), filename, "oulB", std::ref(sceneObjects[first].OutlineColor.z)));
 
     //Textures
-    //MicroLoadF(sceneObjects, filename, "bt", );
-    MicroLoadLocationTex(sceneObjects, filename, "bt_l",textures);
+    futures.push_back(std::async(std::launch::async, &Scripting::MicroLoadLocationTex, this, std::ref(sceneObjects), filename, "bt_l", std::ref(textures)));
 
-
+    // Wait for all the futures to finish
+    for (auto& f : futures) {
+        f.get();
+    }
 }
+
 
 
