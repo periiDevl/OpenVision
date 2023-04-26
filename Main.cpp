@@ -407,9 +407,9 @@ int main()
 				sceneObjects[i].Draw(window, shaderProgram, camera, glm::vec3(0, 0, 1), width, height, rattio);
 			}
 			
-			world.Step(1 / 60);
 		}
 		
+		world.Step(1.0f / 60);
 
 		ImGui::End();
 
