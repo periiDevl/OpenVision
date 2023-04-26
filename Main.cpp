@@ -373,7 +373,7 @@ int main()
 				}
 			}
 		}
-		sceneobkj.Draw(window, shaderProgram, camera, glm::vec3(0, 0, 1), width, height, rattio);
+		sceneobkj.DrawTMP(window, shaderProgram, camera, glm::vec2(body1.GetPosition().x, body1.GetPosition().y));
 		if (run) {
 			if (startCompiling)
 			{
@@ -406,8 +406,7 @@ int main()
 				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 				sceneObjects[i].Draw(window, shaderProgram, camera, glm::vec3(0, 0, 1), width, height, rattio);
 			}
-			sceneobkj.calculatedPosition.x = body1.GetPosition().x;
-			sceneobkj.calculatedPosition.y = body1.GetPosition().y;
+			
 			world.Step(1 / 60);
 		}
 		

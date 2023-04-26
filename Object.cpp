@@ -41,6 +41,26 @@ void Object::Draw(GLFWwindow* window, GLuint shader, Camera& camera, glm::vec3 a
     glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
 }
 
+void Object::DrawTMP(GLFWwindow* window, GLuint shader, Camera& camera, glm::vec2 pos)
+{
+    glUseProgram(shader);
+    VAO.Bind();
+    tex.Bind();
+
+    unsigned int numDiffuse = 0;
+    glm::mat4 model = glm::mat4(1.0f);
+    model = glm::translate(model, glm::vec3(pos.x, -pos.y, 0.0f));
+
+    model = glm::scale(model, glm::vec3(20, 20, 1.0f));
+
+    glUniformMatrix4fv(glGetUniformLocation(shader, "model"), 1, GL_FALSE, glm::value_ptr(model));
+
+    glUniform3f(glGetUniformLocation(shader, "camPos"), camera.Position.x, camera.Position.y, camera.Position.z);
+    camera.Matrix(shader, "camMatrix");
+
+    glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
+}
+
 
 
 
