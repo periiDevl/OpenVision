@@ -14,12 +14,12 @@
 #include <string>
 #include <vector>
 #include <filesystem>
+#include"PhysicsWorld.h"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 
 Console con;
 Scripting scr;
-
 
 double scroll_offset = 45.0;
 
@@ -43,8 +43,8 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 	glfwGetFramebufferSize(window, &width, &height);
 	float ndcMouseX = (float)xpos / (float)width * 2.0f - 1.0f;
 	float ndcMouseY = (float)ypos / (float)height * 2.0f - 1.0f;
-	ndcMouseX *= ratio.x * 4;
-	ndcMouseY *= ratio.y * 4;
+	ndcMouseX *= rattio.x * 4;
+	ndcMouseY *= rattio.y * 4;
 
 	// Move 2D coordinate based on change in mouse position
 	if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS) {
@@ -60,7 +60,12 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 
 int main()
 {
+	PhysicsBody body1 = PhysicsBody(vec2(-1.5f, 2.0f), 0, vec2(0.3f, 0.5f), 5, 2, 3, 0.7f, 1, false);
+	body1.SetVelocity(vec2(1.5f, 0.0f));
 
+
+	PhysicsWorld world(vec3(0, -5.0f, 0), 10);
+	world.AddBody(&body1);
 	
 	std::vector<std::string> py_files;
 
@@ -162,6 +167,8 @@ int main()
 
 	std::vector<Object> sceneObjects;
 
+	Object sceneobkj = Object(verts, ind);
+	sceneobkj.tex = textures[2];
 	double prevTime = 0.0;
 	double crntTime = 0.0;
 	double timeDiff;
@@ -178,7 +185,6 @@ int main()
 	while (!glfwWindowShouldClose(window))
 	{
 		
-
 		if (glfwGetKey(window, GLFW_KEY_ESCAPE))
 		{
 			run = false;
@@ -322,8 +328,8 @@ int main()
 
 						ndcMouseX = (float)mouseX / (float)width * 2.0f - 1.0f;
 						ndcMouseY = (float)mouseY / (float)height * 2.0f - 1.0f;
-						ndcMouseX *= ratio.x * 4;
-						ndcMouseY *= ratio.y * 4;
+						ndcMouseX *= rattio.x * 4;
+						ndcMouseY *= rattio.y * 4;
 						if ((sceneObjects[i].calculatedPosition.x - sceneObjects[i].ScaleX / 3) - camera.Position.x < ndcMouseX &&
 							(sceneObjects[i].calculatedPosition.x + sceneObjects[i].ScaleX / 3) + camera.Position.x > ndcMouseX &&
 							(sceneObjects[i].calculatedPosition.y + sceneObjects[i].ScaleY / 3) - camera.Position.y > ndcMouseY &&
@@ -353,13 +359,13 @@ int main()
 
 						
 
-						sceneObjects[i].Draw(window, shaderProgram, camera, glm::vec3(0, 0, 1), width, height, ratio);
+						sceneObjects[i].Draw(window, shaderProgram, camera, glm::vec3(0, 0, 1), width, height, rattio);
 						glUseProgram(unlitProgram);
 						glUniform4f(glGetUniformLocation(unlitProgram, "color"), 1.00, 0.56, 0.13, 1);
 
 						glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 						glLineWidth(3.0f);
-						sceneObjects[selectedObject].Draw(window, unlitProgram, camera, glm::vec3(0, 0, 1), width, height, ratio);
+						sceneObjects[selectedObject].Draw(window, unlitProgram, camera, glm::vec3(0, 0, 1), width, height, rattio);
 						glLineWidth(0.0f);
 						glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
@@ -367,7 +373,7 @@ int main()
 				}
 			}
 		}
-
+		sceneobkj.Draw(window, shaderProgram, camera, glm::vec3(0, 0, 1), width, height, rattio);
 		if (run) {
 			if (startCompiling)
 			{
@@ -394,15 +400,17 @@ int main()
 				glUniform4f(glGetUniformLocation(unlitProgram, "color"), sceneObjects[i].OutlineColor.x, sceneObjects[i].OutlineColor.y, sceneObjects[i].OutlineColor.z, 1);
 				glLineWidth(sceneObjects[i].outlineWidth);
 				if (sceneObjects[i].outlineWidth > 0) {
-					sceneObjects[i].Draw(window, unlitProgram, camera, glm::vec3(0, 0, 1), width, height, ratio);
+					sceneObjects[i].Draw(window, unlitProgram, camera, glm::vec3(0, 0, 1), width, height, rattio);
 				}
 				glLineWidth(0.0f);
 				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-				sceneObjects[i].Draw(window, shaderProgram, camera, glm::vec3(0, 0, 1), width, height, ratio);
+				sceneObjects[i].Draw(window, shaderProgram, camera, glm::vec3(0, 0, 1), width, height, rattio);
 			}
-
+			sceneobkj.calculatedPosition.x = body1.GetPosition().x;
+			sceneobkj.calculatedPosition.y = body1.GetPosition().y;
+			world.Step(1 / 60);
 		}
-
+		
 
 		ImGui::End();
 
@@ -410,7 +418,6 @@ int main()
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 		glfwSwapBuffers(window);
 		glfwPollEvents();
-
 		glfwSetCursorPosCallback(window, mouse_callback);
 		scr.Relase("ov.rtsm");
 	}

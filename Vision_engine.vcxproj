@@ -143,6 +143,9 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="CircleCollider.cpp" />
+    <ClCompile Include="Collider.cpp" />
+    <ClCompile Include="CollisionManager.cpp" />
     <ClCompile Include="EBO.cpp" />
     <ClCompile Include="glad.c" />
     <ClCompile Include="imgui\imgui.cpp" />
@@ -154,6 +157,9 @@
     <ClCompile Include="imgui\imgui_widgets.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Object.cpp" />
+    <ClCompile Include="PhysicsBody.cpp" />
+    <ClCompile Include="PhysicsWorld.cpp" />
+    <ClCompile Include="PolygonCollider.cpp" />
     <ClCompile Include="ScriptsFunctions.cpp" />
     <ClCompile Include="stb.cpp" />
     <ClCompile Include="Tex.cpp" />
@@ -162,7 +168,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h" />
+    <ClInclude Include="CircleCollider.h" />
     <ClInclude Include="CodeReciver.h" />
+    <ClInclude Include="Collider.h" />
+    <ClInclude Include="CollisionManager.h" />
     <ClInclude Include="Console.h" />
     <ClInclude Include="EBO.h" />
     <ClInclude Include="IMGUITheme.h" />
@@ -176,6 +185,9 @@
     <ClInclude Include="imgui\imstb_truetype.h" />
     <ClInclude Include="Math.h" />
     <ClInclude Include="Object.h" />
+    <ClInclude Include="PhysicsBody.h" />
+    <ClInclude Include="PhysicsWorld.h" />
+    <ClInclude Include="PolygonCollider.h" />
     <ClInclude Include="ScriptsFunctions.h" />
     <ClInclude Include="Settings.h" />
     <ClInclude Include="Tex.h" />
