@@ -16,6 +16,12 @@
 #include <filesystem>
 #include"PhysicsWorld.h"
 
+
+#include"Script.h"
+#include"HEIDAW.h"
+Script script;
+HEIDAW HEIDAWscr;
+
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 
 Console con;
@@ -30,15 +36,12 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 	static double lastX = xpos;
 	static double lastY = ypos;
 
-	// Calculate the change in mouse position
 	double deltaX = xpos - lastX;
 	double deltaY = ypos - lastY;
 
-	// Update last position
 	lastX = xpos;
 	lastY = ypos;
 
-	// Calculate normalized device coordinates (NDC) of mouse position
 	int width, height;
 	glfwGetFramebufferSize(window, &width, &height);
 	float ndcMouseX = (float)xpos / (float)width * 2.0f - 1.0f;
@@ -46,10 +49,9 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 	ndcMouseX *= rattio.x * 4;
 	ndcMouseY *= rattio.y * 4;
 
-	// Move 2D coordinate based on change in mouse position
 	if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS) {
 		camera.Position.x -= deltaX * 0.1f;
-		camera.Position.y += deltaY * 0.1f; // invert Y axis
+		camera.Position.y += deltaY * 0.1f; 
 	}
 }
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
@@ -57,93 +59,153 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 	scroll_offset += yoffset;
 	printf("Scrolled by %f units\n", scroll_offset);
 }
-void addCpp(const std::string& filename, const std::string& file, const std::string& lastFilename)
-{
-	std::ifstream infile(filename);
 
-	if (!infile.is_open()) {
-		std::cerr << "Error opening file!" << std::endl;
-		return;
+
+bool is_sentence_in_file(const std::string& filename, const std::string& sentence_to_find) {
+	std::ifstream file(filename);
+	if (!file.is_open()) {
+		std::cout << "Failed to open file: " << filename << std::endl;
+		return false;
 	}
 
 	std::string line;
-	std::vector<std::string> lines;
-	bool found_line = false;
-	while (std::getline(infile, line)) {
-		if (line.find("<ClCompile Include=\"" + lastFilename + ".cpp\" />") != std::string::npos) {
-			found_line = true;
-			lines.push_back(line);
-			lines.push_back("	<ClCompile Include=\"" + file + ".cpp\" />");
-		}
-		else {
-			lines.push_back(line);
+	while (std::getline(file, line)) {
+		if (line.find(sentence_to_find) != std::string::npos) {
+			return true;
 		}
 	}
 
-	infile.close();
-
-	if (!found_line) {
-		std::cerr << "Error: line not found!" << std::endl;
-		return;
-	}
-
-	std::ofstream outfile(filename);
-
-	if (!outfile.is_open()) {
-		std::cerr << "Error opening file!" << std::endl;
-		return;
-	}
-
-	for (const auto& line : lines) {
-		outfile << line << std::endl;
-	}
-	outfile.close();
+	return false;
 }
 void addH(const std::string& filename, const std::string& file, const std::string& lastFilename)
 {
-	std::ifstream infile(filename);
+	if (!is_sentence_in_file(filename, "	<ClInclude Include=\"" + file + ".h\" />")) {
+		std::ifstream infile(filename);
 
-	if (!infile.is_open()) {
-		std::cerr << "Error opening file!" << std::endl;
-		return;
-	}
+		ofstream createfile(file + ".h");
 
-	std::string line;
-	std::vector<std::string> lines;
-	bool found_line = false;
-	while (std::getline(infile, line)) {
-		if (line.find("<ClCompile Include=\"" + lastFilename + ".h\" />") != std::string::npos) {
-			found_line = true;
-			lines.push_back(line);
-			lines.push_back("	<ClCompile Include=\"" + file + ".h\" />");
+		std::string script =
+			R"(
+#pragma once
+#include<iostream>
+class )" + file + R"( {
+public:
+    void Start();
+    void Update();
+};
+    )";
+		createfile << script;
+
+
+		std::string line;
+		std::vector<std::string> lines;
+		bool found_line = false;
+		while (std::getline(infile, line)) {
+			if (line.find("<ClInclude Include=\"" + lastFilename + ".h\" />") != std::string::npos) {
+				found_line = true;
+				lines.push_back(line);
+				lines.push_back("	<ClInclude Include=\"" + file + ".h\" />");
+			}
+			else {
+				lines.push_back(line);
+			}
 		}
-		else {
-			lines.push_back(line);
+		infile.close();
+		std::ofstream outfile(filename);
+		for (const auto& line : lines) {
+			outfile << line << std::endl;
 		}
+		outfile.close();
 	}
-
-	infile.close();
-
-	if (!found_line) {
-		std::cerr << "Error: line not found!" << std::endl;
-		return;
-	}
-
-	std::ofstream outfile(filename);
-
-	if (!outfile.is_open()) {
-		std::cerr << "Error opening file!" << std::endl;
-		return;
-	}
-
-	for (const auto& line : lines) {
-		outfile << line << std::endl;
-	}
-	outfile.close();
 }
+void addMainCpp(const std::string& filename, const std::string& file)
+{
+	if (!is_sentence_in_file(filename, "#include\"" + file + ".h\"") || !is_sentence_in_file(filename,file + " " + file + "scr" + ";")) {
+		std::ifstream infile(filename);
+
+		std::string line;
+		std::vector<std::string> lines;
+		bool found_line = false;
+		while (std::getline(infile, line)) {
+			if (line == "#include\"Script.h\"") {
+				found_line = true;
+				lines.push_back(line);
+				lines.push_back("#include\"" + file + ".h\"");
+			}
+			else if (line == "Script script;") {
+				found_line = true;
+
+				lines.push_back(line);
+				lines.push_back(file + " " + file + "scr" + ";");
+			}
+			else {
+				lines.push_back(line);
+			}
+		}
+		infile.close();
+		std::ofstream outfile(filename);
+		for (const auto& line : lines) {
+			outfile << line << std::endl;
+		}
+		outfile.close();
+	}
+}
+
+void addCpp(const std::string& filename, const std::string& file, const std::string& lastFilename)
+{
+	if (!is_sentence_in_file(filename, "	<ClCompile Include=\"" + file + ".cpp\" />")) {
+		std::ifstream infile(filename);
+
+		ofstream createfile(file + ".cpp");
+
+		std::string script =
+			R"(
+#include")" + file + R"(.h"
+void )" + file + R"(::Start()
+{
+	printf("Start");
+}
+void )" + file + R"(::Update()
+{
+	printf("Hello!");
+}
+    )";
+		createfile << script;
+
+
+		std::string line;
+		std::vector<std::string> lines;
+		bool found_line = false;
+		while (std::getline(infile, line)) {
+
+			if (line.find("<ClCompile Include=\"" + lastFilename + ".cpp\" />") != std::string::npos) {
+				found_line = true;
+				lines.push_back(line);
+				lines.push_back("	<ClCompile Include=\"" + file + ".cpp\" />");
+			}
+			else {
+				lines.push_back(line);
+			}
+		}
+		infile.close();
+		std::ofstream outfile(filename);
+		for (const auto& line : lines) {
+			outfile << line << std::endl;
+		}
+		outfile.close();
+	}
+}
+void addOVscript(const std::string& file)
+{
+	addCpp("Vision_engine.vcxproj", file, "Script");
+	addH("Vision_engine.vcxproj", file, "Script");
+	addMainCpp("main.cpp", file);
+}
+
 int main()
 {
-	//addCpp("Vision_engine.vcxproj","HE", "VBO");
+	//script.Start();
+	addOVscript("HEIDAW");
 	PhysicsBody body1 = PhysicsBody(vec2(-1.5f, 2.0f), 0, vec2(0.3f, 0.5f), 5, 2, 3, 0.7f, 1, false);
 	body1.SetVelocity(vec2(1.5f, 0.0f));
 

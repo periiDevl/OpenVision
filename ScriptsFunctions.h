@@ -15,6 +15,7 @@ public:
 
     }
 
+
     std::tuple<int, float, bool> SetFloat(const std::string& filename, std::string keyword);
     std::tuple<int, std::string, bool> SetString(const std::string& filename, std::string keyword);
 

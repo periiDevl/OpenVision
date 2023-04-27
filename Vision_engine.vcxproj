@@ -160,6 +160,8 @@
     <ClCompile Include="PhysicsBody.cpp" />
     <ClCompile Include="PhysicsWorld.cpp" />
     <ClCompile Include="PolygonCollider.cpp" />
+    <ClCompile Include="Script.cpp" />
+	<ClCompile Include="HEIDAW.cpp" />
     <ClCompile Include="ScriptsFunctions.cpp" />
     <ClCompile Include="stb.cpp" />
     <ClCompile Include="Tex.cpp" />
@@ -188,6 +190,8 @@
     <ClInclude Include="PhysicsBody.h" />
     <ClInclude Include="PhysicsWorld.h" />
     <ClInclude Include="PolygonCollider.h" />
+    <ClInclude Include="Script.h" />
+	<ClInclude Include="HEIDAW.h" />
     <ClInclude Include="ScriptsFunctions.h" />
     <ClInclude Include="Settings.h" />
     <ClInclude Include="Tex.h" />
