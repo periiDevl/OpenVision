@@ -18,8 +18,10 @@
 
 
 #include"Script.h"
+#include"Script2.h"
 #include"HEIDAW.h"
 Script script;
+Script2 Script2scr;
 HEIDAW HEIDAWscr;
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
@@ -206,6 +208,7 @@ int main()
 {
 	//script.Start();
 	addOVscript("HEIDAW");
+	addOVscript("Script2");
 	PhysicsBody body1 = PhysicsBody(vec2(-1.5f, 2.0f), 0, vec2(0.3f, 0.5f), 5, 2, 3, 0.7f, 1, false);
 	body1.SetVelocity(vec2(1.5f, 0.0f));
 
@@ -213,7 +216,6 @@ int main()
 	PhysicsWorld world(vec3(0, -5.0f, 0), 10);
 	world.AddBody(&body1);
 	
-	std::vector<std::string> py_files;
 
 	const std::filesystem::path directory_path = std::filesystem::current_path();
 
@@ -301,7 +303,7 @@ int main()
 	double beforeMouseX;
 	double beforeMouseY;
 	bool run = false;
-	bool startCompiling = false;
+	bool StartPhase = false;
 
 
 	
@@ -357,10 +359,6 @@ int main()
 			prevTime = crntTime;
 			counter = 0;
 		}
-		if (run) {
-			scr.Load("ov.rtsm", sceneObjects, textures);
-		}
-
 		
 		
 		ImGui::Begin("Execute");
@@ -379,13 +377,9 @@ int main()
 		con.Draw();
 
 		if (!run) {
-			if (!startCompiling) {
-				std::system("taskkill /F /IM python.exe");
+			if (!StartPhase) {
 
-
-
-
-				startCompiling = true;
+				StartPhase = true;
 			}
 
 			ImGui::Begin("Assets");
@@ -521,23 +515,12 @@ int main()
 		}
 		sceneobkj.DrawTMP(window, shaderProgram, camera, glm::vec2(body1.GetPosition().x, body1.GetPosition().y));
 		if (run) {
-			if (startCompiling)
+			if (StartPhase)
 			{
-				py_files.clear();
-				for (const auto& entry : std::filesystem::directory_iterator(directory_path)) {
-					if (entry.is_regular_file() && entry.path().extension() == ".py" && entry.path().filename() != "ov.py") {
-						py_files.push_back(entry.path().filename().string());
-					}
-				}
-
-				for (const auto& pyfile : py_files) {
-					std::cout << pyfile << std::endl;
-					std::string command = "start /B python " + pyfile;
-					std::system(command.c_str());
-				}
-
-				startCompiling = false;
+				script.Start();
+				StartPhase = false;
 			}
+			script.Update();
 			for (size_t i = 0; i < sceneObjects.size(); i++)
 			{
 				glLineWidth(0.0f);

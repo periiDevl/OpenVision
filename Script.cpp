@@ -5,5 +5,5 @@ void Script::Start()
 }
 void Script::Update()
 {
-	printf("Hello!");
+	printf("HELLO111HELLO!");
 }
