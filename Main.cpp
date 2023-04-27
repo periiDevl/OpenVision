@@ -57,9 +57,93 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 	scroll_offset += yoffset;
 	printf("Scrolled by %f units\n", scroll_offset);
 }
+void addCpp(const std::string& filename, const std::string& file, const std::string& lastFilename)
+{
+	std::ifstream infile(filename);
 
+	if (!infile.is_open()) {
+		std::cerr << "Error opening file!" << std::endl;
+		return;
+	}
+
+	std::string line;
+	std::vector<std::string> lines;
+	bool found_line = false;
+	while (std::getline(infile, line)) {
+		if (line.find("<ClCompile Include=\"" + lastFilename + ".cpp\" />") != std::string::npos) {
+			found_line = true;
+			lines.push_back(line);
+			lines.push_back("	<ClCompile Include=\"" + file + ".cpp\" />");
+		}
+		else {
+			lines.push_back(line);
+		}
+	}
+
+	infile.close();
+
+	if (!found_line) {
+		std::cerr << "Error: line not found!" << std::endl;
+		return;
+	}
+
+	std::ofstream outfile(filename);
+
+	if (!outfile.is_open()) {
+		std::cerr << "Error opening file!" << std::endl;
+		return;
+	}
+
+	for (const auto& line : lines) {
+		outfile << line << std::endl;
+	}
+	outfile.close();
+}
+void addH(const std::string& filename, const std::string& file, const std::string& lastFilename)
+{
+	std::ifstream infile(filename);
+
+	if (!infile.is_open()) {
+		std::cerr << "Error opening file!" << std::endl;
+		return;
+	}
+
+	std::string line;
+	std::vector<std::string> lines;
+	bool found_line = false;
+	while (std::getline(infile, line)) {
+		if (line.find("<ClCompile Include=\"" + lastFilename + ".h\" />") != std::string::npos) {
+			found_line = true;
+			lines.push_back(line);
+			lines.push_back("	<ClCompile Include=\"" + file + ".h\" />");
+		}
+		else {
+			lines.push_back(line);
+		}
+	}
+
+	infile.close();
+
+	if (!found_line) {
+		std::cerr << "Error: line not found!" << std::endl;
+		return;
+	}
+
+	std::ofstream outfile(filename);
+
+	if (!outfile.is_open()) {
+		std::cerr << "Error opening file!" << std::endl;
+		return;
+	}
+
+	for (const auto& line : lines) {
+		outfile << line << std::endl;
+	}
+	outfile.close();
+}
 int main()
 {
+	//addCpp("Vision_engine.vcxproj","HE", "VBO");
 	PhysicsBody body1 = PhysicsBody(vec2(-1.5f, 2.0f), 0, vec2(0.3f, 0.5f), 5, 2, 3, 0.7f, 1, false);
 	body1.SetVelocity(vec2(1.5f, 0.0f));
 
