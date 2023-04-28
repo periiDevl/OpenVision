@@ -1,11 +1,11 @@
 
 #include"HEIDAW.h"
-void HEIDAW::Start()
+void HEIDAW::Start(Console& ovcon, std::vector<Object>& sceneObjects)
 {
-	printf("Start");
+
 }
-void HEIDAW::Update()
+void HEIDAW::Update(Console& ovcon, std::vector<Object>& sceneObjects)
 {
-	printf("Hello!");
+
 }
     

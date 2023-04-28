@@ -2,7 +2,8 @@
 #include <vector>
 #include <string>
 #include <algorithm>
-
+#ifndef CONSOLE_H
+#define CONSOLE_H
 class Console
 {
 public:
@@ -68,3 +69,4 @@ public:
 private:
     std::vector<std::string> logs;
 };
+#endif // CONSOLE_H

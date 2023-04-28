@@ -15,13 +15,9 @@
 #include <filesystem>
 #include"PhysicsWorld.h"
 #include <thread>
-
+#include"Console.h"
 #include"Script.h"
-#include"Script2.h"
-#include"HEIDAW.h"
 Script script;
-Script2 Script2scr;
-HEIDAW HEIDAWscr;
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 
@@ -78,6 +74,148 @@ bool is_sentence_in_file(const std::string& filename, const std::string& sentenc
 
 	return false;
 }
+void removeH(const std::string& filename, const std::string& fileToRemove)
+{
+	std::ifstream infile(filename);
+	std::vector<std::string> lines;
+
+	std::string line;
+	while (std::getline(infile, line))
+	{
+		if (line.find("<ClInclude Include=\"" + fileToRemove + ".h\" />") != std::string::npos)
+		{
+			continue; 
+		}
+		else
+		{
+			lines.push_back(line); 
+		}
+	}
+	infile.close();
+
+	std::ofstream outfile(filename);
+	for (const auto& line : lines)
+	{
+		outfile << line << std::endl;
+	}
+	outfile.close();
+
+	//std::remove((fileToRemove + ".h").c_str());
+}
+void removeCpp(const std::string& filename, const std::string& fileToRemove)
+{
+	std::ifstream infile(filename);
+	std::vector<std::string> lines;
+
+	std::string line;
+	while (std::getline(infile, line))
+	{
+		if (line.find("<ClCompile Include=\"" + fileToRemove + ".cpp\" />") != std::string::npos)
+		{
+			continue;
+		}
+		else
+		{
+			lines.push_back(line);
+		}
+	}
+	infile.close();
+
+	std::ofstream outfile(filename);
+	for (const auto& line : lines)
+	{
+		outfile << line << std::endl;
+	}
+	outfile.close();
+
+	//std::remove((fileToRemove + ".cpp").c_str());
+}
+
+
+
+void addMainCpp(const std::string& filename, const std::string& file)
+{
+	if (!is_sentence_in_file(filename, "#include\"" + file + ".h\"") 
+		&& !is_sentence_in_file(filename,file + " " + file + "scr" + ";")
+		&& !is_sentence_in_file(filename, "				" + file + "scr" + ".Start(con, sceneObjects);")) {
+		std::ifstream infile(filename);
+
+		std::string line;
+		std::vector<std::string> lines;
+		bool found_line = false;
+		while (std::getline(infile, line)) {
+			if (line == "#include\"Script.h\"") {
+				found_line = true;
+				lines.push_back(line);
+				lines.push_back("#include\"" + file + ".h\"");
+			}
+			else if (line == "Script script;") {
+				found_line = true;
+
+				lines.push_back(line);
+				lines.push_back(file + " " + file + "scr" + ";");
+			}
+			else if (line == "				script.Start(con, sceneObjects);") {
+				found_line = true;
+
+				lines.push_back(line);
+				lines.push_back("				" + file + "scr" + ".Start(con, sceneObjects);");
+			}
+			else if (line == "			script.Update(con, sceneObjects);") {
+				found_line = true;
+
+				lines.push_back(line);
+				lines.push_back("			" + file + "scr" + ".Update(con, sceneObjects);");
+			}
+			else {
+				lines.push_back(line);
+			}
+		}
+		infile.close();
+		std::ofstream outfile(filename);
+		for (const auto& line : lines) {
+			outfile << line << std::endl;
+		}
+		outfile.close();
+	}
+}
+void removeMainCpp(const std::string& filename, const std::string& file)
+{
+	if (is_sentence_in_file(filename, "#include\"" + file + ".h\"")
+		|| is_sentence_in_file(filename, file + " " + file + "scr" + ";")
+		|| is_sentence_in_file(filename, "				" + file + "scr" + ".Start(con, sceneObjects);")) {
+		std::ifstream infile(filename);
+
+		std::string line;
+		std::vector<std::string> lines;
+		bool found_line = false;
+		while (std::getline(infile, line)) {
+			if (line == "#include\"" + file + ".h\"") {
+				found_line = true;
+			}
+			else if (line == file + " " + file + "scr" + ";") {
+				found_line = true;
+			}
+			else if (line == "				" + file + "scr" + ".Start(con, sceneObjects);") {
+				found_line = true;
+			}
+			else if (line == "			" + file + "scr" + ".Update(con, sceneObjects);") {
+				found_line = true;
+			}
+			else {
+				lines.push_back(line);
+			}
+		}
+		infile.close();
+		std::ofstream outfile(filename);
+		for (const auto& line : lines) {
+			outfile << line << std::endl;
+		}
+		outfile.close();
+	}
+}
+
+
 void addH(const std::string& filename, const std::string& file, const std::string& lastFilename)
 {
 	if (!is_sentence_in_file(filename, "	<ClInclude Include=\"" + file + ".h\" />")) {
@@ -89,10 +227,12 @@ void addH(const std::string& filename, const std::string& file, const std::strin
 			R"(
 #pragma once
 #include<iostream>
+#include"Console.h"
+#include"Object.h"
 class )" + file + R"( {
 public:
-    void Start();
-    void Update();
+    void Start(Console& ovcon, std::vector<Object>& sceneObjects);
+    void Update(Console& ovcon, std::vector<Object>& sceneObjects);
 };
     )";
 		createfile << script;
@@ -117,41 +257,11 @@ public:
 			outfile << line << std::endl;
 		}
 		outfile.close();
+
+		
+
 	}
 }
-void addMainCpp(const std::string& filename, const std::string& file)
-{
-	if (!is_sentence_in_file(filename, "#include\"" + file + ".h\"") || !is_sentence_in_file(filename,file + " " + file + "scr" + ";")) {
-		std::ifstream infile(filename);
-
-		std::string line;
-		std::vector<std::string> lines;
-		bool found_line = false;
-		while (std::getline(infile, line)) {
-			if (line == "#include\"Script.h\"") {
-				found_line = true;
-				lines.push_back(line);
-				lines.push_back("#include\"" + file + ".h\"");
-			}
-			else if (line == "Script script;") {
-				found_line = true;
-
-				lines.push_back(line);
-				lines.push_back(file + " " + file + "scr" + ";");
-			}
-			else {
-				lines.push_back(line);
-			}
-		}
-		infile.close();
-		std::ofstream outfile(filename);
-		for (const auto& line : lines) {
-			outfile << line << std::endl;
-		}
-		outfile.close();
-	}
-}
-
 void addCpp(const std::string& filename, const std::string& file, const std::string& lastFilename)
 {
 	if (!is_sentence_in_file(filename, "	<ClCompile Include=\"" + file + ".cpp\" />")) {
@@ -162,13 +272,13 @@ void addCpp(const std::string& filename, const std::string& file, const std::str
 		std::string script =
 			R"(
 #include")" + file + R"(.h"
-void )" + file + R"(::Start()
+void )" + file + R"(::Start(Console& ovcon, std::vector<Object>& sceneObjects)
 {
-	printf("Start");
+
 }
-void )" + file + R"(::Update()
+void )" + file + R"(::Update(Console& ovcon, std::vector<Object>& sceneObjects)
 {
-	printf("Hello!");
+
 }
     )";
 		createfile << script;
@@ -203,11 +313,17 @@ void addOVscript(const std::string& file)
 	addMainCpp("main.cpp", file);
 }
 
+void removeOVscript(const std::string& file)
+{
+	removeCpp("Vision_engine.vcxproj", file);
+	removeH("Vision_engine.vcxproj", file);
+	removeMainCpp("main.cpp", file);
+}
+
 int main()
 {
 	//script.Start();
 	addOVscript("HEIDAW");
-	addOVscript("Script2");
 
 	PhysicsBody body1 = PhysicsBody(vec2(-1.5f, 2.0f), 0, vec2(0.3f, 0.5f), 5, 2, 3, 0.7f, 1, false);
 	body1.SetVelocity(vec2(1.5f, 0.0f));
@@ -530,11 +646,11 @@ int main()
 			if (StartPhase)
 			{
 				
-				script.Start(con);
+				script.Start(con, sceneObjects);
 				
 				StartPhase = false;
 			}
-			script.Update(con);
+			script.Update(con, sceneObjects);
 			for (size_t i = 0; i < sceneObjects.size(); i++)
 			{
 				glLineWidth(0.0f);
