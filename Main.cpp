@@ -1,7 +1,6 @@
 #include"Object.h"
 #include"Math.h"
 #include"Settings.h"
-#include"Console.h"
 #include"IMGUITheme.h"
 #include"ScriptsFunctions.h"
 #include"imgui.h"
@@ -209,6 +208,7 @@ int main()
 	//script.Start();
 	addOVscript("HEIDAW");
 	addOVscript("Script2");
+
 	PhysicsBody body1 = PhysicsBody(vec2(-1.5f, 2.0f), 0, vec2(0.3f, 0.5f), 5, 2, 3, 0.7f, 1, false);
 	body1.SetVelocity(vec2(1.5f, 0.0f));
 
@@ -374,7 +374,6 @@ int main()
 		}
 		if (ImGui::Button("Rebuild"))
 		{
-			//std::system("taskkill /F /IM python.exe /T");
 			std::system("start /B python builder.py");
 			std::cout << "Rebuilding...\n";
 			std::cout << "Please wait...\n";
@@ -531,11 +530,11 @@ int main()
 			if (StartPhase)
 			{
 				
-				script.Start();
+				script.Start(con);
 				
 				StartPhase = false;
 			}
-			script.Update();
+			script.Update(con);
 			for (size_t i = 0; i < sceneObjects.size(); i++)
 			{
 				glLineWidth(0.0f);

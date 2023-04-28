@@ -34,5 +34,4 @@ shutil.move(src_file_path, dst_directory_path)
 os.chdir(dst_directory_path)
 
 # Execute the file
-while True:
-    os.system('Vision_engine.exe')
+os.system('Vision_engine.exe')

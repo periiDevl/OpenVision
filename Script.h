@@ -1,7 +1,9 @@
 #pragma once
-#include<iostream>
+#include"Console.h"
+
+
 class Script {
 public:
-	void Start();
-	void Update();
+	void Start(Console& ovcon);
+	void Update(Console& ovcon);
 };

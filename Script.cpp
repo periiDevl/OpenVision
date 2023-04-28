@@ -1,9 +1,9 @@
 #include"Script.h"
-void Script::Start()
+void Script::Start(Console& ovcon)
 {
-	printf("HELLO WORLD!");
+	ovcon.log("Hello World!");
 }
-void Script::Update()
+void Script::Update(Console& ovcon)
 {
-	printf("HELLO UPDATE");
+
 }
