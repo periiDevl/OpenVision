@@ -93,6 +93,9 @@
     <ClCompile Include="Script.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="PeriiNewScr.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h">
@@ -174,6 +177,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Script.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PeriiNewScr.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="engsrc\OVscriptHandaling.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
