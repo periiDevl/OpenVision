@@ -4,7 +4,6 @@ from pathlib import Path
 import os
 
 
-
 sln_file_path = r'Vision_engine.sln'
 
 # Set the path to MSBuild.exe and the solution file
@@ -18,12 +17,22 @@ else:
     print("Build failed.")
 
 
-# source file path
+# Source file path
 src_file_path = "x64/Release/Vision_engine.exe"
-# destination directory path
 
-# move file to destination directory
-os.remove("Vision_engine.exe")
-shutil.move(src_file_path, os.path.dirname(os.path.abspath(__file__)))
+# Destination directory path
+dst_directory_path = os.path.dirname(os.path.abspath(__file__))
 
-os.system('Vision_engine.exe')
+# Remove the old file if it exists
+if os.path.exists(os.path.join(dst_directory_path, "Vision_engine.exe")):
+    os.remove(os.path.join(dst_directory_path, "Vision_engine.exe"))
+
+# Move file to destination directory
+shutil.move(src_file_path, dst_directory_path)
+
+# Change the working directory to the destination directory
+os.chdir(dst_directory_path)
+
+# Execute the file
+while True:
+    os.system('Vision_engine.exe')

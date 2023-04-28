@@ -15,7 +15,7 @@
 #include <vector>
 #include <filesystem>
 #include"PhysicsWorld.h"
-
+#include <thread>
 
 #include"Script.h"
 #include"Script2.h"
@@ -374,9 +374,17 @@ int main()
 		}
 		if (ImGui::Button("Rebuild"))
 		{
+			//std::system("taskkill /F /IM python.exe /T");
 			std::system("start /B python builder.py");
+			std::cout << "Rebuilding...\n";
+			std::cout << "Please wait...\n";
+
+			std::chrono::seconds wait_time(1);
+			std::this_thread::sleep_for(wait_time);
+
 			glfwSetWindowShouldClose(window, GLFW_TRUE);
 		}
+
 		ImGui::End();
 		
 		con.Draw();
