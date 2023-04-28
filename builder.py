@@ -1,7 +1,11 @@
 import subprocess
 import shutil
+from pathlib import Path
+import os
 
-sln_file_path = r'C:\Users\peric\OneDrive\Documents\dev\OpenVision\Vision_engine.sln'
+
+
+sln_file_path = r'Vision_engine.sln'
 
 # Set the path to MSBuild.exe and the solution file
 msbuild_path = r"C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Current\Bin\MSBuild.exe"
@@ -15,10 +19,11 @@ else:
 
 
 # source file path
-src_file_path = "C:/Users/peric/OneDrive/Documents/dev/OpenVision/x64/Release/Vision_engine.exe"
-
+src_file_path = "x64/Release/Vision_engine.exe"
 # destination directory path
-dest_dir_path = "C:/Users/peric/OneDrive/Documents/dev/OpenVision/"
 
 # move file to destination directory
-shutil.move(src_file_path, dest_dir_path)
+os.remove("Vision_engine.exe")
+shutil.move(src_file_path, os.path.dirname(os.path.abspath(__file__)))
+
+os.system('Vision_engine.exe')

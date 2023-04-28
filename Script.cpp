@@ -1,9 +1,9 @@
 #include"Script.h"
 void Script::Start()
 {
-	printf("Start");
+	printf("HELLO WORLD!");
 }
 void Script::Update()
 {
-	printf("HELLO111HELLO!");
+	printf("HELLO UPDATE");
 }

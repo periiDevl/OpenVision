@@ -372,6 +372,11 @@ int main()
 				run = false;
 			}
 		}
+		if (ImGui::Button("Rebuild"))
+		{
+			std::system("start /B python builder.py");
+			glfwSetWindowShouldClose(window, GLFW_TRUE);
+		}
 		ImGui::End();
 		
 		con.Draw();
@@ -517,7 +522,9 @@ int main()
 		if (run) {
 			if (StartPhase)
 			{
+				
 				script.Start();
+				
 				StartPhase = false;
 			}
 			script.Update();
