@@ -17,9 +17,9 @@
 #include <thread>
 #include"Console.h"
 #include"Script.h"
-#include"NewScript.h"
+#include"PeriiNewScr.h"
 Script script;
-NewScript NewScriptscr;
+PeriiNewScr PeriiNewScrscr;
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 
@@ -29,7 +29,15 @@ Scripting scr;
 double scroll_offset = 45.0;
 
 Camera camera(width, height, glm::vec3(0.0f, 0.0f, 80.0f));
+void rebuild(GLFWwindow* window) {
+	std::system("start /B python builder.py");
 
+	std::chrono::seconds wait_time(1);
+	std::this_thread::sleep_for(wait_time);
+
+	glfwSetWindowShouldClose(window, GLFW_TRUE);
+
+}
 void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 {
 	static double lastX = xpos;
@@ -503,14 +511,9 @@ int main()
 		}
 		if (ImGui::Button("Rebuild"))
 		{
-			std::system("start /B python builder.py");
-			std::cout << "Rebuilding...\n";
-			std::cout << "Please wait...\n";
+			rebuild(window);
 
-			std::chrono::seconds wait_time(1);
-			std::this_thread::sleep_for(wait_time);
-
-			glfwSetWindowShouldClose(window, GLFW_TRUE);
+			
 		}
 
 		ImGui::End();
@@ -563,6 +566,7 @@ int main()
 				outputFile.close();
 				addOVscript(scriptName);
 				memset(scriptName, 0, sizeof(scriptName));
+				rebuild(window);
 			}
 
 			if (ImGui::Button("Remove Script"))
@@ -586,6 +590,7 @@ int main()
 
 				removeOVscript(scriptName);
 				memset(scriptName, 0, sizeof(scriptName));
+				rebuild(window);
 			}
 
 			if (ImGui::Button("Open Script"))
@@ -714,12 +719,12 @@ int main()
 			{
 				
 				script.Start(con, sceneObjects);
-				NewScriptscr.Start(con, sceneObjects);
+				PeriiNewScrscr.Start(con, sceneObjects);
 				
 				StartPhase = false;
 			}
 			script.Update(con, sceneObjects);
-			NewScriptscr.Update(con, sceneObjects);
+			PeriiNewScrscr.Update(con, sceneObjects);
 			for (size_t i = 0; i < sceneObjects.size(); i++)
 			{
 				glLineWidth(0.0f);
