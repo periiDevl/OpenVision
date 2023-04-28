@@ -17,7 +17,9 @@
 #include <thread>
 #include"Console.h"
 #include"Script.h"
+#include"NewScript.h"
 Script script;
+NewScript NewScriptscr;
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 
@@ -100,7 +102,7 @@ void removeH(const std::string& filename, const std::string& fileToRemove)
 	}
 	outfile.close();
 
-	//std::remove((fileToRemove + ".h").c_str());
+	std::remove((fileToRemove + ".h").c_str());
 }
 void removeCpp(const std::string& filename, const std::string& fileToRemove)
 {
@@ -128,7 +130,7 @@ void removeCpp(const std::string& filename, const std::string& fileToRemove)
 	}
 	outfile.close();
 
-	//std::remove((fileToRemove + ".cpp").c_str());
+	std::remove((fileToRemove + ".cpp").c_str());
 }
 
 
@@ -322,8 +324,20 @@ void removeOVscript(const std::string& file)
 
 int main()
 {
-	//script.Start();
-	addOVscript("HEIDAW");
+	//Read lines from the file
+	std::vector<std::string> lines;
+	std::ifstream inputFile("scripts.ov");
+	if (!inputFile.is_open()) {
+		std::cerr << "Failed to open input file." << std::endl;
+		return 1;
+	}
+	std::string line;
+	while (std::getline(inputFile, line)) {
+		lines.emplace_back(line);
+	}
+	inputFile.close();
+
+
 
 	PhysicsBody body1 = PhysicsBody(vec2(-1.5f, 2.0f), 0, vec2(0.3f, 0.5f), 5, 2, 3, 0.7f, 1, false);
 	body1.SetVelocity(vec2(1.5f, 0.0f));
@@ -444,7 +458,6 @@ int main()
 	const float fixed_timestep = 1.0f / 60.0;
 	DefaultTheme();
 
-	con.log("Hello world!");
 
 	while (!glfwWindowShouldClose(window))
 	{
@@ -536,6 +549,60 @@ int main()
 					ImGui::Separator();
 				}
 			}
+
+			static char scriptName[128] = ""; 
+
+			ImGui::Begin("Scripts");
+			ImGui::Columns(2, nullptr, true);
+			ImGui::InputText("Script Name", scriptName, IM_ARRAYSIZE(scriptName));
+
+			if (ImGui::Button("Add Script"))
+			{
+				std::ofstream outputFile("scripts.ov", std::ios::app);
+				outputFile << scriptName << std::endl;
+				outputFile.close();
+				addOVscript(scriptName);
+				memset(scriptName, 0, sizeof(scriptName));
+			}
+
+			if (ImGui::Button("Remove Script"))
+			{
+				std::string scriptname_str = scriptName;
+				std::ifstream inputFile("scripts.ov");
+				std::ofstream tempFile("temp.txt"); 
+				std::string line;
+
+				while (std::getline(inputFile, line)) {
+					if (line.find(scriptname_str) != std::string::npos) {
+						continue;
+					}
+					tempFile << line << std::endl;
+				}
+
+				inputFile.close();
+				tempFile.close();
+				std::remove("scripts.ov");
+				std::rename("temp.txt", "scripts.ov");
+
+				removeOVscript(scriptName);
+				memset(scriptName, 0, sizeof(scriptName));
+			}
+
+			if (ImGui::Button("Open Script"))
+			{
+				std::string command = "start " + std::string(scriptName) + ".cpp";
+				system(command.c_str());
+				memset(scriptName, 0, sizeof(scriptName));
+			}
+			ImGui::NextColumn();
+			for (const auto& line : lines) {
+				if (ImGui::Button(line.c_str())) {
+					std::string command = "start " + std::string(line) + ".cpp";
+					system(command.c_str());
+				}
+			}
+			ImGui::End();
+
 
 			ImGui::Begin("Object Inspector");
 
@@ -647,10 +714,12 @@ int main()
 			{
 				
 				script.Start(con, sceneObjects);
+				NewScriptscr.Start(con, sceneObjects);
 				
 				StartPhase = false;
 			}
 			script.Update(con, sceneObjects);
+			NewScriptscr.Update(con, sceneObjects);
 			for (size_t i = 0; i < sceneObjects.size(); i++)
 			{
 				glLineWidth(0.0f);
