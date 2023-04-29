@@ -161,7 +161,7 @@
     <ClCompile Include="PhysicsWorld.cpp" />
     <ClCompile Include="PolygonCollider.cpp" />
     <ClCompile Include="Script.cpp" />
-	<ClCompile Include="JustAscript.cpp" />
+    <ClCompile Include="JustAscript.cpp" />
     <ClCompile Include="PeriiNewScr.cpp" />
     <ClCompile Include="ScriptsFunctions.cpp" />
     <ClCompile Include="stb.cpp" />
@@ -193,7 +193,7 @@
     <ClInclude Include="PhysicsWorld.h" />
     <ClInclude Include="PolygonCollider.h" />
     <ClInclude Include="Script.h" />
-	<ClInclude Include="JustAscript.h" />
+    <ClInclude Include="JustAscript.h" />
     <ClInclude Include="PeriiNewScr.h" />
     <ClInclude Include="ScriptsFunctions.h" />
     <ClInclude Include="Settings.h" />
