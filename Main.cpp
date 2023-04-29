@@ -32,13 +32,10 @@ Camera camera(width, height, glm::vec3(0.0f, 0.0f, 80.0f));
 std::string executeCommandAndGetOutput(const char* command) {
 	std::string outputFileName = "command_output.txt";
 
-	// Append command to redirect output to a file
 	std::string commandWithOutputRedirect = std::string(command) + " > " + outputFileName;
 
-	// Execute the command
 	std::system(commandWithOutputRedirect.c_str());
 
-	// Read the output file
 	std::ifstream outputFile(outputFileName);
 	if (!outputFile.is_open()) {
 		std::cerr << "Failed to open output file." << std::endl;
@@ -49,7 +46,6 @@ std::string executeCommandAndGetOutput(const char* command) {
 	output << outputFile.rdbuf();
 	outputFile.close();
 
-	// Delete the output file
 	std::remove(outputFileName.c_str());
 
 	return output.str();
@@ -86,7 +82,6 @@ void rebuild(GLFWwindow* window) {
 
 	glfwSetWindowShouldClose(window, GLFW_TRUE);
 
-	cout << "did something" << endl;
 }
 void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 {
