@@ -1,7 +1,7 @@
 import subprocess
 import sys
 # Path to Visual Studio 2022 executable
-vs_exe_path = r'C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE\devenv.exe'
+vs_exe_path = r'E:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE\devenv.exe'
 
 # Path to solution file
 sln_file_path = r'Vision_engine.sln'

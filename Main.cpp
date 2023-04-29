@@ -17,7 +17,6 @@
 #include"Console.h"
 #include"OVscriptHandaling.h"
 
-
 #include"Script.h"
 #include"JustAscript.h"
 Script script;
@@ -30,14 +29,64 @@ Console con;
 double scroll_offset = 45.0;
 
 Camera camera(width, height, glm::vec3(0.0f, 0.0f, 80.0f));
+std::string executeCommandAndGetOutput(const char* command) {
+	std::string outputFileName = "command_output.txt";
+
+	// Append command to redirect output to a file
+	std::string commandWithOutputRedirect = std::string(command) + " > " + outputFileName;
+
+	// Execute the command
+	std::system(commandWithOutputRedirect.c_str());
+
+	// Read the output file
+	std::ifstream outputFile(outputFileName);
+	if (!outputFile.is_open()) {
+		std::cerr << "Failed to open output file." << std::endl;
+		return "";
+	}
+
+	std::stringstream output;
+	output << outputFile.rdbuf();
+	outputFile.close();
+
+	// Delete the output file
+	std::remove(outputFileName.c_str());
+
+	return output.str();
+}
+std::string getLatestLine(const std::string& input) {
+	std::vector<std::string> lines;
+	std::stringstream ss(input);
+	std::string line;
+
+	while (std::getline(ss, line, '\n')) {
+		if (!line.empty())
+			lines.push_back(line);
+	}
+
+	if (lines.empty())
+		return "";
+
+	return lines.back();
+}
+
+std::string getLatestPythonLocation() {
+	return (getLatestLine(executeCommandAndGetOutput("where python")));
+}
 void rebuild(GLFWwindow* window) {
-	std::system("start /B python builder.py");
+	std::cout << "python locations " << endl << executeCommandAndGetOutput("where python") << endl;
+	std::cout << getLatestPythonLocation() << endl;
+
+	std::string command = std::string("start /B ") + getLatestPythonLocation() + std::string(" builder.py");
+	std::system(command.c_str());
+	
 
 	std::chrono::seconds wait_time(1);
 	std::this_thread::sleep_for(wait_time);
 
 	glfwSetWindowShouldClose(window, GLFW_TRUE);
 
+	cout << "did something" << endl;
 }
 void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 {
