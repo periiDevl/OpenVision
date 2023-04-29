@@ -345,6 +345,10 @@ int main()
 				memset(scriptName, 0, sizeof(scriptName));
 			}
 			ImGui::NextColumn();
+			if (ImGui::Button("Script (gloabl ov script)")) {
+				std::string command = "start Script.cpp";
+				system(command.c_str());
+			}
 			for (const auto& line : lines) {
 				if (ImGui::Button(line.c_str())) {
 					std::string command = "start " + std::string(line) + ".cpp";
@@ -504,7 +508,7 @@ int main()
 
 	
 	scr.Relase("ov.rtsm");
-	remove("ov.rtsm");
+	//remove("ov.rtsm");
 
 	glDeleteShader(vertexShader);
 	glDeleteShader(fragmentShader);
