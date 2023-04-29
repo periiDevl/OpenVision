@@ -15,15 +15,13 @@
 #include"PhysicsWorld.h"
 #include <thread>
 #include"Console.h"
-#include"engsrc/OVscriptHandaling.h"
+#include"OVscriptHandaling.h"
 
 
 #include"Script.h"
 #include"JustAscript.h"
-#include"PeriiNewScr.h"
 Script script;
 JustAscript JustAscriptscr;
-PeriiNewScr PeriiNewScrscr;
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 
@@ -258,6 +256,12 @@ int main()
 
 			
 		}
+		if (ImGui::Button("Exit OV"))
+		{
+			std::system("taskkill /f /im python.exe");
+			glfwSetWindowShouldClose(window, GLFW_TRUE);
+
+		}
 
 		ImGui::End();
 		
@@ -467,13 +471,11 @@ int main()
 				
 				script.Start(con, sceneObjects);
 				JustAscriptscr.Start(con, sceneObjects);
-				PeriiNewScrscr.Start(con, sceneObjects);
 				
 				StartPhase = false;
 			}
 			script.Update(con, sceneObjects);
 			JustAscriptscr.Update(con, sceneObjects);
-			PeriiNewScrscr.Update(con, sceneObjects);
 			for (size_t i = 0; i < sceneObjects.size(); i++)
 			{
 				glLineWidth(0.0f);
@@ -513,6 +515,7 @@ int main()
 	glfwDestroyWindow(window);
 	glfwTerminate();
 
+	
 	return 0;
 }
 

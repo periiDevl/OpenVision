@@ -162,7 +162,6 @@
     <ClCompile Include="PolygonCollider.cpp" />
     <ClCompile Include="Script.cpp" />
     <ClCompile Include="JustAscript.cpp" />
-    <ClCompile Include="PeriiNewScr.cpp" />
     <ClCompile Include="ScriptsFunctions.cpp" />
     <ClCompile Include="stb.cpp" />
     <ClCompile Include="Tex.cpp" />
@@ -177,7 +176,6 @@
     <ClInclude Include="CollisionManager.h" />
     <ClInclude Include="Console.h" />
     <ClInclude Include="EBO.h" />
-    <ClInclude Include="engsrc\OVscriptHandaling.h" />
     <ClInclude Include="IMGUITheme.h" />
     <ClInclude Include="imgui\imconfig.h" />
     <ClInclude Include="imgui\imgui.h" />
@@ -189,12 +187,12 @@
     <ClInclude Include="imgui\imstb_truetype.h" />
     <ClInclude Include="Math.h" />
     <ClInclude Include="Object.h" />
+    <ClInclude Include="OVscriptHandaling.h" />
     <ClInclude Include="PhysicsBody.h" />
     <ClInclude Include="PhysicsWorld.h" />
     <ClInclude Include="PolygonCollider.h" />
     <ClInclude Include="Script.h" />
     <ClInclude Include="JustAscript.h" />
-    <ClInclude Include="PeriiNewScr.h" />
     <ClInclude Include="ScriptsFunctions.h" />
     <ClInclude Include="Settings.h" />
     <ClInclude Include="Tex.h" />

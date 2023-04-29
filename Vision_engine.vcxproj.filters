@@ -185,10 +185,10 @@
     <ClInclude Include="PeriiNewScr.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="engsrc\OVscriptHandaling.h">
+    <ClInclude Include="JustAscript.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="JustAscript.h">
+    <ClInclude Include="OVscriptHandaling.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
