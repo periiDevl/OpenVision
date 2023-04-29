@@ -2,7 +2,6 @@
 #include"Math.h"
 #include"Settings.h"
 #include"IMGUITheme.h"
-#include"ScriptsFunctions.h"
 #include"imgui.h"
 #include"imgui_impl_glfw.h"
 #include"imgui_impl_opengl3.h"
@@ -29,7 +28,6 @@ PeriiNewScr PeriiNewScrscr;
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 
 Console con;
-Scripting scr;
 
 double scroll_offset = 45.0;
 
@@ -502,13 +500,12 @@ int main()
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 		glfwSetCursorPosCallback(window, mouse_callback);
-		scr.Relase("ov.rtsm");
+
 	}
 
 
 	
-	scr.Relase("ov.rtsm");
-	//remove("ov.rtsm");
+
 
 	glDeleteShader(vertexShader);
 	glDeleteShader(fragmentShader);
