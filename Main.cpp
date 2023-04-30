@@ -81,8 +81,12 @@ void rebuild(GLFWwindow* window, bool localPython) {
 	std::cout << getLatestPythonLocation() << endl;
 	std::string command = std::string("start /B python builder.py");
 	if (!localPython) {
-		command = std::string("start /B ") + getLatestPythonLocation() + std::string(" builder.py");
+		std::filesystem::path pythonPath = getLatestPythonLocation();
+		pythonPath /= "builder.py";
+		std::string command = std::string("start /B \"\"") + pythonPath.generic_string() + std::string("\"\"");
 	}
+	
+
 	std::system(command.c_str());
 
 
