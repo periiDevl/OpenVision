@@ -69,11 +69,13 @@ std::string getLatestLine(const std::string& input) {
 std::string getLatestPythonLocation() {
 	return (getLatestLine(executeCommandAndGetOutput("where python")));
 }
-void rebuild(GLFWwindow* window) {
+void rebuild(GLFWwindow* window, bool localPython) {
 	std::cout << "python locations " << endl << executeCommandAndGetOutput("where python") << endl;
 	std::cout << getLatestPythonLocation() << endl;
-
-	std::string command = std::string("start /B ") + getLatestPythonLocation() + std::string(" builder.py");
+	std::string command = std::string("start /B python builder.py");
+	if (!localPython) {
+		command = std::string("start /B ") + getLatestPythonLocation() + std::string(" builder.py");
+	}
 	std::system(command.c_str());
 	
 
@@ -251,7 +253,7 @@ int main()
 	const float fixed_timestep = 1.0f / 60.0;
 	DefaultTheme();
 
-
+	bool localPy = true;
 	while (!glfwWindowShouldClose(window))
 	{
 		
@@ -296,10 +298,9 @@ int main()
 		}
 		if (ImGui::Button("Rebuild"))
 		{
-			rebuild(window);
-
-			
+			rebuild(window, localPy);
 		}
+		ImGui::Checkbox("Local python", &localPy);
 		if (ImGui::Button("Exit OV"))
 		{
 			std::system("taskkill /f /im python.exe");
@@ -357,7 +358,7 @@ int main()
 				outputFile.close();
 				addOVscript(scriptName);
 				memset(scriptName, 0, sizeof(scriptName));
-				rebuild(window);
+				rebuild(window, localPy);
 			}
 
 			if (ImGui::Button("Remove Script"))
@@ -381,7 +382,7 @@ int main()
 
 				removeOVscript(scriptName);
 				memset(scriptName, 0, sizeof(scriptName));
-				rebuild(window);
+				rebuild(window, localPy);
 			}
 
 			if (ImGui::Button("Open Script"))
