@@ -81,10 +81,10 @@ void rebuild(GLFWwindow* window, bool localPython) {
 	std::cout << getLatestPythonLocation() << endl;
 	std::string command = std::string("start /B python builder.py");
 	if (!localPython) {
-		command = std::string("start /B") + getLatestPythonLocation() + std::string(" builder.py");
+		command = std::string("start /B ") + getLatestPythonLocation() + std::string(" builder.py");
 	}
 	std::system(command.c_str());
-	
+
 
 	std::chrono::seconds wait_time(1);
 	std::this_thread::sleep_for(wait_time);
