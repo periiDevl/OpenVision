@@ -4,10 +4,10 @@
 
 ## Q&A
 
-### Why should I use open vision over a game engine like Unity or Unreal?
+### Why should I use OpenVision over a game engine like Unity or Unreal?
 >Well of course Vision does not comapre to Unity or Unreal but its a nice game engine both for people trying to create simple games or people that are on there way to learn high level programming, Also you can access Vision engine inside the scripts which means full control and modifications of the game engine.
 
 ### Will the game engine be supported on the future?
->Yes, While openvision is a game engine made for a mentoring project we will fix bugs and add new features in the future. After we are also going to use this engine might as well make it good ;)
+>Yes, While OpenVision is a game engine made for a mentoring project we will fix bugs and add new features in the future. After all we are also going to use this engine might as well make it good ;)
 
 
