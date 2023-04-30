@@ -29,10 +29,16 @@ Console con;
 double scroll_offset = 45.0;
 
 Camera camera(width, height, glm::vec3(0.0f, 0.0f, 80.0f));
+#include <iostream>
+#include <fstream>
+#include <sstream>
+#include <string>
+#include <cstring>
+#include <cstdlib>
+
 std::string executeCommandAndGetOutput(const char* command) {
 	std::string outputFileName = "command_output.txt";
-
-	std::string commandWithOutputRedirect = std::string(command) + " > " + outputFileName;
+	std::string commandWithOutputRedirect = std::string(command) + " > \"" + outputFileName + "\"";
 
 	std::system(commandWithOutputRedirect.c_str());
 
@@ -50,6 +56,7 @@ std::string executeCommandAndGetOutput(const char* command) {
 
 	return output.str();
 }
+
 std::string getLatestLine(const std::string& input) {
 	std::vector<std::string> lines;
 	std::stringstream ss(input);
@@ -74,7 +81,7 @@ void rebuild(GLFWwindow* window, bool localPython) {
 	std::cout << getLatestPythonLocation() << endl;
 	std::string command = std::string("start /B python builder.py");
 	if (!localPython) {
-		command = std::string("start /B ") + getLatestPythonLocation() + std::string(" builder.py");
+		command = std::string("start /B") + getLatestPythonLocation() + std::string(" builder.py");
 	}
 	std::system(command.c_str());
 	
