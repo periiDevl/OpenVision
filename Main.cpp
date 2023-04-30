@@ -28,6 +28,8 @@ Console con;
 
 double scroll_offset = 45.0;
 
+
+
 Camera camera(width, height, glm::vec3(0.0f, 0.0f, 80.0f));
 #include <iostream>
 #include <fstream>
@@ -76,17 +78,14 @@ std::string getLatestLine(const std::string& input) {
 std::string getLatestPythonLocation() {
 	return (getLatestLine(executeCommandAndGetOutput("where python")));
 }
-void rebuild(GLFWwindow* window, bool localPython) {
+void rebuild(GLFWwindow* window) {
 	std::cout << "python locations " << endl << executeCommandAndGetOutput("where python") << endl;
 	std::cout << getLatestPythonLocation() << endl;
-	std::string command = std::string("start /B python builder.py");
-	if (!localPython) {
-		std::filesystem::path pythonPath = getLatestPythonLocation();
-		pythonPath /= "builder.py";
-		std::string command = std::string("start /B \"\"") + pythonPath.generic_string() + std::string("\"\"");
-	}
 	
-
+	
+	std::filesystem::path pythonPath = getLatestPythonLocation();
+	pythonPath /= "builder.py";
+	std::string command = std::string("start /B \"\"") + pythonPath.generic_string() + std::string("\"\"");
 	std::system(command.c_str());
 
 
@@ -124,6 +123,8 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 	scroll_offset += yoffset;
 	printf("Scrolled by %f units\n", scroll_offset);
 }
+
+
 
 
 
@@ -168,6 +169,7 @@ int main()
 
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+	glfwWindowHint(GLFW_SAMPLES, msaasamples);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	GLFWwindow* window = glfwCreateWindow(width, height, "Loading...", NULL, NULL);
 	if (window == NULL)
@@ -180,7 +182,7 @@ int main()
 	glfwSetWindowAttrib(window, GLFW_RESIZABLE, GLFW_FALSE);
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 	glfwSetScrollCallback(window, scroll_callback);
-
+	
 	//load Icon
 	int wid, hei;
 	int channels;
@@ -264,7 +266,7 @@ int main()
 	const float fixed_timestep = 1.0f / 60.0;
 	DefaultTheme();
 
-	bool localPy = true;
+	glEnable(GL_MULTISAMPLE);
 	while (!glfwWindowShouldClose(window))
 	{
 		
@@ -309,15 +311,20 @@ int main()
 		}
 		if (ImGui::Button("Rebuild"))
 		{
-			rebuild(window, localPy);
+			rebuild(window);
 		}
-		ImGui::Checkbox("Local python", &localPy);
+
 		if (ImGui::Button("Exit OV"))
 		{
+			return 0;
 			std::system("taskkill /f /im python.exe");
 			glfwSetWindowShouldClose(window, GLFW_TRUE);
 
 		}
+
+
+
+
 
 		ImGui::End();
 		
@@ -331,6 +338,8 @@ int main()
 
 			ImGui::Begin("Assets");
 			{
+
+				
 				if (ImGui::Button("Add Texture"))
 				{
 					
@@ -369,31 +378,34 @@ int main()
 				outputFile.close();
 				addOVscript(scriptName);
 				memset(scriptName, 0, sizeof(scriptName));
-				rebuild(window, localPy);
+				rebuild(window);
 			}
 
 			if (ImGui::Button("Remove Script"))
 			{
-				std::string scriptname_str = scriptName;
-				std::ifstream inputFile("scripts.ov");
-				std::ofstream tempFile("temp.txt"); 
-				std::string line;
+				if (scriptName != "Script"
+					) {
+					std::string scriptname_str = scriptName;
+					std::ifstream inputFile("scripts.ov");
+					std::ofstream tempFile("temp.txt");
+					std::string line;
 
-				while (std::getline(inputFile, line)) {
-					if (line.find(scriptname_str) != std::string::npos) {
-						continue;
+					while (std::getline(inputFile, line)) {
+						if (line.find(scriptname_str) != std::string::npos) {
+							continue;
+						}
+						tempFile << line << std::endl;
 					}
-					tempFile << line << std::endl;
+
+					inputFile.close();
+					tempFile.close();
+					std::remove("scripts.ov");
+					std::rename("temp.txt", "scripts.ov");
+
+					removeOVscript(scriptName);
+					memset(scriptName, 0, sizeof(scriptName));
+					rebuild(window);
 				}
-
-				inputFile.close();
-				tempFile.close();
-				std::remove("scripts.ov");
-				std::rename("temp.txt", "scripts.ov");
-
-				removeOVscript(scriptName);
-				memset(scriptName, 0, sizeof(scriptName));
-				rebuild(window, localPy);
 			}
 
 			if (ImGui::Button("Open Script"))
