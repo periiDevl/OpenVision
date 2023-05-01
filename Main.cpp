@@ -78,20 +78,19 @@ std::string getLatestLine(const std::string& input) {
 std::string getLatestPythonLocation() {
 	return (getLatestLine(executeCommandAndGetOutput("where python")));
 }
-void rebuild(GLFWwindow* window) {
+void rebuild(GLFWwindow* window, bool localPython) {
 	std::cout << "python locations " << endl << executeCommandAndGetOutput("where python") << endl;
 	std::cout << getLatestPythonLocation() << endl;
-	
-	
-	std::filesystem::path pythonPath = getLatestPythonLocation();
-	pythonPath /= "builder.py";
-	std::string command = std::string("start /B \"\"") + pythonPath.generic_string() + std::string("\"\"");
+	std::string command = std::string("start /B python builder.py");
+	if (!localPython) {
+		std::filesystem::path pythonPath = getLatestPythonLocation();
+		pythonPath /= "builder.py";
+		std::string command = std::string("start /B \"\"") + pythonPath.generic_string() + std::string("\"\"");
+	}
+
 	std::system(command.c_str());
-
-
 	std::chrono::seconds wait_time(1);
 	std::this_thread::sleep_for(wait_time);
-
 	glfwSetWindowShouldClose(window, GLFW_TRUE);
 
 }
@@ -311,20 +310,15 @@ int main()
 		}
 		if (ImGui::Button("Rebuild"))
 		{
-			rebuild(window);
+			rebuild(window,false);
 		}
 
 		if (ImGui::Button("Exit OV"))
 		{
-			return 0;
 			std::system("taskkill /f /im python.exe");
 			glfwSetWindowShouldClose(window, GLFW_TRUE);
 
 		}
-
-
-
-
 
 		ImGui::End();
 		
@@ -378,7 +372,7 @@ int main()
 				outputFile.close();
 				addOVscript(scriptName);
 				memset(scriptName, 0, sizeof(scriptName));
-				rebuild(window);
+				rebuild(window, false);
 			}
 
 			if (ImGui::Button("Remove Script"))
@@ -404,7 +398,7 @@ int main()
 
 					removeOVscript(scriptName);
 					memset(scriptName, 0, sizeof(scriptName));
-					rebuild(window);
+					rebuild(window, false);
 				}
 			}
 
@@ -459,9 +453,9 @@ int main()
 
 							ImGui::Columns(2, nullptr, true);
 
-							ImGui::InputFloat(("Position X##" + std::to_string(i)).c_str(), &sceneObjects[i].calculatedPosition.x, 0.3f, 1, "%.3f", 0);
+							ImGui::InputFloat(("Position X##" + std::to_string(i)).c_str(), &sceneObjects[i].position.x, 0.3f, 1, "%.3f", 0);
 							ImGui::NextColumn();
-							ImGui::InputFloat(("Position Y##" + std::to_string(i)).c_str(), &sceneObjects[i].calculatedPosition.y, 0.3f, 1, "%.3f", 0);
+							ImGui::InputFloat(("Position Y##" + std::to_string(i)).c_str(), &sceneObjects[i].position.y, 0.3f, 1, "%.3f", 0);
 
 							ImGui::Columns(1, nullptr, true);
 							ImGui::Columns(2, nullptr, true);
@@ -489,10 +483,10 @@ int main()
 						ndcMouseY = (float)mouseY / (float)height * 2.0f - 1.0f;
 						ndcMouseX *= rattio.x * 4;
 						ndcMouseY *= rattio.y * 4;
-						if ((sceneObjects[i].calculatedPosition.x - sceneObjects[i].ScaleX / 3) - camera.Position.x < ndcMouseX &&
-							(sceneObjects[i].calculatedPosition.x + sceneObjects[i].ScaleX / 3) + camera.Position.x > ndcMouseX &&
-							(sceneObjects[i].calculatedPosition.y + sceneObjects[i].ScaleY / 3) - camera.Position.y > ndcMouseY &&
-							(sceneObjects[i].calculatedPosition.y - sceneObjects[i].ScaleY / 3) + camera.Position.y < ndcMouseY
+						if ((sceneObjects[i].position.x - sceneObjects[i].ScaleX / 3) - camera.Position.x < ndcMouseX &&
+							(sceneObjects[i].position.x + sceneObjects[i].ScaleX / 3) + camera.Position.x > ndcMouseX &&
+							(sceneObjects[i].position.y + sceneObjects[i].ScaleY / 3) - camera.Position.y > ndcMouseY &&
+							(sceneObjects[i].position.y - sceneObjects[i].ScaleY / 3) + camera.Position.y < ndcMouseY
 							&& glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
 						{
 							if (!sceneObjects[i].selected) {
@@ -503,8 +497,8 @@ int main()
 								float dx = ndcMouseX - beforeMouseX;
 								float dy = ndcMouseY - beforeMouseY;
 
-								sceneObjects[i].calculatedPosition.x += dx;
-								sceneObjects[i].calculatedPosition.y += dy;
+								sceneObjects[i].position.x += dx;
+								sceneObjects[i].position.y += dy;
 
 								beforeMouseX = ndcMouseX;
 								beforeMouseY = ndcMouseY;

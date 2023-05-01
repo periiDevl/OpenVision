@@ -28,7 +28,7 @@ void Object::Draw(GLFWwindow* window, GLuint shader, Camera& camera, glm::vec3 a
 	
     unsigned int numDiffuse = 0;
     glm::mat4 model = glm::mat4(1.0f);
-    model = glm::translate(model, glm::vec3(calculatedPosition.x, -calculatedPosition.y, 0.0f));
+    model = glm::translate(model, glm::vec3(position.x, -position.y, 0.0f));
 
     model = glm::rotate(model, Deg(angle), axis);
     model = glm::scale(model, glm::vec3(ScaleX, ScaleY, 1.0f));

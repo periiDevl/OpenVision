@@ -69,9 +69,6 @@
     <ClCompile Include="imgui\imgui_tables.cpp">
       <Filter>Source Files\imgui</Filter>
     </ClCompile>
-    <ClCompile Include="ScriptsFunctions.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="PhysicsWorld.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -91,9 +88,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Script.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="PeriiNewScr.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="JustAscript.cpp">
@@ -155,9 +149,6 @@
     <ClInclude Include="IMGUITheme.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ScriptsFunctions.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="CodeReciver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -180,9 +171,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Script.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="PeriiNewScr.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="JustAscript.h">
