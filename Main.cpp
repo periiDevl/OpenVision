@@ -245,8 +245,8 @@ int main()
 
 	
 	
-	std::vector<Texture> textures = {  Texture("texas.png", "diffuse", 0), Texture("ohio.png", "diffuse", 0),
-		Texture("flops.jpeg", "diffuse", 0) };
+	std::vector<Texture> textures = {  Texture("texas.png"), Texture("ohio.png"),
+		Texture("flops.jpeg") };
 	
 
 
@@ -337,7 +337,7 @@ int main()
 				if (ImGui::Button("Add Texture"))
 				{
 					
-					textures.push_back(Texture(addedfile, "diffuse", 0));
+					textures.push_back(Texture(addedfile));
 				}
 
 				ImGui::InputText("Path : ", addedfile, sizeof(addedfile));

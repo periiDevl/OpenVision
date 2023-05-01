@@ -1,8 +1,9 @@
 #include"Tex.h"
 
-Texture::Texture(const char* image, const char* texType, GLuint slot)
+Texture::Texture(const char* image)
 {
-    type = texType;
+    GLuint slot = 0;
+    type = "diffuse";
     ImageFile = image;
 
     int widthImg, heightImg, numColCh;
@@ -11,7 +12,7 @@ Texture::Texture(const char* image, const char* texType, GLuint slot)
 
     glGenTextures(1, &ID);
     glActiveTexture(GL_TEXTURE0 + slot);
-    unit = slot;
+    unit = 0;
     glBindTexture(GL_TEXTURE_2D, ID);
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);

@@ -13,7 +13,7 @@ public:
 	const char* ImageFile = "Texture not loaded";
 	GLuint unit;
 
-	Texture(const char* image, const char* texType, GLuint slot);
+	Texture(const char* image);
 
 	void texUnit(GLuint shader, const char* uniform);
 	void Bind();
