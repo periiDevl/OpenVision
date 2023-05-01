@@ -114,7 +114,7 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 
 	if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS) {
 		camera.Position.x -= deltaX * 0.1f;
-		camera.Position.y += deltaY * 0.1f; 
+		camera.Position.y += deltaY * 0.1f;
 	}
 }
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
@@ -150,11 +150,11 @@ int main()
 
 	PhysicsWorld world(vec3(0, -5.0f, 0), 10);
 	world.AddBody(&body1);
-	
+
 
 	const std::filesystem::path directory_path = std::filesystem::current_path();
 
-	
+
 
 
 	for (int i = 0; i < 4; i++) {
@@ -180,7 +180,7 @@ int main()
 	glfwSetWindowAttrib(window, GLFW_RESIZABLE, GLFW_FALSE);
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 	glfwSetScrollCallback(window, scroll_callback);
-	
+
 	//load Icon
 	int wid, hei;
 	int channels;
@@ -225,11 +225,11 @@ int main()
 	glAttachShader(unlitProgram, unlitFragmentShader);
 	glLinkProgram(unlitProgram);
 
-	
+
 
 	std::vector <Vertex> verts(vertices, vertices + sizeof(vertices) / sizeof(Vertex));
 	std::vector <GLuint> ind(indices, indices + sizeof(indices) / sizeof(GLuint));
-	
+
 
 
 	float ndcMouseX;
@@ -242,17 +242,18 @@ int main()
 	bool StartPhase = false;
 
 
-	
-	
-	std::vector<Texture> textures = {  Texture("texas.png"), Texture("ohio.png"),
+
+
+	std::vector<Texture> textures = { Texture("texas.png"), Texture("ohio.png"),
 		Texture("flops.jpeg") };
-	
+
+	std::vector<Object> sceneObjects;
+	std::vector<Object> PresceneObjects;
 
 	std::ifstream ovEnvFile("OV_ENV.txt");
-	std::vector<Object> sceneObjects;
 	while (std::getline(ovEnvFile, line)) {
 		float posx, posy, scalex, scaley, angle;
-		std::string texture;
+		const char* texture;
 		std::string delimiter = ",";
 		std::istringstream iss(line);
 
@@ -268,7 +269,7 @@ int main()
 		std::getline(iss, token, ',');
 		angle = std::stof(token);
 		std::getline(iss, token, ',');
-		texture = token;
+		texture = token.c_str();
 
 		std::cout << posx;
 		std::cout << posy;
@@ -283,23 +284,21 @@ int main()
 		obj.ScaleX = scalex;
 		obj.ScaleY = scaley;
 		obj.angle = angle;
-		obj.tex = Texture(texture.c_str());
+		obj.tex = Texture(texture);
 
-		sceneObjects.push_back(obj);
+		//Reminder to remove textures and make them their own file
+
+		PresceneObjects.push_back(obj);
 	}
-
-
-
 	ovEnvFile.close();
 
-	Object sceneobkj = Object(verts, ind);
-	sceneobkj.tex = textures[0];
+	//Object sceneobkj = Object(verts, ind);
 	double prevTime = 0.0;
 	double crntTime = 0.0;
 	double timeDiff;
 	unsigned int counter = 0;
 	int selectedObject = 0;
-	
+
 	char addedfile[256] = "";
 
 	const float fixed_timestep = 1.0f / 60.0;
@@ -308,7 +307,7 @@ int main()
 	glEnable(GL_MULTISAMPLE);
 	while (!glfwWindowShouldClose(window))
 	{
-		
+
 		if (glfwGetKey(window, GLFW_KEY_ESCAPE))
 		{
 			run = false;
@@ -319,7 +318,7 @@ int main()
 		camera.updateMatrix(45.0f, 0.1f, 100.0f);
 
 
-		
+
 		crntTime = glfwGetTime();
 		timeDiff = crntTime - prevTime;
 		counter++;
@@ -335,8 +334,8 @@ int main()
 			prevTime = crntTime;
 			counter = 0;
 		}
-		
-		
+
+
 		ImGui::Begin("Execute");
 		if (ImGui::Button("run"))
 		{
@@ -350,7 +349,7 @@ int main()
 		}
 		if (ImGui::Button("Rebuild"))
 		{
-			rebuild(window,false);
+			rebuild(window, false);
 		}
 
 		if (ImGui::Button("Exit OV"))
@@ -361,22 +360,24 @@ int main()
 		}
 
 		ImGui::End();
-		
+
 		con.Draw();
 
 		if (!run) {
 			if (!StartPhase) {
 
+				
+				sceneObjects = PresceneObjects;
 				StartPhase = true;
 			}
-
+			PresceneObjects = sceneObjects;
 			ImGui::Begin("Assets");
 			{
 
-				
+
 				if (ImGui::Button("Add Texture"))
 				{
-					
+
 					textures.push_back(Texture(addedfile));
 				}
 
@@ -392,6 +393,7 @@ int main()
 
 						con.log(("File : " + std::string(textures[k].ImageFile) + "Binded To : " + std::to_string(selectedObject)).c_str());
 
+
 					}
 
 
@@ -399,7 +401,7 @@ int main()
 				}
 			}
 
-			static char scriptName[128] = ""; 
+			static char scriptName[128] = "";
 
 			ImGui::Begin("Scripts");
 			ImGui::Columns(2, nullptr, true);
@@ -473,6 +475,7 @@ int main()
 			{
 				for (size_t i = 0; i < sceneObjects.size(); i++)
 				{
+
 					if (sceneObjects[i].selected)
 					{
 
@@ -550,7 +553,7 @@ int main()
 							sceneObjects[i].selected = false;
 						}
 
-						
+
 
 						sceneObjects[i].Draw(window, shaderProgram, camera, glm::vec3(0, 0, 1), width, height, rattio);
 						glUseProgram(unlitProgram);
@@ -566,14 +569,14 @@ int main()
 				}
 			}
 		}
-		sceneobkj.DrawTMP(window, shaderProgram, camera, glm::vec2(body1.GetPosition().x, body1.GetPosition().y));
+		//sceneobkj.DrawTMP(window, shaderProgram, camera, glm::vec2(body1.GetPosition().x, body1.GetPosition().y));
 		if (run) {
 			if (StartPhase)
 			{
-				
+
 				script.Start(con, sceneObjects);
 				JustAscriptscr.Start(con, sceneObjects);
-				
+
 				StartPhase = false;
 			}
 			script.Update(con, sceneObjects);
@@ -592,9 +595,9 @@ int main()
 				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 				sceneObjects[i].Draw(window, shaderProgram, camera, glm::vec3(0, 0, 1), width, height, rattio);
 			}
-			
+
 		}
-		
+
 		world.Step(1.0f / 60);
 
 		ImGui::End();
@@ -607,24 +610,24 @@ int main()
 
 	}
 
-
-
-
-	glDeleteShader(vertexShader);
-	glDeleteShader(fragmentShader);
-	
-	glfwDestroyWindow(window);
-	glfwTerminate();
-
-	std::ofstream outfile("OV_ENV.txt"); 
-	for (const auto& obj : sceneObjects) {
+	std::ofstream outfile("OV_ENV.txt");
+	for (const auto& obj : PresceneObjects) {
 		outfile << obj.position.x << "," << obj.position.y << "," << obj.ScaleX << ","
 			<< obj.ScaleY << "," << obj.angle << "," << obj.tex.ImageFile << "\n";
 	}
 	outfile.close();
 	std::cout << "Objects written to file successfully.\n";
 
-	
+
+
+
+	glDeleteShader(vertexShader);
+	glDeleteShader(fragmentShader);
+
+	glfwDestroyWindow(window);
+	glfwTerminate();
+
+
 	return 0;
 }
 

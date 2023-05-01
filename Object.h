@@ -13,7 +13,8 @@ class Object
 public:
 	bool deleted = false;
 	bool selected;
-	Texture tex = Texture("epicphoto.jpg");
+	Texture tex = Texture("texas.png");
+	const char* texChar;
 	float outlineWidth = 0;
 	glm::vec3 OutlineColor = glm::vec3(0,0,0);
 	glm::vec2 position;
