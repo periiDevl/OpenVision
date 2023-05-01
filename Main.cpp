@@ -130,7 +130,6 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 
 int main()
 {
-	//Read lines from the file
 	std::vector<std::string> lines;
 	std::ifstream inputFile("scripts.ov");
 	if (!inputFile.is_open()) {
@@ -249,8 +248,49 @@ int main()
 		Texture("flops.jpeg") };
 	
 
-
+	std::ifstream ovEnvFile("OV_ENV.txt");
 	std::vector<Object> sceneObjects;
+	while (std::getline(ovEnvFile, line)) {
+		float posx, posy, scalex, scaley, angle;
+		std::string texture;
+		std::string delimiter = ",";
+		std::istringstream iss(line);
+
+		std::string token;
+		std::getline(iss, token, ',');
+		posx = std::stof(token);
+		std::getline(iss, token, ',');
+		posy = std::stof(token);
+		std::getline(iss, token, ',');
+		scalex = std::stof(token);
+		std::getline(iss, token, ',');
+		scaley = std::stof(token);
+		std::getline(iss, token, ',');
+		angle = std::stof(token);
+		std::getline(iss, token, ',');
+		texture = token;
+
+		std::cout << posx;
+		std::cout << posy;
+		std::cout << scalex;
+		std::cout << scaley;
+		std::cout << angle;
+		std::cout << texture;
+
+		Object obj = Object(verts, ind);
+		obj.position.x = posx;
+		obj.position.y = posy;
+		obj.ScaleX = scalex;
+		obj.ScaleY = scaley;
+		obj.angle = angle;
+		obj.tex = Texture(texture.c_str());
+
+		sceneObjects.push_back(obj);
+	}
+
+
+
+	ovEnvFile.close();
 
 	Object sceneobkj = Object(verts, ind);
 	sceneobkj.tex = textures[0];
@@ -568,7 +608,6 @@ int main()
 	}
 
 
-	
 
 
 	glDeleteShader(vertexShader);
@@ -576,6 +615,14 @@ int main()
 	
 	glfwDestroyWindow(window);
 	glfwTerminate();
+
+	std::ofstream outfile("OV_ENV.txt"); 
+	for (const auto& obj : sceneObjects) {
+		outfile << obj.position.x << "," << obj.position.y << "," << obj.ScaleX << ","
+			<< obj.ScaleY << "," << obj.angle << "," << obj.tex.ImageFile << "\n";
+	}
+	outfile.close();
+	std::cout << "Objects written to file successfully.\n";
 
 	
 	return 0;
