@@ -253,7 +253,7 @@ int main()
 	std::ifstream ovEnvFile("OV_ENV.txt");
 	while (std::getline(ovEnvFile, line)) {
 		float posx, posy, scalex, scaley, angle;
-		const char* texture;
+		std::string texture;
 		std::string delimiter = ",";
 		std::istringstream iss(line);
 
@@ -284,10 +284,10 @@ int main()
 		obj.ScaleX = scalex;
 		obj.ScaleY = scaley;
 		obj.angle = angle;
-		obj.tex = Texture(texture);
+		obj.texChar = texture;
 
 		//Reminder to remove textures and make them their own file
-
+		obj.tex = Texture((texture).c_str());
 		PresceneObjects.push_back(obj);
 	}
 	ovEnvFile.close();
@@ -390,7 +390,7 @@ int main()
 
 					if (ImGui::Selectable(("Bind : " + std::string(textures[k].ImageFile)).c_str())) {
 						sceneObjects[selectedObject].tex = textures[k];
-
+						sceneObjects[selectedObject].texChar = textures[k].ImageFile;
 						con.log(("File : " + std::string(textures[k].ImageFile) + "Binded To : " + std::to_string(selectedObject)).c_str());
 
 
@@ -565,6 +565,7 @@ int main()
 						glLineWidth(0.0f);
 						glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
+
 					}
 				}
 			}
@@ -613,7 +614,7 @@ int main()
 	std::ofstream outfile("OV_ENV.txt");
 	for (const auto& obj : PresceneObjects) {
 		outfile << obj.position.x << "," << obj.position.y << "," << obj.ScaleX << ","
-			<< obj.ScaleY << "," << obj.angle << "," << obj.tex.ImageFile << "\n";
+			<< obj.ScaleY << "," << obj.angle << "," << obj.texChar << "\n";
 	}
 	outfile.close();
 	std::cout << "Objects written to file successfully.\n";
