@@ -286,7 +286,6 @@ int main()
 		obj.angle = angle;
 		obj.texChar = texture;
 
-		//Reminder to remove textures and make them their own file
 		obj.tex = Texture((texture).c_str());
 		PresceneObjects.push_back(obj);
 	}
