@@ -1,10 +1,12 @@
 #include"Script.h"
-void Script::Start(Console& ovcon, std::vector<Object>& sceneObjects)
-{
-	ovcon.log("Hello World!");
-	sceneObjects[0].position.x = 10;
+void Script::Start(Console& ovcon, GLFWwindow* window, PhysicsWorld& world, std::vector<Object>& sceneObjects) {
+	for (int i = 0; i < sceneObjects.size(); i++) {
+		world.AddBody(sceneObjects[i].Body);
+		sceneObjects[i].Body->velocity = vec2(1, 0);
+	}
 }
-void Script::Update(Console& ovcon, std::vector<Object>& sceneObjects)
-{
-
+void Script::Update(Console& ovcon, GLFWwindow* window, PhysicsWorld& world, std::vector<Object>& sceneObjects) {
+	if (glfwGetKey(window, GLFW_KEY_SPACE)) {
+		world.SetGravity(-world.GetGravity());
+	}
 }

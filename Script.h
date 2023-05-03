@@ -3,6 +3,6 @@
 #include"Object.h"
 class Script {
 public:
-	void Start(Console& ovcon, std::vector<Object>& sceneObjects);
-	void Update(Console& ovcon, std::vector<Object>& sceneObjects);
+	void Start (Console& ovcon, GLFWwindow* window, PhysicsWorld& world, std::vector<Object>& sceneObjects);
+	void Update(Console& ovcon, GLFWwindow* window, PhysicsWorld& world, std::vector<Object>& sceneObjects);
 };

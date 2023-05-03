@@ -20,41 +20,28 @@ using namespace std;
 class PhysicsBody
 {
 public:
-	PhysicsBody(vec2 pos, float rot, vec2 sca, float mass, float area, float density, float restitution, float inertia, bool isStatic);
+	PhysicsBody();
+	PhysicsBody(glm::vec2* pos, float rot, glm::vec2* sca, float mass, float density, float restitution, bool isStatic);
 
+	
 	void Step(float deltaTime);
-
-	vec2 GetPosition();
-	float GetRotation();
-	vec2 GetScale();
-	float GetMass();
-	float GetArea();
-	float GetDensity();
-	float GetRestituion();
-	float GetInertia();
-	bool GetIsStatic();
 
 	Collider* GetCollider();
 	
-	vec2 GetVelocity();
-
 	void ApplyForce(vec2 newForce);
-	void SetVelocity(vec2 newVelocity);
-	void SetPosition(vec2 newPosition);
 
 	void SetGravity(vec2 newGravity);
-private:
-	vec2 position, scale;
+
+	vec2* position;
+	vec2* scale;
 	float rotation;
 
-
-	float mass, area, density, restitution, inertia;
+	float mass, area, density, restitution;
 	bool isStatic;
 
 	vec2 force, velocity;
-	float angularVelocity;
-	
-	
+
+private:
 	vec2 gravity;
 	Collider* collider;
 

@@ -1,9 +1,37 @@
 #include "CollisionManager.h"
 
-bool BoundingAABB(const Collider& colA, const Collider& colB, vec2& mtv)
+bool BoundingAABB(Collider& colA, Collider& colB, vec2& mtv)
 {
+    colA.CalculateAABB();
+    colB.CalculateAABB();
 
-    return false;
+    glm::vec2 aMin = colA.bMin;  // Minimum point of AABB A
+    glm::vec2 aMax = colA.bMax;  // Maximum point of AABB A
+    glm::vec2 bMin = colB.bMin;  // Minimum point of AABB B
+    glm::vec2 bMax = colB.bMax;  // Maximum point of AABB B
+
+    bool collision = true;
+
+    // Check for overlap on the x-axis
+    if (aMax.x < bMin.x || aMin.x > bMax.x)
+        collision = false;
+
+    // Check for overlap on the y-axis
+    if (aMax.y < bMin.y || aMin.y > bMax.y)
+        collision = false;
+
+    if (collision)
+    {
+        // Calculate the MTV
+        float overlapX = (aMax.x < bMax.x) ? aMax.x - bMin.x : bMax.x - aMin.x;
+        float overlapY = (aMax.y < bMax.y) ? aMax.y - bMin.y : bMax.y - aMin.y;
+
+        // Determine the smallest overlap along each axis
+        mtv.x = (abs(overlapX) < abs(overlapY)) ? overlapX : 0.0f;
+        mtv.y = (abs(overlapY) < abs(overlapX)) ? overlapY : 0.0f;
+    }
+
+    return collision;
 }
 
 bool BoundingCircle(const Collider& colA, const Collider& colB, vec2& mtv) {

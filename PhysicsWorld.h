@@ -20,7 +20,11 @@ class PhysicsWorld
 public:
 	PhysicsWorld(vec3 gravity, int iterations);
 	void Step(float deltaTime);
+	void SetGravity(vec3 gravity);
+	vec3 GetGravity();
 	void AddBody(PhysicsBody* body);
+	void RemoveBody(PhysicsBody* body);
+	vector<PhysicsBody*> GetBodies();
 
 private:
 	int iterations;

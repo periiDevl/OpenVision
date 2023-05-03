@@ -32,6 +32,8 @@ public:
 	/// A method to calculate the Bound Radius for higher performance and easier collision detection
 	/// </summary>
 	virtual void CalculateBoundRadius() = 0;
+	
+	
 	/// <summary>
 	/// The position (x, y) of an object
 	/// It is a pointer because you will set it to the body's position that it is being used by 

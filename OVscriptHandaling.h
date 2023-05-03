@@ -172,8 +172,8 @@ void addH(const std::string& filename, const std::string& file, const std::strin
 #include"Object.h"
 class )" + file + R"( {
 public:
-    void Start(Console& ovcon, std::vector<Object>& sceneObjects);
-    void Update(Console& ovcon, std::vector<Object>& sceneObjects);
+    void Start(Console& ovcon, PhysicsWorld& world, std::vector<Object>& sceneObjects);
+    void Update(Console& ovcon, PhysicsWorld& world, std::vector<Object>& sceneObjects);
 };
     )";
 		createfile << script;
@@ -213,11 +213,11 @@ void addCpp(const std::string& filename, const std::string& file, const std::str
 		std::string script =
 			R"(
 #include")" + file + R"(.h"
-void )" + file + R"(::Start(Console& ovcon, std::vector<Object>& sceneObjects)
+void )" + file + R"(::Start(Console& ovcon,PhysicsWorld& world, std::vector<Object>& sceneObjects)
 {
 
 }
-void )" + file + R"(::Update(Console& ovcon, std::vector<Object>& sceneObjects)
+void )" + file + R"(::Update(Console& ovcon, PhysicsWorld& world,std::vector<Object>& sceneObjects)
 {
 
 }

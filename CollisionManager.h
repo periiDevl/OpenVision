@@ -15,7 +15,7 @@ using namespace std;
 /// <param name="colB">The Second Collider</param>
 /// <param name="mtv">Minimum Translation Vector</param>
 /// <returns></returns>
-bool BoundingAABB(const Collider& colA, const Collider& colB, vec2& mtv);
+bool BoundingAABB(Collider& colA, Collider& colB, vec2& mtv);
 /// <summary>
 /// A functions for checking Bounding Circle Collision between 2 colliders
 /// This is an easy way that costs a lot less to calculate, it just defines 2 circles for the whole shape and checks if the circle is colliding.

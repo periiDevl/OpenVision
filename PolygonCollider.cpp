@@ -8,8 +8,8 @@ PolygonCollider::PolygonCollider(vec2* pos, float* rot, vec2* sca, vector<vec2> 
 	Rotation = rot;
 	Scale = sca;
 
-	bMin = vec2(-sca->x / 2, -sca->y / 2);
-	bMax = vec2(sca->x / 2, sca->y / 2);
+	bMin = vec2(-1 / 2, -1 / 2);
+	bMax = vec2( 1 / 2,  1 / 2);
 	bRadius = distance(vec2(0.0f), bMax);
 }
 
@@ -20,14 +20,13 @@ PolygonCollider::PolygonCollider(vec2* pos, float* rot, vec2* sca)
 	Scale = sca;
 
 	vertices = vector<vec2>();
-	vertices.push_back(vec2( sca->x / 2,  sca->y / 2));
-	vertices.push_back(vec2(-sca->x / 2,  sca->y / 2));
-	vertices.push_back(vec2(-sca->x / 2, -sca->y / 2));
-	vertices.push_back(vec2( sca->x / 2, -sca->y / 2));
+	vertices.push_back(vec2( 1 / 2,  1 / 2));
+	vertices.push_back(vec2(-1 / 2,  1 / 2));
+	vertices.push_back(vec2(-1 / 2, -1 / 2));
+	vertices.push_back(vec2( 1 / 2, -1 / 2));
 
-	bMin = vec2(-sca->x / 2, -sca->y / 2);
-	bMax = vec2(sca->x / 2, sca->y / 2);
-	bRadius = distance(vec2(0.0f), bMax);
+	CalculateAABB();
+	CalculateBoundRadius();
 }
 
 vec2 PolygonCollider::GetSupportPoint(vec2 direction)
@@ -53,7 +52,7 @@ vector<vec2> PolygonCollider::GetTransformedVertices() const
 {
 	quat rotation(vec3(0.0f, 0.0f, radians(*Rotation)));
 	mat4 transform =
-		scale(glm::mat4(1.0f), vec3(1.0f, 1.0f, 1.0f)) *
+		scale(glm::mat4(1.0f), vec3(*Scale, 1.0f)) *
 		toMat4(rotation) *
 		translate(mat4(1.0f), vec3(Position->x, Position->y, 0));
 
@@ -70,7 +69,8 @@ void PolygonCollider::CalculateAABB()
 {
 	bMax = vec2(0.0f);
 	bMin = vec2(0.0f);
-	for (size_t i = 0; i < vertices.size(); i++)
+	vector<vec2> newVertices = GetTransformedVertices();
+	for (size_t i = 0; i < newVertices.size(); i++)
 	{
 		bMax.x = std::max(bMax.x, (vertices)[i].x);
 		bMax.y = std::max(bMax.y, (vertices)[i].y);

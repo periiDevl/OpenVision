@@ -1,23 +1,26 @@
 #include "Object.h"
 
-Object::Object(std::vector <Vertex>& vertices, std::vector <GLuint>& indices)
+Object::Object(std::vector<Vertex>& vertices, std::vector<GLuint>& indices)
+    : vertices(vertices), indices(indices), position(new glm::vec2(0.0f)), scale(new glm::vec2(20.0f))
 {
-	Object::vertices = vertices;
-    Object::indices = indices;
 
-	VAO.Bind();
-	VBO VBO(vertices);
-	EBO EBO(indices);
-	VAO.LinkAttrib(VBO, 0, 3, GL_FLOAT, sizeof(Vertex), (void*)0);
-	VAO.LinkAttrib(VBO, 1, 3, GL_FLOAT, sizeof(Vertex), (void*)(3 * sizeof(float)));
-	VAO.LinkAttrib(VBO, 2, 3, GL_FLOAT, sizeof(Vertex), (void*)(6 * sizeof(float)));
-	VAO.LinkAttrib(VBO, 3, 2, GL_FLOAT, sizeof(Vertex), (void*)(9 * sizeof(float)));
+    selected = false;
 
-	VAO.Unbind();
-	VBO.Unbind();
-	EBO.Unbind();
+    Body = new PhysicsBody(position, 0, scale, 1, 1, 0.5f, false);
+
+
+    VAO.Bind();
+    VBO VBO(vertices);
+    EBO EBO(indices);
+    VAO.LinkAttrib(VBO, 0, 3, GL_FLOAT, sizeof(Vertex), (void*)0);
+    VAO.LinkAttrib(VBO, 1, 3, GL_FLOAT, sizeof(Vertex), (void*)(3 * sizeof(float)));
+    VAO.LinkAttrib(VBO, 2, 3, GL_FLOAT, sizeof(Vertex), (void*)(6 * sizeof(float)));
+    VAO.LinkAttrib(VBO, 3, 2, GL_FLOAT, sizeof(Vertex), (void*)(9 * sizeof(float)));
+
+    VAO.Unbind();
+    VBO.Unbind();
+    EBO.Unbind();
 }
-
 
 
 void Object::Draw(GLFWwindow* window, GLuint shader, Camera& camera, glm::vec3 axis, float width, float height, glm::vec2 ratio)
@@ -28,10 +31,10 @@ void Object::Draw(GLFWwindow* window, GLuint shader, Camera& camera, glm::vec3 a
 	
     unsigned int numDiffuse = 0;
     glm::mat4 model = glm::mat4(1.0f);
-    model = glm::translate(model, glm::vec3(position.x, -position.y, 0.0f));
+    model = glm::translate(model, glm::vec3(position->x, -position->y, 0.0f));
 
     model = glm::rotate(model, Deg(angle), axis);
-    model = glm::scale(model, glm::vec3(ScaleX, ScaleY, 1.0f));
+    model = glm::scale(model, glm::vec3(*scale, 1.0f));
 
     glUniformMatrix4fv(glGetUniformLocation(shader, "model"), 1, GL_FALSE, glm::value_ptr(model));
 
@@ -60,8 +63,6 @@ void Object::DrawTMP(GLFWwindow* window, GLuint shader, Camera& camera, glm::vec
 
     glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
 }
-
-
 
 
 

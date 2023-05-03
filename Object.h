@@ -7,7 +7,7 @@
 #include"EBO.h"
 #include"Camera.h"
 #include"Tex.h"
-
+#include"PhysicsWorld.h"
 class Object
 {
 public:
@@ -17,16 +17,15 @@ public:
 	std::string texChar;
 	float outlineWidth = 0;
 	glm::vec3 OutlineColor = glm::vec3(0,0,0);
-	glm::vec2 position;
+	glm::vec2* position;
+	glm::vec2* scale;
 	float angle = 0;
 
-
-	float ScaleY = 20;
-	float ScaleX = 20;
 	std::vector <Vertex> vertices;
 	std::vector <GLuint> indices;
 	std::vector <Texture> textures;
 	VAO VAO;
+
 
 	float Deg(float radians)
 	{
@@ -37,7 +36,7 @@ public:
 	Object(std::vector <Vertex>& vertices, std::vector <GLuint>& indices);
 	void Draw(GLFWwindow* window, GLuint shader, Camera& camera,glm::vec3 axis, float width, float height, glm::vec2 ratio);
 	void DrawTMP(GLFWwindow* window, GLuint shader, Camera& camera, glm::vec2 pos);
-
+	PhysicsBody* Body;
 private :
 	
 };

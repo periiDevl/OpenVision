@@ -85,8 +85,9 @@ void rebuild(GLFWwindow* window, bool localPython) {
 	if (!localPython) {
 		std::filesystem::path pythonPath = getLatestPythonLocation();
 		pythonPath /= "builder.py";
-		std::string command = std::string("start /B \"\"") + pythonPath.generic_string() + std::string("\"\"");
+		command = std::string("start /B ") + getLatestPythonLocation() + std::string(" builder.py");
 	}
+	cout << "command:" << command << endl;
 
 	std::system(command.c_str());
 	std::chrono::seconds wait_time(1);
@@ -142,14 +143,7 @@ int main()
 	}
 	inputFile.close();
 
-
-
-	PhysicsBody body1 = PhysicsBody(vec2(-1.5f, 2.0f), 0, vec2(0.3f, 0.5f), 5, 2, 3, 0.7f, 1, false);
-	body1.SetVelocity(vec2(1.5f, 0.0f));
-
-
-	PhysicsWorld world(vec3(0, -5.0f, 0), 10);
-	world.AddBody(&body1);
+	PhysicsWorld world(vec3(0, -1.0f, 0), 10);
 
 
 	const std::filesystem::path directory_path = std::filesystem::current_path();
@@ -279,10 +273,10 @@ int main()
 		std::cout << texture;
 
 		Object obj = Object(verts, ind);
-		obj.position.x = posx;
-		obj.position.y = posy;
-		obj.ScaleX = scalex;
-		obj.ScaleY = scaley;
+		obj.position->x = posx;
+		obj.position->y = posy;
+		obj.scale->x = scalex;
+		obj.scale->y = scaley;
 		obj.angle = angle;
 		obj.texChar = texture;
 
@@ -418,8 +412,7 @@ int main()
 
 			if (ImGui::Button("Remove Script"))
 			{
-				if (scriptName != "Script"
-					) {
+				if (scriptName != "Script") {
 					std::string scriptname_str = scriptName;
 					std::ifstream inputFile("scripts.ov");
 					std::ofstream tempFile("temp.txt");
@@ -495,16 +488,16 @@ int main()
 
 							ImGui::Columns(2, nullptr, true);
 
-							ImGui::InputFloat(("Position X##" + std::to_string(i)).c_str(), &sceneObjects[i].position.x, 0.3f, 1, "%.3f", 0);
+							ImGui::InputFloat(("Position X##" + std::to_string(i)).c_str(), &sceneObjects[i].position->x, 0.3f, 1, "%.3f", 0);
 							ImGui::NextColumn();
-							ImGui::InputFloat(("Position Y##" + std::to_string(i)).c_str(), &sceneObjects[i].position.y, 0.3f, 1, "%.3f", 0);
+							ImGui::InputFloat(("Position Y##" + std::to_string(i)).c_str(), &sceneObjects[i].position->y, 0.3f, 1, "%.3f", 0);
 
 							ImGui::Columns(1, nullptr, true);
 							ImGui::Columns(2, nullptr, true);
-							ImGui::InputFloat(("Scale X##" + std::to_string(i)).c_str(), &sceneObjects[i].ScaleX, 0.3f, 1, "%.3f", 0);
+							ImGui::InputFloat(("Scale X##" + std::to_string(i)).c_str(), &sceneObjects[i].scale->x, 0.3f, 1, "%.3f", 0);
 							ImGui::NextColumn();
 
-							ImGui::InputFloat(("Scale Y##" + std::to_string(i)).c_str(), &sceneObjects[i].ScaleY, 0.3f, 1, "%.3f", 0);
+							ImGui::InputFloat(("Scale Y##" + std::to_string(i)).c_str(), &sceneObjects[i].scale->y, 0.3f, 1, "%.3f", 0);
 
 							ImGui::Columns(1, nullptr, true);
 							ImGui::InputFloat(("Angle ##" + std::to_string(i)).c_str(), &sceneObjects[i].angle, 0.3f, 1, "%.3f", 0);
@@ -525,10 +518,10 @@ int main()
 						ndcMouseY = (float)mouseY / (float)height * 2.0f - 1.0f;
 						ndcMouseX *= rattio.x * 4;
 						ndcMouseY *= rattio.y * 4;
-						if ((sceneObjects[i].position.x - sceneObjects[i].ScaleX / 3) - camera.Position.x < ndcMouseX &&
-							(sceneObjects[i].position.x + sceneObjects[i].ScaleX / 3) + camera.Position.x > ndcMouseX &&
-							(sceneObjects[i].position.y + sceneObjects[i].ScaleY / 3) - camera.Position.y > ndcMouseY &&
-							(sceneObjects[i].position.y - sceneObjects[i].ScaleY / 3) + camera.Position.y < ndcMouseY
+						if ((sceneObjects[i].position->x - sceneObjects[i].scale->x / 3) - camera.Position.x < ndcMouseX &&
+							(sceneObjects[i].position->x + sceneObjects[i].scale->x / 3) + camera.Position.x > ndcMouseX &&
+							(sceneObjects[i].position->y + sceneObjects[i].scale->y / 3) - camera.Position.y > ndcMouseY &&
+							(sceneObjects[i].position->y - sceneObjects[i].scale->y / 3) + camera.Position.y < ndcMouseY
 							&& glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
 						{
 							if (!sceneObjects[i].selected) {
@@ -539,8 +532,8 @@ int main()
 								float dx = ndcMouseX - beforeMouseX;
 								float dy = ndcMouseY - beforeMouseY;
 
-								sceneObjects[i].position.x += dx;
-								sceneObjects[i].position.y += dy;
+								sceneObjects[i].position->x += dx;
+								sceneObjects[i].position->y += dy;
 
 								beforeMouseX = ndcMouseX;
 								beforeMouseY = ndcMouseY;
@@ -571,16 +564,19 @@ int main()
 		}
 		//sceneobkj.DrawTMP(window, shaderProgram, camera, glm::vec2(body1.GetPosition().x, body1.GetPosition().y));
 		if (run) {
+			
 			if (StartPhase)
 			{
 
-				script.Start(con, sceneObjects);
+				script.Start(con, window, world, sceneObjects);
 				JustAscriptscr.Start(con, sceneObjects);
 
 				StartPhase = false;
 			}
-			script.Update(con, sceneObjects);
+			
+			script.Update(con, window, world, sceneObjects);
 			JustAscriptscr.Update(con, sceneObjects);
+			
 			for (size_t i = 0; i < sceneObjects.size(); i++)
 			{
 				glLineWidth(0.0f);
@@ -595,10 +591,10 @@ int main()
 				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 				sceneObjects[i].Draw(window, shaderProgram, camera, glm::vec3(0, 0, 1), width, height, rattio);
 			}
-
+			
+			world.Step(timeDiff);
 		}
 
-		world.Step(1.0f / 60);
 
 		ImGui::End();
 
@@ -612,8 +608,8 @@ int main()
 
 	std::ofstream outfile("OV_ENV.txt");
 	for (const auto& obj : PresceneObjects) {
-		outfile << obj.position.x << "," << obj.position.y << "," << obj.ScaleX << ","
-			<< obj.ScaleY << "," << obj.angle << "," << obj.texChar << "\n";
+		outfile << obj.position->x << "," << obj.position->y << "," << obj.scale->x << ","
+			<< obj.scale->y << "," << obj.angle << "," << obj.texChar << "\n";
 	}
 	outfile.close();
 	std::cout << "Objects written to file successfully.\n";
