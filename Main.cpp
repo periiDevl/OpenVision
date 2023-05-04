@@ -2,7 +2,7 @@
 #include"Math.h"
 #include"Settings.h"
 #include"IMGUITheme.h"
-#include"imgui.h"
+#include"imgui.h"d
 #include"imgui_impl_glfw.h"
 #include"imgui_impl_opengl3.h"
 #include <iostream>
@@ -429,7 +429,24 @@ int main()
 
 			if (ImGui::Button("Remove Script"))
 			{
-				if (scriptName != "Script") {
+				if (scriptName != "Script" && 
+					scriptName != "Camera" &&
+					scriptName != "CircleCollider" &&
+					scriptName != "CollisionManager" &&
+					scriptName != "Console" &&
+					scriptName != "EBO" &&
+					scriptName != "IMGUITheme" &&
+					scriptName != "Math" &&
+					scriptName != "Object" &&
+					scriptName != "OVscriptHandaling" &&
+					scriptName != "PhysicsBody" &&
+					scriptName != "PhysicsWorld" &&
+					scriptName != "PolygonCollider" &&
+					scriptName != "Settings" &&
+					scriptName != "Tex" &&
+					scriptName != "VAO" &&
+					scriptName != "VBO"
+					) {
 					std::string scriptname_str = scriptName;
 					std::ifstream inputFile("scripts.ov");
 					std::ofstream tempFile("temp.txt");
