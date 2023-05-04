@@ -376,7 +376,7 @@ int main()
 				sceneObjects = PresceneObjects;
 				StartPhase = true;
 			}
-			for (size_t i = 0; i < sceneObjects.size(); i++)
+			for (size_t i = 0; i < PresceneObjects.size(); i++)
 			{
 				PresceneObjects[i].scenePosition = *sceneObjects[i].position;
 				PresceneObjects[i].sceneScale = *sceneObjects[i].scale;
@@ -585,9 +585,9 @@ int main()
 			if (StartPhase)
 			{
 
+				PresceneObjects = sceneObjects;
 				script.Start(con, window, world, sceneObjects);
 				JustAscriptscr.Start(con, sceneObjects);
-
 				StartPhase = false;
 			}
 			
@@ -622,14 +622,15 @@ int main()
 		glfwSetCursorPosCallback(window, mouse_callback);
 
 	}
-
+	
 	std::ofstream outfile("OV_ENV.txt");
-	for (const auto& obj : PresceneObjects) {
-		outfile << obj.position->x << "," << obj.position->y << "," << obj.scale->x << ","
-			<< obj.scale->y << "," << obj.angle << "," << obj.texChar << "\n";
+	for (const auto& obj : sceneObjects) {
+		if (obj.deleted == false) {
+			outfile << obj.position->x << "," << obj.position->y << "," << obj.scale->x << ","
+				<< obj.scale->y << "," << obj.angle << "," << obj.texChar << "\n";
+		}
 	}
 	outfile.close();
-	std::cout << "Objects written to file successfully.\n";
 
 
 
