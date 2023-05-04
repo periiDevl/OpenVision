@@ -19,6 +19,8 @@ public:
 	glm::vec3 OutlineColor = glm::vec3(0,0,0);
 	glm::vec2* position;
 	glm::vec2* scale;
+	glm::vec2 scenePosition;
+	glm::vec2 sceneScale;
 	float angle = 0;
 
 	std::vector <Vertex> vertices;

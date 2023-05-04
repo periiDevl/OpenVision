@@ -275,8 +275,12 @@ int main()
 		Object obj = Object(verts, ind);
 		obj.position->x = posx;
 		obj.position->y = posy;
+		obj.scenePosition.x = posx;
+		obj.scenePosition.y = posy;
 		obj.scale->x = scalex;
 		obj.scale->y = scaley;
+		obj.sceneScale.x = scalex;
+		obj.sceneScale.y = scaley;
 		obj.angle = angle;
 		obj.texChar = texture;
 
@@ -359,7 +363,11 @@ int main()
 		if (!run) {
 			if (!StartPhase) {
 
-				
+				for (size_t i = 0; i < sceneObjects.size(); i++)
+				{
+					*sceneObjects[i].position = PresceneObjects[i].scenePosition;
+					*sceneObjects[i].scale = PresceneObjects[i].sceneScale;
+				}
 				sceneObjects = PresceneObjects;
 				StartPhase = true;
 			}
