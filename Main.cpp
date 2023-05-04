@@ -337,10 +337,15 @@ int main()
 		if (ImGui::Button("run"))
 		{
 			if (run == false) {
+				for (size_t i = 0; i < sceneObjects.size(); i++) {
+					sceneObjects[i].scenePosition = *sceneObjects[i].position;
+					sceneObjects[i].sceneScale = *sceneObjects[i].scale;
+				}
 				run = true;
 			}
 			else if (run == true)
 			{
+				
 				run = false;
 			}
 		}
@@ -371,7 +376,11 @@ int main()
 				sceneObjects = PresceneObjects;
 				StartPhase = true;
 			}
-			PresceneObjects = sceneObjects;
+			for (size_t i = 0; i < sceneObjects.size(); i++)
+			{
+				PresceneObjects[i].scenePosition = *sceneObjects[i].position;
+				PresceneObjects[i].sceneScale = *sceneObjects[i].scale;
+			}
 			ImGui::Begin("Assets");
 			{
 
