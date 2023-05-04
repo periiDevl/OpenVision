@@ -161,7 +161,7 @@
     <ClCompile Include="PhysicsWorld.cpp" />
     <ClCompile Include="PolygonCollider.cpp" />
     <ClCompile Include="Script.cpp" />
-	<ClCompile Include="S2.cpp" />
+    <ClCompile Include="S2.cpp" />
     <ClCompile Include="stb.cpp" />
     <ClCompile Include="Tex.cpp" />
     <ClCompile Include="VAO.cpp" />
@@ -170,7 +170,6 @@
   <ItemGroup>
     <ClInclude Include="Camera.h" />
     <ClInclude Include="CircleCollider.h" />
-    <ClInclude Include="CodeReciver.h" />
     <ClInclude Include="Collider.h" />
     <ClInclude Include="CollisionManager.h" />
     <ClInclude Include="Console.h" />
@@ -191,7 +190,7 @@
     <ClInclude Include="PhysicsWorld.h" />
     <ClInclude Include="PolygonCollider.h" />
     <ClInclude Include="Script.h" />
-	<ClInclude Include="S2.h" />
+    <ClInclude Include="S2.h" />
     <ClInclude Include="Settings.h" />
     <ClInclude Include="Tex.h" />
     <ClInclude Include="VAO.h" />

@@ -1,7 +1,7 @@
 #include "Object.h"
 
 Object::Object(std::vector<Vertex>& vertices, std::vector<GLuint>& indices)
-    : vertices(vertices), indices(indices), position(new glm::vec2(0.0f)), scale(new glm::vec2(20.0f))
+    : vertices(vertices), indices(indices), position(new glm::vec2(0.0f)), scale(new glm::vec2(5.0f))
 {
 
     selected = false;
@@ -44,7 +44,7 @@ void Object::Draw(GLFWwindow* window, GLuint shader, Camera& camera, glm::vec3 a
     glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
 }
 
-void Object::DrawTMP(GLFWwindow* window, GLuint shader, Camera& camera, glm::vec2 pos)
+void Object::DrawTMP(GLFWwindow* window, GLuint shader, Camera& camera, glm::vec2 pos, glm::vec2 scale)
 {
     glUseProgram(shader);
     VAO.Bind();
@@ -54,7 +54,7 @@ void Object::DrawTMP(GLFWwindow* window, GLuint shader, Camera& camera, glm::vec
     glm::mat4 model = glm::mat4(1.0f);
     model = glm::translate(model, glm::vec3(pos.x, -pos.y, 0.0f));
 
-    model = glm::scale(model, glm::vec3(20, 20, 1.0f));
+    model = glm::scale(model, glm::vec3(scale.x, scale.y, 1.0f));
 
     glUniformMatrix4fv(glGetUniformLocation(shader, "model"), 1, GL_FALSE, glm::value_ptr(model));
 

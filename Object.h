@@ -13,7 +13,7 @@ class Object
 public:
 	bool deleted = false;
 	bool selected;
-	Texture tex = Texture("texas.png");
+	Texture tex = Texture("");
 	std::string texChar;
 	float outlineWidth = 0;
 	glm::vec3 OutlineColor = glm::vec3(0,0,0);
@@ -37,7 +37,7 @@ public:
 
 	Object(std::vector <Vertex>& vertices, std::vector <GLuint>& indices);
 	void Draw(GLFWwindow* window, GLuint shader, Camera& camera,glm::vec3 axis, float width, float height, glm::vec2 ratio);
-	void DrawTMP(GLFWwindow* window, GLuint shader, Camera& camera, glm::vec2 pos);
+	void DrawTMP(GLFWwindow* window, GLuint shader, Camera& camera, glm::vec2 pos, glm::vec2 scale);
 	PhysicsBody* Body;
 private :
 	

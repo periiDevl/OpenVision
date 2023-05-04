@@ -2,7 +2,7 @@
 #include"Math.h"
 #include"Settings.h"
 #include"IMGUITheme.h"
-#include"imgui.h"d
+#include"imgui.h"
 #include"imgui_impl_glfw.h"
 #include"imgui_impl_opengl3.h"
 #include <iostream>
@@ -95,29 +95,7 @@ void rebuild(GLFWwindow* window, bool localPython) {
 	glfwSetWindowShouldClose(window, GLFW_TRUE);
 
 }
-void mouse_callback(GLFWwindow* window, double xpos, double ypos)
-{
-	static double lastX = xpos;
-	static double lastY = ypos;
 
-	double deltaX = xpos - lastX;
-	double deltaY = ypos - lastY;
-
-	lastX = xpos;
-	lastY = ypos;
-
-	int width, height;
-	glfwGetFramebufferSize(window, &width, &height);
-	float ndcMouseX = (float)xpos / (float)width * 2.0f - 1.0f;
-	float ndcMouseY = (float)ypos / (float)height * 2.0f - 1.0f;
-	ndcMouseX *= rattio.x * 4;
-	ndcMouseY *= rattio.y * 4;
-
-	if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS) {
-		camera.Position.x -= deltaX * 0.1f;
-		camera.Position.y += deltaY * 0.1f;
-	}
-}
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
 	scroll_offset += yoffset;
@@ -234,6 +212,8 @@ int main()
 	double beforeMouseY;
 	bool run = false;
 	bool StartPhase = false;
+	bool no_resize = true;
+	bool no_move = true;
 
 
 
@@ -289,13 +269,13 @@ int main()
 	}
 	ovEnvFile.close();
 
-	//Object sceneobkj = Object(verts, ind);
+	Object blackbox = Object(verts, ind);
 	double prevTime = 0.0;
 	double crntTime = 0.0;
 	double timeDiff;
 	unsigned int counter = 0;
 	int selectedObject = 0;
-
+	float fov = 45;
 	char addedfile[256] = "";
 
 	const float fixed_timestep = 1.0f / 60.0;
@@ -312,7 +292,7 @@ int main()
 		glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		camera.updateMatrix(45.0f, 0.1f, 100.0f);
+		camera.updateMatrix(fov, 0.1f, 100.0f);
 
 
 
@@ -333,41 +313,11 @@ int main()
 		}
 
 
-		ImGui::Begin("Execute");
-		if (ImGui::Button("run"))
-		{
-			if (run == false) {
-				for (size_t i = 0; i < sceneObjects.size(); i++) {
-					sceneObjects[i].scenePosition = *sceneObjects[i].position;
-					sceneObjects[i].sceneScale = *sceneObjects[i].scale;
-				}
-				run = true;
-			}
-			else if (run == true)
-			{
-				
-				run = false;
-			}
-		}
-		if (ImGui::Button("Rebuild"))
-		{
-			rebuild(window, false);
-		}
 
-		if (ImGui::Button("Exit OV"))
-		{
-			std::system("taskkill /f /im python.exe");
-			glfwSetWindowShouldClose(window, GLFW_TRUE);
-
-		}
-
-		ImGui::End();
-
-		con.Draw();
 
 		if (!run) {
 			if (!StartPhase) {
-
+				fov = 45;
 				for (size_t i = 0; i < sceneObjects.size(); i++)
 				{
 					*sceneObjects[i].position = PresceneObjects[i].scenePosition;
@@ -381,7 +331,38 @@ int main()
 				PresceneObjects[i].scenePosition = *sceneObjects[i].position;
 				PresceneObjects[i].sceneScale = *sceneObjects[i].scale;
 			}
-			ImGui::Begin("Assets");
+			ImGui::Begin("Execute", 0, (no_resize ? ImGuiWindowFlags_NoResize : 0) | (no_move ? ImGuiWindowFlags_NoMove : 0));
+			if (ImGui::Button("run"))
+			{
+				if (run == false) {
+					for (size_t i = 0; i < sceneObjects.size(); i++) {
+						sceneObjects[i].scenePosition = *sceneObjects[i].position;
+						sceneObjects[i].sceneScale = *sceneObjects[i].scale;
+					}
+					run = true;
+				}
+				else if (run == true)
+				{
+
+					run = false;
+				}
+			}
+			if (ImGui::Button("Rebuild"))
+			{
+				rebuild(window, false);
+			}
+
+			if (ImGui::Button("Exit OV"))
+			{
+				std::system("taskkill /f /im python.exe");
+				glfwSetWindowShouldClose(window, GLFW_TRUE);
+
+			}
+
+			ImGui::End();
+
+			con.Draw();
+			ImGui::Begin("Assets", 0, (no_resize ? ImGuiWindowFlags_NoResize : 0) | (no_move ? ImGuiWindowFlags_NoMove : 0));
 			{
 
 
@@ -401,7 +382,6 @@ int main()
 					if (ImGui::Selectable(("Bind : " + std::string(textures[k].ImageFile)).c_str())) {
 						sceneObjects[selectedObject].tex = textures[k];
 						sceneObjects[selectedObject].texChar = textures[k].ImageFile;
-						con.log(("File : " + std::string(textures[k].ImageFile) + "Binded To : " + std::to_string(selectedObject)).c_str());
 
 
 					}
@@ -413,7 +393,7 @@ int main()
 
 			static char scriptName[128] = "";
 
-			ImGui::Begin("Scripts");
+			ImGui::Begin("Scripts", 0, (no_resize ? ImGuiWindowFlags_NoResize : 0) | (no_move ? ImGuiWindowFlags_NoMove : 0));
 			ImGui::Columns(2, nullptr, true);
 			ImGui::InputText("Script Name", scriptName, IM_ARRAYSIZE(scriptName));
 
@@ -489,8 +469,17 @@ int main()
 			}
 			ImGui::End();
 
+			ImGui::Begin("Window Control", 0, (no_resize ? ImGuiWindowFlags_NoResize : 0) | (no_move ? ImGuiWindowFlags_NoMove : 0));
+			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 0.0f, 0.0f, 1.0f));
+			ImGui::Text("Values here will not be saved.");
+			ImGui::PopStyleColor();
+			ImGui::Checkbox("No Window Moving", &no_move);
+			ImGui::Checkbox("No Window Resize", &no_resize);
+			ImGui::EndTabItem();
+			ImGui::End();
 
-			ImGui::Begin("Object Inspector");
+
+			ImGui::Begin("Object Inspector", 0, (no_resize ? ImGuiWindowFlags_NoResize : 0) | (no_move ? ImGuiWindowFlags_NoMove : 0));
 
 			if (ImGui::Button("Add object"))
 			{
@@ -506,7 +495,6 @@ int main()
 					{
 
 						selectedObject = i;
-						con.log(("User Select [" + std::to_string(selectedObject) + "]").c_str());
 
 					}
 
@@ -547,7 +535,6 @@ int main()
 
 
 						glfwGetCursorPos(window, &mouseX, &mouseY);
-
 						ndcMouseX = (float)mouseX / (float)width * 2.0f - 1.0f;
 						ndcMouseY = (float)mouseY / (float)height * 2.0f - 1.0f;
 						ndcMouseX *= rattio.x * 4;
@@ -579,6 +566,7 @@ int main()
 							sceneObjects[i].selected = false;
 						}
 
+						blackbox.DrawTMP(window, shaderProgram, camera, glm::vec2(ndcMouseX, ndcMouseY), glm::vec2(2));
 
 
 						sceneObjects[i].Draw(window, shaderProgram, camera, glm::vec3(0, 0, 1), width, height, rattio);
@@ -596,12 +584,16 @@ int main()
 				}
 			}
 		}
-		//sceneobkj.DrawTMP(window, shaderProgram, camera, glm::vec2(body1.GetPosition().x, body1.GetPosition().y));
+		blackbox.DrawTMP(window, shaderProgram, camera, glm::vec2(0, (-36 / 1.5) / 1.5), glm::vec2(114, 0.5));
+		blackbox.DrawTMP(window, shaderProgram, camera, glm::vec2(0,( 36 / 1.5) / 1.5), glm::vec2(114, 0.5));
+
+		blackbox.DrawTMP(window, shaderProgram, camera, glm::vec2((61.7 / 1.445) / 1.5, 0), glm::vec2(0.5, 64));
+		blackbox.DrawTMP(window, shaderProgram, camera, glm::vec2((-61.7 / 1.445) / 1.5,0), glm::vec2(0.5, 64));
 		if (run) {
 			
 			if (StartPhase)
 			{
-
+				fov = 22.45;
 				PresceneObjects = sceneObjects;
 				script.Start(con, window, world, sceneObjects);
 				S2scr.Start(con, window, world, sceneObjects);
@@ -625,7 +617,9 @@ int main()
 				}
 				glLineWidth(0.0f);
 				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-				sceneObjects[i].Draw(window, shaderProgram, camera, glm::vec3(0, 0, 1), width, height, rattio);
+				if (sceneObjects[i].deleted == false) {
+					sceneObjects[i].Draw(window, shaderProgram, camera, glm::vec3(0, 0, 1), width, height, rattio);
+				}
 			}
 			
 			world.Step(timeDiff);
@@ -638,7 +632,6 @@ int main()
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 		glfwSwapBuffers(window);
 		glfwPollEvents();
-		glfwSetCursorPosCallback(window, mouse_callback);
 
 	}
 	
