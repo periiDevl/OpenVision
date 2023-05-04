@@ -18,9 +18,9 @@
 #include"OVscriptHandaling.h"
 
 #include"Script.h"
-#include"JustAscript.h"
+#include"S2.h"
 Script script;
-JustAscript JustAscriptscr;
+S2 S2scr;
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 
@@ -587,12 +587,14 @@ int main()
 
 				PresceneObjects = sceneObjects;
 				script.Start(con, window, world, sceneObjects);
-				JustAscriptscr.Start(con, sceneObjects);
+				S2scr.Start(con, window, world, sceneObjects);
+
 				StartPhase = false;
 			}
 			
 			script.Update(con, window, world, sceneObjects);
-			JustAscriptscr.Update(con, sceneObjects);
+			S2scr.Update(con, window, world, sceneObjects);
+
 			
 			for (size_t i = 0; i < sceneObjects.size(); i++)
 			{
