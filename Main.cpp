@@ -537,8 +537,8 @@ int main()
 						glfwGetCursorPos(window, &mouseX, &mouseY);
 						ndcMouseX = (float)mouseX / (float)width * 2.0f - 1.0f;
 						ndcMouseY = (float)mouseY / (float)height * 2.0f - 1.0f;
-						ndcMouseX *= rattio.x * 4;
-						ndcMouseY *= rattio.y * 4;
+						ndcMouseX *= rattio.x * 3.6;
+						ndcMouseY *= rattio.y * 3.6;
 						if ((sceneObjects[i].position->x - sceneObjects[i].scale->x / 3) - camera.Position.x < ndcMouseX &&
 							(sceneObjects[i].position->x + sceneObjects[i].scale->x / 3) + camera.Position.x > ndcMouseX &&
 							(sceneObjects[i].position->y + sceneObjects[i].scale->y / 3) - camera.Position.y > ndcMouseY &&
