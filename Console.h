@@ -14,7 +14,6 @@ public:
 
     void log(const char* fmt, ...)
     {
-        // Retrieve the message to be added to the logs buffer
         va_list args;
         va_start(args, fmt);
         char buf[1024];
@@ -25,14 +24,14 @@ public:
         logs.push_back(buf);
     }
 
-    void Draw()
+    void Draw(bool no_resize, bool no_move)
     {
-        if (!ImGui::Begin("Console"))
+        if (!ImGui::Begin("Console", 0, (no_resize ? ImGuiWindowFlags_NoResize : 0) | (no_move ? ImGuiWindowFlags_NoMove : 0)))
         {
             ImGui::End();
             return;
         }
-
+        
         // Display logs
         ImGui::BeginChild("ScrollingRegion", ImVec2(0, -ImGui::GetTextLineHeightWithSpacing()), false, ImGuiWindowFlags_HorizontalScrollbar);
         for (int i = 0; i < logs.size(); i++)
@@ -40,7 +39,8 @@ public:
         ImGui::SetScrollHereY(1.0f);
         ImGui::EndChild();
 
-        // Command input
+
+
         if (ImGui::InputText("Input", input_buf, IM_ARRAYSIZE(input_buf), ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_CallbackCompletion | ImGuiInputTextFlags_CallbackHistory, NULL, NULL))
         {
             char* username;
@@ -55,13 +55,17 @@ public:
                 std::string input = "[" + MODIFIEDname + "(USER)" + "]: " + """\"" + "%s" + """\"";
                 log(input.c_str(), input_buf);
 
-                // Add the input to the logs buffer and reset the input buffer
                 memset(input_buf, 0, sizeof(input_buf));
             }
         }
 
 
         ImGui::End();
+    }
+
+    void CLEAR_CONSOLE()
+    {
+        logs.clear();
     }
 
     char input_buf[256];

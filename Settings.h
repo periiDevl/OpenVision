@@ -9,7 +9,6 @@ glm::vec2 rattio(16, 9);
 const unsigned int width = 95 * rattio.x;
 const unsigned int height = 95 * rattio.y;
 
-int msaasamples = 8;
 
 //const unsigned int width = 1920;
 //const unsigned int height = 1080;

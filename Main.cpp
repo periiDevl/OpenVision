@@ -109,8 +109,12 @@ int main()
 
 	myData = Presave < float >();
 	myData.SafeOperation();
-
+	
 	bool vsync = myData.data[0];
+	int msaa = myData.data[1];
+	float screenR = myData.data[2];
+	float screenG = myData.data[3];
+	float screenB = myData.data[4];
 
 
 	std::vector<std::string> lines;
@@ -143,7 +147,7 @@ int main()
 
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-	glfwWindowHint(GLFW_SAMPLES, msaasamples);
+	glfwWindowHint(GLFW_SAMPLES, msaa);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	GLFWwindow* window = glfwCreateWindow(width, height, "Loading...", NULL, NULL);
 	if (window == NULL)
@@ -303,9 +307,9 @@ int main()
 		{
 			run = false;
 		}
-		glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+		glClearColor(screenR, screenG, screenB, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
-
+		glfwSwapInterval(vsync);
 		camera.updateMatrix(fov, 0.1f, 100.0f);
 
 
@@ -317,12 +321,7 @@ int main()
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
-		glfwSwapInterval(vsync);
-
-
-
-
-
+		
 
 
 
@@ -347,10 +346,7 @@ int main()
 			if (ImGui::Button("run"))
 			{
 				if (run == false) {
-					for (size_t i = 0; i < sceneObjects.size(); i++) {
-						sceneObjects[i].scenePosition = *sceneObjects[i].position;
-						sceneObjects[i].sceneScale = *sceneObjects[i].scale;
-					}
+
 					run = true;
 				}
 				else if (run == true)
@@ -373,7 +369,7 @@ int main()
 
 			ImGui::End();
 
-			con.Draw();
+			con.Draw(no_resize,no_move);
 
 			ImGui::Begin("Sources", 0, (no_resize ? ImGuiWindowFlags_NoResize : 0) | (no_move ? ImGuiWindowFlags_NoMove : 0));
 			if (ImGui::BeginTabBar("TabBar"))
@@ -405,8 +401,19 @@ int main()
 
 				if (ImGui::BeginTabItem("Graphics"))
 				{
-					ImGui::Checkbox("Vertical-Synchronization", &vsync);
-					
+					ImGui::Checkbox("Vertical-Synchronizatio", &vsync);
+					ImGui::InputInt("MSAA Samples", &msaa);
+					ImGui::Separator();
+
+					ImGui::Text("Backround Color");
+					ImGui::Columns(3);
+					ImGui::InputFloat("(R)", &screenR);
+					ImGui::NextColumn();
+					ImGui::InputFloat("(G)", &screenG);
+					ImGui::NextColumn();
+					ImGui::InputFloat("(B)", &screenB);
+					ImGui::Separator();
+					ImGui::Columns(1);
 					ImGui::EndTabItem();
 				}
 
@@ -591,7 +598,6 @@ int main()
 							sceneObjects[i].selected = false;
 						}
 
-						blackbox.DrawTMP(window, shaderProgram, camera, glm::vec2(ndcMouseX, ndcMouseY), glm::vec2(2));
 
 
 						sceneObjects[i].Draw(window, shaderProgram, camera, glm::vec3(0, 0, 1), width, height, rattio);
@@ -625,6 +631,11 @@ int main()
 
 				if (StartPhase)
 				{
+					for (size_t i = 0; i < sceneObjects.size(); i++) {
+						sceneObjects[i].scenePosition = *sceneObjects[i].position;
+						sceneObjects[i].sceneScale = *sceneObjects[i].scale;
+					}
+					con.CLEAR_CONSOLE();
 					fov = 22.45;
 					PresceneObjects = sceneObjects;
 					script.Start(con, window, world, sceneObjects);
@@ -635,6 +646,9 @@ int main()
 			
 				script.Update(con, window, world, sceneObjects);
 				Abbbawdbscr.Update(con, window, world, sceneObjects);
+
+
+				world.Step(timeDiff);
 			}
 
 			
@@ -655,7 +669,6 @@ int main()
 				}
 			}
 			
-			world.Step(timeDiff);
 		}
 
 
@@ -665,6 +678,8 @@ int main()
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 		glfwSwapBuffers(window);
 		glfwPollEvents();
+		//enable when final build
+		//run = true;
 
 	}
 	
@@ -686,7 +701,8 @@ int main()
 	glfwDestroyWindow(window);
 	glfwTerminate();
 
-	myData.data = { float(vsync) };
+
+	myData.data = { float(vsync), float(msaa), screenR, screenG, screenB };
 
 	myData.saveData();
 
