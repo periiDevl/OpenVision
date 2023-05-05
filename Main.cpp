@@ -115,6 +115,7 @@ int main()
 	float screenR = myData.data[2];
 	float screenG = myData.data[3];
 	float screenB = myData.data[4];
+	bool LocalPy = myData.data[5];
 
 
 	std::vector<std::string> lines;
@@ -357,7 +358,7 @@ int main()
 			}
 			if (ImGui::Button("Rebuild"))
 			{
-				rebuild(window, false);
+				rebuild(window, LocalPy);
 			}
 
 			if (ImGui::Button("Exit OV"))
@@ -401,7 +402,8 @@ int main()
 
 				if (ImGui::BeginTabItem("Graphics"))
 				{
-					ImGui::Checkbox("Vertical-Synchronizatio", &vsync);
+					ImGui::Checkbox("Vertical-Synchronization", &vsync);
+					ImGui::Checkbox("Local-Python", &LocalPy);
 					ImGui::InputInt("MSAA Samples", &msaa);
 					ImGui::Separator();
 
@@ -435,7 +437,7 @@ int main()
 				outputFile.close();
 				addOVscript(scriptName);
 				memset(scriptName, 0, sizeof(scriptName));
-				rebuild(window, false);
+				rebuild(window, LocalPy);
 			}
 
 			if (ImGui::Button("Remove Script"))
@@ -478,7 +480,7 @@ int main()
 
 					removeOVscript(scriptName);
 					memset(scriptName, 0, sizeof(scriptName));
-					rebuild(window, false);
+					rebuild(window, LocalPy);
 				}
 			}
 
@@ -702,7 +704,7 @@ int main()
 	glfwTerminate();
 
 
-	myData.data = { float(vsync), float(msaa), screenR, screenG, screenB };
+	myData.data = { float(vsync), float(msaa), screenR, screenG, screenB, float(LocalPy)};
 
 	myData.saveData();
 
