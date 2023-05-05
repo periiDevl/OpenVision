@@ -18,9 +18,9 @@
 #include"OVscriptHandaling.h"
 
 #include"Script.h"
-#include"S2.h"
+#include"Abbbawdb.h"
 Script script;
-S2 S2scr;
+Abbbawdb Abbbawdbscr;
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 
@@ -311,13 +311,7 @@ int main()
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
 
-		if (timeDiff >= fixed_timestep) {
-			std::string FPS = std::to_string((1.0 / timeDiff) * counter);
-			std::string newTitle = "OpenVision - periidev & itaymadeit ~" + FPS + "FPS";
-			glfwSetWindowTitle(window, newTitle.c_str());
-			prevTime = crntTime;
-			counter = 0;
-		}
+
 
 
 
@@ -546,10 +540,10 @@ int main()
 						ndcMouseY = (float)mouseY / (float)height * 2.0f - 1.0f;
 						ndcMouseX *= rattio.x * 3.7;
 						ndcMouseY *= rattio.y * 3.7;
-						if ((sceneObjects[i].position->x - sceneObjects[i].scale->x / 3) - camera.Position.x < ndcMouseX &&
-							(sceneObjects[i].position->x + sceneObjects[i].scale->x / 3) + camera.Position.x > ndcMouseX &&
-							(sceneObjects[i].position->y + sceneObjects[i].scale->y / 3) - camera.Position.y > ndcMouseY &&
-							(sceneObjects[i].position->y - sceneObjects[i].scale->y / 3) + camera.Position.y < ndcMouseY
+						if ((sceneObjects[i].position->x - sceneObjects[i].scale->x / 2.5) - camera.Position.x < ndcMouseX &&
+							(sceneObjects[i].position->x + sceneObjects[i].scale->x / 2.5) + camera.Position.x > ndcMouseX &&
+							(sceneObjects[i].position->y + sceneObjects[i].scale->y / 2.5) - camera.Position.y > ndcMouseY &&
+							(sceneObjects[i].position->y - sceneObjects[i].scale->y / 2.5) + camera.Position.y < ndcMouseY
 							&& glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
 						{
 							if (!sceneObjects[i].selected) {
@@ -597,19 +591,27 @@ int main()
 		blackbox.DrawTMP(window, shaderProgram, camera, glm::vec2((61.7 / 1.445) / 1.5, 0), glm::vec2(0.5, 64));
 		blackbox.DrawTMP(window, shaderProgram, camera, glm::vec2((-61.7 / 1.445) / 1.5,0), glm::vec2(0.5, 64));
 		if (run) {
-			
-			if (StartPhase)
-			{
-				fov = 22.45;
-				PresceneObjects = sceneObjects;
-				script.Start(con, window, world, sceneObjects);
-				S2scr.Start(con, window, world, sceneObjects);
+			if (timeDiff >= fixed_timestep) {
+				std::string FPS = std::to_string((1.0 / timeDiff) * counter);
+				std::string newTitle = "OpenVision - periidev & itaymadeit ~" + FPS + "FPS";
+				glfwSetWindowTitle(window, newTitle.c_str());
+				prevTime = crntTime;
+				counter = 0;
 
-				StartPhase = false;
-			}
+
+				if (StartPhase)
+				{
+					fov = 22.45;
+					PresceneObjects = sceneObjects;
+					script.Start(con, window, world, sceneObjects);
+					Abbbawdbscr.Start(con, window, world, sceneObjects);
+
+					StartPhase = false;
+				}
 			
-			script.Update(con, window, world, sceneObjects);
-			S2scr.Update(con, window, world, sceneObjects);
+				script.Update(con, window, world, sceneObjects);
+				Abbbawdbscr.Update(con, window, world, sceneObjects);
+			}
 
 			
 			for (size_t i = 0; i < sceneObjects.size(); i++)

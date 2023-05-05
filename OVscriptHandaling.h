@@ -78,7 +78,7 @@ void addMainCpp(const std::string& filename, const std::string& file)
 {
 	if (!is_sentence_in_file(filename, "#include\"" + file + ".h\"")
 		&& !is_sentence_in_file(filename, file + " " + file + "scr" + ";")
-		&& !is_sentence_in_file(filename, "				" + file + "scr" + ".Start(con, sceneObjects);")) {
+		&& !is_sentence_in_file(filename, "					" + file + "scr" + ".Start(con, sceneObjects);")) {
 		std::ifstream infile(filename);
 
 		std::string line;
@@ -96,17 +96,17 @@ void addMainCpp(const std::string& filename, const std::string& file)
 				lines.push_back(line);
 				lines.push_back(file + " " + file + "scr" + ";");
 			}
-			else if (line == "				script.Start(con, window, world, sceneObjects);") {
+			else if (line == "					script.Start(con, window, world, sceneObjects);") {
 				found_line = true;
 
 				lines.push_back(line);
-				lines.push_back("				" + file + "scr" + ".Start(con, window, world, sceneObjects);");
+				lines.push_back("					" + file + "scr" + ".Start(con, window, world, sceneObjects);");
 			}
-			else if (line == "			script.Update(con, window, world, sceneObjects);") {
+			else if (line == "				script.Update(con, window, world, sceneObjects);") {
 				found_line = true;
 
 				lines.push_back(line);
-				lines.push_back("			" + file + "scr" + ".Update(con, window, world, sceneObjects);");
+				lines.push_back("				" + file + "scr" + ".Update(con, window, world, sceneObjects);");
 			}
 			else {
 				lines.push_back(line);
@@ -124,7 +124,7 @@ void removeMainCpp(const std::string& filename, const std::string& file)
 {
 	if (is_sentence_in_file(filename, "#include\"" + file + ".h\"")
 		|| is_sentence_in_file(filename, file + " " + file + "scr" + ";")
-		|| is_sentence_in_file(filename, "				" + file + "scr" + ".Start(con, window, world, sceneObjects);")) {
+		|| is_sentence_in_file(filename, "					" + file + "scr" + ".Start(con, window, world, sceneObjects);")) {
 		std::ifstream infile(filename);
 
 		std::string line;
@@ -137,10 +137,10 @@ void removeMainCpp(const std::string& filename, const std::string& file)
 			else if (line == file + " " + file + "scr" + ";") {
 				found_line = true;
 			}
-			else if (line == "				" + file + "scr" + ".Start(con, window, world, sceneObjects);") {
+			else if (line == "					" + file + "scr" + ".Start(con, window, world, sceneObjects);") {
 				found_line = true;
 			}
-			else if (line == "			" + file + "scr" + ".Update(con, window, world, sceneObjects);") {
+			else if (line == "				" + file + "scr" + ".Update(con, window, world, sceneObjects);") {
 				found_line = true;
 			}
 			else {

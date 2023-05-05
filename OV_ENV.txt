@@ -1,1 +1,1 @@
--24.4609,-11.3705,5,5,0,C:\Users\peric\OneDrive\Documents\dev\OpenVision\OpenVisionIcon.png
+-3.42927,6.38949,5,5,0,C:\Users\peric\OneDrive\Documents\dev\OpenVision\OpenVisionIcon.png
