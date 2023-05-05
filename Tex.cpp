@@ -5,6 +5,7 @@ Texture::Texture(const char* image)
     GLuint slot = 0;
     type = "diffuse";
     ImageFile = image;
+    FullImageFile = image;
 
     int widthImg, heightImg, numColCh;
     stbi_set_flip_vertically_on_load(true);

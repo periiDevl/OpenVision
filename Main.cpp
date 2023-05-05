@@ -31,12 +31,8 @@ double scroll_offset = 45.0;
 
 
 Camera camera(width, height, glm::vec3(0.0f, 0.0f, 80.0f));
-#include <iostream>
-#include <fstream>
-#include <sstream>
-#include <string>
-#include <cstring>
-#include <cstdlib>
+
+
 
 std::string executeCommandAndGetOutput(const char* command) {
 	std::string outputFileName = "command_output.txt";
@@ -217,9 +213,20 @@ int main()
 
 
 
+	std::vector<Texture> textures;
+	std::filesystem::path dir_path = std::filesystem::current_path();
 
-	std::vector<Texture> textures = { Texture("texas.png"), Texture("ohio.png"),
-		Texture("flops.jpeg") };
+	for (const auto& file : std::filesystem::directory_iterator(dir_path)) {
+		std::string ext = file.path().extension().string();
+		if (ext == ".jpg" || ext == ".png" || ext == ".jpeg") {
+			std::string filepath = file.path().string();
+			Texture tex(filepath.c_str());
+			tex.ImageFile = tex.ImageFile = file.path().stem().string();
+			tex.FullImageFile = filepath;
+			textures.push_back(tex);
+		}
+	}
+
 
 	std::vector<Object> sceneObjects;
 	std::vector<Object> PresceneObjects;
@@ -381,7 +388,7 @@ int main()
 
 					if (ImGui::Selectable(("Bind : " + std::string(textures[k].ImageFile)).c_str())) {
 						sceneObjects[selectedObject].tex = textures[k];
-						sceneObjects[selectedObject].texChar = textures[k].ImageFile;
+						sceneObjects[selectedObject].texChar = textures[k].FullImageFile;
 
 
 					}

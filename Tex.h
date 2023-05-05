@@ -3,14 +3,15 @@
 
 #include<glad/glad.h>
 #include<stb/stb_image.h>
-
+#include<iostream>
 
 class Texture
 {
 public:
 	GLuint ID;
 	const char* type;
-	const char* ImageFile = "Texture not loaded";
+	std::string ImageFile = "Texture not loaded";
+	std::string FullImageFile = "Texture not loaded";
 	GLuint unit;
 
 	Texture(const char* image);
