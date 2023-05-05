@@ -640,17 +640,17 @@ int main()
 			
 			for (size_t i = 0; i < sceneObjects.size(); i++)
 			{
-				glLineWidth(0.0f);
-				glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-				glUseProgram(unlitProgram);
-				glUniform4f(glGetUniformLocation(unlitProgram, "color"), sceneObjects[i].OutlineColor.x, sceneObjects[i].OutlineColor.y, sceneObjects[i].OutlineColor.z, 1);
-				glLineWidth(sceneObjects[i].outlineWidth);
-				if (sceneObjects[i].outlineWidth > 0) {
-					sceneObjects[i].Draw(window, unlitProgram, camera, glm::vec3(0, 0, 1), width, height, rattio);
-				}
-				glLineWidth(0.0f);
-				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-				if (sceneObjects[i].deleted == false) {
+				if (!sceneObjects[i].deleted) {
+					glLineWidth(0.0f);
+					glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+					glUseProgram(unlitProgram);
+					glUniform4f(glGetUniformLocation(unlitProgram, "color"), sceneObjects[i].OutlineColor.x, sceneObjects[i].OutlineColor.y, sceneObjects[i].OutlineColor.z, 1);
+					glLineWidth(sceneObjects[i].outlineWidth);
+					if (sceneObjects[i].outlineWidth > 0) {
+						sceneObjects[i].Draw(window, unlitProgram, camera, glm::vec3(0, 0, 1), width, height, rattio);
+					}
+					glLineWidth(0.0f);
+					glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 					sceneObjects[i].Draw(window, shaderProgram, camera, glm::vec3(0, 0, 1), width, height, rattio);
 				}
 			}
