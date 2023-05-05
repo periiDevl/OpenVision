@@ -90,7 +90,7 @@
     <ClCompile Include="Script.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="S2.cpp">
+    <ClCompile Include="Abbbawdb.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -173,7 +173,10 @@
     <ClInclude Include="OVscriptHandaling.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="S2.h">
+    <ClInclude Include="Abbbawdb.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Presave.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

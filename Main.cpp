@@ -16,7 +16,7 @@
 #include <thread>
 #include"Console.h"
 #include"OVscriptHandaling.h"
-
+#include"Presave.h"
 #include"Script.h"
 #include"Abbbawdb.h"
 Script script;
@@ -105,6 +105,14 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 
 int main()
 {
+	Presave<float> myData;
+
+	myData = Presave < float >();
+	myData.SafeOperation();
+
+	bool vsync = myData.data[0];
+
+
 	std::vector<std::string> lines;
 	std::ifstream inputFile("scripts.ov");
 	if (!inputFile.is_open()) {
@@ -231,7 +239,7 @@ int main()
 	std::vector<Object> sceneObjects;
 	std::vector<Object> PresceneObjects;
 
-	std::ifstream ovEnvFile("OV_ENV.txt");
+	std::ifstream ovEnvFile("OV_ENV.ov");
 	while (std::getline(ovEnvFile, line)) {
 		float posx, posy, scalex, scaley, angle;
 		std::string texture;
@@ -287,7 +295,6 @@ int main()
 
 	const float fixed_timestep = 1.0f / 60.0;
 	DefaultTheme();
-
 	glEnable(GL_MULTISAMPLE);
 	while (!glfwWindowShouldClose(window))
 	{
@@ -310,6 +317,9 @@ int main()
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
+		glfwSwapInterval(vsync);
+
+
 
 
 
@@ -319,6 +329,7 @@ int main()
 		if (!run) {
 			if (!StartPhase) {
 				fov = 45;
+				glfwSetWindowTitle(window, "OpenVision *(Universal Editor)");
 				for (size_t i = 0; i < sceneObjects.size(); i++)
 				{
 					*sceneObjects[i].position = PresceneObjects[i].scenePosition;
@@ -363,34 +374,46 @@ int main()
 			ImGui::End();
 
 			con.Draw();
-			ImGui::Begin("Assets", 0, (no_resize ? ImGuiWindowFlags_NoResize : 0) | (no_move ? ImGuiWindowFlags_NoMove : 0));
+
+			ImGui::Begin("Sources", 0, (no_resize ? ImGuiWindowFlags_NoResize : 0) | (no_move ? ImGuiWindowFlags_NoMove : 0));
+			if (ImGui::BeginTabBar("TabBar"))
 			{
-
-
-				if (ImGui::Button("Add Texture"))
+				if (ImGui::BeginTabItem("Textures"))
 				{
-
-					textures.push_back(Texture(addedfile));
-				}
-
-				ImGui::InputText("Path : ", addedfile, sizeof(addedfile));
-
-				for (size_t k = 0; k < textures.size(); k++)
-				{
-					ImGui::Separator();
-
-
-					if (ImGui::Selectable(("Bind : " + std::string(textures[k].ImageFile)).c_str())) {
-						sceneObjects[selectedObject].tex = textures[k];
-						sceneObjects[selectedObject].texChar = textures[k].FullImageFile;
-
-
+					if (ImGui::Button("Add Texture"))
+					{
+						textures.push_back(Texture(addedfile));
 					}
 
+					ImGui::InputText("Path : ", addedfile, sizeof(addedfile));
 
-					ImGui::Separator();
+					for (size_t k = 0; k < textures.size(); k++)
+					{
+						ImGui::Separator();
+
+						if (ImGui::Selectable(("Bind : " + std::string(textures[k].ImageFile)).c_str()))
+						{
+							sceneObjects[selectedObject].tex = textures[k];
+							sceneObjects[selectedObject].texChar = textures[k].FullImageFile;
+						}
+
+						ImGui::Separator();
+					}
+
+					ImGui::EndTabItem();
 				}
+
+				if (ImGui::BeginTabItem("Graphics"))
+				{
+					ImGui::Checkbox("Vertical-Synchronization", &vsync);
+					
+					ImGui::EndTabItem();
+				}
+
+				ImGui::EndTabBar();
 			}
+			ImGui::End();
+
 
 			static char scriptName[128] = "";
 
@@ -426,6 +449,7 @@ int main()
 					scriptName != "Settings" &&
 					scriptName != "Tex" &&
 					scriptName != "VAO" &&
+					scriptName != "Presave" &&
 					scriptName != "VBO"
 					) {
 					std::string scriptname_str = scriptName;
@@ -501,7 +525,7 @@ int main()
 
 					if (sceneObjects[i].deleted == false) {
 
-						if (ImGui::CollapsingHeader(("Vision Object" + std::to_string(i)).c_str())) {
+						if (ImGui::CollapsingHeader(("Object" + std::to_string(i)).c_str())) {
 							if (ImGui::Button(("Delete Object##" + std::to_string(i)).c_str()))
 							{
 								sceneObjects[i].deleted = true;
@@ -511,9 +535,9 @@ int main()
 
 							ImGui::Columns(2, nullptr, true);
 
-							ImGui::InputFloat(("Position X##" + std::to_string(i)).c_str(), &sceneObjects[i].position->x, 0.3f, 1, "%.3f", 0);
+							ImGui::InputFloat(("Pos X##" + std::to_string(i)).c_str(), &sceneObjects[i].position->x, 0.3f, 1, "%.3f", 0);
 							ImGui::NextColumn();
-							ImGui::InputFloat(("Position Y##" + std::to_string(i)).c_str(), &sceneObjects[i].position->y, 0.3f, 1, "%.3f", 0);
+							ImGui::InputFloat(("Pos Y##" + std::to_string(i)).c_str(), &sceneObjects[i].position->y, 0.3f, 1, "%.3f", 0);
 
 							ImGui::Columns(1, nullptr, true);
 							ImGui::Columns(2, nullptr, true);
@@ -540,10 +564,10 @@ int main()
 						ndcMouseY = (float)mouseY / (float)height * 2.0f - 1.0f;
 						ndcMouseX *= rattio.x * 3.7;
 						ndcMouseY *= rattio.y * 3.7;
-						if ((sceneObjects[i].position->x - sceneObjects[i].scale->x / 2.5) - camera.Position.x < ndcMouseX &&
-							(sceneObjects[i].position->x + sceneObjects[i].scale->x / 2.5) + camera.Position.x > ndcMouseX &&
-							(sceneObjects[i].position->y + sceneObjects[i].scale->y / 2.5) - camera.Position.y > ndcMouseY &&
-							(sceneObjects[i].position->y - sceneObjects[i].scale->y / 2.5) + camera.Position.y < ndcMouseY
+						if ((sceneObjects[i].position->x - sceneObjects[i].scale->x / 3) - camera.Position.x < ndcMouseX &&
+							(sceneObjects[i].position->x + sceneObjects[i].scale->x / 3) + camera.Position.x > ndcMouseX &&
+							(sceneObjects[i].position->y + sceneObjects[i].scale->y / 3) - camera.Position.y > ndcMouseY &&
+							(sceneObjects[i].position->y - sceneObjects[i].scale->y / 3) + camera.Position.y < ndcMouseY
 							&& glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
 						{
 							if (!sceneObjects[i].selected) {
@@ -644,7 +668,7 @@ int main()
 
 	}
 	
-	std::ofstream outfile("OV_ENV.txt");
+	std::ofstream outfile("OV_ENV.ov");
 	for (const auto& obj : sceneObjects) {
 		if (obj.deleted == false) {
 			outfile << obj.position->x << "," << obj.position->y << "," << obj.scale->x << ","
@@ -662,6 +686,9 @@ int main()
 	glfwDestroyWindow(window);
 	glfwTerminate();
 
+	myData.data = { float(vsync) };
+
+	myData.saveData();
 
 	return 0;
 }
