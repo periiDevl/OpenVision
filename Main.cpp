@@ -70,46 +70,28 @@ std::string getLatestLine(const std::string& input) {
 
 	return lines.back();
 }
-std::string getFirstLine(const std::string& input) {
-	std::vector<std::string> lines;
-	std::stringstream ss(input);
-	std::string line;
-
-	while (std::getline(ss, line, '\n')) {
-		if (!line.empty())
-			lines.push_back(line);
-	}
-
-	if (lines.empty())
-		return "";
-
-	return lines.front();
-}
-
-
 
 std::string getLatestPythonLocation() {
-	return (getFirstLine(executeCommandAndGetOutput("where python")));
+	return (getLatestLine(executeCommandAndGetOutput("where python")));
 }
 void rebuild(GLFWwindow* window, bool localPython) {
-	glfwSetWindowShouldClose(window, GLFW_TRUE);
 	std::cout << "python locations " << endl << executeCommandAndGetOutput("where python") << endl;
 	std::cout << getLatestPythonLocation() << endl;
-	std::string command;
-	if (localPython) {
-		command = std::string("start /B python builder.py");
-	}
-	else {
+	std::string command = std::string("start /B python builder.py");
+	if (!localPython) {
 		std::filesystem::path pythonPath = getLatestPythonLocation();
 		std::string pythonPathStr = pythonPath.string();
-		command = "\"" + pythonPathStr + "\" builder.py";
+		std::replace(pythonPathStr.begin(), pythonPathStr.end(), ' ', '^');
+		command = std::string("start /B ") + pythonPathStr + std::string(" builder.py");
 	}
 	cout << "command:" << command << endl;
 
 	std::system(command.c_str());
-	
-}
+	std::chrono::seconds wait_time(1);
+	std::this_thread::sleep_for(wait_time);
+	glfwSetWindowShouldClose(window, GLFW_TRUE);
 
+}
 
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
