@@ -20,7 +20,6 @@ void PhysicsWorld::Step(float deltaTime)
 				vec2 mtv;
 				if (BoundingAABB(*bodies[i]->GetCollider(), *bodies[l]->GetCollider(), mtv)) {
 					if (mtv == vec2(0.0f)) {
-						cout << "bruh" << " mtv failed for some reason" << endl;
 						return;
 					}
 					vec2 normal = normalize(mtv);

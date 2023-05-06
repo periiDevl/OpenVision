@@ -18,9 +18,9 @@
 #include"OVscriptHandaling.h"
 #include"Presave.h"
 #include"Script.h"
-#include"Abbbawdb.h"
+#include"EpicNewScript.h"
 Script script;
-Abbbawdb Abbbawdbscr;
+EpicNewScript EpicNewScriptscr;
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 
@@ -314,6 +314,13 @@ int main()
 	const float fixed_timestep = 1.0f / 60.0;
 	DefaultTheme();
 	glEnable(GL_MULTISAMPLE);
+
+	for (size_t i = 0; i < sceneObjects.size(); i++) {
+		sceneObjects[i].scenePosition = *PresceneObjects[i].position;
+		sceneObjects[i].sceneScale = *PresceneObjects[i].scale;
+	}
+	sceneObjects = PresceneObjects;
+
 	while (!glfwWindowShouldClose(window))
 	{
 
@@ -336,6 +343,44 @@ int main()
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
 		
+		static bool show_selected_pop = false;
+
+		if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
+		{
+			if (!show_selected_pop) 
+			{
+				ImVec2 mouse_pos = ImVec2(ImGui::GetIO().MousePos.x, ImGui::GetIO().MousePos.y);
+				ImGui::SetNextWindowPos(mouse_pos, ImGuiCond_Appearing, ImVec2(0, 1));
+				ImGui::OpenPopup("Selected Object Settings");
+			}
+			show_selected_pop = true;
+		}
+
+		if (ImGui::BeginPopup("Selected Object Settings"))
+		{
+			if (ImGui::Button(("Delete Object")))
+			{
+				sceneObjects[selectedObject].deleted = true;
+
+			}
+
+
+
+			ImGui::InputFloat("Position X", &sceneObjects[selectedObject].position->x, 0.3f, 1, "%.3f", 0);
+			ImGui::InputFloat("Position Y", &sceneObjects[selectedObject].position->y, 0.3f, 1, "%.3f", 0);
+
+			ImGui::InputFloat("Scale X", &sceneObjects[selectedObject].scale->x, 0.3f, 1, "%.3f", 0);
+
+			ImGui::InputFloat("Scale Y", &sceneObjects[selectedObject].scale->y, 0.3f, 1, "%.3f", 0);
+
+			ImGui::InputFloat("Angle", &sceneObjects[selectedObject].angle, 0.3f, 1, "%.3f", 0);
+			ImGui::EndPopup();
+		}
+		if (ImGui::IsMouseReleased(GLFW_MOUSE_BUTTON_RIGHT))
+		{
+			show_selected_pop = false;
+		}
+
 
 
 
@@ -357,7 +402,7 @@ int main()
 				PresceneObjects[i].sceneScale = *sceneObjects[i].scale;
 			}
 			ImGui::Begin("Execute", 0, (no_resize ? ImGuiWindowFlags_NoResize : 0) | (no_move ? ImGuiWindowFlags_NoMove : 0));
-			if (ImGui::Button("run"))
+			if (ImGui::Button("Run"))
 			{
 				if (run == false) {
 
@@ -528,6 +573,8 @@ int main()
 
 			ImGui::Begin("Object Inspector", 0, (no_resize ? ImGuiWindowFlags_NoResize : 0) | (no_move ? ImGuiWindowFlags_NoMove : 0));
 
+
+
 			if (ImGui::Button("Add object"))
 			{
 
@@ -636,6 +683,21 @@ int main()
 		blackbox.DrawTMP(window, shaderProgram, camera, glm::vec2((61.7 / 1.445) / 1.5, 0), glm::vec2(0.5, 64));
 		blackbox.DrawTMP(window, shaderProgram, camera, glm::vec2((-61.7 / 1.445) / 1.5,0), glm::vec2(0.5, 64));
 		if (run) {
+			if (StartPhase)
+			{
+
+				for (size_t i = 0; i < sceneObjects.size(); i++) {
+					sceneObjects[i].scenePosition = *sceneObjects[i].position;
+					sceneObjects[i].sceneScale = *sceneObjects[i].scale;
+				}
+				PresceneObjects = sceneObjects;
+				con.CLEAR_CONSOLE();
+				fov = 22.45;
+				script.Start(con, window, world, sceneObjects);
+				EpicNewScriptscr.Start(con, window, world, sceneObjects);
+
+				StartPhase = false;
+			}
 			if (timeDiff >= fixed_timestep) {
 				std::string FPS = std::to_string((1.0 / timeDiff) * counter);
 				std::string newTitle = "OpenVision - periidev & itaymadeit ~" + FPS + "FPS";
@@ -644,23 +706,10 @@ int main()
 				counter = 0;
 
 
-				if (StartPhase)
-				{
-					for (size_t i = 0; i < sceneObjects.size(); i++) {
-						sceneObjects[i].scenePosition = *sceneObjects[i].position;
-						sceneObjects[i].sceneScale = *sceneObjects[i].scale;
-					}
-					con.CLEAR_CONSOLE();
-					fov = 22.45;
-					PresceneObjects = sceneObjects;
-					script.Start(con, window, world, sceneObjects);
-					Abbbawdbscr.Start(con, window, world, sceneObjects);
 
-					StartPhase = false;
-				}
 			
 				script.Update(con, window, world, sceneObjects);
-				Abbbawdbscr.Update(con, window, world, sceneObjects);
+				EpicNewScriptscr.Update(con, window, world, sceneObjects);
 
 
 				world.Step(timeDiff);
