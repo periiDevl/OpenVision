@@ -18,8 +18,10 @@
 #include"OVscriptHandaling.h"
 #include"Presave.h"
 #include"Script.h"
+#include"Newsc.h"
 #include"EpicNewScript.h"
 Script script;
+Newsc Newscscr;
 EpicNewScript EpicNewScriptscr;
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
@@ -240,7 +242,7 @@ int main()
 
 
 	std::vector<Texture> textures;
-	std::filesystem::path dir_path = std::filesystem::current_path();
+	std::filesystem::path dir_path = "Assets/";
 
 	for (const auto& file : std::filesystem::directory_iterator(dir_path)) {
 		std::string ext = file.path().extension().string();
@@ -486,7 +488,7 @@ int main()
 
 			if (ImGui::Button("Add Script"))
 			{
-				std::ofstream outputFile("scripts.ov", std::ios::app);
+				std::ofstream outputFile("SCRIPTS.ov", std::ios::app);
 				outputFile << scriptName << std::endl;
 				outputFile.close();
 				addOVscript(scriptName);
@@ -516,7 +518,7 @@ int main()
 					scriptName != "VBO"
 					) {
 					std::string scriptname_str = scriptName;
-					std::ifstream inputFile("scripts.ov");
+					std::ifstream inputFile("SCRIPTS.ov");
 					std::ofstream tempFile("temp.txt");
 					std::string line;
 
@@ -529,8 +531,8 @@ int main()
 
 					inputFile.close();
 					tempFile.close();
-					std::remove("scripts.ov");
-					std::rename("temp.txt", "scripts.ov");
+					std::remove("SCRIPTS.ov");
+					std::rename("temp.txt", "SCRIPTS.ov");
 
 					removeOVscript(scriptName);
 					memset(scriptName, 0, sizeof(scriptName));
@@ -690,6 +692,7 @@ int main()
 				con.CLEAR_CONSOLE();
 				fov = 22.45;
 				script.Start(con, window, world, sceneObjects);
+				Newscscr.Start(con, window, world, sceneObjects);
 				EpicNewScriptscr.Start(con, window, world, sceneObjects);
 
 				StartPhase = false;
@@ -705,6 +708,7 @@ int main()
 
 			
 				script.Update(con, window, world, sceneObjects);
+				Newscscr.Update(con, window, world, sceneObjects);
 				EpicNewScriptscr.Update(con, window, world, sceneObjects);
 
 

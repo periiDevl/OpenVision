@@ -161,6 +161,7 @@
     <ClCompile Include="PhysicsWorld.cpp" />
     <ClCompile Include="PolygonCollider.cpp" />
     <ClCompile Include="Script.cpp" />
+	<ClCompile Include="Newsc.cpp" />
 	<ClCompile Include="EpicNewScript.cpp" />
     <ClCompile Include="stb.cpp" />
     <ClCompile Include="Tex.cpp" />
@@ -191,6 +192,7 @@
     <ClInclude Include="PolygonCollider.h" />
     <ClInclude Include="Presave.h" />
     <ClInclude Include="Script.h" />
+	<ClInclude Include="Newsc.h" />
 	<ClInclude Include="EpicNewScript.h" />
     <ClInclude Include="Settings.h" />
     <ClInclude Include="Tex.h" />
