@@ -713,7 +713,7 @@ int main()
 				EpicNewScriptscr.Update(con, window, world, sceneObjects);
 
 
-				world.Step(timeDiff);
+				world.Step(fixed_timestep);
 			}
 
 			
