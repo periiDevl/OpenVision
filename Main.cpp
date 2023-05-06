@@ -388,19 +388,15 @@ int main()
 			if (!StartPhase) {
 				fov = 45;
 				glfwSetWindowTitle(window, "OpenVision *(Universal Editor)");
-				for (size_t i = 0; i < sceneObjects.size(); i++)
+				for (size_t i = 0; i < PresceneObjects.size(); i++)
 				{
 					*sceneObjects[i].position = PresceneObjects[i].scenePosition;
 					*sceneObjects[i].scale = PresceneObjects[i].sceneScale;
 				}
-				sceneObjects = PresceneObjects;
 				StartPhase = true;
 			}
-			for (size_t i = 0; i < PresceneObjects.size(); i++)
-			{
-				PresceneObjects[i].scenePosition = *sceneObjects[i].position;
-				PresceneObjects[i].sceneScale = *sceneObjects[i].scale;
-			}
+			sceneObjects = PresceneObjects;
+
 			ImGui::Begin("Execute", 0, (no_resize ? ImGuiWindowFlags_NoResize : 0) | (no_move ? ImGuiWindowFlags_NoMove : 0));
 			if (ImGui::Button("Run"))
 			{
@@ -449,8 +445,8 @@ int main()
 
 						if (ImGui::Selectable(("Bind : " + std::string(textures[k].ImageFile)).c_str()))
 						{
-							sceneObjects[selectedObject].tex = textures[k];
-							sceneObjects[selectedObject].texChar = textures[k].FullImageFile;
+							PresceneObjects[selectedObject].tex = textures[k];
+							PresceneObjects[selectedObject].texChar = textures[k].FullImageFile;
 						}
 
 						ImGui::Separator();
@@ -578,45 +574,45 @@ int main()
 			if (ImGui::Button("Add object"))
 			{
 
-				sceneObjects.push_back(Object(verts, ind));
+				PresceneObjects.push_back(Object(verts, ind));
 
 			}
 			{
-				for (size_t i = 0; i < sceneObjects.size(); i++)
+				for (size_t i = 0; i < PresceneObjects.size(); i++)
 				{
 
-					if (sceneObjects[i].selected)
+					if (PresceneObjects[i].selected)
 					{
 
 						selectedObject = i;
 
 					}
 
-					if (sceneObjects[i].deleted == false) {
+					if (PresceneObjects[i].deleted == false) {
 
 						if (ImGui::CollapsingHeader(("Object" + std::to_string(i)).c_str())) {
 							if (ImGui::Button(("Delete Object##" + std::to_string(i)).c_str()))
 							{
-								sceneObjects[i].deleted = true;
+								PresceneObjects[i].deleted = true;
 
 							}
 
 
 							ImGui::Columns(2, nullptr, true);
 
-							ImGui::InputFloat(("Pos X##" + std::to_string(i)).c_str(), &sceneObjects[i].position->x, 0.3f, 1, "%.3f", 0);
+							ImGui::InputFloat(("Pos X##" + std::to_string(i)).c_str(), &PresceneObjects[i].position->x, 0.3f, 1, "%.3f", 0);
 							ImGui::NextColumn();
-							ImGui::InputFloat(("Pos Y##" + std::to_string(i)).c_str(), &sceneObjects[i].position->y, 0.3f, 1, "%.3f", 0);
+							ImGui::InputFloat(("Pos Y##" + std::to_string(i)).c_str(), &PresceneObjects[i].position->y, 0.3f, 1, "%.3f", 0);
 
 							ImGui::Columns(1, nullptr, true);
 							ImGui::Columns(2, nullptr, true);
-							ImGui::InputFloat(("Scale X##" + std::to_string(i)).c_str(), &sceneObjects[i].scale->x, 0.3f, 1, "%.3f", 0);
+							ImGui::InputFloat(("Scale X##" + std::to_string(i)).c_str(), &PresceneObjects[i].scale->x, 0.3f, 1, "%.3f", 0);
 							ImGui::NextColumn();
 
-							ImGui::InputFloat(("Scale Y##" + std::to_string(i)).c_str(), &sceneObjects[i].scale->y, 0.3f, 1, "%.3f", 0);
+							ImGui::InputFloat(("Scale Y##" + std::to_string(i)).c_str(), &PresceneObjects[i].scale->y, 0.3f, 1, "%.3f", 0);
 
 							ImGui::Columns(1, nullptr, true);
-							ImGui::InputFloat(("Angle ##" + std::to_string(i)).c_str(), &sceneObjects[i].angle, 0.3f, 1, "%.3f", 0);
+							ImGui::InputFloat(("Angle ##" + std::to_string(i)).c_str(), &PresceneObjects[i].angle, 0.3f, 1, "%.3f", 0);
 
 
 
@@ -633,13 +629,13 @@ int main()
 						ndcMouseY = (float)mouseY / (float)height * 2.0f - 1.0f;
 						ndcMouseX *= rattio.x * 3.7;
 						ndcMouseY *= rattio.y * 3.7;
-						if ((sceneObjects[i].position->x - sceneObjects[i].scale->x / 3) - camera.Position.x < ndcMouseX &&
-							(sceneObjects[i].position->x + sceneObjects[i].scale->x / 3) + camera.Position.x > ndcMouseX &&
-							(sceneObjects[i].position->y + sceneObjects[i].scale->y / 3) - camera.Position.y > ndcMouseY &&
-							(sceneObjects[i].position->y - sceneObjects[i].scale->y / 3) + camera.Position.y < ndcMouseY
+						if ((PresceneObjects[i].position->x - PresceneObjects[i].scale->x / 3) - camera.Position.x < ndcMouseX &&
+							(PresceneObjects[i].position->x + PresceneObjects[i].scale->x / 3) + camera.Position.x > ndcMouseX &&
+							(PresceneObjects[i].position->y + PresceneObjects[i].scale->y / 3) - camera.Position.y > ndcMouseY &&
+							(PresceneObjects[i].position->y - PresceneObjects[i].scale->y / 3) + camera.Position.y < ndcMouseY
 							&& glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
 						{
-							if (!sceneObjects[i].selected) {
+							if (!PresceneObjects[i].selected) {
 								beforeMouseX = ndcMouseX;
 								beforeMouseY = ndcMouseY;
 							}
@@ -647,28 +643,28 @@ int main()
 								float dx = ndcMouseX - beforeMouseX;
 								float dy = ndcMouseY - beforeMouseY;
 
-								sceneObjects[i].position->x += dx;
-								sceneObjects[i].position->y += dy;
+								PresceneObjects[i].position->x += dx;
+								PresceneObjects[i].position->y += dy;
 
 								beforeMouseX = ndcMouseX;
 								beforeMouseY = ndcMouseY;
 							}
 
-							sceneObjects[i].selected = true;
+							PresceneObjects[i].selected = true;
 						}
 						else {
-							sceneObjects[i].selected = false;
+							PresceneObjects[i].selected = false;
 						}
 
 
 
-						sceneObjects[i].Draw(window, shaderProgram, camera, glm::vec3(0, 0, 1), width, height, rattio);
+						PresceneObjects[i].Draw(window, shaderProgram, camera, glm::vec3(0, 0, 1), width, height, rattio);
 						glUseProgram(unlitProgram);
 						glUniform4f(glGetUniformLocation(unlitProgram, "color"), 1.00, 0.56, 0.13, 1);
 
 						glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 						glLineWidth(3.0f);
-						sceneObjects[selectedObject].Draw(window, unlitProgram, camera, glm::vec3(0, 0, 1), width, height, rattio);
+						PresceneObjects[selectedObject].Draw(window, unlitProgram, camera, glm::vec3(0, 0, 1), width, height, rattio);
 						glLineWidth(0.0f);
 						glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
@@ -686,7 +682,7 @@ int main()
 			if (StartPhase)
 			{
 
-				for (size_t i = 0; i < sceneObjects.size(); i++) {
+				for (size_t i = 0; i < PresceneObjects.size(); i++) {
 					sceneObjects[i].scenePosition = *sceneObjects[i].position;
 					sceneObjects[i].sceneScale = *sceneObjects[i].scale;
 				}
