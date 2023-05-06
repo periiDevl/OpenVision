@@ -78,20 +78,31 @@ void rebuild(GLFWwindow* window, bool localPython) {
 	std::cout << "python locations " << endl << executeCommandAndGetOutput("where python") << endl;
 	std::cout << getLatestPythonLocation() << endl;
 	std::string command = std::string("start /B python builder.py");
+
 	if (!localPython) {
 		std::filesystem::path pythonPath = getLatestPythonLocation();
 		std::string pythonPathStr = pythonPath.string();
-		std::replace(pythonPathStr.begin(), pythonPathStr.end(), ' ', '^');
-		command = std::string("start /B ") + pythonPathStr + std::string(" builder.py");
+
+		for (size_t i = 0; i < pythonPathStr.size(); i++) {
+			if (pythonPathStr[i] == '\\') {
+				pythonPathStr.insert(i, 1, '\\');
+				i++;
+			}
+		}
+
+		command = std::string("start /B \"\" \"") + pythonPathStr + "\" builder.py\"";
 	}
-	cout << "command:" << command << endl;
+
+	std::cout << "command: " << command << std::endl;
 
 	std::system(command.c_str());
+
 	std::chrono::seconds wait_time(1);
 	std::this_thread::sleep_for(wait_time);
 	glfwSetWindowShouldClose(window, GLFW_TRUE);
-
 }
+
+
 
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
