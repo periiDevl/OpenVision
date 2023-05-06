@@ -145,7 +145,7 @@ int main()
 	}
 	inputFile.close();
 
-	PhysicsWorld world(vec3(0, -1.0f, 0), 10);
+	PhysicsWorld world(vec3(0, 1.0f, 0), 10);
 
 
 	const std::filesystem::path directory_path = std::filesystem::current_path();
@@ -394,6 +394,8 @@ int main()
 				{
 					*sceneObjects[i].position = PresceneObjects[i].scenePosition;
 					*sceneObjects[i].scale = PresceneObjects[i].sceneScale;
+					sceneObjects[i].Body->velocity = vec2(0, 0);
+					PresceneObjects[i].Body->velocity = vec2(0, 0);
 				}
 				StartPhase = true;
 			}
@@ -694,7 +696,6 @@ int main()
 				script.Start(con, window, world, sceneObjects);
 				Newscscr.Start(con, window, world, sceneObjects);
 				EpicNewScriptscr.Start(con, window, world, sceneObjects);
-
 				StartPhase = false;
 			}
 			if (timeDiff >= fixed_timestep) {
