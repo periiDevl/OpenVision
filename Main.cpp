@@ -360,20 +360,20 @@ int main()
 		{
 			if (ImGui::Button(("Delete Object")))
 			{
-				sceneObjects[selectedObject].deleted = true;
+				PresceneObjects[selectedObject].deleted = true;
 
 			}
 
 
 
-			ImGui::InputFloat("Position X", &sceneObjects[selectedObject].position->x, 0.3f, 1, "%.3f", 0);
-			ImGui::InputFloat("Position Y", &sceneObjects[selectedObject].position->y, 0.3f, 1, "%.3f", 0);
+			ImGui::InputFloat("Position X", &PresceneObjects[selectedObject].position->x, 0.3f, 1, "%.3f", 0);
+			ImGui::InputFloat("Position Y", &PresceneObjects[selectedObject].position->y, 0.3f, 1, "%.3f", 0);
 
-			ImGui::InputFloat("Scale X", &sceneObjects[selectedObject].scale->x, 0.3f, 1, "%.3f", 0);
+			ImGui::InputFloat("Scale X", &PresceneObjects[selectedObject].scale->x, 0.3f, 1, "%.3f", 0);
 
-			ImGui::InputFloat("Scale Y", &sceneObjects[selectedObject].scale->y, 0.3f, 1, "%.3f", 0);
+			ImGui::InputFloat("Scale Y", &PresceneObjects[selectedObject].scale->y, 0.3f, 1, "%.3f", 0);
 
-			ImGui::InputFloat("Angle", &sceneObjects[selectedObject].angle, 0.3f, 1, "%.3f", 0);
+			ImGui::InputFloat("Angle", &PresceneObjects[selectedObject].angle, 0.3f, 1, "%.3f", 0);
 			ImGui::EndPopup();
 		}
 		if (ImGui::IsMouseReleased(GLFW_MOUSE_BUTTON_RIGHT))
