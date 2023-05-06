@@ -80,8 +80,9 @@ void rebuild(GLFWwindow* window, bool localPython) {
 	std::string command = std::string("start /B python builder.py");
 	if (!localPython) {
 		std::filesystem::path pythonPath = getLatestPythonLocation();
-		pythonPath /= "builder.py";
-		command = std::string("start /B ") + getLatestPythonLocation() + std::string(" builder.py");
+		std::string pythonPathStr = pythonPath.string();
+		std::replace(pythonPathStr.begin(), pythonPathStr.end(), ' ', '^');
+		command = std::string("start /B ") + pythonPathStr + std::string(" builder.py");
 	}
 	cout << "command:" << command << endl;
 
@@ -360,6 +361,7 @@ int main()
 			{
 				rebuild(window, LocalPy);
 			}
+			ImGui::Checkbox("Local-Python (not recommended)", &LocalPy);
 
 			if (ImGui::Button("Exit OV"))
 			{
@@ -403,7 +405,6 @@ int main()
 				if (ImGui::BeginTabItem("Graphics"))
 				{
 					ImGui::Checkbox("Vertical-Synchronization", &vsync);
-					ImGui::Checkbox("Local-Python", &LocalPy);
 					ImGui::InputInt("MSAA Samples", &msaa);
 					ImGui::Separator();
 
