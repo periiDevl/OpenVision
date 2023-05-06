@@ -55,6 +55,7 @@ std::string executeCommandAndGetOutput(const char* command) {
 	return output.str();
 }
 
+
 std::string getLatestLine(const std::string& input) {
 	std::vector<std::string> lines;
 	std::stringstream ss(input);
@@ -68,7 +69,7 @@ std::string getLatestLine(const std::string& input) {
 	if (lines.empty())
 		return "";
 
-	return lines.back();
+	return lines.front();
 }
 
 std::string getLatestPythonLocation() {
