@@ -21,7 +21,7 @@ class PhysicsBody
 {
 public:
 	PhysicsBody();
-	PhysicsBody(glm::vec2* pos, float rot, glm::vec2* sca, float mass, float density, float restitution, bool isStatic);
+	PhysicsBody(glm::vec2* pos, float rot, glm::vec2* sca, float mass, float density,float fric, float restitution, bool isStatic);
 
 	
 	void Step(float deltaTime);
@@ -36,7 +36,7 @@ public:
 	vec2* scale;
 	float rotation;
 
-	float mass, area, density, restitution;
+	float mass, area, density, friction, restitution;
 	bool isStatic;
 
 	vec2 force, velocity;

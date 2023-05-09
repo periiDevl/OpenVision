@@ -28,7 +28,11 @@ public:
 	std::vector <Texture> textures;
 	VAO VAO;
 
-
+	/// <summary>
+	/// Degrees To Radians
+	/// </summary>
+	/// <param name="radians"></param>
+	/// <returns></returns>
 	float Deg(float radians)
 	{
 

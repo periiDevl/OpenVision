@@ -13,15 +13,21 @@ void PhysicsWorld::Step(float deltaTime)
 				bodies[i]->Step(deltaTime/iterations);
 		}
 	}
+	
+	//bodies[0]->GetCollider()->CalculateAABB();
+	//cout << "body 1 min:" << glm::to_string(bodies[0]->GetCollider()->bMin) << endl;
+	//cout << "body 1 max:" << glm::to_string(bodies[0]->GetCollider()->bMax) << endl;
 	for (int iter = 0; iter < iterations; iter++)
 	{
 		for (int i = 0; i < bodies.size(); i++) {
 			for (int l = i + 1; l < bodies.size(); l++) {
 				vec2 mtv;
 				if (BoundingAABB(*bodies[i]->GetCollider(), *bodies[l]->GetCollider(), mtv)) {
+
 					if (mtv == vec2(0.0f)) {
 						return;
 					}
+
 					vec2 normal = normalize(mtv);
 					float depth = length(mtv);
 
@@ -42,36 +48,50 @@ void PhysicsWorld::Step(float deltaTime)
 						*bodyA->position += mtv;
 					}
 					if (isAStatic && !isBStatic) {
-						*bodyB->position +=  - mtv;
+						*bodyB->position -=  mtv;
 					}
 
 					
 
 					vec2 point1 = bodyA->GetCollider()->GetSupportPoint(-normal);
 					vec2 point2 = bodyB->GetCollider()->GetSupportPoint(normal);
-					int sizeContactPoints = point1 != point2 ? 2 : 1;
+					int sizeContactPoints = 2;
 
 					// calculate relative velocity
 					vec2 relVel = bodyB->velocity - bodyA->velocity;
 
 					// calculate impulse magnitude
-					float e = std::min(bodyA->restitution, bodyB->restitution); // coefficient of restitution
+					float e = std::min(0.5f, 0.5f); // coefficient of restitution
 					float j = -(1 + e) * dot(relVel, normal) / ((bodyA->isStatic ? 0 : 1 / bodyA->mass) + (bodyB->isStatic ? 0 : 1 / bodyB->mass) + 0.000000000001f);
 
+					// friction stuff
+					vec2 tangent = vec2(-normal.y, normal.x);
+					vec2 relVelTangent = relVel - dot(relVel, normal) * normal;
+
+					float frictionA = 0.5f ;
+					float frictionB = 0.5f ;
+
+					float friction = std::min(frictionA, frictionB);
+					float jt = -dot(relVelTangent, tangent) / ((bodyA->isStatic ? 0 : 1 / bodyA->mass) + (bodyB->isStatic ? 0 : 1 / bodyB->mass) + 0.000000000001f);
+					jt /= sizeContactPoints; // average for multiple contact points
+
+					if (std::abs(jt) > std::abs(j) * friction) {
+						jt = std::copysign(std::abs(j) * friction, jt);
+					}
 
 					// apply impulse to the bodies
 					if (!isAStatic && !isBStatic) {
-						bodyA->velocity -= (j * normal / bodyA->mass);
-						bodyB->velocity += (j * normal / bodyB->mass);
-					}
-					if (!isAStatic && isBStatic) {
-						bodyA->velocity -= j * normal / bodyA->mass;
-					}																		   
-					if (isAStatic && !isBStatic) {											   
-						bodyB->velocity += j * normal / bodyB->mass;
+						bodyA->velocity -= (j * normal + jt * tangent) / bodyA->mass;
+						bodyB->velocity += (j * normal + jt * tangent) / bodyB->mass;
+					}								   
+					if (!isAStatic && isBStatic) {	  
+						bodyA->velocity -= (j * normal + jt * tangent) / bodyA->mass;
+					}								   
+					if (isAStatic && !isBStatic) {	   
+						bodyB->velocity += (j * normal + jt * tangent) / bodyB->mass;
 					}
 				}
-			}
+			}	
 		}
 		
 	}

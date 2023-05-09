@@ -145,7 +145,7 @@ int main()
 	}
 	inputFile.close();
 
-	PhysicsWorld world(vec3(0, 1.0f, 0), 10);
+	PhysicsWorld world(vec3(0, 5.0f, 0), 10);
 
 
 	const std::filesystem::path directory_path = std::filesystem::current_path();
@@ -387,6 +387,7 @@ int main()
 
 
 		if (!run) {
+
 			if (!StartPhase) {
 				fov = 45;
 				glfwSetWindowTitle(window, "OpenVision *(Universal Editor)");
@@ -397,6 +398,8 @@ int main()
 					sceneObjects[i].Body->velocity = vec2(0, 0);
 					PresceneObjects[i].Body->velocity = vec2(0, 0);
 				}
+				sceneObjects[0].Body->GetCollider()->CalculateAABB();
+
 				StartPhase = true;
 			}
 			sceneObjects = PresceneObjects;

@@ -1,5 +1,4 @@
 #include "CollisionManager.h"
-
 bool BoundingAABB(Collider& colA, Collider& colB, vec2& mtv)
 {
     colA.CalculateAABB();
@@ -10,30 +9,32 @@ bool BoundingAABB(Collider& colA, Collider& colB, vec2& mtv)
     glm::vec2 bMin = colB.bMin;  // Minimum point of AABB B
     glm::vec2 bMax = colB.bMax;  // Maximum point of AABB B
 
-    bool collision = true;
+    // Calculate the MTV
+    float overlapX = std::min(aMax.x, bMax.x) - std::max(aMin.x, bMin.x);
+    float overlapY = std::min(aMax.y, bMax.y) - std::max(aMin.y, bMin.y);
 
-    // Check for overlap on the x-axis
-    if (aMax.x < bMin.x || aMin.x > bMax.x)
-        collision = false;
-
-    // Check for overlap on the y-axis
-    if (aMax.y < bMin.y || aMin.y > bMax.y)
-        collision = false;
-
-    if (collision)
-    {
-        // Calculate the MTV
-        float overlapX = (aMax.x < bMax.x) ? aMax.x - bMin.x : bMax.x - aMin.x;
-        float overlapY = (aMax.y < bMax.y) ? aMax.y - bMin.y : bMax.y - aMin.y;
-
-        // Determine the smallest overlap along each axis
-        mtv.x = (abs(overlapX) < abs(overlapY)) ? overlapX : 0.0f;
-        mtv.y = (abs(overlapY) < abs(overlapX)) ? overlapY : 0.0f;
+    if (overlapX < 0 || overlapY < 0) {
+        // No collision occurred
+        mtv = vec2(0, 0);
+        return false;
     }
 
-    return collision;
-}
+    // Determine which axis has the smaller overlap
+    if (overlapX < overlapY) {
+        mtv = vec2(overlapX, 0);
+        if ((aMax.x + aMin.x) / 2 < (bMax.x + bMin.x) / 2) {
+            mtv.x = -mtv.x;
+        }
+    }
+    else {
+        mtv = vec2(0, overlapY);
+        if ((aMax.y + aMin.y) / 2 >= (bMax.y + bMin.y) / 2) {
+            mtv.y = -mtv.y;
+        }
+    }
 
+    return true;
+}
 bool BoundingCircle(const Collider& colA, const Collider& colB, vec2& mtv) {
     return glm::distance(*colA.Position, *colB.Position) <= colA.bRadius + colB.bRadius;
 }
