@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--Copyright, Microsoft Corporation, All rights reserved.-->
+<Rule
+      Name="ConfigurationGeneralAdvanced"
+      OverrideMode="Extend"
+      xmlns="http://schemas.microsoft.com/build/2009/properties">
+  
+  <EnumProperty Name="PreferredToolArchitecture"
+                DisplayName="Preferred Build Tool Architecture"
+                Description="Determines which build tools will be used to compile programs (32-bit, 64-bit, or 64-bit Arm)."
+                Category="General"
+                F1Keyword="VC.Project.VCConfiguration.PreferredToolArchitecture">
+    <EnumValue Name="" DisplayName="Default" />
+    <EnumValue Name="arm64" DisplayName="64-bit Arm (arm64)" />
+    <EnumValue Name="x86" DisplayName="32-bit (x86)" />
+    <EnumValue Name="x64" DisplayName="64-bit (x64)" />
+  </EnumProperty>
+</Rule>

@@ -37,15 +37,8 @@ class HotReloadHandler(FileSystemEventHandler):
         print("Executing...")
         os.system('Vision_engine.exe')
 
-    def on_modified(self, event):
-        if event.is_directory or not event.src_path.endswith('.cpp'):
-            return
-        print(f"Detected change in {event.src_path}. Rebuilding...")
-        self.build()
-
-
 if __name__ == '__main__':
-    msbuild_path = r"C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Current\Bin\MSBuild.exe"
+    msbuild_path = r"Build\MSBuild\Current\Bin\MSBuild.exe"
     sln_file_path = r'Vision_engine.sln'
 
     dst_directory_path = os.path.dirname(os.path.abspath(__file__))
