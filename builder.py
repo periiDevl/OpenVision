@@ -38,7 +38,7 @@ class HotReloadHandler(FileSystemEventHandler):
         os.system('Vision_engine.exe')
 
 if __name__ == '__main__':
-    msbuild_path = r"Build\MSBuild\Current\MSBin\MSBuild.exe"
+    msbuild_path = r"Build\MSBuild\Current\Bin\MSBuild.exe"
     sln_file_path = r'Vision_engine.sln'
 
     dst_directory_path = os.path.dirname(os.path.abspath(__file__))
