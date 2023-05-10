@@ -4,8 +4,6 @@ void Script::Start(Console& ovcon, GLFWwindow* window, PhysicsWorld& world, std:
 		world.AddBody(sceneObjects[i].Body);
 	}
 	sceneObjects[0].Body->velocity = vec2(5, 0);
-	sceneObjects[0].Body->restitution = 0.3f;
-	sceneObjects[1].Body->restitution = 0.0f;
 	sceneObjects[1].Body->isStatic = true;
 }
 void Script::Update(Console& ovcon, GLFWwindow* window, PhysicsWorld& world, std::vector<Object>& sceneObjects) {
