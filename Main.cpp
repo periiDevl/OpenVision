@@ -591,12 +591,23 @@ int main()
 				for (size_t i = 0; i < PresceneObjects.size(); i++)
 				{
 
-					if (PresceneObjects[i].selected)
-					{
+					bool foundLastSelected = false;
 
-						selectedObject = i;
+					for (int i = PresceneObjects.size() - 1; i >= 0; i--) {
 
+						if (PresceneObjects[i].selected) {
+
+							if (!foundLastSelected) {
+								PresceneObjects[i].selected = true;
+								selectedObject = i;
+								foundLastSelected = true;
+							}
+							else {
+								PresceneObjects[i].selected = false;
+							}
+						}
 					}
+
 
 					if (PresceneObjects[i].deleted == false) {
 
