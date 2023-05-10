@@ -35,6 +35,25 @@ bool BoundingAABB(Collider& colA, Collider& colB, vec2& mtv)
 
     return true;
 }
+bool BoundingAABB(Collider& colA, Collider& colB)
+{
+    colA.CalculateAABB();
+    colB.CalculateAABB();
+
+    glm::vec2 aMin = colA.bMin; 
+    glm::vec2 aMax = colA.bMax; 
+    glm::vec2 bMin = colB.bMin; 
+    glm::vec2 bMax = colB.bMax; 
+
+    float overlapX = std::min(aMax.x, bMax.x) - std::max(aMin.x, bMin.x);
+    float overlapY = std::min(aMax.y, bMax.y) - std::max(aMin.y, bMin.y);
+
+    if (overlapX < 0 || overlapY < 0) {
+        return false;
+    }
+
+    return true;
+}
 bool BoundingCircle(const Collider& colA, const Collider& colB, vec2& mtv) {
     return glm::distance(*colA.Position, *colB.Position) <= colA.bRadius + colB.bRadius;
 }

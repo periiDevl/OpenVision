@@ -17,6 +17,15 @@ using namespace std;
 /// <returns></returns>
 bool BoundingAABB(Collider& colA, Collider& colB, vec2& mtv);
 /// <summary>
+/// A functions for checking AABB collision (Axis-Aligned-Bounding-Box) between 2 colliders
+/// This is an easy way that costs a lot less to calculate, it just defines 2 boxes with a minimum and maximum point of each shape and checks if the boxes collide.
+/// You will use such a function before a real collision detection test to speed things up, and not waste performance.
+/// </summary>
+/// <param name="colA">The First Collider</param>
+/// <param name="colB">The Second Collider</param>
+/// <returns></returns>
+bool BoundingAABB(Collider& colA, Collider& colB);
+/// <summary>
 /// A functions for checking Bounding Circle Collision between 2 colliders
 /// This is an easy way that costs a lot less to calculate, it just defines 2 circles for the whole shape and checks if the circle is colliding.
 /// You will use such a function before a real collision detection test to speed things up, and not waste performance.

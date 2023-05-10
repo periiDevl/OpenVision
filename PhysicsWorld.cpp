@@ -20,7 +20,15 @@ void PhysicsWorld::Step(float deltaTime)
 	for (int iter = 0; iter < iterations; iter++)
 	{
 		for (int i = 0; i < bodies.size(); i++) {
+			if (bodies[i]->isTrigger) {
+				continue;
+			}
+
 			for (int l = i + 1; l < bodies.size(); l++) {
+				if (bodies[l]->isTrigger) {
+					continue;
+				}
+
 				vec2 mtv;
 				if (BoundingAABB(*bodies[i]->GetCollider(), *bodies[l]->GetCollider(), mtv)) {
 

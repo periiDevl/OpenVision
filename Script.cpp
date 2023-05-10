@@ -4,16 +4,27 @@ void Script::Start(Console& ovcon, GLFWwindow* window, PhysicsWorld& world, std:
 		world.AddBody(sceneObjects[i].Body);
 	}
 	sceneObjects[0].Body->velocity = vec2(5, 0);
+	sceneObjects[0].Body->restitution = 0.0f;
 	sceneObjects[1].Body->isStatic = true;
+	sceneObjects[2].Body->isStatic = true;
+	sceneObjects[2].Body->isTrigger = true;
 }
 void Script::Update(Console& ovcon, GLFWwindow* window, PhysicsWorld& world, std::vector<Object>& sceneObjects) {
-	//float horizontal = 0;
-	//if (glfwGetKey(window, GLFW_KEY_D))
-	//	horizontal = 1;
-	//if (glfwGetKey(window, GLFW_KEY_A))
-	//	horizontal = -1;
-	//
-	//sceneObjects[0].Body->velocity.x = horizontal * speed;
+	*sceneObjects[2].position = *sceneObjects[0].position - vec2(0, -2.4f);
+	float horizontal = 0;
+	if (glfwGetKey(window, GLFW_KEY_D))
+		horizontal = 1;
+	if (glfwGetKey(window, GLFW_KEY_A))
+		horizontal = -1;
+	
+	sceneObjects[0].Body->velocity.x = horizontal * speed;
+
+	if (BoundingAABB(*sceneObjects[1].Body->GetCollider(), *sceneObjects[2].Body->GetCollider())) {
+		cout << "Touching Ground" << endl;
+		if (glfwGetKey(window, GLFW_KEY_SPACE))
+			sceneObjects[0].Body->velocity.y = -10;
+	}
+
 	//
 	//float vertical = 0;
 	//if (glfwGetKey(window, GLFW_KEY_S))

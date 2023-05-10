@@ -6,7 +6,7 @@ Object::Object(std::vector<Vertex>& vertices, std::vector<GLuint>& indices)
 
     selected = false;
 
-    Body = new PhysicsBody(position, 0, scale, 1, 1, 0.5f, 0.5f, false);
+    Body = new PhysicsBody(position, 0, scale, 1, 1, 0.5f, 0.5f, false, false);
 
 
     VAO.Bind();
