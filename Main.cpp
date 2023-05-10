@@ -30,6 +30,7 @@ Console con;
 
 double scroll_offset = 45.0;
 
+int PythonIndex = 1;
 
 
 Camera camera(width, height, glm::vec3(0.0f, 0.0f, 80.0f));
@@ -56,34 +57,34 @@ std::string executeCommandAndGetOutput(const char* command) {
 
 	return output.str();
 }
+std::string getPythonLocationByLine(int line) {
+	std::string whereCommand = "where python";
+	std::string pythonLocations = executeCommandAndGetOutput(whereCommand.c_str());
 
+	std::stringstream ss(pythonLocations);
+	std::string location;
+	std::vector<std::string> locations;
 
-std::string getLatestLine(const std::string& input) {
-	std::vector<std::string> lines;
-	std::stringstream ss(input);
-	std::string line;
-
-	while (std::getline(ss, line, '\n')) {
-		if (!line.empty())
-			lines.push_back(line);
+	while (std::getline(ss, location, '\n')) {
+		locations.push_back(location);
 	}
 
-	if (lines.empty())
-		return "";
+	if (line < 0)
+		line = 0;
+	if (line >= locations.size()) {
+		line = locations.size() - 1;
+	}
 
-	return lines.front();
-}
-
-std::string getLatestPythonLocation() {
-	return (getLatestLine(executeCommandAndGetOutput("where python")));
+	return locations[line];
 }
 void rebuild(GLFWwindow* window, bool localPython) {
 	std::cout << "python locations " << endl << executeCommandAndGetOutput("where python") << endl;
-	std::cout << getLatestPythonLocation() << endl;
+	std::cout << getPythonLocationByLine(PythonIndex) << endl;
+	std::system((getPythonLocationByLine(PythonIndex) + std::string(" -m pip install watchdog")).c_str());
 	std::string command = std::string("start /B python builder.py");
 
 	if (!localPython) {
-		std::filesystem::path pythonPath = getLatestPythonLocation();
+		std::filesystem::path pythonPath = getPythonLocationByLine(PythonIndex);
 		std::string pythonPathStr = pythonPath.string();
 
 		for (size_t i = 0; i < pythonPathStr.size(); i++) {
@@ -93,7 +94,7 @@ void rebuild(GLFWwindow* window, bool localPython) {
 			}
 		}
 
-		command = std::string("start /B \"\" \"") + pythonPathStr + "\" builder.py\"";
+		command = std::string("start /B ") + pythonPathStr + " builder.py";
 	}
 
 	std::cout << "command: " << command << std::endl;

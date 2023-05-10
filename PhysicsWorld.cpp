@@ -61,7 +61,7 @@ void PhysicsWorld::Step(float deltaTime)
 					vec2 relVel = bodyB->velocity - bodyA->velocity;
 
 					// calculate impulse magnitude
-					float e = std::min(0.5f, 0.5f); // coefficient of restitution
+					float e = std::min(bodyA->restitution, bodyB->restitution); // coefficient of restitution
 					float j = -(1 + e) * dot(relVel, normal) / ((bodyA->isStatic ? 0 : 1 / bodyA->mass) + (bodyB->isStatic ? 0 : 1 / bodyB->mass) + 0.000000000001f);
 
 					// friction stuff
