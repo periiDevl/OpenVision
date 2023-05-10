@@ -14,9 +14,7 @@ void PhysicsWorld::Step(float deltaTime)
 		}
 	}
 	
-	//bodies[0]->GetCollider()->CalculateAABB();
-	//cout << "body 1 min:" << glm::to_string(bodies[0]->GetCollider()->bMin) << endl;
-	//cout << "body 1 max:" << glm::to_string(bodies[0]->GetCollider()->bMax) << endl;
+
 	for (int iter = 0; iter < iterations; iter++)
 	{
 		for (int i = 0; i < bodies.size(); i++) {
@@ -61,7 +59,7 @@ void PhysicsWorld::Step(float deltaTime)
 					vec2 relVel = bodyB->velocity - bodyA->velocity;
 
 					// calculate impulse magnitude
-					float e = std::min(0.5f, 0.5f); // coefficient of restitution
+					float e = std::min(bodyA->restitution, bodyB->restitution); // coefficient of restitution
 					float j = -(1 + e) * dot(relVel, normal) / ((bodyA->isStatic ? 0 : 1 / bodyA->mass) + (bodyB->isStatic ? 0 : 1 / bodyB->mass) + 0.000000000001f);
 
 					// friction stuff
