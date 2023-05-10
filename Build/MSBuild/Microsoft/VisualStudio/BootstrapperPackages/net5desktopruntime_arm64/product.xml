@@ -1,0 +1,43 @@
+﻿<?xml version="1.0" encoding="utf-8" ?> 
+
+<Product xmlns="http://schemas.microsoft.com/developer/2004/01/bootstrapper" ProductCode="Microsoft.NetCore.DesktopRuntime.5.0.Arm64">
+
+  <!-- Defines list of files to be copied on build -->
+  <PackageFiles CopyAllPackageFiles="false">
+    <PackageFile Name="windowsdesktop-runtime-5.0.17-win-arm64.exe"
+                 HomeSite="https://go.microsoft.com/fwlink/?linkid=2193807"
+                 PublicKey="0" />
+    <PackageFile Name="NetCoreCheck.exe" />
+  </PackageFiles>
+
+  <!-- Run the NetCoreCheck tool that will determine if the necessary framework is installed -->
+  <InstallChecks>
+    <ExternalCheck Property="NetCoreCheck" PackageFile="NetCoreCheck.exe" Arguments="-n Microsoft.WindowsDesktop.App -v 5.0.17"/>
+  </InstallChecks>
+
+  <!-- Defines how to invoke the setup for the .Net Desktop Runtime 5.0 -->
+  <Commands Reboot="Defer">
+    <Command PackageFile="windowsdesktop-runtime-5.0.17-win-arm64.exe" Arguments=' /q '>
+
+      <!-- These checks determine whether the package is to be installed -->
+      <InstallConditions>
+        <!-- Block install on any platform other than Arm64 (TODO: Enable detecting Arm64 in bootstrapper) -->
+        <!-- <FailIf Property="ProcessorArchitecture" Compare="ValueNotEqualTo" Value="ARM64" String="InvalidOS" BeforeInstallChecks="true"/> -->
+        <FailIf Property="NetCoreCheck" Compare="ValueEqualTo" Value="216" String="InvalidOS"/>
+        <!-- Block install on less than Windows 7 RTM -->
+        <FailIf Property="VersionNT" Compare="VersionLessThan" Value="6.1.0" String="InvalidPlatformWinNT"/>
+        <!-- NetCoreCheck returning 0 means the runtime is already installed -->
+        <BypassIf Property="NetCoreCheck" Compare="ValueEqualTo" Value="0"/>
+        <!-- Block install if user does not have admin privileges -->
+        <FailIf Property="AdminUser" Compare="ValueEqualTo" Value="false" String="AdminRequired"/>
+      </InstallConditions>
+
+      <ExitCodes>
+        <ExitCode Value="0" Result="Success"/>
+        <ExitCode Value="3010" Result="SuccessReboot"/>
+        <DefaultExitCode Result="Fail" FormatMessageFromSystem="true" String="GeneralFailure" />
+      </ExitCodes>
+
+    </Command>
+  </Commands>
+</Product>
