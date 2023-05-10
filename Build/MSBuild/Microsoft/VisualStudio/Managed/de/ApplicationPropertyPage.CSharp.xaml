@@ -1,0 +1,60 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!-- Licensed to the .NET Foundation under one or more agreements. The .NET Foundation licenses this file to you under the MIT license. See the LICENSE.md file in the project root for more information. -->
+<Rule Name="Application" OverrideMode="Extend" xmlns="http://schemas.microsoft.com/build/2009/properties">
+  <Rule.Categories>
+    <Category Name="Resources" DisplayName="Win32-Ressourcen" Description="Ressourceneinstellungen für die Anwendung." />
+    <Category Name="Packaging" DisplayName="Paketerstellung" Description="Paketeinstellungen für die Anwendung." />
+  </Rule.Categories>
+  <EnumProperty Name="ResourceSpecificationKind" DisplayName="Ressourcen" Description="Hiermit wird angegeben, wie die Anwendungsressourcen verwaltet werden sollen." Category="Resources">
+    <EnumProperty.DataSource>
+      <DataSource PersistedName="ResourceSpecificationKind" Persistence="ProjectFileWithInterception" HasConfigurationCondition="False" />
+    </EnumProperty.DataSource>
+    <EnumValue Name="IconAndManifest" DisplayName="Symbol und Manifest" />
+    <EnumValue Name="ResourceFile" DisplayName="Ressourcendatei" />
+  </EnumProperty>
+  <EnumProperty Name="ApplicationManifestKind" DisplayName="Manifest" Description="Hiermit wird eine Option zum Generieren von Manifesten ausgewählt, wenn die Anwendung unter Windows Vista oder höher mit aktivierter Benutzerkontensteuerung (UAC) ausgeführt wird. Zu den Optionen gehören ein Standardmanifest, kein Manifest oder ein benutzerdefiniertes Manifest, das von Ihrem Projekt bereitgestellt wird." Category="Resources">
+    <EnumProperty.DataSource>
+      <DataSource PersistedName="ApplicationManifestKind" Persistence="ProjectFileWithInterception" HasConfigurationCondition="False" />
+    </EnumProperty.DataSource>
+    <EnumProperty.Metadata>
+      <NameValuePair Name="DependsOn" Value="Application::ResourceSpecificationKind" />
+      <NameValuePair Name="VisibilityCondition">
+        <NameValuePair.Value>(has-evaluated-value "Application" "ResourceSpecificationKind" "IconAndManifest")</NameValuePair.Value>
+      </NameValuePair>
+    </EnumProperty.Metadata>
+    <EnumValue Name="DefaultManifest" DisplayName="Manifest mit Standardeinstellungen einbetten" />
+    <EnumValue Name="NoManifest" DisplayName="Anwendung ohne Manifest erstellen" />
+    <EnumValue Name="CustomManifest" DisplayName="Benutzerdefiniertes Manifest verwenden" />
+  </EnumProperty>
+  <StringProperty Name="ApplicationManifestPath" DisplayName="Manifestpfad" Description="Der Pfad zur benutzerdefinierten Manifestdatei." Category="Resources" Subtype="file">
+    <StringProperty.DataSource>
+      <DataSource PersistedName="ApplicationManifestPath" Persistence="ProjectFileWithInterception" HasConfigurationCondition="False" />
+    </StringProperty.DataSource>
+    <StringProperty.Metadata>
+      <NameValuePair Name="DependsOn" Value="Application::ResourceSpecificationKind;Application::ApplicationManifestKind" />
+      <NameValuePair Name="VisibilityCondition">
+        <NameValuePair.Value>
+          (and 
+            (has-evaluated-value "Application" "ApplicationManifestKind" "CustomManifest")
+            (has-evaluated-value "Application" "ResourceSpecificationKind" "IconAndManifest"))
+        </NameValuePair.Value>
+      </NameValuePair>
+    </StringProperty.Metadata>
+  </StringProperty>
+  <StringProperty Name="Win32Resource" DisplayName="Resource file" Description="Hiermit wird eine Ressourcendatei für das Projekt angegeben." HelpUrl="https://go.microsoft.com/fwlink/?linkid=2147078" Category="Resources">
+    <StringProperty.ValueEditors>
+      <ValueEditor EditorType="FilePath">
+        <ValueEditor.Metadata>
+          <NameValuePair Name="FileTypeFilter" Value="Win32 resource files (*.res)|*.res|All files (*.*)|*.*" />
+        </ValueEditor.Metadata>
+      </ValueEditor>
+    </StringProperty.ValueEditors>
+    <StringProperty.Metadata>
+      <NameValuePair Name="DependsOn" Value="Application::ResourceSpecificationKind" />
+      <NameValuePair Name="VisibilityCondition">
+        <NameValuePair.Value>(has-evaluated-value "Application" "ResourceSpecificationKind" "ResourceFile")</NameValuePair.Value>
+      </NameValuePair>
+    </StringProperty.Metadata>
+  </StringProperty>
+  <BoolProperty Name="IsPublishable" DisplayName="Veröffentlichung" Description="Hiermit wird die Veröffentlichung außerhalb von Visual Studio zugelassen, z. B. über &quot;dotnet publish&quot;." HelpUrl="https://go.microsoft.com/fwlink/?linkid=2165975" Category="Packaging" />
+</Rule>

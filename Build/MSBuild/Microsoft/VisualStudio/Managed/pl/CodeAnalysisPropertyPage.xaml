@@ -1,0 +1,34 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!-- Licensed to the .NET Foundation under one or more agreements. The .NET Foundation licenses this file to you under the MIT license. See the LICENSE.md file in the project root for more information. -->
+<Rule Name="CodeAnalysisPropertyPage" Description="Ustawienia" DisplayName="Code Analysis" PageTemplate="generic" Order="500" xmlns="http://schemas.microsoft.com/build/2009/properties">
+  <Rule.Categories>
+    <Category Name="AllAnalyzers" DisplayName="Wszystkie analizatory" />
+    <Category Name="NetAnalyzers" DisplayName="Analizatory .NET" />
+  </Rule.Categories>
+  <Rule.DataSource>
+    <DataSource Persistence="ProjectFile" SourceOfDefaultValue="AfterContext" HasConfigurationCondition="False" />
+  </Rule.DataSource>
+  <BoolProperty Name="RunAnalyzersDuringBuild" DisplayName="Uruchom podczas kompilacji" Description="Zawsze uruchamiaj analizę kodu podczas kompilacji." HelpUrl="https://go.microsoft.com/fwlink/?linkid=2173147" Category="AllAnalyzers" />
+  <BoolProperty Name="RunAnalyzersDuringLiveAnalysis" DisplayName="Uruchamianie analizy na żywo" Description="Uruchom analizę kodu na żywo w edytorze podczas pisania." HelpUrl="https://go.microsoft.com/fwlink/?linkid=2173147" Category="AllAnalyzers" />
+  <BoolProperty Name="EnforceCodeStyleInBuild" DisplayName="Wymuszaj styl kodu podczas kompilacji (eksperymentalna)" Description="Twórz diagnostykę stylu kodu podczas kompilacji." HelpUrl="https://go.microsoft.com/fwlink/?linkid=2172995" Category="NetAnalyzers" />
+  <BoolProperty Name="EnableNETAnalyzers" DisplayName="Włączanie analizatorów .NET" Description="Uruchom analizatory .NET, aby pomóc w użyciu interfejsu API." HelpUrl="https://go.microsoft.com/fwlink/?linkid=2173090" Category="NetAnalyzers" />
+  <EnumProperty Name="AnalysisLevel" DisplayName="Poziom analizy" Description="Zestaw analizatorów, które powinny być uruchamiane w projekcie." HelpUrl="https://go.microsoft.com/fwlink/?linkid=2173091" Category="NetAnalyzers">
+    <EnumValue Name="none" DisplayName="Brak" />
+    <EnumValue Name="latest" DisplayName="Najnowszy" />
+    <EnumValue Name="latest-minimum" DisplayName="Minimalnie najnowsze" />
+    <EnumValue Name="latest-recommended" DisplayName="Polecane najnowsze" />
+    <EnumValue Name="latest-all" DisplayName="Wszystkie najnowsze" />
+    <EnumValue Name="preview" DisplayName="Podgląd" />
+    <EnumValue Name="preview-minimum" DisplayName="Minimalna wersja zapoznawcza" />
+    <EnumValue Name="preview-recommended" DisplayName="Podgląd polecanych" />
+    <EnumValue Name="preview-all" DisplayName="Podgląd wszystkich" />
+    <EnumValue Name="5.0" DisplayName="5.0" />
+    <EnumValue Name="5.0-minimum" DisplayName="Minimalna 5.0" />
+    <EnumValue Name="5.0-recommended" DisplayName="Polecana 5.0" />
+    <EnumValue Name="5.0-all" DisplayName="Wszystkie 5.0" />
+    <EnumValue Name="6.0" DisplayName="6.0" />
+    <EnumValue Name="6.0-minimum" DisplayName="Minimalna 6.0" />
+    <EnumValue Name="6.0-recommended" DisplayName="Polecana 6.0" />
+    <EnumValue Name="6.0-all" DisplayName="Wszystkie 6.0" />
+  </EnumProperty>
+</Rule>

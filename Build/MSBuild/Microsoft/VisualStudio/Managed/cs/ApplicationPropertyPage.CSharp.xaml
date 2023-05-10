@@ -1,0 +1,60 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!-- Licensed to the .NET Foundation under one or more agreements. The .NET Foundation licenses this file to you under the MIT license. See the LICENSE.md file in the project root for more information. -->
+<Rule Name="Application" OverrideMode="Extend" xmlns="http://schemas.microsoft.com/build/2009/properties">
+  <Rule.Categories>
+    <Category Name="Resources" DisplayName="Prostředky Win32" Description="Nastavení prostředků pro aplikaci" />
+    <Category Name="Packaging" DisplayName="Balení" Description="Nastavení balení pro aplikaci." />
+  </Rule.Categories>
+  <EnumProperty Name="ResourceSpecificationKind" DisplayName="Prostředky" Description="Určuje, jak se budou spravovat prostředky aplikace." Category="Resources">
+    <EnumProperty.DataSource>
+      <DataSource PersistedName="ResourceSpecificationKind" Persistence="ProjectFileWithInterception" HasConfigurationCondition="False" />
+    </EnumProperty.DataSource>
+    <EnumValue Name="IconAndManifest" DisplayName="Ikona a manifest" />
+    <EnumValue Name="ResourceFile" DisplayName="Soubor prostředků" />
+  </EnumProperty>
+  <EnumProperty Name="ApplicationManifestKind" DisplayName="Manifest" Description="Vybere možnost generování manifestu, když je aplikace spuštěná v systému Windows Vista nebo novějším se zapnutým Řízením uživatelských účtů (UAC). Možnosti zahrnují výchozí manifest, žádný manifest nebo vlastní manifest poskytnutý vaším projektem." Category="Resources">
+    <EnumProperty.DataSource>
+      <DataSource PersistedName="ApplicationManifestKind" Persistence="ProjectFileWithInterception" HasConfigurationCondition="False" />
+    </EnumProperty.DataSource>
+    <EnumProperty.Metadata>
+      <NameValuePair Name="DependsOn" Value="Application::ResourceSpecificationKind" />
+      <NameValuePair Name="VisibilityCondition">
+        <NameValuePair.Value>(has-evaluated-value "Application" "ResourceSpecificationKind" "IconAndManifest")</NameValuePair.Value>
+      </NameValuePair>
+    </EnumProperty.Metadata>
+    <EnumValue Name="DefaultManifest" DisplayName="Vložit manifest s výchozím nastavením" />
+    <EnumValue Name="NoManifest" DisplayName="Vytvořit aplikaci bez manifestu" />
+    <EnumValue Name="CustomManifest" DisplayName="Použít vlastní manifest" />
+  </EnumProperty>
+  <StringProperty Name="ApplicationManifestPath" DisplayName="Cesta k manifestu" Description="Cesta k souboru vlastního manifestu" Category="Resources" Subtype="file">
+    <StringProperty.DataSource>
+      <DataSource PersistedName="ApplicationManifestPath" Persistence="ProjectFileWithInterception" HasConfigurationCondition="False" />
+    </StringProperty.DataSource>
+    <StringProperty.Metadata>
+      <NameValuePair Name="DependsOn" Value="Application::ResourceSpecificationKind;Application::ApplicationManifestKind" />
+      <NameValuePair Name="VisibilityCondition">
+        <NameValuePair.Value>
+          (and 
+            (has-evaluated-value "Application" "ApplicationManifestKind" "CustomManifest")
+            (has-evaluated-value "Application" "ResourceSpecificationKind" "IconAndManifest"))
+        </NameValuePair.Value>
+      </NameValuePair>
+    </StringProperty.Metadata>
+  </StringProperty>
+  <StringProperty Name="Win32Resource" DisplayName="Resource file" Description="Určuje soubor prostředku pro projekt." HelpUrl="https://go.microsoft.com/fwlink/?linkid=2147078" Category="Resources">
+    <StringProperty.ValueEditors>
+      <ValueEditor EditorType="FilePath">
+        <ValueEditor.Metadata>
+          <NameValuePair Name="FileTypeFilter" Value="Win32 resource files (*.res)|*.res|All files (*.*)|*.*" />
+        </ValueEditor.Metadata>
+      </ValueEditor>
+    </StringProperty.ValueEditors>
+    <StringProperty.Metadata>
+      <NameValuePair Name="DependsOn" Value="Application::ResourceSpecificationKind" />
+      <NameValuePair Name="VisibilityCondition">
+        <NameValuePair.Value>(has-evaluated-value "Application" "ResourceSpecificationKind" "ResourceFile")</NameValuePair.Value>
+      </NameValuePair>
+    </StringProperty.Metadata>
+  </StringProperty>
+  <BoolProperty Name="IsPublishable" DisplayName="Publikování" Description="Umožňuje publikovat mimo Visual Studio, například prostřednictvím „dotnet publish“." HelpUrl="https://go.microsoft.com/fwlink/?linkid=2165975" Category="Packaging" />
+</Rule>
