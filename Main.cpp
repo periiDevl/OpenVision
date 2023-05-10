@@ -30,7 +30,7 @@ Console con;
 
 double scroll_offset = 45.0;
 
-int PythonIndex = 1;
+int PythonIndex = 0;
 
 
 Camera camera(width, height, glm::vec3(0.0f, 0.0f, 80.0f));
@@ -132,6 +132,7 @@ int main()
 	float screenG = myData.data[3];
 	float screenB = myData.data[4];
 	bool LocalPy = myData.data[5];
+	PythonIndex = myData.data[6];
 
 
 	std::vector<std::string> lines;
@@ -422,6 +423,7 @@ int main()
 			{
 				rebuild(window, LocalPy);
 			}
+			ImGui::InputInt("PyIndex", &PythonIndex);
 			ImGui::Checkbox("Local-Python (not recommended)", &LocalPy);
 
 			if (ImGui::Button("Exit OV"))
@@ -771,7 +773,7 @@ int main()
 	glfwTerminate();
 
 
-	myData.data = { float(vsync), float(msaa), screenR, screenG, screenB, float(LocalPy)};
+	myData.data = { float(vsync), float(msaa), screenR, screenG, screenB, float(LocalPy), float(PythonIndex)};
 
 	myData.saveData();
 
