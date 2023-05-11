@@ -34,7 +34,6 @@ public:
     void saveData()
     {
         std::ofstream output("SETTINGS.ov");
-        printf("save info");
         if (output) {
             output.clear();
 
