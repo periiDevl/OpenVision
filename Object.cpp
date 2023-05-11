@@ -46,6 +46,7 @@ void Object::Draw(GLFWwindow* window, GLuint shader, Camera& camera, glm::vec3 a
 
 void Object::DrawTMP(GLFWwindow* window, GLuint shader, Camera& camera, glm::vec2 pos, glm::vec2 scale)
 {
+    name = "";
     glUseProgram(shader);
     VAO.Bind();
     tex.Bind();

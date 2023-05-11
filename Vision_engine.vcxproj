@@ -160,9 +160,10 @@
     <ClCompile Include="PhysicsBody.cpp" />
     <ClCompile Include="PhysicsWorld.cpp" />
     <ClCompile Include="PolygonCollider.cpp" />
+    <ClCompile Include="SaveSystem.cpp" />
     <ClCompile Include="Script.cpp" />
-	<ClCompile Include="Newsc.cpp" />
-	<ClCompile Include="EpicNewScript.cpp" />
+    <ClCompile Include="Newsc.cpp" />
+    <ClCompile Include="EpicNewScript.cpp" />
     <ClCompile Include="stb.cpp" />
     <ClCompile Include="Tex.cpp" />
     <ClCompile Include="VAO.cpp" />
@@ -191,9 +192,10 @@
     <ClInclude Include="PhysicsWorld.h" />
     <ClInclude Include="PolygonCollider.h" />
     <ClInclude Include="Presave.h" />
+    <ClInclude Include="SaveSystem.h" />
     <ClInclude Include="Script.h" />
-	<ClInclude Include="Newsc.h" />
-	<ClInclude Include="EpicNewScript.h" />
+    <ClInclude Include="Newsc.h" />
+    <ClInclude Include="EpicNewScript.h" />
     <ClInclude Include="Settings.h" />
     <ClInclude Include="Tex.h" />
     <ClInclude Include="VAO.h" />

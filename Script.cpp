@@ -8,40 +8,29 @@ void Script::Start(Console& ovcon, GLFWwindow* window, PhysicsWorld& world, std:
 	sceneObjects[1].Body->isStatic = true;
 	sceneObjects[2].Body->isStatic = true;
 	sceneObjects[2].Body->isTrigger = true;
+
+	SavingSystem = SaveSystem();
+	SavingSystem.load("Scene.ov");
 }
 void Script::Update(Console& ovcon, GLFWwindow* window, PhysicsWorld& world, std::vector<Object>& sceneObjects) {
 	*sceneObjects[2].position = *sceneObjects[0].position - vec2(0, -2.4f);
 	float horizontal = 0;
-	if (glfwGetKey(window, GLFW_KEY_D))
+	if (glfwGetKey(window, GLFW_KEY_D)) {
+		SavingSystem.save("direction", std::string("Right"));
+		SavingSystem.saveToFile("Scene.ov");
+
 		horizontal = 1;
-	if (glfwGetKey(window, GLFW_KEY_A))
+	}
+	if (glfwGetKey(window, GLFW_KEY_A)) {
+		SavingSystem.save("direction", std::string("Left"));
+		SavingSystem.saveToFile("Scene.ov");
+
 		horizontal = -1;
-	
+	}
 	sceneObjects[0].Body->velocity.x = horizontal * speed;
 
 	if (BoundingAABB(*sceneObjects[1].Body->GetCollider(), *sceneObjects[2].Body->GetCollider())) {
-		cout << "Touching Ground" << endl;
 		if (glfwGetKey(window, GLFW_KEY_SPACE))
 			sceneObjects[0].Body->velocity.y = -10;
-	}
-
-	//
-	//float vertical = 0;
-	//if (glfwGetKey(window, GLFW_KEY_S))
-	//	vertical = 1;
-	//if (glfwGetKey(window, GLFW_KEY_W))
-	//	vertical = -1;
-	//
-	//sceneObjects[0].Body->velocity.y = vertical * speed;
-
-
-	for (size_t i = 0; i < sceneObjects.size(); i++)
-	{
-		cout << "i " << i << "  fric:" << sceneObjects[i].Body->friction;
-		if (glfwGetKey(window, GLFW_MOUSE_BUTTON_LEFT))
-			sceneObjects[i].Body->friction = 1.0f;
-		else if (glfwGetKey(window, GLFW_MOUSE_BUTTON_RIGHT))
-			sceneObjects[i].Body->friction = 0;
-		cout << "after " << i << "  fric:" << sceneObjects[i].Body->friction;
 	}
 }

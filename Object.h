@@ -2,6 +2,7 @@
 #define MESH_CLASS_H
 
 #include<string>
+#include <cstring>
 
 #include"VAO.h"
 #include"EBO.h"
@@ -16,6 +17,7 @@ public:
 	Texture tex = Texture("");
 	std::string texChar;
 	float outlineWidth = 0;
+	std::string name;
 	glm::vec3 OutlineColor = glm::vec3(0,0,0);
 	glm::vec2* position;
 	glm::vec2* scale;

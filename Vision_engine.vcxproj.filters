@@ -90,7 +90,13 @@
     <ClCompile Include="Script.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Abbbawdb.cpp">
+    <ClCompile Include="Newsc.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="EpicNewScript.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SaveSystem.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -173,10 +179,16 @@
     <ClInclude Include="OVscriptHandaling.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Abbbawdb.h">
+    <ClInclude Include="Presave.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Presave.h">
+    <ClInclude Include="Newsc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="EpicNewScript.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SaveSystem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

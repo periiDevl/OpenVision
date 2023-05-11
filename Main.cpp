@@ -20,6 +20,7 @@
 #include"Script.h"
 #include"Newsc.h"
 #include"EpicNewScript.h"
+#include "SaveSystem.h"
 Script script;
 Newsc Newscscr;
 EpicNewScript EpicNewScriptscr;
@@ -114,8 +115,16 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 	printf("Scrolled by %f units\n", scroll_offset);
 }
 
+// A function for ImGui textinput
 
-
+static int InputTextCallback(ImGuiInputTextCallbackData* data)
+{
+	if (data->EventChar == '\r' || data->EventChar == '\n')
+	{
+		return 0;
+	}
+	return 1;
+}
 
 
 
@@ -147,7 +156,7 @@ int main()
 	}
 	inputFile.close();
 
-	PhysicsWorld world(vec3(0, 5.0f, 0), 10);
+	PhysicsWorld world(vec3(0, 15.0f, 0), 10);
 
 
 	const std::filesystem::path directory_path = std::filesystem::current_path();
@@ -258,40 +267,32 @@ int main()
 	}
 
 
+	SaveSystem SavingSystem;
+
+	SavingSystem.load("Scene.ov");
+
+	
+	SavingSystem.saveToFile("Scene.ov");
+
 	std::vector<Object> sceneObjects;
 	std::vector<Object> PresceneObjects;
 
-	std::ifstream ovEnvFile("OV_ENV.ov");
-	while (std::getline(ovEnvFile, line)) {
+	int amount = SavingSystem.getInt("OBJ_AMOUNT", 3);
+	for (int i = 0; i < amount; i++) {
 		float posx, posy, scalex, scaley, angle, layer;
-		std::string texture;
-		std::string delimiter = ",";
-		std::istringstream iss(line);
+		std::string name, texture;
 
-		std::string token;
-		std::getline(iss, token, ',');
-		posx = std::stof(token);
-		std::getline(iss, token, ',');
-		posy = std::stof(token);
-		std::getline(iss, token, ',');
-		scalex = std::stof(token);
-		std::getline(iss, token, ',');
-		scaley = std::stof(token);
-		std::getline(iss, token, ',');
-		angle = std::stof(token);
-		std::getline(iss, token, ',');
-		texture = token.c_str();
-		std::getline(iss, token, ',');
-		layer = std::stof(token);
-
-		std::cout << posx;
-		std::cout << posy;
-		std::cout << scalex;
-		std::cout << scaley;
-		std::cout << angle;
-		std::cout << texture;
+		name = SavingSystem.getString("OBJ" + std::to_string(i) + "_NAME", std::to_string(i).c_str());
+		posx    = SavingSystem.getFloat ("OBJ" + std::to_string(i) + "_POS_X"  , 0.0f);
+		posy    = SavingSystem.getFloat ("OBJ" + std::to_string(i) + "_POS_Y"  , 0.0f);
+		scalex  = SavingSystem.getFloat ("OBJ" + std::to_string(i) + "_SCA_X"  , 0.0f);
+		scaley  = SavingSystem.getFloat ("OBJ" + std::to_string(i) + "_SCA_Y"  , 0.0f);
+		angle   = SavingSystem.getFloat ("OBJ" + std::to_string(i) + "_ANGLE"  , 0.0f);
+		texture = SavingSystem.getString("OBJ" + std::to_string(i) + "_TEXTURE", "");
+		layer   = SavingSystem.getFloat ("OBJ" + std::to_string(i) + "_LAYER"  , 0.0f);
 
 		Object obj = Object(verts, ind);
+		obj.name = name;
 		obj.position->x = posx;
 		obj.position->y = posy;
 		obj.scenePosition.x = posx;
@@ -307,7 +308,6 @@ int main()
 		obj.tex = Texture((texture).c_str());
 		PresceneObjects.push_back(obj);
 	}
-	ovEnvFile.close();
 
 	Object blackbox = Object(verts, ind);
 	double prevTime = 0.0;
@@ -615,16 +615,21 @@ int main()
 
 					if (PresceneObjects[i].deleted == false) {
 
-						if (ImGui::CollapsingHeader(("Object" + std::to_string(i)).c_str())) {
+						if (ImGui::CollapsingHeader(  sceneObjects[i].name == "" ? std::to_string(i).c_str() : sceneObjects[i].name.c_str()))
+						{
 							if (ImGui::Button(("Delete Object##" + std::to_string(i)).c_str()))
 							{
 								PresceneObjects[i].deleted = true;
 
 							}
 
-
+							char objName[128];
+							strcpy_s(objName, sizeof(objName), PresceneObjects[i].name.c_str());
+							ImGui::InputText(("Obj Name##" + std::to_string(i)).c_str(), objName, ImGuiInputTextFlags_EnterReturnsTrue);
+							if (glfwGetKey(window, GLFW_KEY_ENTER)){
+								PresceneObjects[i].name = objName;
+							}
 							ImGui::Columns(2, nullptr, true);
-
 							ImGui::InputFloat(("Pos X##" + std::to_string(i)).c_str(), &PresceneObjects[i].position->x, 0.3f, 1, "%.3f", 0);
 							ImGui::NextColumn();
 							ImGui::InputFloat(("Pos Y##" + std::to_string(i)).c_str(), &PresceneObjects[i].position->y, 0.3f, 1, "%.3f", 0);
@@ -791,16 +796,18 @@ int main()
 		//run = true;
 
 	}
-	
-	std::ofstream outfile("OV_ENV.ov");
-	for (const auto& obj : sceneObjects) {
-		if (obj.deleted == false) {
-			outfile << obj.position->x << "," << obj.position->y << "," << obj.scale->x << ","
-				<< obj.scale->y << "," << obj.angle << "," << obj.texChar << "," << obj.layer << "\n";
-		}
+	SavingSystem.save("OBJ_AMOUNT", (int)sceneObjects.size());
+	for (int i = 0; i < sceneObjects.size(); i++) {
+		SavingSystem.save("OBJ" + std::to_string(i) + "_NAME"  , sceneObjects[i].name);
+		SavingSystem.save("OBJ" + std::to_string(i) + "_POS_X"  , sceneObjects[i].position->x);
+		SavingSystem.save("OBJ" + std::to_string(i) + "_POS_Y"  , sceneObjects[i].position->y);
+		SavingSystem.save("OBJ" + std::to_string(i) + "_SCA_X"  , sceneObjects[i].scale->x);
+		SavingSystem.save("OBJ" + std::to_string(i) + "_SCA_Y"  , sceneObjects[i].scale->y);
+		SavingSystem.save("OBJ" + std::to_string(i) + "_ANGLE"  , sceneObjects[i].angle);
+		SavingSystem.save("OBJ" + std::to_string(i) + "_TEXTURE", sceneObjects[i].texChar);
+		SavingSystem.save("OBJ" + std::to_string(i) + "_LAYER"  , sceneObjects[i].layer);
 	}
-	outfile.close();
-
+	SavingSystem.saveToFile("Scene.ov");
 
 
 

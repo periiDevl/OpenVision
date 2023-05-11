@@ -13,10 +13,7 @@ void PhysicsWorld::Step(float deltaTime)
 				bodies[i]->Step(deltaTime/iterations);
 		}
 	}
-	
-	//bodies[0]->GetCollider()->CalculateAABB();
-	//cout << "body 1 min:" << glm::to_string(bodies[0]->GetCollider()->bMin) << endl;
-	//cout << "body 1 max:" << glm::to_string(bodies[0]->GetCollider()->bMax) << endl;
+
 	for (int iter = 0; iter < iterations; iter++)
 	{
 		for (int i = 0; i < bodies.size(); i++) {
