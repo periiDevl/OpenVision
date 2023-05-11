@@ -263,7 +263,7 @@ int main()
 
 	std::ifstream ovEnvFile("OV_ENV.ov");
 	while (std::getline(ovEnvFile, line)) {
-		float posx, posy, scalex, scaley, angle;
+		float posx, posy, scalex, scaley, angle, layer;
 		std::string texture;
 		std::string delimiter = ",";
 		std::istringstream iss(line);
@@ -281,6 +281,8 @@ int main()
 		angle = std::stof(token);
 		std::getline(iss, token, ',');
 		texture = token.c_str();
+		std::getline(iss, token, ',');
+		layer = std::stof(token);
 
 		std::cout << posx;
 		std::cout << posy;
@@ -300,6 +302,7 @@ int main()
 		obj.sceneScale.y = scaley;
 		obj.angle = angle;
 		obj.texChar = texture;
+		obj.layer = layer;
 
 		obj.tex = Texture((texture).c_str());
 		PresceneObjects.push_back(obj);
@@ -324,7 +327,7 @@ int main()
 		sceneObjects[i].sceneScale = *PresceneObjects[i].scale;
 	}
 	sceneObjects = PresceneObjects;
-
+	glEnable(GL_DEPTH_TEST);
 	while (!glfwWindowShouldClose(window))
 	{
 
@@ -333,7 +336,7 @@ int main()
 			run = false;
 		}
 		glClearColor(screenR, screenG, screenB, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glfwSwapInterval(vsync);
 		camera.updateMatrix(fov, 0.1f, 100.0f);
 
@@ -378,6 +381,7 @@ int main()
 			ImGui::InputFloat("Scale Y", &PresceneObjects[selectedObject].scale->y, 0.3f, 1, "%.3f", 0);
 
 			ImGui::InputFloat("Angle", &PresceneObjects[selectedObject].angle, 0.3f, 1, "%.3f", 0);
+			ImGui::InputFloat("Layer ##", &PresceneObjects[selectedObject].layer, 0.3f, 1, "%.3f", 0);
 			ImGui::EndPopup();
 		}
 		if (ImGui::IsMouseReleased(GLFW_MOUSE_BUTTON_RIGHT))
@@ -400,7 +404,7 @@ int main()
 					sceneObjects[i].Body->velocity = vec2(0, 0);
 					PresceneObjects[i].Body->velocity = vec2(0, 0);
 				}
-				sceneObjects[0].Body->GetCollider()->CalculateAABB();
+				//sceneObjects[0].Body->GetCollider()->CalculateAABB();
 
 				StartPhase = true;
 			}
@@ -635,6 +639,8 @@ int main()
 							ImGui::Columns(1, nullptr, true);
 							ImGui::InputFloat(("Angle ##" + std::to_string(i)).c_str(), &PresceneObjects[i].angle, 0.3f, 1, "%.3f", 0);
 
+							ImGui::InputFloat(("Layer ##" + std::to_string(i)).c_str(), &PresceneObjects[i].layer, 0.3f, 1, "%.3f", 0);
+
 
 
 
@@ -650,13 +656,30 @@ int main()
 						ndcMouseY = (float)mouseY / (float)height * 2.0f - 1.0f;
 						ndcMouseX *= rattio.x * 3.7;
 						ndcMouseY *= rattio.y * 3.7;
-						if ((PresceneObjects[i].position->x - PresceneObjects[i].scale->x / 3) - camera.Position.x < ndcMouseX &&
-							(PresceneObjects[i].position->x + PresceneObjects[i].scale->x / 3) + camera.Position.x > ndcMouseX &&
-							(PresceneObjects[i].position->y + PresceneObjects[i].scale->y / 3) - camera.Position.y > ndcMouseY &&
-							(PresceneObjects[i].position->y - PresceneObjects[i].scale->y / 3) + camera.Position.y < ndcMouseY
-							&& glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
-						{
-							if (!PresceneObjects[i].selected) {
+						int topIndex = -1; // initialize top index as -1
+						float maxZIndex = -std::numeric_limits<float>::infinity(); // initialize max Z-index as negative infinity
+
+						for (int i = 0; i < PresceneObjects.size(); i++) {
+							// calculate ndcMouseX and ndcMouseY as before
+
+							// check if mouse is within object boundaries
+							if ((PresceneObjects[i].position->x - PresceneObjects[i].scale->x / 3) - camera.Position.x < ndcMouseX &&
+								(PresceneObjects[i].position->x + PresceneObjects[i].scale->x / 3) + camera.Position.x > ndcMouseX &&
+								(PresceneObjects[i].position->y + PresceneObjects[i].scale->y / 3) - camera.Position.y > ndcMouseY &&
+								(PresceneObjects[i].position->y - PresceneObjects[i].scale->y / 3) + camera.Position.y < ndcMouseY &&
+								glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
+							{
+								// update topIndex if the Z-index of this object is greater than the current maximum
+								if (PresceneObjects[i].layer > maxZIndex) {
+									topIndex = i;
+									maxZIndex = PresceneObjects[i].layer;
+								}
+							}
+						}
+
+						if (topIndex != -1) {
+							// handle the selected top layer object
+							if (!PresceneObjects[topIndex].selected) {
 								beforeMouseX = ndcMouseX;
 								beforeMouseY = ndcMouseY;
 							}
@@ -664,18 +687,22 @@ int main()
 								float dx = ndcMouseX - beforeMouseX;
 								float dy = ndcMouseY - beforeMouseY;
 
-								PresceneObjects[i].position->x += dx;
-								PresceneObjects[i].position->y += dy;
+								PresceneObjects[topIndex].position->x += dx;
+								PresceneObjects[topIndex].position->y += dy;
 
 								beforeMouseX = ndcMouseX;
 								beforeMouseY = ndcMouseY;
 							}
 
-							PresceneObjects[i].selected = true;
+							PresceneObjects[topIndex].selected = true;
 						}
 						else {
-							PresceneObjects[i].selected = false;
+							// deselect all objects
+							for (int i = 0; i < PresceneObjects.size(); i++) {
+								PresceneObjects[i].selected = false;
+							}
 						}
+
 
 
 
@@ -769,7 +796,7 @@ int main()
 	for (const auto& obj : sceneObjects) {
 		if (obj.deleted == false) {
 			outfile << obj.position->x << "," << obj.position->y << "," << obj.scale->x << ","
-				<< obj.scale->y << "," << obj.angle << "," << obj.texChar << "\n";
+				<< obj.scale->y << "," << obj.angle << "," << obj.texChar << "," << obj.layer << "\n";
 		}
 	}
 	outfile.close();
