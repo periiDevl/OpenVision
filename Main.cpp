@@ -656,20 +656,16 @@ int main()
 						ndcMouseY = (float)mouseY / (float)height * 2.0f - 1.0f;
 						ndcMouseX *= rattio.x * 3.7;
 						ndcMouseY *= rattio.y * 3.7;
-						int topIndex = -1; // initialize top index as -1
-						float maxZIndex = -std::numeric_limits<float>::infinity(); // initialize max Z-index as negative infinity
+						int topIndex = -1; 
+						float maxZIndex = -std::numeric_limits<float>::infinity(); 
 
 						for (int i = 0; i < PresceneObjects.size(); i++) {
-							// calculate ndcMouseX and ndcMouseY as before
-
-							// check if mouse is within object boundaries
 							if ((PresceneObjects[i].position->x - PresceneObjects[i].scale->x / 3) - camera.Position.x < ndcMouseX &&
 								(PresceneObjects[i].position->x + PresceneObjects[i].scale->x / 3) + camera.Position.x > ndcMouseX &&
 								(PresceneObjects[i].position->y + PresceneObjects[i].scale->y / 3) - camera.Position.y > ndcMouseY &&
 								(PresceneObjects[i].position->y - PresceneObjects[i].scale->y / 3) + camera.Position.y < ndcMouseY &&
 								glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
 							{
-								// update topIndex if the Z-index of this object is greater than the current maximum
 								if (PresceneObjects[i].layer > maxZIndex) {
 									topIndex = i;
 									maxZIndex = PresceneObjects[i].layer;
@@ -678,7 +674,6 @@ int main()
 						}
 
 						if (topIndex != -1) {
-							// handle the selected top layer object
 							if (!PresceneObjects[topIndex].selected) {
 								beforeMouseX = ndcMouseX;
 								beforeMouseY = ndcMouseY;
@@ -697,7 +692,6 @@ int main()
 							PresceneObjects[topIndex].selected = true;
 						}
 						else {
-							// deselect all objects
 							for (int i = 0; i < PresceneObjects.size(); i++) {
 								PresceneObjects[i].selected = false;
 							}
