@@ -3,10 +3,10 @@
 #include<iostream>
 #include"Console.h"
 #include"Object.h"
-#include "OV.h"
-class TestingScript {
+#include"InputSystem.h"
+class EpicNewScript {
 public:
-    void Start(Console& ovcon, GLFWwindow* window, PhysicsWorld& world, std::vector<Object>& sceneObjects);
-    void Update(Console& ovcon, GLFWwindow* window, PhysicsWorld& world, std::vector<Object>& sceneObjects);
+    void Start(Console& ovcon , InputSystem Input, PhysicsWorld& world, std::vector<Object>& sceneObjects);
+    void Update(Console& ovcon, InputSystem Input, PhysicsWorld& world, std::vector<Object>& sceneObjects);
 };
     

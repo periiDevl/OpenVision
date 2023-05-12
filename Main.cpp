@@ -18,10 +18,13 @@
 #include"OVscriptHandaling.h"
 #include"Presave.h"
 #include"Script.h"
-#include"TestingScript.h"
+#include"Newsc.h"
+#include"EpicNewScript.h"
 #include "SaveSystem.h"
+#include "InputSystem.h"
 Script script;
-TestingScript TestingScriptscr;
+Newsc Newscscr;
+EpicNewScript EpicNewScriptscr;
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 
@@ -77,7 +80,6 @@ std::string getPythonLocationByLine(int line) {
 	return locations[line];
 }
 void rebuild(GLFWwindow* window, bool localPython) {
-	glfwSetWindowShouldClose(window, GLFW_TRUE);
 	std::cout << "python locations " << endl << executeCommandAndGetOutput("where python") << endl;
 	std::cout << getPythonLocationByLine(PythonIndex) << endl;
 	std::system((getPythonLocationByLine(PythonIndex) + std::string(" -m pip install watchdog")).c_str());
@@ -103,23 +105,8 @@ void rebuild(GLFWwindow* window, bool localPython) {
 
 	std::chrono::seconds wait_time(1);
 	std::this_thread::sleep_for(wait_time);
+	glfwSetWindowShouldClose(window, GLFW_TRUE);
 }
-
-
-void terminateProcess(const std::string& processName)
-{
-	std::string command = "taskkill /f /im " + processName;
-
-	std::cout << "Terminating " << processName << " process...\n";
-	int result = std::system(command.c_str());
-	if (result == 0) {
-		std::cout << "Process terminated successfully.\n";
-	}
-	else {
-		std::cout << "Error: could not terminate process.\n";
-	}
-}
-
 
 
 
@@ -285,8 +272,8 @@ int main()
 
 	SavingSystem.load("Scene.ov");
 
-	
-	SavingSystem.saveToFile("Scene.ov");
+	InputSystem InputHandler;
+
 
 	std::vector<Object> sceneObjects;
 	std::vector<Object> PresceneObjects;
@@ -379,10 +366,19 @@ int main()
 
 		if (ImGui::BeginPopup("Selected Object Settings"))
 		{
-			if (ImGui::Button(("Delete Object")))
-			{
+			if (ImGui::Button(("Delete Object"))) {
 				PresceneObjects[selectedObject].deleted = true;
+				SavingSystem.remove("OBJ" + std::to_string(selectedObject) + "_NAME"   );
+				SavingSystem.remove("OBJ" + std::to_string(selectedObject) + "_POS_X"  );
+				SavingSystem.remove("OBJ" + std::to_string(selectedObject) + "_POS_Y"  );
+				SavingSystem.remove("OBJ" + std::to_string(selectedObject) + "_SCA_X"  );
+				SavingSystem.remove("OBJ" + std::to_string(selectedObject) + "_SCA_Y"  );
+				SavingSystem.remove("OBJ" + std::to_string(selectedObject) + "_ANGLE"  );
+				SavingSystem.remove("OBJ" + std::to_string(selectedObject) + "_TEXTURE");
+				SavingSystem.remove("OBJ" + std::to_string(selectedObject) + "_LAYER"  );
 
+				PresceneObjects.erase(PresceneObjects.begin() + selectedObject);
+				sceneObjects.erase(sceneObjects.begin() + selectedObject);
 			}
 
 
@@ -404,8 +400,11 @@ int main()
 		}
 
 
+		glfwPollEvents();
 
-
+		InputHandler.Update(window);
+		if (InputHandler.GetKeyDown(GLFW_KEY_SPACE))
+			cout << "SPACE" << endl << endl;
 		if (!run) {
 
 			if (!StartPhase) {
@@ -448,20 +447,6 @@ int main()
 			{
 				std::system("taskkill /f /im python.exe");
 				glfwSetWindowShouldClose(window, GLFW_TRUE);
-				std::string processName = "MSBuild.exe";
-				std::string processPath = "Build\\MSBuild\\Current\\Bin\\";
-				std::string command = "taskkill /f /im " + processName;
-
-				std::cout << "Terminating " << processName << " process...\n";
-				int result = std::system(command.c_str());
-				if (result == 0) {
-					std::cout << "Process terminated successfully.\n";
-				}
-				else {
-					std::cout << "Error: could not terminate process.\n";
-				}
-
-				return 0;
 
 			}
 
@@ -648,7 +633,16 @@ int main()
 							if (ImGui::Button(("Delete Object##" + std::to_string(i)).c_str()))
 							{
 								PresceneObjects[i].deleted = true;
-
+								SavingSystem.remove("OBJ" + std::to_string(i) + "_NAME");
+								SavingSystem.remove("OBJ" + std::to_string(i) + "_POS_X");
+								SavingSystem.remove("OBJ" + std::to_string(i) + "_POS_Y");
+								SavingSystem.remove("OBJ" + std::to_string(i) + "_SCA_X");
+								SavingSystem.remove("OBJ" + std::to_string(i) + "_SCA_Y");
+								SavingSystem.remove("OBJ" + std::to_string(i) + "_ANGLE");
+								SavingSystem.remove("OBJ" + std::to_string(i) + "_TEXTURE");
+								SavingSystem.remove("OBJ" + std::to_string(i) + "_LAYER");
+								PresceneObjects.erase(PresceneObjects.begin() + i);
+								sceneObjects.erase(sceneObjects.begin() + i);
 							}
 
 							char objName[128];
@@ -764,8 +758,9 @@ int main()
 				PresceneObjects = sceneObjects;
 				con.CLEAR_CONSOLE();
 				fov = 22.45;
-				script.Start(con, window, world, sceneObjects);
-				TestingScriptscr.Start(con, window, world, sceneObjects);
+				script.Start(con, InputHandler, world, sceneObjects);
+				Newscscr.Start(con, InputHandler, world, sceneObjects);
+				EpicNewScriptscr.Start(con, InputHandler, world, sceneObjects);
 				StartPhase = false;
 			}
 			if (timeDiff >= fixed_timestep) {
@@ -778,8 +773,9 @@ int main()
 
 
 			
-				script.Update(con, window, world, sceneObjects);
-				TestingScriptscr.Update(con, window, world, sceneObjects);
+				script.Update(con, InputHandler, world, sceneObjects);
+				Newscscr.Update(con, InputHandler, world, sceneObjects);
+				EpicNewScriptscr.Update(con, InputHandler, world, sceneObjects);
 
 
 				world.Step(fixed_timestep);
@@ -799,7 +795,10 @@ int main()
 					}
 					glLineWidth(0.0f);
 					glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-					sceneObjects[i].Draw(window, shaderProgram, camera, glm::vec3(0, 0, 1), width, height, rattio);
+
+					if (sceneObjects[i].texChar != "") {
+						sceneObjects[i].Draw(window, shaderProgram, camera, glm::vec3(0, 0, 1), width, height, rattio);
+					}
 				}
 			}
 			
@@ -816,6 +815,7 @@ int main()
 		//run = true;
 
 	}
+	cout << "amount of objects" << sceneObjects.size() << endl;
 	SavingSystem.save("OBJ_AMOUNT", (int)sceneObjects.size());
 	for (int i = 0; i < sceneObjects.size(); i++) {
 		SavingSystem.save("OBJ" + std::to_string(i) + "_NAME"  , sceneObjects[i].name);

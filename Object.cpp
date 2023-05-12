@@ -25,6 +25,7 @@ Object::Object(std::vector<Vertex>& vertices, std::vector<GLuint>& indices)
 
 void Object::Draw(GLFWwindow* window, GLuint shader, Camera& camera, glm::vec3 axis, float width, float height, glm::vec2 ratio)
 {
+
     glUseProgram(shader);
     VAO.Bind();
 	tex.Bind();
