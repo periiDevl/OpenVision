@@ -271,9 +271,6 @@ int main()
 
 	SavingSystem.load("Scene.ov");
 
-	
-	SavingSystem.saveToFile("Scene.ov");
-
 	std::vector<Object> sceneObjects;
 	std::vector<Object> PresceneObjects;
 
@@ -365,10 +362,19 @@ int main()
 
 		if (ImGui::BeginPopup("Selected Object Settings"))
 		{
-			if (ImGui::Button(("Delete Object")))
-			{
+			if (ImGui::Button(("Delete Object"))) {
 				PresceneObjects[selectedObject].deleted = true;
+				SavingSystem.remove("OBJ" + std::to_string(selectedObject) + "_NAME"   );
+				SavingSystem.remove("OBJ" + std::to_string(selectedObject) + "_POS_X"  );
+				SavingSystem.remove("OBJ" + std::to_string(selectedObject) + "_POS_Y"  );
+				SavingSystem.remove("OBJ" + std::to_string(selectedObject) + "_SCA_X"  );
+				SavingSystem.remove("OBJ" + std::to_string(selectedObject) + "_SCA_Y"  );
+				SavingSystem.remove("OBJ" + std::to_string(selectedObject) + "_ANGLE"  );
+				SavingSystem.remove("OBJ" + std::to_string(selectedObject) + "_TEXTURE");
+				SavingSystem.remove("OBJ" + std::to_string(selectedObject) + "_LAYER"  );
 
+				PresceneObjects.erase(PresceneObjects.begin() + selectedObject);
+				sceneObjects.erase(sceneObjects.begin() + selectedObject);
 			}
 
 
@@ -620,7 +626,16 @@ int main()
 							if (ImGui::Button(("Delete Object##" + std::to_string(i)).c_str()))
 							{
 								PresceneObjects[i].deleted = true;
-
+								SavingSystem.remove("OBJ" + std::to_string(i) + "_NAME");
+								SavingSystem.remove("OBJ" + std::to_string(i) + "_POS_X");
+								SavingSystem.remove("OBJ" + std::to_string(i) + "_POS_Y");
+								SavingSystem.remove("OBJ" + std::to_string(i) + "_SCA_X");
+								SavingSystem.remove("OBJ" + std::to_string(i) + "_SCA_Y");
+								SavingSystem.remove("OBJ" + std::to_string(i) + "_ANGLE");
+								SavingSystem.remove("OBJ" + std::to_string(i) + "_TEXTURE");
+								SavingSystem.remove("OBJ" + std::to_string(i) + "_LAYER");
+								PresceneObjects.erase(PresceneObjects.begin() + i);
+								sceneObjects.erase(sceneObjects.begin() + i);
 							}
 
 							char objName[128];
@@ -773,7 +788,10 @@ int main()
 					}
 					glLineWidth(0.0f);
 					glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-					sceneObjects[i].Draw(window, shaderProgram, camera, glm::vec3(0, 0, 1), width, height, rattio);
+
+					if (sceneObjects[i].texChar != "") {
+						sceneObjects[i].Draw(window, shaderProgram, camera, glm::vec3(0, 0, 1), width, height, rattio);
+					}
 				}
 			}
 			
@@ -790,6 +808,7 @@ int main()
 		//run = true;
 
 	}
+	cout << "amount of objects" << sceneObjects.size() << endl;
 	SavingSystem.save("OBJ_AMOUNT", (int)sceneObjects.size());
 	for (int i = 0; i < sceneObjects.size(); i++) {
 		SavingSystem.save("OBJ" + std::to_string(i) + "_NAME"  , sceneObjects[i].name);

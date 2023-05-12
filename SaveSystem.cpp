@@ -87,6 +87,13 @@ void SaveSystem::save(const std::string& key, const glm::vec3& value)
 }
 
 
+void SaveSystem::remove(const std::string& key) {
+    if (data_.find(key) == data_.end()) {
+        return;
+    }
+    data_.erase(key);
+}
+
 int SaveSystem::getInt(const std::string& key, const int& default_value) 
 {
     if (data_.find(key) == data_.end())

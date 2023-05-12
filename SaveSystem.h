@@ -18,6 +18,8 @@ public:
     void save(const std::string& key, const glm::vec2&   value);
     void save(const std::string& key, const glm::vec3&   value);
 
+    void remove(const std::string& key);
+
     int getInt(const std::string& key, const int& default_value);
     float getFloat(const std::string& key, const float& default_value);
     std::string getString(const std::string& key, const std::string& default_value);
