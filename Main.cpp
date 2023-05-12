@@ -688,8 +688,17 @@ int main()
 							ImGui::InputFloat(("Angle ##" + std::to_string(i)).c_str(), &PresceneObjects[i].angle, 0.3f, 1, "%.3f", 0);
 
 							ImGui::InputFloat(("Layer ##" + std::to_string(i)).c_str(), &PresceneObjects[i].layer, 0.3f, 1, "%.3f", 0);
+							
+							ImGui::Columns(1, "Physics", true);
 
+							ImGui::InputFloat(("Friction ##" + std::to_string(i)).c_str(), &PresceneObjects[i].Body->friction);
+							
+							ImGui::Checkbox(("Trigger ##" + std::to_string(i)).c_str(), &PresceneObjects[i].Body->isStatic);
 
+							ImGui::Checkbox(("Static ##" + std::to_string(i)).c_str(), &PresceneObjects[i].Body->isTrigger);
+							
+							ImGui::InputFloat(("Vel X##" + std::to_string(i)).c_str(), &PresceneObjects[i].Body->velocity.x);
+							ImGui::InputFloat(("Vel Y##" + std::to_string(i)).c_str(), &PresceneObjects[i].Body->velocity.y);
 
 						}
 						ImGui::Separator();
