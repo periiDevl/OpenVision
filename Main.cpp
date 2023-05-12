@@ -21,6 +21,7 @@
 #include"Newsc.h"
 #include"EpicNewScript.h"
 #include "SaveSystem.h"
+#include "InputSystem.h"
 Script script;
 Newsc Newscscr;
 EpicNewScript EpicNewScriptscr;
@@ -271,6 +272,9 @@ int main()
 
 	SavingSystem.load("Scene.ov");
 
+	InputSystem InputHandler;
+
+
 	std::vector<Object> sceneObjects;
 	std::vector<Object> PresceneObjects;
 
@@ -396,8 +400,11 @@ int main()
 		}
 
 
+		glfwPollEvents();
 
-
+		InputHandler.Update(window);
+		if (InputHandler.GetKeyDown(GLFW_KEY_SPACE))
+			cout << "SPACE" << endl << endl;
 		if (!run) {
 
 			if (!StartPhase) {
@@ -751,9 +758,9 @@ int main()
 				PresceneObjects = sceneObjects;
 				con.CLEAR_CONSOLE();
 				fov = 22.45;
-				script.Start(con, window, world, sceneObjects);
-				Newscscr.Start(con, window, world, sceneObjects);
-				EpicNewScriptscr.Start(con, window, world, sceneObjects);
+				script.Start(con, InputHandler, world, sceneObjects);
+				Newscscr.Start(con, InputHandler, world, sceneObjects);
+				EpicNewScriptscr.Start(con, InputHandler, world, sceneObjects);
 				StartPhase = false;
 			}
 			if (timeDiff >= fixed_timestep) {
@@ -766,9 +773,9 @@ int main()
 
 
 			
-				script.Update(con, window, world, sceneObjects);
-				Newscscr.Update(con, window, world, sceneObjects);
-				EpicNewScriptscr.Update(con, window, world, sceneObjects);
+				script.Update(con, InputHandler, world, sceneObjects);
+				Newscscr.Update(con, InputHandler, world, sceneObjects);
+				EpicNewScriptscr.Update(con, InputHandler, world, sceneObjects);
 
 
 				world.Step(fixed_timestep);

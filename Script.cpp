@@ -1,5 +1,5 @@
 #include"Script.h"
-void Script::Start(Console& ovcon, GLFWwindow* window, PhysicsWorld& world, std::vector<Object>& sceneObjects) {
+void Script::Start(Console& ovcon, InputSystem Input, PhysicsWorld& world, std::vector<Object>& sceneObjects) {
 	for (int i = 0; i < sceneObjects.size(); i++) {
 		world.AddBody(sceneObjects[i].Body);
 		if (sceneObjects[i].name == "Player")
@@ -23,22 +23,22 @@ void Script::Start(Console& ovcon, GLFWwindow* window, PhysicsWorld& world, std:
 	SavingSystem = SaveSystem();
 	SavingSystem.load("Scene.ov");
 }
-void Script::Update(Console& ovcon, GLFWwindow* window, PhysicsWorld& world, std::vector<Object>& sceneObjects) {
+void Script::Update(Console& ovcon, InputSystem Input, PhysicsWorld& world, std::vector<Object>& sceneObjects) {
 	*ground_detection->position = *player->position - vec2(0, player->scale->y*-.24f);
 	
 	float horizontal = 0;
-	if (glfwGetKey(window, GLFW_KEY_D)) {
+	if (Input.GetKey(GLFW_KEY_D)) {
 		player->scale->x = std::abs(player->scale->x);
 		horizontal = 1;
 	}
-	if (glfwGetKey(window, GLFW_KEY_A)) {
+	if (Input.GetKey(GLFW_KEY_A)) {
 		player->scale->x = -std::abs(player->scale->x);
 		horizontal = -1;
 	}
 	player->Body->velocity.x = horizontal * speed;
 
 	if (BoundingAABB(*ground->Body->GetCollider(), *ground_detection->Body->GetCollider()) || BoundingAABB(*ground2->Body->GetCollider(), *ground_detection->Body->GetCollider())) {
-		if (glfwGetKey(window, GLFW_KEY_SPACE))
+		if (Input.GetKeyDown(GLFW_KEY_SPACE))
 			player->Body->velocity.y = -10;
 	}
 }
