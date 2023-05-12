@@ -3,7 +3,7 @@
 Object::Object(std::vector<Vertex>& vertices, std::vector<GLuint>& indices)
     : vertices(vertices), indices(indices), position(new glm::vec2(0.0f)), scale(new glm::vec2(5.0f))
 {
-
+    name = "";
     selected = false;
 
     Body = new PhysicsBody(position, 0, scale, 1, 1, 0.5f, 0.5f, false, false);

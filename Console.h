@@ -38,7 +38,7 @@ public:
             ImGui::End();
             return;
         }
-        
+
         // Display logs
         ImGui::BeginChild("ScrollingRegion", ImVec2(0, -ImGui::GetTextLineHeightWithSpacing()), false, ImGuiWindowFlags_HorizontalScrollbar);
         for (int i = 0; i < logs.size(); i++)

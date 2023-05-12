@@ -170,7 +170,8 @@ void addH(const std::string& filename, const std::string& file, const std::strin
 #include<iostream>
 #include"Console.h"
 #include"Object.h"
-#include "OV.h"
+#include"InputSystem.h"
+#include"OV.h"
 class )" + file + R"( {
 public:
     void Start(Console& ovcon, InputSystem Input, PhysicsWorld& world, std::vector<Object>& sceneObjects);
@@ -212,8 +213,7 @@ void addCpp(const std::string& filename, const std::string& file, const std::str
 		ofstream createfile(file + ".cpp");
 
 		std::string script =
-			R"(
-#include")" + file + R"(.h"
+			R"(#include")" + file + R"(.h"
 void )" + file + R"(::Start(Console& ovcon, InputSystem Input, PhysicsWorld& world, std::vector<Object>& sceneObjects)
 {											
 

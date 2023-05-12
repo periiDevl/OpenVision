@@ -1,22 +1,18 @@
 #ifndef OV_H
 #define OV_H
-
+#include"Object.h"
 class OV {
 public:
-    static float Deg(float radians)
-    {
-        return radians * 180 / 3.14159;
-    }
-    static float Rad(float radians)
-    {
-        return radians;
-    }
-    static float Lerp(float from, float to, float time)
-    {
-        return from + time * (to - from);
-    }
+	static Object* SearchObjectByName(std::string Name,std::vector<Object>& sceneObjects) {
+        for (int i = 0; i < sceneObjects.size(); i++) {
+            if (sceneObjects[i].name == Name)
+				return &sceneObjects[i];
+			
+        }
+		return &sceneObjects[0];
+	}
 
-
+	
 };
 
 #endif

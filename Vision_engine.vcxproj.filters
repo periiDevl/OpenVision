@@ -90,12 +90,6 @@
     <ClCompile Include="Script.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Newsc.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="EpicNewScript.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="SaveSystem.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -185,13 +179,10 @@
     <ClInclude Include="Presave.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Newsc.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="EpicNewScript.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="SaveSystem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="OV.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="InputSystem.h">

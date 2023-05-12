@@ -83,10 +83,10 @@ const char* fragmentShaderSource =
 
 "void main()\n"
 "{ \n"
-"	if (texture(diffuse0, texCoord).a < 0.1)\n"
+"	FragColor = ambientLight();\n"
+"	if (texture(diffuse0, texCoord).a < 0.01)\n"
 "		discard;\n"
 
-"	FragColor = ambientLight();\n"
 "}\n";
 
 

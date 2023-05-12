@@ -18,13 +18,10 @@
 #include"OVscriptHandaling.h"
 #include"Presave.h"
 #include"Script.h"
-#include"Newsc.h"
-#include"EpicNewScript.h"
+#include"TS.h"
 #include "SaveSystem.h"
-#include "InputSystem.h"
 Script script;
-Newsc Newscscr;
-EpicNewScript EpicNewScriptscr;
+TS TSscr;
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 
@@ -269,11 +266,9 @@ int main()
 
 
 	SaveSystem SavingSystem;
-
-	SavingSystem.load("Scene.ov");
-
 	InputSystem InputHandler;
 
+	SavingSystem.load("Scene.ov");
 
 	std::vector<Object> sceneObjects;
 	std::vector<Object> PresceneObjects;
@@ -318,6 +313,7 @@ int main()
 	int selectedObject = 0;
 	float fov = 45;
 	char addedfile[256] = "";
+	bool onpopupmenu = false;
 
 	const float fixed_timestep = 1.0f / 60.0;
 	DefaultTheme();
@@ -363,35 +359,47 @@ int main()
 			}
 			show_selected_pop = true;
 		}
-
+		onpopupmenu = false;
 		if (ImGui::BeginPopup("Selected Object Settings"))
 		{
-			if (ImGui::Button(("Delete Object"))) {
-				PresceneObjects[selectedObject].deleted = true;
-				SavingSystem.remove("OBJ" + std::to_string(selectedObject) + "_NAME"   );
-				SavingSystem.remove("OBJ" + std::to_string(selectedObject) + "_POS_X"  );
-				SavingSystem.remove("OBJ" + std::to_string(selectedObject) + "_POS_Y"  );
-				SavingSystem.remove("OBJ" + std::to_string(selectedObject) + "_SCA_X"  );
-				SavingSystem.remove("OBJ" + std::to_string(selectedObject) + "_SCA_Y"  );
-				SavingSystem.remove("OBJ" + std::to_string(selectedObject) + "_ANGLE"  );
-				SavingSystem.remove("OBJ" + std::to_string(selectedObject) + "_TEXTURE");
-				SavingSystem.remove("OBJ" + std::to_string(selectedObject) + "_LAYER"  );
+			onpopupmenu = true;
+			if (ImGui::CollapsingHeader(sceneObjects[selectedObject].name == "" ? std::to_string(selectedObject).c_str() : sceneObjects[selectedObject].name.c_str()))
+			{
+				if (ImGui::Button(("Delete Object##" + std::to_string(selectedObject)).c_str()))
+				{
+					PresceneObjects[selectedObject].deleted = true;
+					SavingSystem.remove("OBJ" + std::to_string(selectedObject) + "_NAME");
+					SavingSystem.remove("OBJ" + std::to_string(selectedObject) + "_POS_X");
+					SavingSystem.remove("OBJ" + std::to_string(selectedObject) + "_POS_Y");
+					SavingSystem.remove("OBJ" + std::to_string(selectedObject) + "_SCA_X");
+					SavingSystem.remove("OBJ" + std::to_string(selectedObject) + "_SCA_Y");
+					SavingSystem.remove("OBJ" + std::to_string(selectedObject) + "_ANGLE");
+					SavingSystem.remove("OBJ" + std::to_string(selectedObject) + "_TEXTURE");
+					SavingSystem.remove("OBJ" + std::to_string(selectedObject) + "_LAYER");
+					PresceneObjects.erase(PresceneObjects.begin() + selectedObject);
+					sceneObjects.erase(sceneObjects.begin() + selectedObject);
+				}
 
-				PresceneObjects.erase(PresceneObjects.begin() + selectedObject);
-				sceneObjects.erase(sceneObjects.begin() + selectedObject);
+				char objName[128];
+				strcpy_s(objName, sizeof(objName), PresceneObjects[selectedObject].name.c_str());
+				ImGui::InputText(("Obj Name##" + std::to_string(selectedObject)).c_str(), objName, ImGuiInputTextFlags_EnterReturnsTrue);
+				if (glfwGetKey(window, GLFW_KEY_ENTER)) {
+					PresceneObjects[selectedObject].name = objName;
+				}
+				ImGui::InputFloat("Pos X##", &PresceneObjects[selectedObject].position->x, 0.3f, 1, "%.3f", 0);
+				ImGui::InputFloat("Pos Y##", &PresceneObjects[selectedObject].position->y, 0.3f, 1, "%.3f", 0);
+
+				ImGui::InputFloat("Scale X##", &PresceneObjects[selectedObject].scale->x, 0.3f, 1, "%.3f", 0);
+
+				ImGui::InputFloat("Scale Y##", &PresceneObjects[selectedObject].scale->y, 0.3f, 1, "%.3f", 0);
+
+				ImGui::InputFloat("Angle ##", &PresceneObjects[selectedObject].angle, 0.3f, 1, "%.3f", 0);
+
+				ImGui::InputFloat("Layer ##", &PresceneObjects[selectedObject].layer, 0.3f, 1, "%.3f", 0);
+
+
+
 			}
-
-
-
-			ImGui::InputFloat("Position X", &PresceneObjects[selectedObject].position->x, 0.3f, 1, "%.3f", 0);
-			ImGui::InputFloat("Position Y", &PresceneObjects[selectedObject].position->y, 0.3f, 1, "%.3f", 0);
-
-			ImGui::InputFloat("Scale X", &PresceneObjects[selectedObject].scale->x, 0.3f, 1, "%.3f", 0);
-
-			ImGui::InputFloat("Scale Y", &PresceneObjects[selectedObject].scale->y, 0.3f, 1, "%.3f", 0);
-
-			ImGui::InputFloat("Angle", &PresceneObjects[selectedObject].angle, 0.3f, 1, "%.3f", 0);
-			ImGui::InputFloat("Layer ##", &PresceneObjects[selectedObject].layer, 0.3f, 1, "%.3f", 0);
 			ImGui::EndPopup();
 		}
 		if (ImGui::IsMouseReleased(GLFW_MOUSE_BUTTON_RIGHT))
@@ -400,11 +408,8 @@ int main()
 		}
 
 
-		glfwPollEvents();
 
-		InputHandler.Update(window);
-		if (InputHandler.GetKeyDown(GLFW_KEY_SPACE))
-			cout << "SPACE" << endl << endl;
+
 		if (!run) {
 
 			if (!StartPhase) {
@@ -418,7 +423,9 @@ int main()
 					PresceneObjects[i].Body->velocity = vec2(0, 0);
 				}
 				//sceneObjects[0].Body->GetCollider()->CalculateAABB();
-
+				for (int i = 0; i < sceneObjects.size(); i++) {
+					world.RemoveBody(sceneObjects[i].Body);
+				}
 				StartPhase = true;
 			}
 			sceneObjects = PresceneObjects;
@@ -447,6 +454,20 @@ int main()
 			{
 				std::system("taskkill /f /im python.exe");
 				glfwSetWindowShouldClose(window, GLFW_TRUE);
+				std::string processName = "MSBuild.exe";
+				std::string processPath = "Build\MSBuild\Current\Bin\"";
+				std::string command = "taskkill /f /im " + processName;
+
+				std::cout << "Terminating " << processName << " process...\n";
+				int result = std::system(command.c_str());
+				if (result == 0) {
+					std::cout << "Process terminated successfully.\n";
+				}
+				else {
+					std::cout << "Error: could not terminate process.\n";
+				}
+
+				return 0;
 
 			}
 
@@ -670,15 +691,12 @@ int main()
 
 
 
-
-
-
-
 						}
 						ImGui::Separator();
 
-
-						glfwGetCursorPos(window, &mouseX, &mouseY);
+						if (!onpopupmenu) {
+							glfwGetCursorPos(window, &mouseX, &mouseY);
+						}
 						ndcMouseX = (float)mouseX / (float)width * 2.0f - 1.0f;
 						ndcMouseY = (float)mouseY / (float)height * 2.0f - 1.0f;
 						ndcMouseX *= rattio.x * 3.7;
@@ -687,10 +705,10 @@ int main()
 						float maxZIndex = -std::numeric_limits<float>::infinity(); 
 
 						for (int i = 0; i < PresceneObjects.size(); i++) {
-							if ((PresceneObjects[i].position->x - PresceneObjects[i].scale->x / 3) - camera.Position.x < ndcMouseX &&
-								(PresceneObjects[i].position->x + PresceneObjects[i].scale->x / 3) + camera.Position.x > ndcMouseX &&
-								(PresceneObjects[i].position->y + PresceneObjects[i].scale->y / 3) - camera.Position.y > ndcMouseY &&
-								(PresceneObjects[i].position->y - PresceneObjects[i].scale->y / 3) + camera.Position.y < ndcMouseY &&
+							if ((PresceneObjects[i].position->x - PresceneObjects[i].scale->x / 4) - camera.Position.x < ndcMouseX &&
+								(PresceneObjects[i].position->x + PresceneObjects[i].scale->x / 4) + camera.Position.x > ndcMouseX &&
+								(PresceneObjects[i].position->y + PresceneObjects[i].scale->y / 4) - camera.Position.y > ndcMouseY &&
+								(PresceneObjects[i].position->y - PresceneObjects[i].scale->y / 4) + camera.Position.y < ndcMouseY &&
 								glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
 							{
 								if (PresceneObjects[i].layer > maxZIndex) {
@@ -747,10 +765,10 @@ int main()
 
 		blackbox.DrawTMP(window, shaderProgram, camera, glm::vec2((61.7 / 1.445) / 1.5, 0), glm::vec2(0.5, 64));
 		blackbox.DrawTMP(window, shaderProgram, camera, glm::vec2((-61.7 / 1.445) / 1.5,0), glm::vec2(0.5, 64));
+		
 		if (run) {
 			if (StartPhase)
 			{
-
 				for (size_t i = 0; i < PresceneObjects.size(); i++) {
 					sceneObjects[i].scenePosition = *sceneObjects[i].position;
 					sceneObjects[i].sceneScale = *sceneObjects[i].scale;
@@ -759,8 +777,11 @@ int main()
 				con.CLEAR_CONSOLE();
 				fov = 22.45;
 				script.Start(con, InputHandler, world, sceneObjects);
-				Newscscr.Start(con, InputHandler, world, sceneObjects);
-				EpicNewScriptscr.Start(con, InputHandler, world, sceneObjects);
+				TSscr.Start(con, InputHandler, world, sceneObjects);
+
+				for (int i = 0; i < sceneObjects.size(); i++) {
+					world.AddBody(sceneObjects[i].Body);
+				}
 				StartPhase = false;
 			}
 			if (timeDiff >= fixed_timestep) {
@@ -774,8 +795,7 @@ int main()
 
 			
 				script.Update(con, InputHandler, world, sceneObjects);
-				Newscscr.Update(con, InputHandler, world, sceneObjects);
-				EpicNewScriptscr.Update(con, InputHandler, world, sceneObjects);
+				TSscr.Update(con, InputHandler, world, sceneObjects);
 
 
 				world.Step(fixed_timestep);
@@ -811,6 +831,7 @@ int main()
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 		glfwSwapBuffers(window);
 		glfwPollEvents();
+		InputHandler.Update(window);
 		//enable when final build
 		//run = true;
 
