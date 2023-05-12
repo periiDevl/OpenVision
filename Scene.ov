@@ -1,11 +1,11 @@
 OBJ_AMOUNT:3:int
+OBJ0_LAYER:0:float
 OBJ0_POS_X:-8.56082:float
 OBJ0_SCA_Y:10:float
-OBJ0_LAYER:0:float
 OBJ0_POS_Y:3.11334:float
 OBJ0_SCA_X:10:float
-OBJ0_ANGLE:0:float
 OBJ0_TEXTURE:Assets/texas.png:string
+OBJ0_ANGLE:0:float
 OBJ1_POS_X:-0.545235:float
 OBJ1_POS_Y:8.8021:float
 OBJ1_SCA_X:50:float
@@ -16,10 +16,10 @@ OBJ1_LAYER:0:float
 OBJ2_POS_X:-8.56082:float
 OBJ2_POS_Y:5.4073:float
 OBJ2_SCA_X:10:float
-OBJ2_SCA_Y:1:float
 OBJ2_LAYER:0:float
-OBJ0_NAME:Player:string
+OBJ2_SCA_Y:1:float
 OBJ2_ANGLE:0:float
+OBJ0_NAME:Player:string
 OBJ2_TEXTURE::string
 direction:Right:string
 OBJ1_NAME:Ground:string

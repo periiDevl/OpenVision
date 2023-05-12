@@ -24,6 +24,13 @@ public:
         logs.push_back(buf);
     }
 
+    template<typename T>
+    void log(const T& value)
+    {
+        std::string str = std::to_string(value);
+        log(str.c_str());
+    }
+
     void Draw(bool no_resize, bool no_move)
     {
         if (!ImGui::Begin("Console", 0, (no_resize ? ImGuiWindowFlags_NoResize : 0) | (no_move ? ImGuiWindowFlags_NoMove : 0)))

@@ -11,6 +11,7 @@ void Script::Start(Console& ovcon, GLFWwindow* window, PhysicsWorld& world, std:
 		if (sceneObjects[i].name == "FloorDetection")
 			ground_detection = &sceneObjects[i];
 	}
+	
 	player->Body->velocity = vec2(5, 0);
 	player->Body->restitution = 0.0f;
 	ground->Body->isStatic = true;

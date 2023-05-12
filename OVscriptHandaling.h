@@ -170,6 +170,7 @@ void addH(const std::string& filename, const std::string& file, const std::strin
 #include<iostream>
 #include"Console.h"
 #include"Object.h"
+#include "OV.h"
 class )" + file + R"( {
 public:
     void Start(Console& ovcon, GLFWwindow* window, PhysicsWorld& world, std::vector<Object>& sceneObjects);

@@ -18,12 +18,10 @@
 #include"OVscriptHandaling.h"
 #include"Presave.h"
 #include"Script.h"
-#include"Newsc.h"
-#include"EpicNewScript.h"
+#include"TestingScript.h"
 #include "SaveSystem.h"
 Script script;
-Newsc Newscscr;
-EpicNewScript EpicNewScriptscr;
+TestingScript TestingScriptscr;
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 
@@ -79,6 +77,7 @@ std::string getPythonLocationByLine(int line) {
 	return locations[line];
 }
 void rebuild(GLFWwindow* window, bool localPython) {
+	glfwSetWindowShouldClose(window, GLFW_TRUE);
 	std::cout << "python locations " << endl << executeCommandAndGetOutput("where python") << endl;
 	std::cout << getPythonLocationByLine(PythonIndex) << endl;
 	std::system((getPythonLocationByLine(PythonIndex) + std::string(" -m pip install watchdog")).c_str());
@@ -104,8 +103,23 @@ void rebuild(GLFWwindow* window, bool localPython) {
 
 	std::chrono::seconds wait_time(1);
 	std::this_thread::sleep_for(wait_time);
-	glfwSetWindowShouldClose(window, GLFW_TRUE);
 }
+
+
+void terminateProcess(const std::string& processName)
+{
+	std::string command = "taskkill /f /im " + processName;
+
+	std::cout << "Terminating " << processName << " process...\n";
+	int result = std::system(command.c_str());
+	if (result == 0) {
+		std::cout << "Process terminated successfully.\n";
+	}
+	else {
+		std::cout << "Error: could not terminate process.\n";
+	}
+}
+
 
 
 
@@ -434,6 +448,20 @@ int main()
 			{
 				std::system("taskkill /f /im python.exe");
 				glfwSetWindowShouldClose(window, GLFW_TRUE);
+				std::string processName = "MSBuild.exe";
+				std::string processPath = "Build\\MSBuild\\Current\\Bin\\";
+				std::string command = "taskkill /f /im " + processName;
+
+				std::cout << "Terminating " << processName << " process...\n";
+				int result = std::system(command.c_str());
+				if (result == 0) {
+					std::cout << "Process terminated successfully.\n";
+				}
+				else {
+					std::cout << "Error: could not terminate process.\n";
+				}
+
+				return 0;
 
 			}
 
@@ -737,8 +765,7 @@ int main()
 				con.CLEAR_CONSOLE();
 				fov = 22.45;
 				script.Start(con, window, world, sceneObjects);
-				Newscscr.Start(con, window, world, sceneObjects);
-				EpicNewScriptscr.Start(con, window, world, sceneObjects);
+				TestingScriptscr.Start(con, window, world, sceneObjects);
 				StartPhase = false;
 			}
 			if (timeDiff >= fixed_timestep) {
@@ -752,8 +779,7 @@ int main()
 
 			
 				script.Update(con, window, world, sceneObjects);
-				Newscscr.Update(con, window, world, sceneObjects);
-				EpicNewScriptscr.Update(con, window, world, sceneObjects);
+				TestingScriptscr.Update(con, window, world, sceneObjects);
 
 
 				world.Step(fixed_timestep);

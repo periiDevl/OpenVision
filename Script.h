@@ -2,6 +2,7 @@
 #include"Console.h"
 #include"Object.h"
 #include "SaveSystem.h"
+#include "OV.h"
 class Script {
 public:
 	float speed = 10;
