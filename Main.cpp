@@ -276,6 +276,7 @@ int main()
 	int amount = SavingSystem.getInt("OBJ_AMOUNT", 3);
 	for (int i = 0; i < amount; i++) {
 		float posx, posy, scalex, scaley, angle, layer;
+		bool runtimeDraw;
 		std::string name, texture;
 
 		name = SavingSystem.getString("OBJ" + std::to_string(i) + "_NAME", std::to_string(i).c_str());
@@ -285,7 +286,8 @@ int main()
 		scaley  = SavingSystem.getFloat ("OBJ" + std::to_string(i) + "_SCA_Y"  , 0.0f);
 		angle   = SavingSystem.getFloat ("OBJ" + std::to_string(i) + "_ANGLE"  , 0.0f);
 		texture = SavingSystem.getString("OBJ" + std::to_string(i) + "_TEXTURE", "");
-		layer   = SavingSystem.getFloat ("OBJ" + std::to_string(i) + "_LAYER"  , 0.0f);
+		layer = SavingSystem.getFloat("OBJ" + std::to_string(i) + "_LAYER", 0.0f);
+		runtimeDraw   = SavingSystem.getFloat ("OBJ" + std::to_string(i) + "_RUNDRAW"  , 0.0f);
 
 		Object obj = Object(verts, ind);
 		obj.name = name;
@@ -300,6 +302,7 @@ int main()
 		obj.angle = angle;
 		obj.texChar = texture;
 		obj.layer = layer;
+		obj.drawOnRuntime = runtimeDraw;
 
 		obj.tex = Texture((texture).c_str());
 		PresceneObjects.push_back(obj);
@@ -376,6 +379,7 @@ int main()
 					SavingSystem.remove("OBJ" + std::to_string(selectedObject) + "_ANGLE");
 					SavingSystem.remove("OBJ" + std::to_string(selectedObject) + "_TEXTURE");
 					SavingSystem.remove("OBJ" + std::to_string(selectedObject) + "_LAYER");
+					SavingSystem.remove("OBJ" + std::to_string(selectedObject) + "_RUNDRAW");
 					PresceneObjects.erase(PresceneObjects.begin() + selectedObject);
 					sceneObjects.erase(sceneObjects.begin() + selectedObject);
 				}
@@ -662,6 +666,7 @@ int main()
 								SavingSystem.remove("OBJ" + std::to_string(i) + "_ANGLE");
 								SavingSystem.remove("OBJ" + std::to_string(i) + "_TEXTURE");
 								SavingSystem.remove("OBJ" + std::to_string(i) + "_LAYER");
+								SavingSystem.remove("OBJ" + std::to_string(i) + "_RUNDRAW");
 								PresceneObjects.erase(PresceneObjects.begin() + i);
 								sceneObjects.erase(sceneObjects.begin() + i);
 							}
@@ -672,6 +677,8 @@ int main()
 							if (glfwGetKey(window, GLFW_KEY_ENTER)){
 								PresceneObjects[i].name = objName;
 							}
+
+							ImGui::Checkbox(("Draw ##" + std::to_string(i)).c_str(), &PresceneObjects[i].drawOnRuntime);
 							ImGui::Columns(2, nullptr, true);
 							ImGui::InputFloat(("Pos X##" + std::to_string(i)).c_str(), &PresceneObjects[i].position->x, 0.3f, 1, "%.3f", 0);
 							ImGui::NextColumn();
@@ -825,7 +832,7 @@ int main()
 					glLineWidth(0.0f);
 					glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
-					if (sceneObjects[i].texChar != "") {
+					if (sceneObjects[i].drawOnRuntime == true) {
 						sceneObjects[i].Draw(window, shaderProgram, camera, glm::vec3(0, 0, 1), width, height, rattio);
 					}
 				}
@@ -855,7 +862,8 @@ int main()
 		SavingSystem.save("OBJ" + std::to_string(i) + "_SCA_Y"  , sceneObjects[i].scale->y);
 		SavingSystem.save("OBJ" + std::to_string(i) + "_ANGLE"  , sceneObjects[i].angle);
 		SavingSystem.save("OBJ" + std::to_string(i) + "_TEXTURE", sceneObjects[i].texChar);
-		SavingSystem.save("OBJ" + std::to_string(i) + "_LAYER"  , sceneObjects[i].layer);
+		SavingSystem.save("OBJ" + std::to_string(i) + "_LAYER", sceneObjects[i].layer);
+		SavingSystem.save("OBJ" + std::to_string(i) + "_RUNDRAW"  , sceneObjects[i].drawOnRuntime);
 	}
 	SavingSystem.saveToFile("Scene.ov");
 

@@ -1,8 +1,8 @@
 OBJ_AMOUNT:5:int
-OBJ0_POS_X:-9.36398:float
+OBJ0_POS_X:-2.9636:float
 OBJ0_SCA_Y:10:float
 OBJ0_LAYER:0:float
-OBJ0_POS_Y:3.27898:float
+OBJ0_POS_Y:3.33004:float
 OBJ0_SCA_X:10:float
 OBJ0_ANGLE:0:float
 OBJ0_TEXTURE:Assets/player.png:string
@@ -15,9 +15,10 @@ OBJ1_ANGLE:0:float
 OBJ1_TEXTURE:Assets/ground.png:string
 OBJ3_ANGLE:0:float
 OBJ1_LAYER:0:float
-OBJ2_POS_X:-9.36398:float
-OBJ2_POS_Y:5.67898:float
+OBJ2_POS_X:-2.9636:float
+OBJ2_POS_Y:5.7115:float
 OBJ2_SCA_X:10:float
+OBJ0_RUNDRAW:1:int
 OBJ2_SCA_Y:2:float
 OBJ2_LAYER:0:float
 OBJ0_NAME:Player:string
@@ -29,13 +30,17 @@ OBJ3_POS_Y:11.8694:float
 OBJ2_NAME:FloorDetection:string
 OBJ3_TEXTURE:Assets/ground.png:string
 OBJ3_NAME:Ground 2:string
+OBJ1_RUNDRAW:1:int
 OBJ3_LAYER:0:float
 OBJ3_SCA_Y:20:float
 OBJ3_POS_X:14.5473:float
-OBJ4_POS_X:3.58315:float
-OBJ4_POS_Y:5.6185:float
+OBJ4_POS_X:3.97263:float
+OBJ4_POS_Y:4.68376:float
 OBJ4_SCA_X:5:float
 OBJ4_SCA_Y:5:float
 OBJ4_ANGLE:0:float
 OBJ4_TEXTURE:Assets/background.png:string
 OBJ4_LAYER:0:float
+OBJ2_RUNDRAW:0:int
+OBJ3_RUNDRAW:1:int
+OBJ4_RUNDRAW:1:int

@@ -12,6 +12,11 @@ public:
 		return &sceneObjects[0];
 	}
 
+	static void SetTexture(std::string Path, Object& obj)
+	{
+		obj.tex = Texture(Path.c_str());
+	}
+
 	
 };
 
