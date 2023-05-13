@@ -25,7 +25,7 @@ void Script::Start(Console& ovcon, InputSystem Input, PhysicsWorld& world, std::
 
 }
 void Script::Update(Console& ovcon, InputSystem Input, PhysicsWorld& world, std::vector<Object>& sceneObjects) {
-    *ground_detection->position = *player->position - vec2(0, player->scale->y* - .24f);
+    *ground_detection->position = *player->position - vec2(0, player->scale->y* - .48f);
 
     float horizontal = 0;
     if (Input.GetKey(GLFW_KEY_D)) {

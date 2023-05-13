@@ -161,13 +161,6 @@ int main()
 
 
 
-
-	for (int i = 0; i < 4; i++) {
-		vertices[i].position.x *= GlobalWorldScale;
-		vertices[i].position.y *= GlobalWorldScale;
-		vertices[i].position.z *= GlobalWorldScale;
-	}
-
 	glfwInit();
 
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -232,8 +225,7 @@ int main()
 
 
 
-	std::vector <Vertex> verts(vertices, vertices + sizeof(vertices) / sizeof(Vertex));
-	std::vector <GLuint> ind(indices, indices + sizeof(indices) / sizeof(GLuint));
+	
 
 
 
@@ -748,10 +740,10 @@ int main()
 						float maxZIndex = -std::numeric_limits<float>::infinity(); 
 
 						for (int i = 0; i < PresceneObjects.size(); i++) {
-							if ((PresceneObjects[i].position->x - PresceneObjects[i].scale->x / 4) - camera.Position.x < ndcMouseX &&
-								(PresceneObjects[i].position->x + PresceneObjects[i].scale->x / 4) + camera.Position.x > ndcMouseX &&
-								(PresceneObjects[i].position->y + PresceneObjects[i].scale->y / 4) - camera.Position.y > ndcMouseY &&
-								(PresceneObjects[i].position->y - PresceneObjects[i].scale->y / 4) + camera.Position.y < ndcMouseY &&
+							if ((PresceneObjects[i].position->x - PresceneObjects[i].scale->x / 2) - camera.Position.x < ndcMouseX &&
+								(PresceneObjects[i].position->x + PresceneObjects[i].scale->x / 2) + camera.Position.x > ndcMouseX &&
+								(PresceneObjects[i].position->y + PresceneObjects[i].scale->y / 2) - camera.Position.y > ndcMouseY &&
+								(PresceneObjects[i].position->y - PresceneObjects[i].scale->y / 2) + camera.Position.y < ndcMouseY &&
 								glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
 							{
 								if (PresceneObjects[i].layer > maxZIndex) {

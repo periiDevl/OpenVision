@@ -27,7 +27,8 @@ GLuint indices[] =
 	0, 1, 2,
 	0, 2, 3
 };
-
+std::vector <Vertex> verts(vertices, vertices + sizeof(vertices) / sizeof(Vertex));
+std::vector <GLuint> ind(indices, indices + sizeof(indices) / sizeof(GLuint));
 
 const char* vertexShaderSource = 
 "#version 330 core \n"

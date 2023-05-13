@@ -19,13 +19,12 @@ PolygonCollider::PolygonCollider(vec2* pos, float* rot, vec2* sca)
 	Rotation = rot;
 	Scale = sca;
 
-	float GlobalWorldScale = 0.5f;
 
 	vertices = vector<vec2>();
-	vertices.push_back(vec2(-0.5f,  0.5f) * GlobalWorldScale);
-	vertices.push_back(vec2(-0.5f, -0.5f) * GlobalWorldScale);
-	vertices.push_back(vec2( 0.5f, -0.5f) * GlobalWorldScale);
-	vertices.push_back(vec2( 0.5f,  0.5f) * GlobalWorldScale);
+	vertices.push_back(vec2(-0.5f,  0.5f));
+	vertices.push_back(vec2(-0.5f, -0.5f));
+	vertices.push_back(vec2( 0.5f, -0.5f));
+	vertices.push_back(vec2( 0.5f,  0.5f));
 										 
 	CalculateAABB();
 	CalculateBoundRadius();
