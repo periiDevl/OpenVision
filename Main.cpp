@@ -275,8 +275,8 @@ int main()
 
 	int amount = SavingSystem.getInt("OBJ_AMOUNT", 3);
 	for (int i = 0; i < amount; i++) {
-		float posx, posy, scalex, scaley, angle, layer;
-		bool runtimeDraw;
+		float posx, posy, scalex, scaley, angle, layer, friction, velX, velY;
+		bool runtimeDraw, isStatic, isTrigger;
 		std::string name, texture;
 
 		name = SavingSystem.getString("OBJ" + std::to_string(i) + "_NAME", std::to_string(i).c_str());
@@ -287,7 +287,11 @@ int main()
 		angle   = SavingSystem.getFloat ("OBJ" + std::to_string(i) + "_ANGLE"  , 0.0f);
 		texture = SavingSystem.getString("OBJ" + std::to_string(i) + "_TEXTURE", "");
 		layer = SavingSystem.getFloat("OBJ" + std::to_string(i) + "_LAYER", 0.0f);
-		runtimeDraw   = SavingSystem.getFloat ("OBJ" + std::to_string(i) + "_RUNDRAW"  , 0.0f);
+		runtimeDraw = SavingSystem.getFloat("OBJ" + std::to_string(i) + "_RUNDRAW", 0.0f);
+
+		friction = SavingSystem.getFloat("OBJ" + std::to_string(i) + "_FRIC", 0.0f);
+		isStatic = SavingSystem.getFloat("OBJ" + std::to_string(i) + "_STATIC", 0.0f);
+		isTrigger = SavingSystem.getFloat("OBJ" + std::to_string(i) + "_TRIG", 0.0f);
 
 		Object obj = Object(verts, ind);
 		obj.name = name;
@@ -303,6 +307,11 @@ int main()
 		obj.texChar = texture;
 		obj.layer = layer;
 		obj.drawOnRuntime = runtimeDraw;
+
+		obj.Body->friction = friction;
+		obj.Body->isStatic = isStatic;
+		obj.Body->isTrigger = isTrigger;
+
 
 		obj.tex = Texture((texture).c_str());
 		PresceneObjects.push_back(obj);
@@ -370,6 +379,8 @@ int main()
 			{
 				if (ImGui::Button(("Delete Object##" + std::to_string(selectedObject)).c_str()))
 				{
+
+
 					PresceneObjects[selectedObject].deleted = true;
 					SavingSystem.remove("OBJ" + std::to_string(selectedObject) + "_NAME");
 					SavingSystem.remove("OBJ" + std::to_string(selectedObject) + "_POS_X");
@@ -380,6 +391,9 @@ int main()
 					SavingSystem.remove("OBJ" + std::to_string(selectedObject) + "_TEXTURE");
 					SavingSystem.remove("OBJ" + std::to_string(selectedObject) + "_LAYER");
 					SavingSystem.remove("OBJ" + std::to_string(selectedObject) + "_RUNDRAW");
+					SavingSystem.remove("OBJ" + std::to_string(selectedObject) + "_FRIC");
+					SavingSystem.remove("OBJ" + std::to_string(selectedObject) + "_STATIC");
+					SavingSystem.remove("OBJ" + std::to_string(selectedObject) + "_TRIG");
 					PresceneObjects.erase(PresceneObjects.begin() + selectedObject);
 					sceneObjects.erase(sceneObjects.begin() + selectedObject);
 				}
@@ -390,6 +404,7 @@ int main()
 				if (glfwGetKey(window, GLFW_KEY_ENTER)) {
 					PresceneObjects[selectedObject].name = objName;
 				}
+				ImGui::Checkbox("Draw ##", &PresceneObjects[selectedObject].drawOnRuntime);
 				ImGui::InputFloat("Pos X##", &PresceneObjects[selectedObject].position->x, 0.3f, 1, "%.3f", 0);
 				ImGui::InputFloat("Pos Y##", &PresceneObjects[selectedObject].position->y, 0.3f, 1, "%.3f", 0);
 
@@ -401,11 +416,17 @@ int main()
 
 				ImGui::InputFloat("Layer ##", &PresceneObjects[selectedObject].layer, 0.3f, 1, "%.3f", 0);
 
+				ImGui::InputFloat("Friction ##", &PresceneObjects[selectedObject].Body->friction);
 
+				ImGui::Checkbox("Trigger ##", &PresceneObjects[selectedObject].Body->isStatic);
+
+				ImGui::Checkbox("Static ##", &PresceneObjects[selectedObject].Body->isTrigger);
 
 			}
 			ImGui::EndPopup();
 		}
+
+
 		if (ImGui::IsMouseReleased(GLFW_MOUSE_BUTTON_RIGHT))
 		{
 			show_selected_pop = false;
@@ -667,6 +688,9 @@ int main()
 								SavingSystem.remove("OBJ" + std::to_string(i) + "_TEXTURE");
 								SavingSystem.remove("OBJ" + std::to_string(i) + "_LAYER");
 								SavingSystem.remove("OBJ" + std::to_string(i) + "_RUNDRAW");
+								SavingSystem.remove("OBJ" + std::to_string(i) + "_FRIC");
+								SavingSystem.remove("OBJ" + std::to_string(i) + "_STATIC");
+								SavingSystem.remove("OBJ" + std::to_string(i) + "_TRIG");
 								PresceneObjects.erase(PresceneObjects.begin() + i);
 								sceneObjects.erase(sceneObjects.begin() + i);
 							}
@@ -696,16 +720,19 @@ int main()
 
 							ImGui::InputFloat(("Layer ##" + std::to_string(i)).c_str(), &PresceneObjects[i].layer, 0.3f, 1, "%.3f", 0);
 							
-							ImGui::Columns(1, "Physics", true);
 
 							ImGui::InputFloat(("Friction ##" + std::to_string(i)).c_str(), &PresceneObjects[i].Body->friction);
-							
+
+							ImGui::Columns(1, nullptr, true);
+							ImGui::Columns(2, nullptr, true);
+
 							ImGui::Checkbox(("Trigger ##" + std::to_string(i)).c_str(), &PresceneObjects[i].Body->isStatic);
 
+							ImGui::NextColumn();
 							ImGui::Checkbox(("Static ##" + std::to_string(i)).c_str(), &PresceneObjects[i].Body->isTrigger);
+							ImGui::Columns(1, nullptr, true);
+
 							
-							ImGui::InputFloat(("Vel X##" + std::to_string(i)).c_str(), &PresceneObjects[i].Body->velocity.x);
-							ImGui::InputFloat(("Vel Y##" + std::to_string(i)).c_str(), &PresceneObjects[i].Body->velocity.y);
 
 						}
 						ImGui::Separator();
@@ -855,6 +882,7 @@ int main()
 	cout << "amount of objects" << sceneObjects.size() << endl;
 	SavingSystem.save("OBJ_AMOUNT", (int)sceneObjects.size());
 	for (int i = 0; i < sceneObjects.size(); i++) {
+
 		SavingSystem.save("OBJ" + std::to_string(i) + "_NAME"  , sceneObjects[i].name);
 		SavingSystem.save("OBJ" + std::to_string(i) + "_POS_X"  , sceneObjects[i].position->x);
 		SavingSystem.save("OBJ" + std::to_string(i) + "_POS_Y"  , sceneObjects[i].position->y);
@@ -863,7 +891,10 @@ int main()
 		SavingSystem.save("OBJ" + std::to_string(i) + "_ANGLE"  , sceneObjects[i].angle);
 		SavingSystem.save("OBJ" + std::to_string(i) + "_TEXTURE", sceneObjects[i].texChar);
 		SavingSystem.save("OBJ" + std::to_string(i) + "_LAYER", sceneObjects[i].layer);
-		SavingSystem.save("OBJ" + std::to_string(i) + "_RUNDRAW"  , sceneObjects[i].drawOnRuntime);
+		SavingSystem.save("OBJ" + std::to_string(i) + "_RUNDRAW", sceneObjects[i].drawOnRuntime);
+		SavingSystem.save("OBJ" + std::to_string(i) + "_FRIC", sceneObjects[i].Body->friction);
+		SavingSystem.save("OBJ" + std::to_string(i) + "_STATIC", sceneObjects[i].Body->isStatic);
+		SavingSystem.save("OBJ" + std::to_string(i) + "_TRIG", sceneObjects[i].Body->isTrigger);
 	}
 	SavingSystem.saveToFile("Scene.ov");
 
