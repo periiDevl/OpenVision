@@ -25,11 +25,14 @@ public:
 	void AddBody(PhysicsBody* body);
 	void RemoveBody(PhysicsBody* body);
 	vector<PhysicsBody*> GetBodies();
-
+	bool TouchingLayer(PhysicsBody* body, int layer);
+	void UpdateLayerBodies();
 private:
 	int iterations;
 	vec3 gravity;
 	vector<PhysicsBody*> bodies;
+	map<int, vector<PhysicsBody*>> layeredBodies;
+	vector<int> layers;
 
 };
 #endif

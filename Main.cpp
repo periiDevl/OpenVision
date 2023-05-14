@@ -151,7 +151,7 @@ int main()
 	}
 	inputFile.close();
 
-	PhysicsWorld world(vec3(0, 15.0f, 0), 10);
+	PhysicsWorld world(vec3(0, 55.0f, 0), 10);
 
 
 	const std::filesystem::path directory_path = std::filesystem::current_path();
@@ -717,7 +717,7 @@ int main()
 							
 							ImGui::InputFloat(("Friction ##" + std::to_string(i)).c_str(), &PresceneObjects[i].Body->friction);
 
-							ImGui::InputFloat(("Bounciness ##" + std::to_string(i)).c_str(), &PresceneObjects[selectedObject].Body->restitution);
+							ImGui::InputFloat(("Bounciness ##" + std::to_string(i)).c_str(), &PresceneObjects[i].Body->restitution);
 
 							ImGui::Columns(1, nullptr, true);
 							ImGui::Columns(2, nullptr, true);
@@ -814,14 +814,14 @@ int main()
 					sceneObjects[i].sceneScale = *sceneObjects[i].scale;
 				}
 				PresceneObjects = sceneObjects;
+				for (int i = 0; i < sceneObjects.size(); i++) {
+					world.AddBody(sceneObjects[i].Body);
+				}
 				con.CLEAR_CONSOLE();
 				fov = 22.45;
 				script.Start(con, InputHandler, world, sceneObjects);
 				TSscr.Start(con, InputHandler, world, sceneObjects);
 
-				for (int i = 0; i < sceneObjects.size(); i++) {
-					world.AddBody(sceneObjects[i].Body);
-				}
 				StartPhase = false;
 			}
 			if (timeDiff >= fixed_timestep) {

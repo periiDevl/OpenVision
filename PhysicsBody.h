@@ -38,6 +38,7 @@ public:
 
 	float mass, area, density, friction, restitution;
 	bool isTrigger, isStatic;
+	int layer;
 
 	vec2 force, velocity;
 
