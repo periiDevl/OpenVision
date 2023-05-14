@@ -29,5 +29,4 @@ void Script::Update(Console& ovcon, InputSystem Input, PhysicsWorld& world, std:
         if (Input.GetKey(GLFW_KEY_SPACE))
             player->Body->velocity.y = -10;
     }
-    
 }

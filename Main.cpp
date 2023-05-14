@@ -262,9 +262,11 @@ int main()
 	std::vector<Object> sceneObjects;
 	std::vector<Object> PresceneObjects;
 	vec3 bg_rgb = SavingSystem.getVec3("BG_COLOR", vec3(0));
-	float screenR =bg_rgb.r;
-	float screenG =bg_rgb.g;
-	float screenB =bg_rgb.b;
+	float BackroundScreen[3];
+	BackroundScreen[0] =bg_rgb.r;
+	BackroundScreen[1] =bg_rgb.g;
+	BackroundScreen[2] =bg_rgb.b;
+
 
 	int amount = SavingSystem.getInt("OBJ_AMOUNT", 3);
 	for (int i = 0; i < amount; i++) {
@@ -339,7 +341,7 @@ int main()
 		{
 			run = false;
 		}
-		glClearColor(screenR, screenG, screenB, 1.0f);
+		glClearColor(BackroundScreen[0], BackroundScreen[1], BackroundScreen[2], 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glfwSwapInterval(vsync);
 		camera.updateMatrix(fov, 0.1f, 100.0f);
@@ -491,7 +493,6 @@ int main()
 					std::cout << "Error: could not terminate process.\n";
 				}
 
-				return 0;
 
 			}
 
@@ -534,14 +535,9 @@ int main()
 					ImGui::Separator();
 
 					ImGui::Text("Backround Color");
-					ImGui::Columns(3);
-					ImGui::InputFloat("(R)", &screenR);
-					ImGui::NextColumn();
-					ImGui::InputFloat("(G)", &screenG);
-					ImGui::NextColumn();
-					ImGui::InputFloat("(B)", &screenB);
+					ImGui::ColorEdit3("Background Color", BackroundScreen);
 					ImGui::Separator();
-					ImGui::Columns(1);
+
 					ImGui::EndTabItem();
 				}
 
@@ -897,7 +893,7 @@ int main()
 		SavingSystem.save("OBJ" + std::to_string(i) + "_STATIC", sceneObjects[i].Body->isStatic);
 		SavingSystem.save("OBJ" + std::to_string(i) + "_TRIG", sceneObjects[i].Body->isTrigger);
 	}
-	SavingSystem.save("BG_COLOR", vec3(screenR, screenG, screenB));
+	SavingSystem.save("BG_COLOR", vec3(BackroundScreen[0], BackroundScreen[1], BackroundScreen[2]));
 	SavingSystem.saveToFile("Scene.ov");
 
 
@@ -909,7 +905,7 @@ int main()
 	glfwTerminate();
 
 
-	myData.data = { float(vsync), float(msaa), screenR, screenG, screenB, float(LocalPy), float(PythonIndex)};
+	myData.data = { float(vsync), float(msaa), BackroundScreen[0], BackroundScreen[1], BackroundScreen[2], float(LocalPy), float(PythonIndex)};
 
 	myData.saveData();
 
