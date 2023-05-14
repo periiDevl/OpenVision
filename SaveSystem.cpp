@@ -76,13 +76,13 @@ void SaveSystem::save(const std::string& key, const float& value)
 void SaveSystem::save(const std::string& key, const glm::vec2& value)
 {
     std::stringstream ss;
-    ss << glm::to_string(value) << ":" << "vec2";
+    ss << value.x << "," << value.y << ":" << "vec2";
     data_[key] = ss.str();
 }
 void SaveSystem::save(const std::string& key, const glm::vec3& value)
 {
     std::stringstream ss;
-    ss << glm::to_string(value) << ":" << "vec3";
+    ss << value.x << "," << value.y << "," << value.z << ":" << "vec3";
     data_[key] = ss.str();
 }
 

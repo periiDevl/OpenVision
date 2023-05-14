@@ -135,9 +135,6 @@ int main()
 	
 	bool vsync = myData.data[0];
 	int msaa = myData.data[1];
-	float screenR = myData.data[2];
-	float screenG = myData.data[3];
-	float screenB = myData.data[4];
 	bool LocalPy = myData.data[5];
 	PythonIndex = myData.data[6];
 
@@ -264,10 +261,14 @@ int main()
 
 	std::vector<Object> sceneObjects;
 	std::vector<Object> PresceneObjects;
+	vec3 bg_rgb = SavingSystem.getVec3("BG_COLOR", vec3(0));
+	float screenR =bg_rgb.r;
+	float screenG =bg_rgb.g;
+	float screenB =bg_rgb.b;
 
 	int amount = SavingSystem.getInt("OBJ_AMOUNT", 3);
 	for (int i = 0; i < amount; i++) {
-		float posx, posy, scalex, scaley, angle, layer, friction, velX, velY;
+		float posx, posy, scalex, scaley, angle, layer, restitution, friction, velX, velY;
 		bool runtimeDraw, isStatic, isTrigger;
 		std::string name, texture;
 
@@ -281,7 +282,8 @@ int main()
 		layer = SavingSystem.getFloat("OBJ" + std::to_string(i) + "_LAYER", 0.0f);
 		runtimeDraw = SavingSystem.getFloat("OBJ" + std::to_string(i) + "_RUNDRAW", 0.0f);
 
-		friction = SavingSystem.getFloat("OBJ" + std::to_string(i) + "_FRIC", 0.0f);
+		friction = SavingSystem.getFloat("OBJ" + std::to_string(i) + "_FRIC", 0.5f);
+		restitution = SavingSystem.getFloat("OBJ" + std::to_string(i) + "_BOUNCE", 0.5f);
 		isStatic = SavingSystem.getFloat("OBJ" + std::to_string(i) + "_STATIC", 0.0f);
 		isTrigger = SavingSystem.getFloat("OBJ" + std::to_string(i) + "_TRIG", 0.0f);
 
@@ -301,6 +303,7 @@ int main()
 		obj.drawOnRuntime = runtimeDraw;
 
 		obj.Body->friction = friction;
+		obj.Body->restitution = restitution;
 		obj.Body->isStatic = isStatic;
 		obj.Body->isTrigger = isTrigger;
 
@@ -408,11 +411,15 @@ int main()
 
 				ImGui::InputFloat("Layer ##", &PresceneObjects[selectedObject].layer, 0.3f, 1, "%.3f", 0);
 
+				ImGui::Text("Rigidbody");
+
 				ImGui::InputFloat("Friction ##", &PresceneObjects[selectedObject].Body->friction);
 
-				ImGui::Checkbox("Trigger ##", &PresceneObjects[selectedObject].Body->isStatic);
+				ImGui::InputFloat("Bounciness ##", &PresceneObjects[selectedObject].Body->restitution);
 
-				ImGui::Checkbox("Static ##", &PresceneObjects[selectedObject].Body->isTrigger);
+				ImGui::Checkbox("Trigger ##", &PresceneObjects[selectedObject].Body->isTrigger);
+
+				ImGui::Checkbox("Static ##", &PresceneObjects[selectedObject].Body->isStatic);
 
 			}
 			ImGui::EndPopup();
@@ -712,16 +719,17 @@ int main()
 
 							ImGui::InputFloat(("Layer ##" + std::to_string(i)).c_str(), &PresceneObjects[i].layer, 0.3f, 1, "%.3f", 0);
 							
-
 							ImGui::InputFloat(("Friction ##" + std::to_string(i)).c_str(), &PresceneObjects[i].Body->friction);
+
+							ImGui::InputFloat(("Bounciness ##" + std::to_string(i)).c_str(), &PresceneObjects[selectedObject].Body->restitution);
 
 							ImGui::Columns(1, nullptr, true);
 							ImGui::Columns(2, nullptr, true);
 
-							ImGui::Checkbox(("Trigger ##" + std::to_string(i)).c_str(), &PresceneObjects[i].Body->isStatic);
+							ImGui::Checkbox(("Trigger ##" + std::to_string(i)).c_str(), &PresceneObjects[i].Body->isTrigger);
 
 							ImGui::NextColumn();
-							ImGui::Checkbox(("Static ##" + std::to_string(i)).c_str(), &PresceneObjects[i].Body->isTrigger);
+							ImGui::Checkbox(("Static ##" + std::to_string(i)).c_str(), &PresceneObjects[i].Body->isStatic);
 							ImGui::Columns(1, nullptr, true);
 
 							
@@ -740,11 +748,12 @@ int main()
 						float maxZIndex = -std::numeric_limits<float>::infinity(); 
 
 						for (int i = 0; i < PresceneObjects.size(); i++) {
-							if ((PresceneObjects[i].position->x - PresceneObjects[i].scale->x / 2) - camera.Position.x < ndcMouseX &&
-								(PresceneObjects[i].position->x + PresceneObjects[i].scale->x / 2) + camera.Position.x > ndcMouseX &&
-								(PresceneObjects[i].position->y + PresceneObjects[i].scale->y / 2) - camera.Position.y > ndcMouseY &&
-								(PresceneObjects[i].position->y - PresceneObjects[i].scale->y / 2) + camera.Position.y < ndcMouseY &&
-								glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
+							if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS && 
+								(PresceneObjects[i].position->x - abs(PresceneObjects[i].scale->x) / 2) - camera.Position.x < ndcMouseX &&
+								(PresceneObjects[i].position->x + abs(PresceneObjects[i].scale->x) / 2) + camera.Position.x > ndcMouseX &&
+								(PresceneObjects[i].position->y + abs(PresceneObjects[i].scale->y) / 2) - camera.Position.y > ndcMouseY &&
+								(PresceneObjects[i].position->y - abs(PresceneObjects[i].scale->y) / 2) + camera.Position.y < ndcMouseY)
+								
 							{
 								if (PresceneObjects[i].layer > maxZIndex) {
 									topIndex = i;
@@ -871,7 +880,6 @@ int main()
 		//run = true;
 
 	}
-	cout << "amount of objects" << sceneObjects.size() << endl;
 	SavingSystem.save("OBJ_AMOUNT", (int)sceneObjects.size());
 	for (int i = 0; i < sceneObjects.size(); i++) {
 
@@ -885,9 +893,11 @@ int main()
 		SavingSystem.save("OBJ" + std::to_string(i) + "_LAYER", sceneObjects[i].layer);
 		SavingSystem.save("OBJ" + std::to_string(i) + "_RUNDRAW", sceneObjects[i].drawOnRuntime);
 		SavingSystem.save("OBJ" + std::to_string(i) + "_FRIC", sceneObjects[i].Body->friction);
+		SavingSystem.save("OBJ" + std::to_string(i) + "_BOUNCE", sceneObjects[i].Body->restitution);
 		SavingSystem.save("OBJ" + std::to_string(i) + "_STATIC", sceneObjects[i].Body->isStatic);
 		SavingSystem.save("OBJ" + std::to_string(i) + "_TRIG", sceneObjects[i].Body->isTrigger);
 	}
+	SavingSystem.save("BG_COLOR", vec3(screenR, screenG, screenB));
 	SavingSystem.saveToFile("Scene.ov");
 
 

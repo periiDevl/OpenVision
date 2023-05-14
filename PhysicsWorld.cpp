@@ -16,6 +16,7 @@ void PhysicsWorld::Step(float deltaTime)
 
 	for (int iter = 0; iter < iterations; iter++)
 	{
+
 		for (int i = 0; i < bodies.size(); i++) {
 			if (bodies[i]->isTrigger) {
 				continue;
@@ -26,11 +27,12 @@ void PhysicsWorld::Step(float deltaTime)
 					continue;
 				}
 
+				
 				vec2 mtv;
 				if (BoundingAABB(*bodies[i]->GetCollider(), *bodies[l]->GetCollider(), mtv)) {
 
 					if (mtv == vec2(0.0f)) {
-						return;
+						continue;
 					}
 
 					vec2 normal = normalize(mtv);
@@ -73,10 +75,7 @@ void PhysicsWorld::Step(float deltaTime)
 					vec2 tangent = vec2(-normal.y, normal.x);
 					vec2 relVelTangent = relVel - dot(relVel, normal) * normal;
 
-					float frictionA = 0.5f ;
-					float frictionB = 0.5f ;
-
-					float friction = std::min(frictionA, frictionB);
+					float friction = std::min(bodyA->friction, bodyB->friction);
 					float jt = -dot(relVelTangent, tangent) / ((bodyA->isStatic ? 0 : 1 / bodyA->mass) + (bodyB->isStatic ? 0 : 1 / bodyB->mass) + 0.000000000001f);
 					jt /= sizeContactPoints; // average for multiple contact points
 
