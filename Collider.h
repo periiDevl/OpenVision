@@ -10,6 +10,13 @@
 #include <vector>
 #include <iostream>
 
+enum ColliderType {
+	None = 0   ,
+	Box = 1    ,
+	Polygon = 2,
+	Circle = 3 
+};
+
 using namespace glm;
 using namespace std;
 
@@ -18,15 +25,11 @@ class Collider
 {
 public:
 
-	/// <summary>
-	/// Get Farthest Point In A Certain Direction On The Collider
-	/// </summary>
-	/// <param name="direction"></param>
-	/// <returns>Returns The Farthest Point In The Direction (**IN WORLD POSITION**)</returns>
-	virtual vec2 GetSupportPoint(vec2 direction) = 0;
+	
 	/// <summary>
 	/// A method to calculate the AABB (Max And Min Point) for higher performance and easier collision detection
 	/// </summary>
+
 	virtual void CalculateAABB() = 0;
 	/// <summary>
 	/// A method to calculate the Bound Radius for higher performance and easier collision detection
@@ -66,6 +69,11 @@ public:
 	/// Bounding Radius, Meaning The Distance To The Farthest Point 
 	/// </summary>
 	float bRadius;
+
+	/// <summary>
+	/// The type of the object, (Box, Circle, Polygon)
+	/// </summary>
+	ColliderType type = ColliderType::None;
 };
 
 #endif

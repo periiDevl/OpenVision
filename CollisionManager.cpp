@@ -1,4 +1,19 @@
 #include "CollisionManager.h"
+vec2 perpendicular(vec2 v) { vec2 p = { v.y, -v.x }; return p; }
+float dotProduct(vec2 a, vec2 b) { return a.x * b.x + a.y * b.y; }
+float lengthSquared(vec2 v) { return v.x * v.x + v.y * v.y; }
+vec2 tripleProduct(vec2 a, vec2 b, vec2 c) {
+
+    vec2 r;
+
+    float ac = a.x * c.x + a.y * c.y; // perform a.dot(c)
+    float bc = b.x * c.x + b.y * c.y; // perform b.dot(c)
+
+    // perform b * a.dot(c) - a * b.dot(c)
+    r.x = b.x * ac - a.x * bc;
+    r.y = b.y * ac - a.y * bc;
+    return r;
+}
 bool BoundingAABB(Collider& colA, Collider& colB, vec2& mtv)
 {
     colA.CalculateAABB();
@@ -35,7 +50,7 @@ bool BoundingAABB(Collider& colA, Collider& colB, vec2& mtv)
 
     return true;
 }
-bool BoundingAABB(Collider& colA, Collider& colB)
+bool BoundingAABB(Collider& colA,Collider& colB)
 {
     colA.CalculateAABB();
     colB.CalculateAABB();
@@ -54,164 +69,219 @@ bool BoundingAABB(Collider& colA, Collider& colB)
 
     return true;
 }
-bool BoundingCircle(const Collider& colA, const Collider& colB, vec2& mtv) {
-    return glm::distance(*colA.Position, *colB.Position) <= colA.bRadius + colB.bRadius;
+bool BoundingCircle(Collider& colA, Collider& colB, vec2& mtv) {
+    if (glm::distance(*colA.Position, *colB.Position) <= colA.bRadius + colB.bRadius) {
+        mtv = glm::normalize(*colA.Position - *colB.Position) * (colA.bRadius + colB.bRadius - glm::distance(*colA.Position, *colB.Position));
+        return true;
+    }
+
+    return false;
 }
 
-bool PolygonVPolygon(const PolygonCollider& colA, const PolygonCollider& colB, vec2& mtv) {
-    float overlap = INFINITY;
-    vec2 smallestOverlapAxis;
+bool CheckCollision(Collider& colA, Collider& colB, vec2& mtv)
+{
+    if (BoundingAABB(colA, colB)) {
+        if ((colA.type == ColliderType::Polygon || colA.type == ColliderType::Box) && (colB.type == ColliderType::Polygon || colB.type == ColliderType::Box)) {
+            PolygonCollider& polyA = dynamic_cast<PolygonCollider&>(colA);
+            PolygonCollider& polyB = dynamic_cast<PolygonCollider&>(colB);
+            return PolyVPoly(polyA, polyB, mtv);
+        }
+        else if ((colA.type == ColliderType::Polygon || colA.type == ColliderType::Box) && (colB.type == ColliderType::Circle)) {
+            PolygonCollider& polyA = dynamic_cast<PolygonCollider&>(colA);
+            CircleCollider& circleB = dynamic_cast<CircleCollider&>(colB);
+            return PolyVCircle(polyA, circleB, mtv);
+        }
+        else if ((colA.type == ColliderType::Circle) && (colB.type == ColliderType::Polygon || colB.type == ColliderType::Box)) {
+            CircleCollider& circleA = dynamic_cast<CircleCollider&>(colA);
+            PolygonCollider& polyB = dynamic_cast<PolygonCollider&>(colB);
+            return PolyVCircle(polyB, circleA, mtv);
+        }
+        else if ((colA.type == ColliderType::Circle) && (colB.type == ColliderType::Circle)) {
+            CircleCollider& circleA = dynamic_cast<CircleCollider&>(colA);
+            CircleCollider& circleB = dynamic_cast<CircleCollider&>(colB);
+            return CircleVCircle(circleA, circleB, mtv);
+        }
+    }
+    return false;
+}
 
+int FindClosestPointOnPoly(vec2 point, vector<vec2> vertices)
+{
+    int result = -1;
+    float minDistance = INFINITY;
+
+    for (int i = 0; i < vertices.size(); i++) {
+        vec2 v = vertices[i];
+        float Distance = lengthSquared(v - point);
+
+        if (Distance < minDistance) {
+            minDistance = Distance;
+            result = i;
+        }
+    }
+
+    return result;
+}
+void ProjectCircle(vec2 position, float radius, vec2 axis, float& min, float& max) {
+    vec2 dir = normalize(axis);
+    vec2 dirAndRadius = dir * radius;
+
+    vec2 point1 = position + dirAndRadius;
+    vec2 point2 = position - dirAndRadius;
+
+    min = dot(point1, axis);
+    max = dot(point2, axis);
+
+    if (min > max) {
+        std::swap(min, max);
+    }
+}
+void ProjectVertices(vector<vec2> vertices, vec2 axis, float& min, float& max) {
+    min = INFINITY;
+    max = -INFINITY;
+
+    for (size_t i = 0; i < vertices.size(); i++)
+    {
+        vec2 v = vertices[i];
+        float proj = dot(v, axis);
+
+        if (proj < min)
+            min = proj;
+        if (proj > max)
+            max = proj;
+    }
+
+}
+bool PolyVPoly(PolygonCollider& colA, PolygonCollider& colB, vec2& mtv) {
+    vec2 normal;
+    float depth = INFINITY;
     vector<vec2> verticesA = colA.GetTransformedVertices();
     vector<vec2> verticesB = colB.GetTransformedVertices();
+    for (size_t i = 0; i < verticesA.size(); i++)
+    {
+        vec2 vA = verticesA[i];
+        vec2 vB = verticesA[(i + 1) % verticesA.size()];
 
+        vec2 edge = vB - vA;
+        vec2 checkAxis = normalize(vec2(-edge.y, edge.x));
+
+        float minA, maxA;
+        float minB, maxB;
+        ProjectVertices(verticesA, checkAxis, minA, maxA);
+        ProjectVertices(verticesB, checkAxis, minB, maxB);
+
+        if (minA >= maxB || minB >= maxA) {
+            return false;
+        }
+
+        float axisDepth = std::min(maxB - minA, maxA - minB);
+
+        if (axisDepth < depth)
+        {
+            depth = axisDepth;
+            normal = checkAxis;
+        }
+    }
+    for (size_t i = 0; i < verticesB.size(); i++)
+    {
+        vec2 vA = verticesB[i];
+        vec2 vB = verticesB[(i + 1) % verticesB.size()];
+
+        vec2 edge = vB - vA;
+        vec2 checkAxis = normalize(vec2(-edge.y, edge.x));
+
+        float minA, maxA;
+        float minB, maxB;
+        ProjectVertices(verticesA, checkAxis, minA, maxA);
+        ProjectVertices(verticesB, checkAxis, minB, maxB);
+
+        if (minA >= maxB || minB >= maxA) {
+            return false;
+        }
+
+        float axisDepth = std::min(maxB - minA, maxA - minB);
+
+        if (axisDepth < depth)
+        {
+            depth = axisDepth;
+            normal = checkAxis;
+        }
+    }
+
+    vec2 direction = *colB.Position - *colA.Position;
+
+    if (dot(direction, normal) > 0) {
+        normal = -normal;
+    }
     
-
-    // Loop over all edges of both polygons
-    for (int i = 0; i < verticesA.size(); i++) {
-        int j = (i + 1) % verticesA.size();
-
-        vec2 edge = verticesA[j] - verticesA[i];
-        vec2 axis(-edge.y, edge.x);
-        axis = normalize(axis);
-
-        // Project vertices of both polygons onto axis
-        float minA = INFINITY, maxA = -INFINITY;
-        float minB = INFINITY, maxB = -INFINITY;
-
-        for (int k = 0; k < verticesA.size(); k++) {
-            float projection = dot(verticesA[k], axis);
-            minA = std::min(minA, projection);
-            maxA = std::max(maxA, projection);
-        }
-
-        for (int k = 0; k < verticesB.size(); k++) {
-            float projection = dot(verticesB[k], axis);
-            minB = std::min(minB, projection);
-            maxB = std::max(maxB, projection);
-        }
-
-        // Check if projections overlap
-        if (maxA < minB || maxB < minA) {
-            return false;
-        }
-        else {
-            float overlapAxis = std::min(maxA, maxB) - std::max(minA, minB);
-            if (overlapAxis < overlap) {
-                overlap = overlapAxis;
-                smallestOverlapAxis = axis;
-            }
-        }
-    }
-
-    // Loop over all edges of both polygons
-    for (int i = 0; i < verticesB.size(); i++) {
-        int j = (i + 1) % verticesB.size();
-
-        vec2 edge = verticesB[j] - verticesB[i];
-        vec2 axis(-edge.y, edge.x);
-        axis = normalize(axis);
-
-        // Project vertices of both polygons onto axis
-        float minA = INFINITY, maxA = -INFINITY;
-        float minB = INFINITY, maxB = -INFINITY;
-
-        for (int k = 0; k < verticesA.size(); k++) {
-            float projection = dot(verticesA[k], axis);
-            minA = std::min(minA, projection);
-            maxA = std::max(maxA, projection);
-        }
-
-        for (int k = 0; k < verticesB.size(); k++) {
-            float projection = dot(verticesB[k], axis);
-            minB = std::min(minB, projection);
-            maxB = std::max(maxB, projection);
-        }
-
-        // Check if projections overlap
-        if (maxA < minB || maxB < minA) {
-            return false;
-        }
-        else {
-            float overlapAxis = std::min(maxA, maxB) - std::max(minA, minB);
-            if (overlapAxis < overlap) {
-                overlap = overlapAxis;
-                smallestOverlapAxis = axis;
-            }
-        }
-    }
-    // If we got here, the polygons are intersecting
-    mtv = smallestOverlapAxis * overlap;
-
-    // 
-    vec2 posDif = vec2(*colB.Position) - vec2(*colA.Position);
-    if (dot(mtv, posDif) > 0)
-        mtv = -mtv;
-
-    return true;
+    mtv = normal * depth;
 }
 
-bool PolygonVCircle(const PolygonCollider& colA, const CircleCollider& colB, vec2& mtv) {
-    float overlap = 0.0f;
+
+bool PolyVCircle(PolygonCollider& colA, CircleCollider& colB, vec2& mtv) {
+    vec2 normal;
+    float depth = INFINITY;
+    
+    vec2 checkAxis;
+    float axisDepth;
+
+    float minA, maxA;
+    float minB, maxB;
+
 
     vector<vec2> vertices = colA.GetTransformedVertices();
-    float minOverlap = FLT_MAX;
 
-    for (int i = 0; i < vertices.size(); i++) {
+    for (size_t i = 0; i < colA.vertices.size(); i++)
+    {
+        vec2 vA = vertices[i];
+        vec2 vB = vertices[(i + 1) % vertices.size()];
 
-        // Calculate the next index
-        int j = (i + 1) % vertices.size();
+        vec2 edge = vB - vA;
+        checkAxis = normalize(vec2(-edge.y, edge.x));
 
-        // Calculate the edge
-        vec2 edge = (vertices)[j] - (vertices)[i];
+        ProjectVertices(vertices, checkAxis, minA, maxA);
+        ProjectCircle(*colB.Position, colB.radius, checkAxis, minB, maxB);
 
-        // The normal from the edge (normalized)
-        vec2 normal = normalize(vec2(-edge.y, edge.x));
-
-        // Project the vertices of the polygon onto the normal
-        float minA = FLT_MAX;
-        float maxA = -FLT_MAX;
-        for (int k = 0; k < vertices.size(); k++) {
-            float projection = dot(vertices[k], normal);
-            minA = std::min(minA, projection);
-            maxA = std::max(maxA, projection);
-        }
-
-        // Project the center of the circle onto the normal
-        float centerProjection = dot(*colB.Position, normal);
-
-        // Calculate the overlap between the projections
-        float distance = centerProjection - maxA;
-        if (distance > 0) {
-            // The circle is completely outside the polygon
+        if (minA >= maxB || minB >= maxA)
             return false;
-        }
-        else {
-            overlap = -distance;
-            if (overlap < minOverlap) {
-                // Update the minimum overlap and MTV
-                minOverlap = overlap;
-                mtv = normal * overlap;
-            }
+
+        axisDepth = std::min(maxB - minA, maxA - minB);
+        if (axisDepth < depth);
+        {
+            depth = axisDepth;
+            normal = checkAxis;
         }
     }
-    // Check for overlap between the circle and the polygon vertices
-    for (int i = 0; i < vertices.size(); i++) {
-        float distance = length(*colB.Position - vertices[i]);
-        if (distance < colB.radius) {
-            // There is an overlap between the circle and the polygon vertex
-            vec2 direction = normalize(*colB.Position - vertices[i]);
-            float overlap = colB.radius - distance;
-            if (overlap < minOverlap) {
-                // Update the minimum overlap and MTV
-                minOverlap = overlap;
-                mtv = direction * overlap;
-            }
-        }
+
+    int pIndex = FindClosestPointOnPoly(*colB.Position, vertices);
+    vec2 point = vertices[pIndex];
+
+    checkAxis = normalize(point - *colB.Position);
+
+    ProjectVertices(vertices, checkAxis, minA, maxA);
+    ProjectCircle(*colB.Position, colB.radius, checkAxis, minB, maxB);
+
+    if (minA >= maxB || minB >= maxA) {
+        return false;
     }
+
+    axisDepth = std::min(maxB - minA, maxA - minB);
+
+    if (axisDepth < depth) {
+        depth = axisDepth;
+        normal = checkAxis;
+    }
+
+    vec2 direction = *colA.Position - *colB.Position;
+    if (dot(direction, normal) > 0)
+        normal = -normal;
+
+    mtv = normal * depth;
+
     return true;
+
 }
 
-bool CircleVCircle(const CircleCollider& colA, const CircleCollider& colB, vec2& mtv) {
+bool CircleVCircle(CircleCollider& colA, CircleCollider& colB, vec2& mtv) {
     return glm::distance(*colA.Position, *colB.Position) <= colA.radius + colB.radius;
 }

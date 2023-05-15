@@ -25,16 +25,10 @@ public:
 	/// <param name="sca">The Address In Memory of the scale variable (vec2)</param>
 	PolygonCollider(vec2* pos, float* rot, vec2* sca);
 	/// <summary>
-	/// Get Farthest Point In A Certain Direction On The Collider
-	/// </summary>
-	/// <param name="direction"></param>
-	/// <returns>Returns The Farthest Point In The Direction (**IN WORLD POSITION**)</returns>
-	virtual vec2 GetSupportPoint(vec2 direction);
-	/// <summary>
 	/// Calculate the Vertices translated (moved), rotated and scaled by the collider's transform
 	/// </summary>
 	/// <returns>A vector of vec2 of the vertices (vector<vec2>)</returns>
-	vector<vec2> GetTransformedVertices() const;
+	vector<vec2> GetTransformedVertices();
 	/// <summary>
 	/// A method to calculate the AABB (Max And Min Point) for higher performance and easier collision detection
 	/// </summary>

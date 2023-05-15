@@ -8,9 +8,10 @@ PolygonCollider::PolygonCollider(vec2* pos, float* rot, vec2* sca, vector<vec2> 
 	Rotation = rot;
 	Scale = sca;
 
-	bMin = vec2(-1 / 2, -1 / 2);
-	bMax = vec2( 1 / 2,  1 / 2);
-	bRadius = distance(vec2(0.0f), bMax);
+	type = ColliderType::Polygon;
+
+	CalculateAABB();
+	CalculateBoundRadius();
 }
 
 PolygonCollider::PolygonCollider(vec2* pos, float* rot, vec2* sca)
@@ -25,31 +26,13 @@ PolygonCollider::PolygonCollider(vec2* pos, float* rot, vec2* sca)
 	vertices.push_back(vec2(-0.5f, -0.5f));
 	vertices.push_back(vec2( 0.5f, -0.5f));
 	vertices.push_back(vec2( 0.5f,  0.5f));
-										 
+
+	type = ColliderType::Box;
+
 	CalculateAABB();
 	CalculateBoundRadius();
 }
-
-vec2 PolygonCollider::GetSupportPoint(vec2 direction)
-{
-	vector<vec2> transformedVertices = GetTransformedVertices();
-	float maxDis = -FLT_MAX;
-	vec2 finalVertex = vec2(0.0f);
-
-
-	for (const auto& vertex : transformedVertices) {
-
-		float dis = dot(vertex, direction);
-
-		if (dis > maxDis) {
-			maxDis = dis;
-			finalVertex = vertex;
-		}
-	}
-	return finalVertex;
-}
-
-vector<vec2> PolygonCollider::GetTransformedVertices() const
+vector<vec2> PolygonCollider::GetTransformedVertices()
 {
 	glm::mat4 model = glm::mat4(1.0f);
 	model = glm::translate(model, glm::vec3(Position->x, -Position->y, 0.0f));
@@ -83,7 +66,9 @@ void PolygonCollider::CalculateAABB()
 void PolygonCollider::CalculateBoundRadius()
 {
 	bRadius = 0.0f;
-	for (size_t i = 0; i < vertices.size(); i++) {
-		bRadius = std::max(bRadius, distance(vec2(0.0f), (vertices)[i]));
+	vector<vec2> newVertices = GetTransformedVertices();
+
+	for (size_t i = 0; i < newVertices.size(); i++) {
+		bRadius = std::max(bRadius, distance(vec2(0.0f), (newVertices)[i]));
 	}
 }

@@ -460,7 +460,23 @@ int main()
 				StartPhase = true;
 			}
 			sceneObjects = PresceneObjects;
-
+			
+			if (glfwGetKey(window, GLFW_KEY_SPACE))
+			{
+				for (int i = 0; i < sceneObjects.size(); i++) {
+					world.AddBody(sceneObjects[i].Body);
+				}
+				PolygonCollider* polygonA = dynamic_cast<PolygonCollider*>(world.GetBodies()[0]->GetCollider());
+				PolygonCollider* polygonB = dynamic_cast<PolygonCollider*>(world.GetBodies()[1]->GetCollider());
+				vec2 mtv;
+				if (PolyVPoly(*polygonA, *polygonB, mtv)) {
+					cout << "Do?" << PolyVPoly(*polygonA, *polygonB, mtv) << endl << " MTV:" << glm::to_string(mtv) << endl;
+				}
+				for (int i = 0; i < sceneObjects.size(); i++) {
+					world.RemoveBody(sceneObjects[i].Body);
+				}
+			}
+				
 			ImGui::Begin("Execute", 0, (no_resize ? ImGuiWindowFlags_NoResize : 0) | (no_move ? ImGuiWindowFlags_NoMove : 0));
 			if (ImGui::Button("Run"))
 			{

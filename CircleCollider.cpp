@@ -8,10 +8,12 @@ CircleCollider::CircleCollider(vec2* pos, float* rot, vec2* sca)
 	bMax = vec2(radius, radius);
 	bMin = vec2(-radius, -radius);
 	bRadius = radius;
+
+	type = ColliderType::Circle;
 }
 
 vec2 CircleCollider::GetSupportPoint(vec2 direction) {
-	return *Position + direction * radius;
+	return *Position + glm::normalize(direction) * radius;
 }
 
 void CircleCollider::CalculateAABB()

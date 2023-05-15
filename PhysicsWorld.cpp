@@ -27,10 +27,8 @@ void PhysicsWorld::Step(float deltaTime)
 					continue;
 				}
 
-				
 				vec2 mtv;
-				if (BoundingAABB(*bodies[i]->GetCollider(), *bodies[l]->GetCollider(), mtv)) {
-
+				if (CheckCollision(*bodies[i]->GetCollider(), *bodies[l]->GetCollider(), mtv)) {
 					if (mtv == vec2(0.0f)) {
 						continue;
 					}
@@ -60,29 +58,29 @@ void PhysicsWorld::Step(float deltaTime)
 
 					
 
-					vec2 point1 = bodyA->GetCollider()->GetSupportPoint(-normal);
-					vec2 point2 = bodyB->GetCollider()->GetSupportPoint(normal);
+					//vec2 point1 = bodyA->GetCollider().GetSupportPoint(-normal);
+					//vec2 point2 = bodyB->GetCollider()-GetSupportPoint(normal);
 					int sizeContactPoints = 2;
-
+					
 					// calculate relative velocity
 					vec2 relVel = bodyB->velocity - bodyA->velocity;
-
+					
 					// calculate impulse magnitude
 					float e = std::min(bodyA->restitution, bodyB->restitution); // coefficient of restitution
 					float j = -(1 + e) * dot(relVel, normal) / ((bodyA->isStatic ? 0 : 1 / bodyA->mass) + (bodyB->isStatic ? 0 : 1 / bodyB->mass) + 0.000000000001f);
-
+					
 					// friction stuff
 					vec2 tangent = vec2(-normal.y, normal.x);
 					vec2 relVelTangent = relVel - dot(relVel, normal) * normal;
-
+					
 					float friction = std::min(bodyA->friction, bodyB->friction);
 					float jt = -dot(relVelTangent, tangent) / ((bodyA->isStatic ? 0 : 1 / bodyA->mass) + (bodyB->isStatic ? 0 : 1 / bodyB->mass) + 0.000000000001f);
 					jt /= sizeContactPoints; // average for multiple contact points
-
+					
 					if (std::abs(jt) > std::abs(j) * friction) {
 						jt = std::copysign(std::abs(j) * friction, jt);
 					}
-
+					
 					// apply impulse to the bodies
 					if (!isAStatic && !isBStatic) {
 						bodyA->velocity -= (j * normal + jt * tangent) / bodyA->mass;
@@ -104,10 +102,16 @@ void PhysicsWorld::Step(float deltaTime)
 bool PhysicsWorld::TouchingLayer(PhysicsBody* body, int layer) {
 	
 	UpdateLayerBodies();
+	
+	// There is no such layer or more accuraetly no bodies with this layer
+	if (layeredBodies.find(layer) == layeredBodies.end()) {
+		return false;
+	}
+	
 	for (size_t l = 0; l < layeredBodies[layer].size(); l++) {
 		if (BoundingAABB(*layeredBodies[layer][l]->GetCollider(), *body->GetCollider()))
 			return true;
-	} 
+	}
 	return false;
 }
 void PhysicsWorld::UpdateLayerBodies() {
