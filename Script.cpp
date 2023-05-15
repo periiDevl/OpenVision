@@ -11,11 +11,7 @@ void Script::Start(Console& ovcon, InputSystem Input, PhysicsWorld& world, std::
 
     player = OV::SearchObjectByName("Player", sceneObjects);
     ground = OV::SearchObjectByName("Ground", sceneObjects);
-    ground2 = OV::SearchObjectByName("Ground 2", sceneObjects);    
-    ground->Body->layer = 1;
-    ground2->Body->layer = 1;
-    world.UpdateLayerBodies();
-    /// ADD GUI FOR IT TMRW
+    ground2 = OV::SearchObjectByName("Ground 2", sceneObjects);
 }   
 void Script::Update(Console& ovcon, InputSystem Input, PhysicsWorld& world, std::vector<Object>& sceneObjects) {
 
@@ -30,7 +26,7 @@ void Script::Update(Console& ovcon, InputSystem Input, PhysicsWorld& world, std:
     }
     player->Body->velocity.x = horizontal * speed;
 
-    if (world.TouchingLayer(player->Body, 1)){//BoundingAABB(*ground->Body->GetCollider(), *player->Body->GetCollider()) || BoundingAABB(*ground2->Body->GetCollider(), *player->Body->GetCollider())) {
+    if (world.TouchingLayer(player->Body, 1)){
         if (Input.GetKey(GLFW_KEY_SPACE)) {
             player->Body->velocity.y = -30;
             jumping = true;

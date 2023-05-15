@@ -272,6 +272,7 @@ int main()
 	for (int i = 0; i < amount; i++) {
 		float posx, posy, scalex, scaley, angle, layer, restitution, friction, velX, velY;
 		bool runtimeDraw, isStatic, isTrigger;
+		int phys_layer = 0;
 		std::string name, texture;
 
 		name = SavingSystem.getString("OBJ" + std::to_string(i) + "_NAME", std::to_string(i).c_str());
@@ -284,6 +285,7 @@ int main()
 		layer = SavingSystem.getFloat("OBJ" + std::to_string(i) + "_LAYER", 0.0f);
 		runtimeDraw = SavingSystem.getFloat("OBJ" + std::to_string(i) + "_RUNDRAW", 0.0f);
 
+		phys_layer = SavingSystem.getInt("OBJ" + std::to_string(i) + "_PHYSLAYER", 0);
 		friction = SavingSystem.getFloat("OBJ" + std::to_string(i) + "_FRIC", 0.5f);
 		restitution = SavingSystem.getFloat("OBJ" + std::to_string(i) + "_BOUNCE", 0.5f);
 		isStatic = SavingSystem.getFloat("OBJ" + std::to_string(i) + "_STATIC", 0.0f);
@@ -304,6 +306,7 @@ int main()
 		obj.layer = layer;
 		obj.drawOnRuntime = runtimeDraw;
 
+		obj.Body->layer = phys_layer;
 		obj.Body->friction = friction;
 		obj.Body->restitution = restitution;
 		obj.Body->isStatic = isStatic;
@@ -413,8 +416,10 @@ int main()
 
 				ImGui::InputFloat("Layer ##", &PresceneObjects[selectedObject].layer, 0.3f, 1, "%.3f", 0);
 
-				ImGui::Text("Rigidbody");
+				ImGui::Text("Rigidbody Properties");
 
+				ImGui::InputInt("Physical Layer ##", &PresceneObjects[selectedObject].Body->layer);
+				
 				ImGui::InputFloat("Friction ##", &PresceneObjects[selectedObject].Body->friction);
 
 				ImGui::InputFloat("Bounciness ##", &PresceneObjects[selectedObject].Body->restitution);
@@ -715,6 +720,10 @@ int main()
 
 							ImGui::InputFloat(("Layer ##" + std::to_string(i)).c_str(), &PresceneObjects[i].layer, 0.3f, 1, "%.3f", 0);
 							
+							ImGui::Text("Rigidbody Properties");
+
+							ImGui::InputInt(("Physical Layer ##" + std::to_string(i)).c_str(), &PresceneObjects[i].Body->layer);
+
 							ImGui::InputFloat(("Friction ##" + std::to_string(i)).c_str(), &PresceneObjects[i].Body->friction);
 
 							ImGui::InputFloat(("Bounciness ##" + std::to_string(i)).c_str(), &PresceneObjects[i].Body->restitution);
@@ -888,6 +897,7 @@ int main()
 		SavingSystem.save("OBJ" + std::to_string(i) + "_TEXTURE", sceneObjects[i].texChar);
 		SavingSystem.save("OBJ" + std::to_string(i) + "_LAYER", sceneObjects[i].layer);
 		SavingSystem.save("OBJ" + std::to_string(i) + "_RUNDRAW", sceneObjects[i].drawOnRuntime);
+		SavingSystem.save("OBJ" + std::to_string(i) + "_PHYSLAYER", sceneObjects[i].Body->layer);
 		SavingSystem.save("OBJ" + std::to_string(i) + "_FRIC", sceneObjects[i].Body->friction);
 		SavingSystem.save("OBJ" + std::to_string(i) + "_BOUNCE", sceneObjects[i].Body->restitution);
 		SavingSystem.save("OBJ" + std::to_string(i) + "_STATIC", sceneObjects[i].Body->isStatic);

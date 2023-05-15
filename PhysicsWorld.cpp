@@ -103,7 +103,7 @@ void PhysicsWorld::Step(float deltaTime)
 }
 bool PhysicsWorld::TouchingLayer(PhysicsBody* body, int layer) {
 	
-	cout << "size" << layeredBodies[layer].size() << endl;
+	UpdateLayerBodies();
 	for (size_t l = 0; l < layeredBodies[layer].size(); l++) {
 		if (BoundingAABB(*layeredBodies[layer][l]->GetCollider(), *body->GetCollider()))
 			return true;
@@ -113,12 +113,10 @@ bool PhysicsWorld::TouchingLayer(PhysicsBody* body, int layer) {
 void PhysicsWorld::UpdateLayerBodies() {
 	layeredBodies.clear();
 	layers.clear();
-	cout << "body size" << bodies.size() << endl;
 	for (size_t i = 0; i < bodies.size(); i++) {
 		int l = bodies[i]->layer;
 		layeredBodies[l].push_back(bodies[i]);
 		layers.push_back(l);
-		cout << "layer" << l << endl;
 	}
 }
 void PhysicsWorld::SetGravity(vec3 gravity)
