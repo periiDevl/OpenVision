@@ -2,8 +2,12 @@
 
 CircleCollider::CircleCollider(vec2* pos, float* rot, vec2* sca)
 {
+	Position = pos;
+	Rotation = rot;
+	Scale = sca;
+
 	float maxScale = std::max(sca->x, sca->y);
-	radius = maxScale;
+	radius = maxScale / 2.0f;
 	
 	bMax = vec2(radius, radius);
 	bMin = vec2(-radius, -radius);

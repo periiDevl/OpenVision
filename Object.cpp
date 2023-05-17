@@ -1,12 +1,14 @@
 #include "Object.h"
 
 Object::Object(std::vector<Vertex>& vertices, std::vector<GLuint>& indices)
-    : vertices(vertices), indices(indices), position(new glm::vec2(0.0f)), scale(new glm::vec2(5.0f))
+    : vertices(vertices), indices(indices), position(new glm::vec2(0.0f)), angle(0), scale(new glm::vec2(5.0f))
 {
     name = "";
     selected = false;
+    angle = new float(0);
+   
 
-    Body = new PhysicsBody(position, 0, scale, 1, 1, 0.5f, 0.5f, false, false);
+    Body = new PhysicsBody(position, angle, scale, 1, 1, 0.5f, 0.5f, false, false);
 
 
     VAO.Bind();
@@ -34,7 +36,7 @@ void Object::Draw(GLFWwindow* window, GLuint shader, Camera& camera, glm::vec3 a
     glm::mat4 model = glm::mat4(1.0f);
     model = glm::translate(model, glm::vec3(position->x, -position->y, layer));
 
-    model = glm::rotate(model, Deg(angle), axis);
+    model = glm::rotate(model, Deg(*angle), axis);
     model = glm::scale(model, glm::vec3(*scale, 1.0f));
 
     glUniformMatrix4fv(glGetUniformLocation(shader, "model"), 1, GL_FALSE, glm::value_ptr(model));

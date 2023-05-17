@@ -14,8 +14,7 @@ void Script::Start(Console& ovcon, InputSystem Input, PhysicsWorld& world, std::
     ground2 = OV::SearchObjectByName("Ground 2", sceneObjects);
 }   
 void Script::Update(Console& ovcon, InputSystem Input, PhysicsWorld& world, std::vector<Object>& sceneObjects) {
-
-    float horizontal = 0;
+     float horizontal = 0;
     if (Input.GetKey(GLFW_KEY_D)) {
         player->scale->x = std::abs(player->scale->x);
         horizontal = 1;

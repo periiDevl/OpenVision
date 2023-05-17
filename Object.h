@@ -24,7 +24,7 @@ public:
 	glm::vec2* scale;
 	glm::vec2 scenePosition;
 	glm::vec2 sceneScale;
-	float angle = 0;
+	float* angle = 0;
 	float layer = 0;
 	std::vector <Vertex> vertices;
 	std::vector <GLuint> indices;

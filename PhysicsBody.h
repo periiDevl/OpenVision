@@ -21,7 +21,7 @@ class PhysicsBody
 {
 public:
 	PhysicsBody();
-	PhysicsBody(glm::vec2* pos, float rot, glm::vec2* sca, float mass, float density,float fric, float restitution,bool isTrigger, bool isStatic);
+	PhysicsBody(glm::vec2* pos, float* rot, glm::vec2* sca, float mass, float density,float fric, float restitution,bool isTrigger, bool isStatic);
 
 	
 	void Step(float deltaTime);
@@ -31,10 +31,11 @@ public:
 	void ApplyForce(vec2 newForce);
 
 	void SetGravity(vec2 newGravity);
+	void SetCollider(Collider* newCollider);
 
 	vec2* position;
 	vec2* scale;
-	float rotation;
+	float* rotation;
 
 	float mass, area, density, friction, restitution;
 	bool isTrigger, isStatic;

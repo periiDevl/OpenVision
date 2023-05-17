@@ -301,7 +301,7 @@ int main()
 		obj.scale->y = scaley;
 		obj.sceneScale.x = scalex;
 		obj.sceneScale.y = scaley;
-		obj.angle = angle;
+	   *obj.angle = angle;
 		obj.texChar = texture;
 		obj.layer = layer;
 		obj.drawOnRuntime = runtimeDraw;
@@ -412,7 +412,7 @@ int main()
 
 				ImGui::InputFloat("Scale Y##", &PresceneObjects[selectedObject].scale->y, 0.3f, 1, "%.3f", 0);
 
-				ImGui::InputFloat("Angle ##", &PresceneObjects[selectedObject].angle, 0.3f, 1, "%.3f", 0);
+				ImGui::InputFloat("Angle ##", PresceneObjects[selectedObject].angle, 0.3f, 1, "%.3f", 0);
 
 				ImGui::InputFloat("Layer ##", &PresceneObjects[selectedObject].layer, 0.3f, 1, "%.3f", 0);
 
@@ -460,22 +460,6 @@ int main()
 				StartPhase = true;
 			}
 			sceneObjects = PresceneObjects;
-			
-			if (glfwGetKey(window, GLFW_KEY_SPACE))
-			{
-				for (int i = 0; i < sceneObjects.size(); i++) {
-					world.AddBody(sceneObjects[i].Body);
-				}
-				PolygonCollider* polygonA = dynamic_cast<PolygonCollider*>(world.GetBodies()[0]->GetCollider());
-				PolygonCollider* polygonB = dynamic_cast<PolygonCollider*>(world.GetBodies()[1]->GetCollider());
-				vec2 mtv;
-				if (PolyVPoly(*polygonA, *polygonB, mtv)) {
-					cout << "Do?" << PolyVPoly(*polygonA, *polygonB, mtv) << endl << " MTV:" << glm::to_string(mtv) << endl;
-				}
-				for (int i = 0; i < sceneObjects.size(); i++) {
-					world.RemoveBody(sceneObjects[i].Body);
-				}
-			}
 				
 			ImGui::Begin("Execute", 0, (no_resize ? ImGuiWindowFlags_NoResize : 0) | (no_move ? ImGuiWindowFlags_NoMove : 0));
 			if (ImGui::Button("Run"))
@@ -732,7 +716,7 @@ int main()
 							ImGui::InputFloat(("Scale Y##" + std::to_string(i)).c_str(), &PresceneObjects[i].scale->y, 0.3f, 1, "%.3f", 0);
 
 							ImGui::Columns(1, nullptr, true);
-							ImGui::InputFloat(("Angle ##" + std::to_string(i)).c_str(), &PresceneObjects[i].angle, 0.3f, 1, "%.3f", 0);
+							ImGui::InputFloat(("Angle ##" + std::to_string(i)).c_str(), PresceneObjects[i].angle, 0.3f, 1, "%.3f", 0);
 
 							ImGui::InputFloat(("Layer ##" + std::to_string(i)).c_str(), &PresceneObjects[i].layer, 0.3f, 1, "%.3f", 0);
 							
@@ -909,7 +893,7 @@ int main()
 		SavingSystem.save("OBJ" + std::to_string(i) + "_POS_Y"  , sceneObjects[i].position->y);
 		SavingSystem.save("OBJ" + std::to_string(i) + "_SCA_X"  , sceneObjects[i].scale->x);
 		SavingSystem.save("OBJ" + std::to_string(i) + "_SCA_Y"  , sceneObjects[i].scale->y);
-		SavingSystem.save("OBJ" + std::to_string(i) + "_ANGLE"  , sceneObjects[i].angle);
+		SavingSystem.save("OBJ" + std::to_string(i) + "_ANGLE"  ,*sceneObjects[i].angle);
 		SavingSystem.save("OBJ" + std::to_string(i) + "_TEXTURE", sceneObjects[i].texChar);
 		SavingSystem.save("OBJ" + std::to_string(i) + "_LAYER", sceneObjects[i].layer);
 		SavingSystem.save("OBJ" + std::to_string(i) + "_RUNDRAW", sceneObjects[i].drawOnRuntime);

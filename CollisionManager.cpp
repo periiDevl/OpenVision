@@ -82,23 +82,31 @@ bool CheckCollision(Collider& colA, Collider& colB, vec2& mtv)
 {
     if (BoundingAABB(colA, colB)) {
         if ((colA.type == ColliderType::Polygon || colA.type == ColliderType::Box) && (colB.type == ColliderType::Polygon || colB.type == ColliderType::Box)) {
+            
             PolygonCollider& polyA = dynamic_cast<PolygonCollider&>(colA);
             PolygonCollider& polyB = dynamic_cast<PolygonCollider&>(colB);
+            
             return PolyVPoly(polyA, polyB, mtv);
         }
         else if ((colA.type == ColliderType::Polygon || colA.type == ColliderType::Box) && (colB.type == ColliderType::Circle)) {
+            
             PolygonCollider& polyA = dynamic_cast<PolygonCollider&>(colA);
             CircleCollider& circleB = dynamic_cast<CircleCollider&>(colB);
+            
             return PolyVCircle(polyA, circleB, mtv);
         }
         else if ((colA.type == ColliderType::Circle) && (colB.type == ColliderType::Polygon || colB.type == ColliderType::Box)) {
+            
             CircleCollider& circleA = dynamic_cast<CircleCollider&>(colA);
             PolygonCollider& polyB = dynamic_cast<PolygonCollider&>(colB);
+            
             return PolyVCircle(polyB, circleA, mtv);
         }
         else if ((colA.type == ColliderType::Circle) && (colB.type == ColliderType::Circle)) {
+            
             CircleCollider& circleA = dynamic_cast<CircleCollider&>(colA);
             CircleCollider& circleB = dynamic_cast<CircleCollider&>(colB);
+            
             return CircleVCircle(circleA, circleB, mtv);
         }
     }
