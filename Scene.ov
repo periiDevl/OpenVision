@@ -1,8 +1,8 @@
 OBJ_AMOUNT:3:int
 OBJ0_LAYER:0:float
-OBJ0_POS_X:11.3742:float
+OBJ0_POS_X:11.8416:float
 OBJ0_SCA_Y:6:float
-OBJ0_POS_Y:-6.07579:float
+OBJ0_POS_Y:-4.82947:float
 OBJ0_SCA_X:5:float
 OBJ0_TEXTURE:Assets/character.png:string
 OBJ0_ANGLE:0:float
@@ -34,7 +34,7 @@ OBJ0_FRIC:0:float
 OBJ2_VELY:0:float
 OBJ2_VELX:0:float
 OBJ0_VELX:0:float
-BG_COLOR:0.8,0.5,0.8:vec3
+BG_COLOR:0.855556,0.346975,0.482597:vec3
 OBJ0_VELY:0:float
 OBJ2_PHYSLAYER:1:int
 OBJ1_FRIC:0.5:float

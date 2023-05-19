@@ -35,6 +35,16 @@ int PythonIndex = 0;
 Camera camera(width, height, glm::vec3(0.0f, 0.0f, 80.0f));
 
 
+float rectangleVertices[] =
+{
+	 1.0f, -1.0f,  1.0f, 0.0f,
+	-1.0f, -1.0f,  0.0f, 0.0f,
+	-1.0f,  1.0f,  0.0f, 1.0f,
+
+	 1.0f,  1.0f,  1.0f, 1.0f,
+	 1.0f, -1.0f,  1.0f, 0.0f,
+	-1.0f,  1.0f,  0.0f, 1.0f
+};
 
 std::string executeCommandAndGetOutput(const char* command) {
 	std::string outputFileName = "command_output.txt";
@@ -221,10 +231,23 @@ int main()
 	glLinkProgram(unlitProgram);
 
 
+	GLuint vertexFrame = glCreateShader(GL_VERTEX_SHADER);
+	glShaderSource(vertexFrame, 1, &FrameBufferVert, NULL);
+	glCompileShader(vertexFrame);
 
+	GLuint fragmentFrame = glCreateShader(GL_FRAGMENT_SHADER);
+	glShaderSource(fragmentFrame, 1, &FrameBufferFrag, NULL);
+	glCompileShader(fragmentFrame);
+
+	GLuint FramebufferProgram = glCreateProgram();
+	glAttachShader(FramebufferProgram, vertexFrame);
+	glAttachShader(FramebufferProgram, fragmentFrame);
+	glLinkProgram(FramebufferProgram);
 	
 
-
+	glUseProgram(FramebufferProgram);
+	glUniform1i(glGetUniformLocation(FramebufferProgram, "screenTexture"), 0);
+	//glUniform1f(glGetUniformLocation(FramebufferProgram, "fxaaStrength"), 2);
 
 	float ndcMouseX;
 	float ndcMouseY;
@@ -337,6 +360,44 @@ int main()
 	}
 	sceneObjects = PresceneObjects;
 	glEnable(GL_DEPTH_TEST);
+
+
+	unsigned int rectVAO, rectVBO;
+	glGenVertexArrays(1, &rectVAO);
+	glGenBuffers(1, &rectVBO);
+	glBindVertexArray(rectVAO);
+	glBindBuffer(GL_ARRAY_BUFFER, rectVBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(rectangleVertices), &rectangleVertices, GL_STATIC_DRAW);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
+
+	unsigned int FBO;
+	glGenFramebuffers(1, &FBO);
+	glBindFramebuffer(GL_FRAMEBUFFER, FBO);
+
+	unsigned int framebufferTexture;
+	glGenTextures(1, &framebufferTexture);
+	glBindTexture(GL_TEXTURE_2D, framebufferTexture);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE); 
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, framebufferTexture, 0);
+
+	unsigned int RBO;
+	glGenRenderbuffers(1, &RBO);
+	glBindRenderbuffer(GL_RENDERBUFFER, RBO);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, RBO);
+
+
+	auto fboStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+	if (fboStatus != GL_FRAMEBUFFER_COMPLETE)
+		std::cout << "Framebuffer error: " << fboStatus << std::endl;
+
 	while (!glfwWindowShouldClose(window))
 	{
 
@@ -344,11 +405,12 @@ int main()
 		{
 			run = false;
 		}
+		glBindFramebuffer(GL_FRAMEBUFFER, FBO);
 		glClearColor(BackroundScreen[0], BackroundScreen[1], BackroundScreen[2], 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glfwSwapInterval(vsync);
 		camera.updateMatrix(fov, 0.1f, 100.0f);
-
+		glEnable(GL_DEPTH_TEST);
 
 
 		crntTime = glfwGetTime();
@@ -536,8 +598,12 @@ int main()
 				if (ImGui::BeginTabItem("Graphics"))
 				{
 					ImGui::Checkbox("Vertical-Synchronization", &vsync);
+					ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 0.0f, 0.0f, 1.0f));
+					ImGui::Text("MSAA does not work with the current framebuffer.");
+					ImGui::PopStyleColor();
 					ImGui::InputInt("MSAA Samples", &msaa);
 					ImGui::Separator();
+
 
 					ImGui::Text("Backround Color");
 					ImGui::ColorEdit3("Background Color", BackroundScreen);
@@ -878,6 +944,15 @@ int main()
 
 		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glUseProgram(FramebufferProgram);
+		glBindVertexArray(rectVAO);
+		glDisable(GL_DEPTH_TEST); 
+		glBindTexture(GL_TEXTURE_2D, framebufferTexture);
+		glDrawArrays(GL_TRIANGLES, 0, 6);
+
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 		InputHandler.Update(window);
@@ -915,7 +990,8 @@ int main()
 	glfwTerminate();
 
 
-	myData.data = { float(vsync), float(msaa), BackroundScreen[0], BackroundScreen[1], BackroundScreen[2], float(LocalPy), float(PythonIndex)};
+	myData.data = { float(vsync), float(msaa), BackroundScreen[0], BackroundScreen[1], BackroundScreen[2], float(LocalPy), 
+		float(PythonIndex),};
 
 	myData.saveData();
 
