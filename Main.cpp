@@ -147,6 +147,9 @@ int main()
 	int msaa = myData.data[1];
 	bool LocalPy = myData.data[5];
 	PythonIndex = myData.data[6];
+	bool DrawFramebuffer = myData.data[7];
+	float VigRadius = myData.data[8];
+	float VigSoftness = myData.data[9];
 
 
 	std::vector<std::string> lines;
@@ -247,7 +250,9 @@ int main()
 
 	glUseProgram(FramebufferProgram);
 	glUniform1i(glGetUniformLocation(FramebufferProgram, "screenTexture"), 0);
-	//glUniform1f(glGetUniformLocation(FramebufferProgram, "fxaaStrength"), 2);
+
+	glUniform1f(glGetUniformLocation(FramebufferProgram, "radius"), VigRadius);
+	glUniform1f(glGetUniformLocation(FramebufferProgram, "softness"), VigSoftness);
 
 	float ndcMouseX;
 	float ndcMouseY;
@@ -400,12 +405,19 @@ int main()
 
 	while (!glfwWindowShouldClose(window))
 	{
-
+		glUniform1f(glGetUniformLocation(FramebufferProgram, "radius"), VigRadius);
+		glUniform1f(glGetUniformLocation(FramebufferProgram, "softness"), VigSoftness);
 		if (glfwGetKey(window, GLFW_KEY_ESCAPE))
 		{
 			run = false;
 		}
-		glBindFramebuffer(GL_FRAMEBUFFER, FBO);
+		if (DrawFramebuffer && run) {
+			glBindFramebuffer(GL_FRAMEBUFFER, FBO);
+		}
+		else {
+			glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+		}
 		glClearColor(BackroundScreen[0], BackroundScreen[1], BackroundScreen[2], 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glfwSwapInterval(vsync);
@@ -597,14 +609,28 @@ int main()
 
 				if (ImGui::BeginTabItem("Graphics"))
 				{
-					ImGui::Checkbox("Vertical-Synchronization", &vsync);
+					/*
 					ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 0.0f, 0.0f, 1.0f));
 					ImGui::Text("MSAA does not work with the current framebuffer.");
 					ImGui::PopStyleColor();
-					ImGui::InputInt("MSAA Samples", &msaa);
+					*/
+					ImGui::Checkbox("Vertical-Synchronization", &vsync);
+					ImGui::Checkbox("External-Framebuffer", &DrawFramebuffer);
+					if (DrawFramebuffer) {
+						if (ImGui::CollapsingHeader("Vignette"))
+						{
+							ImGui::InputFloat("Radius", &VigRadius);
+							ImGui::InputFloat("Softness", &VigSoftness);
+						}
+
+					}
+					else {
+						ImGui::InputInt("MSAA Samples", &msaa);
+					}
 					ImGui::Separator();
 
 
+					ImGui::Separator();
 					ImGui::Text("Backround Color");
 					ImGui::ColorEdit3("Background Color", BackroundScreen);
 					ImGui::Separator();
@@ -938,6 +964,15 @@ int main()
 			}
 			
 		}
+		if (DrawFramebuffer && run) {
+			glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+			glUseProgram(FramebufferProgram);
+			glBindVertexArray(rectVAO);
+			glDisable(GL_DEPTH_TEST);
+			glBindTexture(GL_TEXTURE_2D, framebufferTexture);
+			glDrawArrays(GL_TRIANGLES, 0, 6);
+		}
 
 
 		ImGui::End();
@@ -946,12 +981,6 @@ int main()
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
 
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-		glUseProgram(FramebufferProgram);
-		glBindVertexArray(rectVAO);
-		glDisable(GL_DEPTH_TEST); 
-		glBindTexture(GL_TEXTURE_2D, framebufferTexture);
-		glDrawArrays(GL_TRIANGLES, 0, 6);
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
@@ -991,7 +1020,7 @@ int main()
 
 
 	myData.data = { float(vsync), float(msaa), BackroundScreen[0], BackroundScreen[1], BackroundScreen[2], float(LocalPy), 
-		float(PythonIndex),};
+		float(PythonIndex),float(DrawFramebuffer), VigRadius, VigSoftness};
 
 	myData.saveData();
 

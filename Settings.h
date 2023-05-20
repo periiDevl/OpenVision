@@ -104,20 +104,30 @@ void main()
 
 
 
-const char* FrameBufferFrag =
-R"(
+const char* FrameBufferFrag = R"(
 #version 330 core
 
 out vec4 FragColor;
 in vec2 texCoords;
 
 uniform sampler2D screenTexture;
+uniform float radius= 0.2;
+uniform float softness= 0.2;
 
 void main()
 {
-    FragColor = texture(screenTexture, texCoords);
+    vec2 center = vec2(0.5, 0.5);
+    //float radius = 0.7;
+    //float softness = 0.2;
+
+    float dist = distance(texCoords, center);
+    float vignette = smoothstep(radius, radius - softness, dist);
+
+    vec4 color = texture(screenTexture, texCoords);
+    FragColor = color * vignette;
 }
 )";
+
 
 const char* FrameBufferVert =
 R"(
