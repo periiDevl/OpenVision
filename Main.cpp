@@ -254,6 +254,8 @@ int main()
 	glUniform1f(glGetUniformLocation(FramebufferProgram, "radius"), VigRadius);
 	glUniform1f(glGetUniformLocation(FramebufferProgram, "softness"), VigSoftness);
 
+
+
 	float ndcMouseX;
 	float ndcMouseY;
 	double mouseX;
@@ -888,11 +890,16 @@ int main()
 
 						PresceneObjects[i].Draw(window, shaderProgram, camera, glm::vec3(0, 0, 1), width, height, rattio);
 						glUseProgram(unlitProgram);
-						glUniform4f(glGetUniformLocation(unlitProgram, "color"), 1.00, 0.56, 0.13, 1);
+						glUniform4f(glGetUniformLocation(unlitProgram, "color"),0.00, 1.0, 0, 1);
 
 						glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 						glLineWidth(3.0f);
 						PresceneObjects[selectedObject].Draw(window, unlitProgram, camera, glm::vec3(0, 0, 1), width, height, rattio);
+						glUniform4f(glGetUniformLocation(unlitProgram, "color"), 1.0, 0.00, 0.0, 1);
+						glLineWidth(1.5f);
+						PresceneObjects[selectedObject].DrawTMP(window, unlitProgram, camera, 
+							glm::vec2(PresceneObjects[selectedObject].position->x, PresceneObjects[selectedObject].position->y),
+							glm::vec2(PresceneObjects[selectedObject].scale->x, PresceneObjects[selectedObject].scale->y));
 						glLineWidth(0.0f);
 						glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
