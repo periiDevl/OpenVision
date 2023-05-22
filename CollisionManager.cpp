@@ -216,6 +216,10 @@ bool PolyVPoly(PolygonCollider& colA, PolygonCollider& colB, vec2& mtv) {
         }
     }
 
+    normal = glm::rotate(normal, radians(*colA.Rotation));
+    normal = glm::rotate(normal, -radians(*colB.Rotation));
+
+
     vec2 direction = *colB.Position - *colA.Position;
 
     if (dot(direction, normal) > 0) {
