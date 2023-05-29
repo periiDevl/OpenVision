@@ -1,13 +1,13 @@
 OBJ_AMOUNT:3:int
-OBJ0_POS_X:22.5058:float
+OBJ0_POS_X:20.3658:float
 OBJ0_SCA_Y:6:float
 OBJ0_LAYER:0:float
-OBJ0_POS_Y:-3.78257:float
+OBJ0_POS_Y:3.0779:float
 OBJ0_SCA_X:-5:float
 OBJ0_ANGLE:0:float
 OBJ0_TEXTURE:Assets/character.png:string
-OBJ1_POS_X:-1.86522:float
-OBJ1_POS_Y:-8.55161:float
+OBJ1_POS_X:-2.02101:float
+OBJ1_POS_Y:-5.04635:float
 OBJ1_SCA_X:40:float
 OBJ1_TRIG:0:int
 OBJ1_VELY:0:float

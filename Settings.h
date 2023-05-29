@@ -6,7 +6,7 @@ float GlobalWorldScale = 0.5f;
 //Window settings
 glm::vec2 rattio(16, 9);
 
-const unsigned int width = 95 * rattio.x;
+int width = 95 * rattio.x;
 const unsigned int height = 95 * rattio.y;
 
 
@@ -114,10 +114,14 @@ uniform sampler2D screenTexture;
 uniform float radius= 0.2;
 uniform float softness= 0.2;
 
-float FXAA_SPAN_MAX = 8.000f;
-float FXAA_REDUCE_MIN = 1.0/ 128.000f;
-float FXAA_REDUCE_MUL = 1.0/ 8.000f;
-vec2 resolution = vec2(1520, 855);
+uniform float minEdgeContrast;
+uniform float subPixelAliasing;
+uniform float maximumEdgeDetection;
+
+float FXAA_SPAN_MAX = maximumEdgeDetection;
+float FXAA_REDUCE_MIN = 1.0/ minEdgeContrast;
+float FXAA_REDUCE_MUL = 1.0/subPixelAliasing;
+uniform vec2 resolution;
 vec3 ApplyFXAA() {
     vec2 inverse_resolution = vec2(1.0 / resolution.x, 1.0 / resolution.y);
     vec3 rgbNW = texture(screenTexture, texCoords + (vec2(-1.0, -1.0) * inverse_resolution)).rgb;

@@ -150,7 +150,9 @@ int main()
 	bool DrawFramebuffer = myData.data[7];
 	float VigRadius = myData.data[8];
 	float VigSoftness = myData.data[9];
-
+	float FXAA_SPAN_MAX = myData.data[10];
+	float FXAA_REDUCE_MIN = myData.data[11];
+	float FXAA_REDUCE_MUL = myData.data[12];
 
 	std::vector<std::string> lines;
 	std::ifstream inputFile("scripts.ov");
@@ -237,7 +239,7 @@ int main()
 	GLuint vertexFrame = glCreateShader(GL_VERTEX_SHADER);
 	glShaderSource(vertexFrame, 1, &FrameBufferVert, NULL);
 	glCompileShader(vertexFrame);
-
+	 
 	GLuint fragmentFrame = glCreateShader(GL_FRAGMENT_SHADER);
 	glShaderSource(fragmentFrame, 1, &FrameBufferFrag, NULL);
 	glCompileShader(fragmentFrame);
@@ -250,9 +252,12 @@ int main()
 
 	glUseProgram(FramebufferProgram);
 	glUniform1i(glGetUniformLocation(FramebufferProgram, "screenTexture"), 0);
-
 	glUniform1f(glGetUniformLocation(FramebufferProgram, "radius"), VigRadius);
 	glUniform1f(glGetUniformLocation(FramebufferProgram, "softness"), VigSoftness);
+	glUniform1f(glGetUniformLocation(FramebufferProgram, "minEdgeContrast"), FXAA_REDUCE_MIN);
+	glUniform1f(glGetUniformLocation(FramebufferProgram, "subPixelAliasing"), FXAA_REDUCE_MUL);
+	glUniform1f(glGetUniformLocation(FramebufferProgram, "maximumEdgeDetection"), FXAA_SPAN_MAX);
+	glUniform2f(glGetUniformLocation(FramebufferProgram, "resolution"), width, height);
 
 
 
@@ -407,6 +412,9 @@ int main()
 
 	while (!glfwWindowShouldClose(window))
 	{
+		glUniform1f(glGetUniformLocation(FramebufferProgram, "minEdgeContrast"), FXAA_REDUCE_MIN);
+		glUniform1f(glGetUniformLocation(FramebufferProgram, "subPixelAliasing"), FXAA_REDUCE_MUL);
+		glUniform1f(glGetUniformLocation(FramebufferProgram, "maximumEdgeDetection"), FXAA_SPAN_MAX);
 		glUniform1f(glGetUniformLocation(FramebufferProgram, "radius"), VigRadius);
 		glUniform1f(glGetUniformLocation(FramebufferProgram, "softness"), VigSoftness);
 		if (glfwGetKey(window, GLFW_KEY_ESCAPE))
@@ -624,7 +632,10 @@ int main()
 							ImGui::InputFloat("Radius", &VigRadius);
 							ImGui::InputFloat("Softness", &VigSoftness);
 						}
-
+						ImGui::Text("Fast Approximate Anti-Aliasing");
+						ImGui::InputFloat("FXAA_SPAN_MAX", &FXAA_SPAN_MAX);
+						ImGui::InputFloat("FXAA_REDUCE_MIN", &FXAA_REDUCE_MIN);
+						ImGui::InputFloat("FXAA_REDUCE_MUL", &FXAA_REDUCE_MUL);
 					}
 					else {
 						ImGui::InputInt("MSAA Samples", &msaa);
@@ -1027,7 +1038,7 @@ int main()
 
 
 	myData.data = { float(vsync), float(msaa), BackroundScreen[0], BackroundScreen[1], BackroundScreen[2], float(LocalPy), 
-		float(PythonIndex),float(DrawFramebuffer), VigRadius, VigSoftness};
+		float(PythonIndex),float(DrawFramebuffer), VigRadius, VigSoftness, FXAA_SPAN_MAX, FXAA_REDUCE_MIN, FXAA_REDUCE_MUL };
 
 	myData.saveData();
 
