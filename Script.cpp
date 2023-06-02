@@ -1,8 +1,7 @@
 #include"Script.h"
 float speed = 10;
 Object* player = nullptr;
-Object* ground = nullptr;
-Object* ground2 = nullptr;
+Object* ground_detection = nullptr;
 bool jumping;
 
 void Script::Start(Console& ovcon, InputSystem Input, PhysicsWorld& world, std::vector<Object>& sceneObjects) {
@@ -10,11 +9,13 @@ void Script::Start(Console& ovcon, InputSystem Input, PhysicsWorld& world, std::
 
 
     player = OV::SearchObjectByName("Player", sceneObjects);
-    ground = OV::SearchObjectByName("Ground", sceneObjects);
-    ground2 = OV::SearchObjectByName("Ground 2", sceneObjects);
+    ground_detection = OV::SearchObjectByName("GroundDetection", sceneObjects);
+
 }   
 void Script::Update(Console& ovcon, InputSystem Input, PhysicsWorld& world, std::vector<Object>& sceneObjects) {
-     float horizontal = 0;
+    *ground_detection->position = *player->position + vec2(0, 1);
+
+    float horizontal = 0;
     if (Input.GetKey(GLFW_KEY_D)) {
         player->scale->x = std::abs(player->scale->x);
         horizontal = 1;
@@ -25,7 +26,7 @@ void Script::Update(Console& ovcon, InputSystem Input, PhysicsWorld& world, std:
     }
     player->Body->velocity.x = horizontal * speed;
 
-    if (world.TouchingLayer(player->Body, 1)){
+    if (world.TouchingLayer(ground_detection->Body, 1)){
         if (Input.GetKey(GLFW_KEY_SPACE)) {
             player->Body->velocity.y = -30;
             jumping = true;

@@ -156,6 +156,7 @@ void rebuild(GLFWwindow* window, bool localPython) {
 
 	std::cout << "command: " << command << std::endl;
 
+
 	std::system(command.c_str());
 
 	std::chrono::seconds wait_time(1);
@@ -382,6 +383,7 @@ int main()
 		isTrigger = SavingSystem.getFloat("OBJ" + std::to_string(i) + "_TRIG", 0.0f);
 
 		Object obj = Object(verts, ind);
+		cout << "change the name stupid:" << obj.name << endl;
 		obj.name = name;
 		obj.position->x = posx;
 		obj.position->y = posy;
@@ -515,6 +517,7 @@ int main()
 		if (ImGui::BeginPopup("Selected Object Settings"))
 		{
 			onpopupmenu = true;
+
 			if (ImGui::CollapsingHeader(sceneObjects[selectedObject].name == "" ? std::to_string(selectedObject).c_str() : sceneObjects[selectedObject].name.c_str()))
 			{
 				if (ImGui::Button(("Delete Object##" + std::to_string(selectedObject)).c_str()))
@@ -537,12 +540,13 @@ int main()
 					PresceneObjects.erase(PresceneObjects.begin() + selectedObject);
 					sceneObjects.erase(sceneObjects.begin() + selectedObject);
 				}
-
+				char F[128] = "";
 				char objName[128];
 				strcpy_s(objName, sizeof(objName), PresceneObjects[selectedObject].name.c_str());
 				ImGui::InputText(("Obj Name##" + std::to_string(selectedObject)).c_str(), objName, ImGuiInputTextFlags_EnterReturnsTrue);
-				if (glfwGetKey(window, GLFW_KEY_ENTER)) {
+				if (glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS && strlen(objName) > 0) {
 					PresceneObjects[selectedObject].name = objName;
+					sceneObjects[selectedObject].name = objName;
 				}
 				ImGui::Checkbox("Draw ##", &PresceneObjects[selectedObject].drawOnRuntime);
 				ImGui::InputFloat("Pos X##", &PresceneObjects[selectedObject].position->x, 0.3f, 1, "%.3f", 0);
@@ -859,7 +863,7 @@ int main()
 								SavingSystem.remove("OBJ" + std::to_string(i) + "_POS_X");
 								SavingSystem.remove("OBJ" + std::to_string(i) + "_POS_Y");
 								SavingSystem.remove("OBJ" + std::to_string(i) + "_SCA_X");
-								SavingSystem.remove("OBJ" + std::to_string(i) + "_SCA_Y");
+								SavingSystem.remove("OBJ" + std::to_string(i) + "_SC A_Y");
 								SavingSystem.remove("OBJ" + std::to_string(i) + "_ANGLE");
 								SavingSystem.remove("OBJ" + std::to_string(i) + "_TEXTURE");
 								SavingSystem.remove("OBJ" + std::to_string(i) + "_LAYER");
@@ -870,12 +874,12 @@ int main()
 								PresceneObjects.erase(PresceneObjects.begin() + i);
 								sceneObjects.erase(sceneObjects.begin() + i);
 							}
-
 							char objName[128];
 							strcpy_s(objName, sizeof(objName), PresceneObjects[i].name.c_str());
 							ImGui::InputText(("Obj Name##" + std::to_string(i)).c_str(), objName, ImGuiInputTextFlags_EnterReturnsTrue);
-							if (glfwGetKey(window, GLFW_KEY_ENTER)){
+							if (glfwGetKey(window, GLFW_KEY_ENTER) && strlen(objName) > 0){
 								PresceneObjects[i].name = objName;
+								sceneObjects[i].name = objName;
 							}
 
 							ImGui::Checkbox(("Draw ##" + std::to_string(i)).c_str(), &PresceneObjects[i].drawOnRuntime);
@@ -916,6 +920,7 @@ int main()
 							
 
 						}
+
 						ImGui::Separator();
 
 						if (!onpopupmenu) {
@@ -968,8 +973,6 @@ int main()
 						}
 
 
-
-
 						PresceneObjects[i].Draw(window, shaderProgram, camera, glm::vec3(0, 0, 1), width, height, rattio);
 						glUseProgram(unlitProgram);
 						glUniform4f(glGetUniformLocation(unlitProgram, "color"),0.00, 1.0, 0, 1);
@@ -995,7 +998,7 @@ int main()
 
 		blackbox.DrawTMP(window, shaderProgram, camera, glm::vec2((61.7 / 1.445) / 1.5, 0), glm::vec2(0.5, 64));
 		blackbox.DrawTMP(window, shaderProgram, camera, glm::vec2((-61.7 / 1.445) / 1.5,0), glm::vec2(0.5, 64));
-		
+
 		if (run) {
 			if (StartPhase)
 			{

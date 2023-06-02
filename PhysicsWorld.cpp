@@ -110,8 +110,9 @@ bool PhysicsWorld::TouchingLayer(PhysicsBody* body, int layer) {
 	vec2 mtv;
 	for (size_t l = 0; l < layeredBodies[layer].size(); l++) {
 
-		if (CheckCollision(*layeredBodies[layer][l]->GetCollider(), *body->GetCollider(), mtv))
+		if (CheckCollision(*layeredBodies[layer][l]->GetCollider(), *body->GetCollider(),mtv)) {
 			return true;
+		}
 	}
 	return false;
 }
