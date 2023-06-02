@@ -100,16 +100,17 @@ void PhysicsWorld::Step(float deltaTime)
 	
 }
 bool PhysicsWorld::TouchingLayer(PhysicsBody* body, int layer) {
-	
+
 	UpdateLayerBodies();
-	
+
 	// There is no such layer or more accuraetly no bodies with this layer
 	if (layeredBodies.find(layer) == layeredBodies.end()) {
 		return false;
 	}
-	
+	vec2 mtv;
 	for (size_t l = 0; l < layeredBodies[layer].size(); l++) {
-		if (BoundingAABB(*layeredBodies[layer][l]->GetCollider(), *body->GetCollider()))
+
+		if (CheckCollision(*layeredBodies[layer][l]->GetCollider(), *body->GetCollider(), mtv))
 			return true;
 	}
 	return false;

@@ -468,7 +468,6 @@ int main()
 	while (!glfwWindowShouldClose(window))
 	{
 		build = file_exists("ov.ov");
-		con.log(file_exists("ov.ov"));
 		glUniform1f(glGetUniformLocation(FramebufferProgram, "minEdgeContrast"), FXAA_REDUCE_MIN);
 		glUniform1f(glGetUniformLocation(FramebufferProgram, "subPixelAliasing"), FXAA_REDUCE_MUL);
 		glUniform1f(glGetUniformLocation(FramebufferProgram, "maximumEdgeDetection"), FXAA_SPAN_MAX);
