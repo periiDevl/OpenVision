@@ -18,9 +18,57 @@
 #include"OVscriptHandaling.h"
 #include"Presave.h"
 #include"Script.h"
+#include"ScriptTwo.h"
+#include"Hello.h"
 #include"TS.h"
 #include "SaveSystem.h"
+void createFile(const char* filename) {
+	std::ofstream file(filename);
+
+	if (!file) {
+		std::cerr << "Error creating file: " << filename << std::endl;
+		return;
+	}
+
+	file.close();
+}
+void copyFile(string sourcePath, string destinationPath) {
+	if (filesystem::exists(sourcePath)) {
+		if (filesystem::exists(filesystem::path(destinationPath).parent_path())) {
+			fstream source(sourcePath, ios::in | ios::binary);
+
+			fstream destination(destinationPath, ios::out | ios::binary);
+
+			char buffer[1024];
+			while (source.read(buffer, sizeof(buffer))) {
+				destination.write(buffer, source.gcount());
+			}
+
+			source.close();
+			destination.close();
+		}
+		else {
+			cout << "Destination directory does not exist!" << endl;
+		}
+	}
+	else {
+		cout << "Source file does not exist!" << endl;
+	}
+}
+
+void createFolder(string folderName) {
+	if (filesystem::exists(folderName)) {
+
+		std::filesystem::remove_all("BuildGL");
+	}
+	
+	filesystem::create_directory(folderName);
+	
+}
+
 Script script;
+ScriptTwo ScriptTwoscr;
+Hello Helloscr;
 TS TSscr;
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
@@ -134,6 +182,10 @@ static int InputTextCallback(ImGuiInputTextCallbackData* data)
 	return 1;
 }
 
+bool file_exists(const std::string& filename) {
+	std::ifstream file(filename);
+	return file.good();
+}
 
 
 int main()
@@ -153,9 +205,13 @@ int main()
 	float FXAA_SPAN_MAX = myData.data[10];
 	float FXAA_REDUCE_MIN = myData.data[11];
 	float FXAA_REDUCE_MUL = myData.data[12];
+	bool build;
+
+	
 
 	std::vector<std::string> lines;
-	std::ifstream inputFile("scripts.ov");
+
+	std::ifstream inputFile("SCRIPTS.ov");
 	if (!inputFile.is_open()) {
 		std::cerr << "Failed to open input file." << std::endl;
 		return 1;
@@ -165,7 +221,7 @@ int main()
 		lines.emplace_back(line);
 	}
 	inputFile.close();
-
+	
 	PhysicsWorld world(vec3(0, 55.0f, 0), 10);
 
 
@@ -204,7 +260,6 @@ int main()
 
 	gladLoadGL();
 	glViewport(0, 0, width, height);
-
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
 	ImGuiIO& io = ImGui::GetIO(); (void)io;
@@ -292,7 +347,7 @@ int main()
 	SaveSystem SavingSystem;
 	InputSystem InputHandler;
 
-	SavingSystem.load("Scene.ov");
+	SavingSystem.load("SCENE.ov");
 
 	std::vector<Object> sceneObjects;
 	std::vector<Object> PresceneObjects;
@@ -412,12 +467,14 @@ int main()
 
 	while (!glfwWindowShouldClose(window))
 	{
+		build = file_exists("ov.ov");
+		con.log(file_exists("ov.ov"));
 		glUniform1f(glGetUniformLocation(FramebufferProgram, "minEdgeContrast"), FXAA_REDUCE_MIN);
 		glUniform1f(glGetUniformLocation(FramebufferProgram, "subPixelAliasing"), FXAA_REDUCE_MUL);
 		glUniform1f(glGetUniformLocation(FramebufferProgram, "maximumEdgeDetection"), FXAA_SPAN_MAX);
 		glUniform1f(glGetUniformLocation(FramebufferProgram, "radius"), VigRadius);
 		glUniform1f(glGetUniformLocation(FramebufferProgram, "softness"), VigSoftness);
-		if (glfwGetKey(window, GLFW_KEY_ESCAPE))
+		if (glfwGetKey(window, GLFW_KEY_ESCAPE) && !build)
 		{
 			run = false;
 		}
@@ -561,6 +618,21 @@ int main()
 			if (ImGui::Button("Rebuild"))
 			{
 				rebuild(window, LocalPy);
+			}
+			if (ImGui::Button("Build"))
+			{
+				createFolder("BuildGL");
+				filesystem::copy("Assets", "BuildGL/Assets");
+				
+				createFile("BuildGL/ov.ov");
+				filesystem::copy("Vision_engine.exe", "BuildGL/Vision_engine.exe");
+				filesystem::copy("OpenVisionIcon.png", "BuildGL/OpenVisionIcon.png");
+				filesystem::copy("SCENE.ov", "BuildGL/SCENE.ov");
+				filesystem::copy("SETTINGS.ov", "BuildGL/SETTINGS.ov");
+				filesystem::copy("SCRIPTS.ov", "BuildGL/SCRIPTS.ov");
+
+				
+
 			}
 			ImGui::InputInt("PyIndex", &PythonIndex);
 			ImGui::Checkbox("Local-Python (not recommended)", &LocalPy);
@@ -939,6 +1011,8 @@ int main()
 				con.CLEAR_CONSOLE();
 				fov = 22.45;
 				script.Start(con, InputHandler, world, sceneObjects);
+				ScriptTwoscr.Start(con, InputHandler, world, sceneObjects);
+				Helloscr.Start(con, InputHandler, world, sceneObjects);
 				TSscr.Start(con, InputHandler, world, sceneObjects);
 
 				StartPhase = false;
@@ -954,6 +1028,8 @@ int main()
 
 			
 				script.Update(con, InputHandler, world, sceneObjects);
+				ScriptTwoscr.Update(con, InputHandler, world, sceneObjects);
+				Helloscr.Update(con, InputHandler, world, sceneObjects);
 				TSscr.Update(con, InputHandler, world, sceneObjects);
 
 
@@ -1004,7 +1080,9 @@ int main()
 		glfwPollEvents();
 		InputHandler.Update(window);
 		//enable when final build
-		//run = true;
+		if (build) {
+			run = true;
+		}
 
 	}
 	SavingSystem.save("OBJ_AMOUNT", (int)sceneObjects.size());
@@ -1026,7 +1104,7 @@ int main()
 		SavingSystem.save("OBJ" + std::to_string(i) + "_TRIG", sceneObjects[i].Body->isTrigger);
 	}
 	SavingSystem.save("BG_COLOR", vec3(BackroundScreen[0], BackroundScreen[1], BackroundScreen[2]));
-	SavingSystem.saveToFile("Scene.ov");
+	SavingSystem.saveToFile("SCENE.ov");
 
 
 
@@ -1038,7 +1116,7 @@ int main()
 
 
 	myData.data = { float(vsync), float(msaa), BackroundScreen[0], BackroundScreen[1], BackroundScreen[2], float(LocalPy), 
-		float(PythonIndex),float(DrawFramebuffer), VigRadius, VigSoftness, FXAA_SPAN_MAX, FXAA_REDUCE_MIN, FXAA_REDUCE_MUL };
+		float(PythonIndex),float(DrawFramebuffer), VigRadius, VigSoftness, FXAA_SPAN_MAX, FXAA_REDUCE_MIN, FXAA_REDUCE_MUL};
 
 	myData.saveData();
 
