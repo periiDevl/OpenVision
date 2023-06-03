@@ -39,4 +39,9 @@ void Script::Update(Console& ovcon, InputSystem Input, PhysicsWorld& world, std:
         jumping = false;
         player->Body->velocity.y /= 2;
     }
+
+    if (world.TouchingLayer(player->Body, 2))
+    {
+        OV::SetTexture("Assets/player.png", *player);
+    }
 }

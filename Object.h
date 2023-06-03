@@ -17,7 +17,7 @@ public:
 	Texture tex = Texture("");
 	std::string texChar;
 	float outlineWidth = 0;
-	std::string name = "";
+	std::string name;
 	bool drawOnRuntime = true;
 	glm::vec3 OutlineColor = glm::vec3(0,0,0);
 	glm::vec2* position;

@@ -828,7 +828,7 @@ int main()
 			{
 
 				PresceneObjects.push_back(Object(verts, ind));
-
+				PresceneObjects[PresceneObjects.size() - 1].name = "obj" + to_string(PresceneObjects.size());
 			}
 			{
 				for (size_t i = 0; i < PresceneObjects.size(); i++)
@@ -854,7 +854,7 @@ int main()
 
 					if (PresceneObjects[i].deleted == false) {
 
-						if (ImGui::CollapsingHeader(  sceneObjects[i].name == "" ? std::to_string(i).c_str() : sceneObjects[i].name.c_str()))
+						if (ImGui::CollapsingHeader(PresceneObjects[i].name == "" ? std::to_string(i).c_str() : PresceneObjects[i].name.c_str()))
 						{
 							if (ImGui::Button(("Delete Object##" + std::to_string(i)).c_str()))
 							{
@@ -1087,28 +1087,33 @@ int main()
 		}
 
 	}
-	SavingSystem.save("OBJ_AMOUNT", (int)sceneObjects.size());
-	for (int i = 0; i < sceneObjects.size(); i++) {
+	if (!build) {
+		SavingSystem.save("OBJ_AMOUNT", (int)sceneObjects.size());
+		for (int i = 0; i < sceneObjects.size(); i++) {
 
-		SavingSystem.save("OBJ" + std::to_string(i) + "_NAME"  , sceneObjects[i].name);
-		SavingSystem.save("OBJ" + std::to_string(i) + "_POS_X"  , sceneObjects[i].position->x);
-		SavingSystem.save("OBJ" + std::to_string(i) + "_POS_Y"  , sceneObjects[i].position->y);
-		SavingSystem.save("OBJ" + std::to_string(i) + "_SCA_X"  , sceneObjects[i].scale->x);
-		SavingSystem.save("OBJ" + std::to_string(i) + "_SCA_Y"  , sceneObjects[i].scale->y);
-		SavingSystem.save("OBJ" + std::to_string(i) + "_ANGLE"  ,*sceneObjects[i].angle);
-		SavingSystem.save("OBJ" + std::to_string(i) + "_TEXTURE", sceneObjects[i].texChar);
-		SavingSystem.save("OBJ" + std::to_string(i) + "_LAYER", sceneObjects[i].layer);
-		SavingSystem.save("OBJ" + std::to_string(i) + "_RUNDRAW", sceneObjects[i].drawOnRuntime);
-		SavingSystem.save("OBJ" + std::to_string(i) + "_PHYSLAYER", sceneObjects[i].Body->layer);
-		SavingSystem.save("OBJ" + std::to_string(i) + "_FRIC", sceneObjects[i].Body->friction);
-		SavingSystem.save("OBJ" + std::to_string(i) + "_BOUNCE", sceneObjects[i].Body->restitution);
-		SavingSystem.save("OBJ" + std::to_string(i) + "_STATIC", sceneObjects[i].Body->isStatic);
-		SavingSystem.save("OBJ" + std::to_string(i) + "_TRIG", sceneObjects[i].Body->isTrigger);
+			SavingSystem.save("OBJ" + std::to_string(i) + "_NAME", sceneObjects[i].name);
+			SavingSystem.save("OBJ" + std::to_string(i) + "_POS_X", sceneObjects[i].position->x);
+			SavingSystem.save("OBJ" + std::to_string(i) + "_POS_Y", sceneObjects[i].position->y);
+			SavingSystem.save("OBJ" + std::to_string(i) + "_SCA_X", sceneObjects[i].scale->x);
+			SavingSystem.save("OBJ" + std::to_string(i) + "_SCA_Y", sceneObjects[i].scale->y);
+			SavingSystem.save("OBJ" + std::to_string(i) + "_ANGLE", *sceneObjects[i].angle);
+			SavingSystem.save("OBJ" + std::to_string(i) + "_TEXTURE", sceneObjects[i].texChar);
+			SavingSystem.save("OBJ" + std::to_string(i) + "_LAYER", sceneObjects[i].layer);
+			SavingSystem.save("OBJ" + std::to_string(i) + "_RUNDRAW", sceneObjects[i].drawOnRuntime);
+			SavingSystem.save("OBJ" + std::to_string(i) + "_PHYSLAYER", sceneObjects[i].Body->layer);
+			SavingSystem.save("OBJ" + std::to_string(i) + "_FRIC", sceneObjects[i].Body->friction);
+			SavingSystem.save("OBJ" + std::to_string(i) + "_BOUNCE", sceneObjects[i].Body->restitution);
+			SavingSystem.save("OBJ" + std::to_string(i) + "_STATIC", sceneObjects[i].Body->isStatic);
+			SavingSystem.save("OBJ" + std::to_string(i) + "_TRIG", sceneObjects[i].Body->isTrigger);
+		}
+		SavingSystem.save("BG_COLOR", vec3(BackroundScreen[0], BackroundScreen[1], BackroundScreen[2]));
+		SavingSystem.saveToFile("SCENE.ov");
+
+		myData.data = { float(vsync), float(msaa), BackroundScreen[0], BackroundScreen[1], BackroundScreen[2], float(LocalPy), 
+			float(PythonIndex),float(DrawFramebuffer), VigRadius, VigSoftness, FXAA_SPAN_MAX, FXAA_REDUCE_MIN, FXAA_REDUCE_MUL};
+
+		myData.saveData();
 	}
-	SavingSystem.save("BG_COLOR", vec3(BackroundScreen[0], BackroundScreen[1], BackroundScreen[2]));
-	SavingSystem.saveToFile("SCENE.ov");
-
-
 
 	glDeleteShader(vertexShader);
 	glDeleteShader(fragmentShader);
@@ -1117,10 +1122,6 @@ int main()
 	glfwTerminate();
 
 
-	myData.data = { float(vsync), float(msaa), BackroundScreen[0], BackroundScreen[1], BackroundScreen[2], float(LocalPy), 
-		float(PythonIndex),float(DrawFramebuffer), VigRadius, VigSoftness, FXAA_SPAN_MAX, FXAA_REDUCE_MIN, FXAA_REDUCE_MUL};
-
-	myData.saveData();
 
 	return 0;
 }
