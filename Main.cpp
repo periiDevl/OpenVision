@@ -558,7 +558,7 @@ int main()
 
 				ImGui::InputFloat("Angle ##", PresceneObjects[selectedObject].angle, 0.3f, 1, "%.3f", 0);
 
-				ImGui::InputFloat("Layer ##", &PresceneObjects[selectedObject].layer, 0.3f, 1, "%.3f", 0);
+				ImGui::InputInt("Layer ##", &PresceneObjects[selectedObject].layer, 1, 1);
 
 				ImGui::Text("Rigidbody Properties");
 
@@ -898,7 +898,7 @@ int main()
 							ImGui::Columns(1, nullptr, true);
 							ImGui::InputFloat(("Angle ##" + std::to_string(i)).c_str(), PresceneObjects[i].angle, 0.3f, 1, "%.3f", 0);
 
-							ImGui::InputFloat(("Layer ##" + std::to_string(i)).c_str(), &PresceneObjects[i].layer, 0.3f, 1, "%.3f", 0);
+							ImGui::InputInt(("Layer ##" + std::to_string(i)).c_str(), &PresceneObjects[i].layer, 1, 1);
 							
 							ImGui::Text("Rigidbody Properties");
 
