@@ -383,7 +383,6 @@ int main()
 		isTrigger = SavingSystem.getFloat("OBJ" + std::to_string(i) + "_TRIG", 0.0f);
 
 		Object obj = Object(verts, ind);
-		cout << "change the name stupid:" << obj.name << endl;
 		obj.name = name;
 		obj.position->x = posx;
 		obj.position->y = posy;

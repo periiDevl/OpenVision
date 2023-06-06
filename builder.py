@@ -5,7 +5,7 @@ import os
 import time
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
-
+import tkinter as tk
 
 class HotReloadHandler(FileSystemEventHandler):
     def __init__(self, msbuild_path, sln_file_path, dst_directory_path):
@@ -42,10 +42,52 @@ class HotReloadHandler(FileSystemEventHandler):
             return
         print(f"Detected change in {event.src_path}. Rebuilding...")
         self.build()
+def get_data_from_file(file_path):
+  data = None
 
+  with open(file_path, "r") as f:
+    data = f.read()
 
+  return data
+
+def write_to_file():
+  text = entry_field.get()
+
+  if os.path.exists("MsbuildPATH.ov"):
+    with open("MsbuildPATH.txt", "w") as file:
+      file.truncate(0)
+
+  file = open("MsbuildPATH.ov", "w")
+
+  file.write(text)
+
+  file.close()
+def check_if_file_exists(file_name):
+
+  if os.path.isfile(file_name):
+    return True
+  else:
+    return False
 if __name__ == '__main__':
-    msbuild_path = r"Build\MSBuild\Current\Bin\MSBuild.exe"
+    import tkinter as tk
+    if (not check_if_file_exists(get_data_from_file("MsbuildPATH.ov"))):
+        window = tk.Tk()
+        lb = tk.Label(text="Please specify the MSBuild.exe path.")
+        lb.pack()
+        entry_field = tk.Entry(window)
+
+        write_button = tk.Button(window, text="Approve", command=lambda: write_to_file() and window.destroy())
+        exit_button = tk.Button(window, text="Exit", command=window.destroy)
+
+        entry_field.pack()
+        write_button.pack()
+        exit_button.pack()
+        window.mainloop()
+
+    print(get_data_from_file("MsbuildPATH.ov"))
+    print(check_if_file_exists(get_data_from_file("MsbuildPATH.ov")))
+
+    msbuild_path = get_data_from_file("MsbuildPATH.ov")
     sln_file_path = r'Vision_engine.sln'
 
     dst_directory_path = os.path.dirname(os.path.abspath(__file__))
