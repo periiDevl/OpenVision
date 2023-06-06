@@ -1,3 +1,5 @@
+
+
 #ifndef COLLISION_MANAGER_CLASS_H
 #define COLLISION_MANAGER_CLASS_H
 
@@ -13,11 +15,11 @@ bool BoundingAABB(Collider& colA, Collider& colB, vec2& mtv);
 bool BoundingAABB(Collider& colA, Collider& colB);
 bool BoundingCircle(const Collider& colA, const Collider& colB, vec2& mtv);
 
-bool CheckCollision(Collider& colA, Collider& colB, vec2& mtv);
+bool CheckCollision(Collider& colA, Collider& colB, Manifold& mainfold);
 
-bool PolyVPoly(PolygonCollider& colA, PolygonCollider& colB, vec2& mtv);
-bool PolyVCircle(PolygonCollider& colA, CircleCollider& colB, vec2& mtv);
-bool CircleVCircle(CircleCollider& colA, CircleCollider& colB, vec2& mtv);
+bool PolyVPoly(PolygonCollider& colA, PolygonCollider& colB, Manifold& mainfold);
+bool PolyVCircle(PolygonCollider& colA, CircleCollider& colB, Manifold& mainfold);
+bool CircleVCircle(CircleCollider& colA, CircleCollider& colB, Manifold& mainfold);
 
 
 #endif

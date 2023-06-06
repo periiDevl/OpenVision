@@ -27,15 +27,15 @@ void PhysicsWorld::Step(float deltaTime)
 					continue;
 				}
 
-				vec2 mtv;
-				if (CheckCollision(*bodies[i]->GetCollider(), *bodies[l]->GetCollider(), mtv)) {
-					if (mtv == vec2(0.0f)) {
+				Manifold manifold;
+				if (CheckCollision(*bodies[i]->GetCollider(), *bodies[l]->GetCollider(), manifold)) {
+					if (manifold.depth == 0.0f) {
 						continue;
 					}
 
-					vec2 normal = normalize(mtv);
-					float depth = length(mtv);
-
+					vec2 normal = normalize(manifold.normal);
+					float depth = manifold.depth;
+					vec2 mtv = normal * depth;
 
 					PhysicsBody* bodyA = bodies[i];
 					PhysicsBody* bodyB = bodies[l];
@@ -107,10 +107,10 @@ bool PhysicsWorld::TouchingLayer(PhysicsBody* body, int layer) {
 	if (layeredBodies.find(layer) == layeredBodies.end()) {
 		return false;
 	}
-	vec2 mtv;
+	Manifold manifold;
 	for (size_t l = 0; l < layeredBodies[layer].size(); l++) {
 
-		if (CheckCollision(*layeredBodies[layer][l]->GetCollider(), *body->GetCollider(),mtv)) {
+		if (CheckCollision(*layeredBodies[layer][l]->GetCollider(), *body->GetCollider(), manifold)) {
 			return true;
 		}
 	}

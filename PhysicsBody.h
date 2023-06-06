@@ -13,6 +13,13 @@
 #include "PolygonCollider.h"
 #include "CircleCollider.h"
 
+struct Manifold {
+	glm::vec2 contactPoint1;
+	glm::vec2 contactPoint2;
+	glm::vec2 normal;
+	float depth;
+};
+
 
 using namespace glm;
 using namespace std;

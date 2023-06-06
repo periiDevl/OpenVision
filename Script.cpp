@@ -35,7 +35,7 @@ void Script::Update(Console& ovcon, InputSystem Input, PhysicsWorld& world, std:
     if (player->Body->velocity.y >= 0)
         jumping = false;
 
-    if (!Input.GetKey(GLFW_KEY_SPACE) && jumping) {
+    if (! Input.GetKey(GLFW_KEY_SPACE) && jumping) {
         jumping = false;
         player->Body->velocity.y /= 2;
     }
