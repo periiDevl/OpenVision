@@ -227,6 +227,7 @@ bool PolyVPoly(PolygonCollider& colA, PolygonCollider& colB, vec2& mtv) {
     }
     
     mtv = normal * depth;
+    return true;
 }
 
 

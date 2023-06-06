@@ -55,7 +55,7 @@ void Object::DrawTMP(GLFWwindow* window, GLuint shader, Camera& camera, glm::vec
 
     unsigned int numDiffuse = 0;
     glm::mat4 model = glm::mat4(1.0f);
-    model = glm::translate(model, glm::vec3(pos.x, -pos.y, layer / 1000.0));
+    model = glm::translate(model, glm::vec3(pos.x, -pos.y, layer / 100.0));
 
     model = glm::scale(model, glm::vec3(scale.x, scale.y, 1.0f));
 

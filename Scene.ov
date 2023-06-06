@@ -1,9 +1,9 @@
 OBJ_AMOUNT:11:int
 OBJ0_LAYER:1:int
-OBJ9_POS_Y:-8.25686:float
+OBJ9_POS_Y:-7.01054:float
 OBJ0_POS_X:6.85474:float
 OBJ0_SCA_Y:3.6:float
-OBJ9_POS_X:24.5369:float
+OBJ9_POS_X:25.1601:float
 OBJ0_POS_Y:-2.41474:float
 OBJ0_SCA_X:3:float
 OBJ0_ANGLE:0:float
@@ -83,7 +83,7 @@ OBJ4_BOUNCE:0.5:float
 OBJ5_SCA_Y:5:float
 OBJ5_PHYSLAYER:1:int
 OBJ5_BOUNCE:0.5:float
-OBJ6_POS_Y:-2.8821:float
+OBJ6_POS_Y:-3.42736:float
 OBJ11_BOUNCE:0.5:float
 OBJ6_SCA_Y:5:float
 OBJ6_PHYSLAYER:1:int
@@ -120,7 +120,7 @@ OBJ5_SCA_X:5:float
 OBJ5_ANGLE:0:float
 OBJ5_TEXTURE:Assets/texas.png:string
 OBJ5_LAYER:0:int
-OBJ7_POS_Y:-6.71368:float
+OBJ7_POS_Y:-8.73894:float
 OBJ5_FRIC:0.5:float
 OBJ5_STATIC:0:int
 OBJ6_NAME:Box 2:string
@@ -132,7 +132,7 @@ OBJ6_RUNDRAW:1:int
 OBJ6_FRIC:0.5:float
 OBJ6_TRIG:0:int
 OBJ7_NAME:Ground 4:string
-OBJ7_POS_X:-14.3431:float
+OBJ7_POS_X:-13.8757:float
 OBJ7_SCA_X:20:float
 OBJ7_ANGLE:0:float
 OBJ7_TEXTURE:Assets/ground.png:string
