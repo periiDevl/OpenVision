@@ -18,9 +18,7 @@
 #include"OVscriptHandaling.h"
 #include"Presave.h"
 #include"Script.h"
-#include"ScriptTwo.h"
-#include"Hello.h"
-#include"TS.h"
+#include"AddedScript.h"
 #include "SaveSystem.h"
 void createFile(const char* filename) {
 	std::ofstream file(filename);
@@ -67,9 +65,7 @@ void createFolder(string folderName) {
 }
 
 Script script;
-ScriptTwo ScriptTwoscr;
-Hello Helloscr;
-TS TSscr;
+AddedScript AddedScriptscr;
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 
@@ -80,7 +76,6 @@ double scroll_offset = 45.0;
 int PythonIndex = 0;
 
 
-Camera camera(width, height, glm::vec3(0.0f, 0.0f, 80.0f));
 
 
 float rectangleVertices[] =
@@ -983,7 +978,7 @@ int main()
 						glLineWidth(1.5f);
 						PresceneObjects[selectedObject].DrawTMP(window, unlitProgram, camera, 
 							glm::vec2(PresceneObjects[selectedObject].position->x, PresceneObjects[selectedObject].position->y),
-							glm::vec2(PresceneObjects[selectedObject].scale->x, PresceneObjects[selectedObject].scale->y));
+							glm::vec2(PresceneObjects[selectedObject].scale->x, PresceneObjects[selectedObject].scale->y), "");
 						glLineWidth(0.0f);
 						glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
@@ -992,11 +987,11 @@ int main()
 				}
 			}
 		}
-		blackbox.DrawTMP(window, shaderProgram, camera, glm::vec2(0, (-36 / 1.5) / 1.5), glm::vec2(114, 0.5));
-		blackbox.DrawTMP(window, shaderProgram, camera, glm::vec2(0,( 36 / 1.5) / 1.5), glm::vec2(114, 0.5));
+		blackbox.DrawTMP(window, shaderProgram, camera, glm::vec2(0, (-36 / 1.5) / 1.5), glm::vec2(114, 0.5),"");
+		blackbox.DrawTMP(window, shaderProgram, camera, glm::vec2(0,( 36 / 1.5) / 1.5), glm::vec2(114, 0.5),"");
 
-		blackbox.DrawTMP(window, shaderProgram, camera, glm::vec2((61.7 / 1.445) / 1.5, 0), glm::vec2(0.5, 64));
-		blackbox.DrawTMP(window, shaderProgram, camera, glm::vec2((-61.7 / 1.445) / 1.5,0), glm::vec2(0.5, 64));
+		blackbox.DrawTMP(window, shaderProgram, camera, glm::vec2((61.7 / 1.445) / 1.5, 0), glm::vec2(0.5, 64),"");
+		blackbox.DrawTMP(window, shaderProgram, camera, glm::vec2((-61.7 / 1.445) / 1.5,0), glm::vec2(0.5, 64), "");
 
 		if (run) {
 			if (StartPhase)
@@ -1011,10 +1006,8 @@ int main()
 				}
 				con.CLEAR_CONSOLE();
 				fov = 22.45;
-				script.Start(con, InputHandler, world, sceneObjects);
-				ScriptTwoscr.Start(con, InputHandler, world, sceneObjects);
-				Helloscr.Start(con, InputHandler, world, sceneObjects);
-				TSscr.Start(con, InputHandler, world, sceneObjects);
+				script.Start(con, InputHandler, world, sceneObjects, camera);
+				AddedScriptscr.Start(con, InputHandler, world, sceneObjects, camera);
 
 				StartPhase = false;
 			}
@@ -1028,10 +1021,8 @@ int main()
 
 
 			
-				script.Update(con, InputHandler, world, sceneObjects);
-				ScriptTwoscr.Update(con, InputHandler, world, sceneObjects);
-				Helloscr.Update(con, InputHandler, world, sceneObjects);
-				TSscr.Update(con, InputHandler, world, sceneObjects);
+				script.Update(con, InputHandler, world, sceneObjects, camera);
+				AddedScriptscr.Update(con, InputHandler, world, sceneObjects, camera);
 
 
 				world.Step(fixed_timestep);

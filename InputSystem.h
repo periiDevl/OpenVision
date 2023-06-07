@@ -12,8 +12,12 @@ public:
     bool GetKeyDown(int key);
     bool GetKeyUp(int key);
     bool GetKey(int key);
-
+    GLFWwindow* GetWindow()
+    {
+        return window;
+    }
 private:
+    GLFWwindow* window;
     void InitializeKey(int key);
     std::unordered_map<int, bool> keyStates;
     std::unordered_map<int, bool> keyDownEvents;

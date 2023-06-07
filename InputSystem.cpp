@@ -124,6 +124,7 @@ InputSystem::InputSystem()
 }
 
 void InputSystem::Update(GLFWwindow* window) {
+    window = window;
     for (auto& [key, state] : keyStates) {
         bool keyDownEvent = glfwGetKey(window, key) == GLFW_PRESS && !state;
         bool keyUpEvent = glfwGetKey(window, key) == GLFW_RELEASE && state;

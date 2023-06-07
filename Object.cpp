@@ -27,7 +27,7 @@ Object::Object(std::vector<Vertex>& vertices, std::vector<GLuint>& indices)
 
 void Object::Draw(GLFWwindow* window, GLuint shader, Camera& camera, glm::vec3 axis, float width, float height, glm::vec2 ratio)
 {
-
+    shader = shader;
     glUseProgram(shader);
     VAO.Bind();
 	tex.Bind();
@@ -47,8 +47,9 @@ void Object::Draw(GLFWwindow* window, GLuint shader, Camera& camera, glm::vec3 a
     glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
 }
 
-void Object::DrawTMP(GLFWwindow* window, GLuint shader, Camera& camera, glm::vec2 pos, glm::vec2 scale)
+void Object::DrawTMP(GLFWwindow* window, GLuint shader, Camera& camera, glm::vec2 pos, glm::vec2 scale, Texture tex)
 {
+    shader = shader;
     glUseProgram(shader);
     VAO.Bind();
     tex.Bind();

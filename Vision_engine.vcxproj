@@ -163,9 +163,9 @@
     <ClCompile Include="PolygonCollider.cpp" />
     <ClCompile Include="SaveSystem.cpp" />
     <ClCompile Include="Script.cpp" />
+	<ClCompile Include="AddedScript.cpp" />
 	<ClCompile Include="ScriptTwo.cpp" />
 	<ClCompile Include="Hello.cpp" />
-    <ClCompile Include="TS.cpp" />
     <ClCompile Include="stb.cpp" />
     <ClCompile Include="Tex.cpp" />
     <ClCompile Include="VAO.cpp" />
@@ -198,9 +198,9 @@
     <ClInclude Include="Presave.h" />
     <ClInclude Include="SaveSystem.h" />
     <ClInclude Include="Script.h" />
+	<ClInclude Include="AddedScript.h" />
 	<ClInclude Include="ScriptTwo.h" />
 	<ClInclude Include="Hello.h" />
-    <ClInclude Include="TS.h" />
     <ClInclude Include="Settings.h" />
     <ClInclude Include="Tex.h" />
     <ClInclude Include="VAO.h" />

@@ -1,4 +1,4 @@
-#pragma once
+
 //Global settings
 float GlobalWorldScale = 0.5f;
 
@@ -29,6 +29,8 @@ GLuint indices[] =
 };
 std::vector <Vertex> verts(vertices, vertices + sizeof(vertices) / sizeof(Vertex));
 std::vector <GLuint> ind(indices, indices + sizeof(indices) / sizeof(GLuint));
+
+Camera camera(width, height, glm::vec3(0.0f, 0.0f, 80.0f));
 
 const char* vertexShaderSource = 
 "#version 330 core \n"
@@ -186,3 +188,4 @@ void main()
     texCoords = inTexCoords;
 }  
 )";
+

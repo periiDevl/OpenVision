@@ -41,12 +41,15 @@ public:
 
 		return radians * 3.14159 / 180;
 	}
+	GLuint GetShaderSource() {
+		return shader;
+	}
 
 	Object(std::vector <Vertex>& vertices, std::vector <GLuint>& indices);
 	void Draw(GLFWwindow* window, GLuint shader, Camera& camera,glm::vec3 axis, float width, float height, glm::vec2 ratio);
-	void DrawTMP(GLFWwindow* window, GLuint shader, Camera& camera, glm::vec2 pos, glm::vec2 scale);
+	void DrawTMP(GLFWwindow* window, GLuint shader, Camera& camera, glm::vec2 pos, glm::vec2 scale, Texture tex);
 	PhysicsBody* Body;
 private :
-	
+	GLuint shader;
 };
 #endif
