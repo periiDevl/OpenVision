@@ -920,7 +920,7 @@ int main()
 						if (!onpopupmenu) {
 							glfwGetCursorPos(window, &mouseX, &mouseY);
 						}
-						camera.Position.x = 5;
+						//camera.Position.x = 0.001f;
 						ndcMouseX = (float)mouseX / (float)width * 2.0f - 1.0f;
 						ndcMouseY = (float)mouseY / (float)height * 2.0f - 1.0f;
 						ndcMouseX *= rattio.x * 3.7;
@@ -931,7 +931,7 @@ int main()
 						for (int i = 0; i < PresceneObjects.size(); i++) {
 							if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS && 
 								(PresceneObjects[i].position->x - abs(PresceneObjects[i].scale->x) / 2) - camera.Position.x < ndcMouseX &&
-								(PresceneObjects[i].position->x + abs(PresceneObjects[i].scale->x) / 2) + camera.Position.x - PresceneObjects[i].scale->x * 2 > ndcMouseX &&
+								(PresceneObjects[i].position->x + abs(PresceneObjects[i].scale->x) / 2) + camera.Position.x > ndcMouseX &&
 								(PresceneObjects[i].position->y + abs(PresceneObjects[i].scale->y) / 2) - camera.Position.y > ndcMouseY &&
 								(PresceneObjects[i].position->y - abs(PresceneObjects[i].scale->y) / 2) + camera.Position.y < ndcMouseY)
 								
