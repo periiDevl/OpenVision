@@ -146,12 +146,6 @@ void rebuild(GLFWwindow* window, bool localPython) {
 			}
 		}
 
-		for (size_t i = 0; i < pythonPathStr.size(); i++) {
-			if (pythonPathStr[i] == ' ') {
-				pythonPathStr[i] = '_';
-			}
-		}
-
 		command = std::string("start /B ") + pythonPathStr + " builder.py";
 	}
 
