@@ -146,7 +146,7 @@ void rebuild(GLFWwindow* window, bool localPython) {
 			}
 		}
 
-		command = std::string("start /B ") + pythonPathStr + " builder.py";
+		command = std::string("start /B python.exe") + " builder.py";
 	}
 
 	std::cout << "command: " << command << std::endl;
