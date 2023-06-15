@@ -43,7 +43,7 @@ vector<vec2> PolygonCollider::GetTransformedVertices()
 
 	for (const auto& vertex : vertices) {
 		vec4 transformedVertex = model * vec4(vec3(vertex, 0), 1.0f);
-		transformedVertices.push_back(vec2(transformedVertex));
+		transformedVertices.push_back(vec2(transformedVertex.x, -transformedVertex.y));
 	}
 	return transformedVertices;
 }
