@@ -318,6 +318,9 @@ int main()
 	double mouseY;
 	double beforeMouseX;
 	double beforeMouseY;
+
+	double beforeMouseXCam;
+	double beforeMouseYCam;
 	bool run = false;
 	bool StartPhase = false;
 	bool no_resize = true;
@@ -927,6 +930,17 @@ int main()
 						ndcMouseY *= rattio.y * 3.7;
 						int topIndex = -1; 
 						float maxZIndex = -std::numeric_limits<float>::infinity(); 
+
+						if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_3) == GLFW_PRESS) {
+							for (int i = 0; i < PresceneObjects.size(); i++) {
+								PresceneObjects[i].position->x += (ndcMouseX - beforeMouseXCam);
+								PresceneObjects[i].position->y += (ndcMouseY - beforeMouseYCam);
+							}
+						}
+
+						beforeMouseXCam = ndcMouseX;
+						beforeMouseYCam = ndcMouseY;
+
 
 						for (int i = 0; i < PresceneObjects.size(); i++) {
 							if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS && 
