@@ -78,7 +78,7 @@ bool BoundingCircle(Collider& colA, Collider& colB, vec2& mtv) {
     return false;
 }
 
-bool CheckCollision(Collider& colA, Collider& colB, vec2& mtv)
+bool CheckCollision(Collider& colA, Collider& colB, Manifold& manifold)
 {
     if (BoundingAABB(colA, colB)) {
         if ((colA.type == ColliderType::Polygon || colA.type == ColliderType::Box) && (colB.type == ColliderType::Polygon || colB.type == ColliderType::Box)) {
@@ -86,28 +86,28 @@ bool CheckCollision(Collider& colA, Collider& colB, vec2& mtv)
             PolygonCollider& polyA = dynamic_cast<PolygonCollider&>(colA);
             PolygonCollider& polyB = dynamic_cast<PolygonCollider&>(colB);
             
-            return PolyVPoly(polyA, polyB, mtv);
+            return PolyVPoly(polyA, polyB, manifold);
         }
         else if ((colA.type == ColliderType::Polygon || colA.type == ColliderType::Box) && (colB.type == ColliderType::Circle)) {
             
             PolygonCollider& polyA = dynamic_cast<PolygonCollider&>(colA);
             CircleCollider& circleB = dynamic_cast<CircleCollider&>(colB);
             
-            return PolyVCircle(polyA, circleB, mtv);
+            return PolyVCircle(polyA, circleB, manifold);
         }
         else if ((colA.type == ColliderType::Circle) && (colB.type == ColliderType::Polygon || colB.type == ColliderType::Box)) {
             
             CircleCollider& circleA = dynamic_cast<CircleCollider&>(colA);
             PolygonCollider& polyB = dynamic_cast<PolygonCollider&>(colB);
             
-            return PolyVCircle(polyB, circleA, mtv);
+            return PolyVCircle(polyB, circleA, manifold);
         }
         else if ((colA.type == ColliderType::Circle) && (colB.type == ColliderType::Circle)) {
             
             CircleCollider& circleA = dynamic_cast<CircleCollider&>(colA);
             CircleCollider& circleB = dynamic_cast<CircleCollider&>(colB);
             
-            return CircleVCircle(circleA, circleB, mtv);
+            return CircleVCircle(circleA, circleB, manifold);
         }
     }
     return false;
@@ -160,11 +160,13 @@ void ProjectVertices(vector<vec2> vertices, vec2 axis, float& min, float& max) {
     }
 
 }
-bool PolyVPoly(PolygonCollider& colA, PolygonCollider& colB, vec2& mtv) {
+bool PolyVPoly(PolygonCollider& colA, PolygonCollider& colB, Manifold& manifold) {
     vec2 normal;
     float depth = INFINITY;
     vector<vec2> verticesA = colA.GetTransformedVertices();
     vector<vec2> verticesB = colB.GetTransformedVertices();
+    vec2 contactPoint1 = vec2(0);
+    vec2 contactPoint2 = vec2(0);
     for (size_t i = 0; i < verticesA.size(); i++)
     {
         vec2 vA = verticesA[i];
@@ -188,6 +190,9 @@ bool PolyVPoly(PolygonCollider& colA, PolygonCollider& colB, vec2& mtv) {
         {
             depth = axisDepth;
             normal = checkAxis;
+            
+            float dis = (std::min(maxA, maxB) - std::max(minA, minB)) / (maxB - minB);
+            contactPoint1 = vA + edge * dis;
         }
     }
     for (size_t i = 0; i < verticesB.size(); i++)
@@ -213,6 +218,9 @@ bool PolyVPoly(PolygonCollider& colA, PolygonCollider& colB, vec2& mtv) {
         {
             depth = axisDepth;
             normal = checkAxis;
+
+            float dis = (std::min(maxA, maxB) - std::max(minA, minB)) / (maxA - minA);
+            contactPoint2 = vA + edge * dis;
         }
     }
 
@@ -222,12 +230,14 @@ bool PolyVPoly(PolygonCollider& colA, PolygonCollider& colB, vec2& mtv) {
         normal = -normal;
     }
     
-    mtv = normal * depth;
+    manifold.normal = normal;
+    manifold.depth = depth;
+    manifold.mtv = normal * depth;
     return true;
 }
 
 
-bool PolyVCircle(PolygonCollider& colA, CircleCollider& colB, vec2& mtv) {
+bool PolyVCircle(PolygonCollider& colA, CircleCollider& colB, Manifold& manifold) {
     vec2 normal;
     float depth = INFINITY;
     
@@ -285,12 +295,13 @@ bool PolyVCircle(PolygonCollider& colA, CircleCollider& colB, vec2& mtv) {
     if (dot(direction, normal) > 0)
         normal = -normal;
 
-    mtv = normal * depth;
-
+    manifold.normal = normal;
+    manifold.depth = depth;
+    manifold.mtv = normal * depth;
     return true;
 
 }
 
-bool CircleVCircle(CircleCollider& colA, CircleCollider& colB, vec2& mtv) {
+bool CircleVCircle(CircleCollider& colA, CircleCollider& colB, Manifold& manifold) {
     return glm::distance(*colA.Position, *colB.Position) <= colA.radius + colB.radius;
 }

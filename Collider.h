@@ -17,6 +17,20 @@ enum ColliderType {
 	Circle = 3 
 };
 
+struct Manifold {
+	glm::vec2 normal;
+	float depth;
+	glm::vec2 mtv;
+	
+	std::vector<glm::vec2> contactPoints;
+};
+
+struct Edge {
+	glm::vec2 a;
+	glm::vec2 b;
+	glm::vec2 dir;
+};
+
 using namespace glm;
 using namespace std;
 

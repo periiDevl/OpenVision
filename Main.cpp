@@ -605,6 +605,9 @@ int main()
 				StartPhase = true;
 			}
 			sceneObjects = PresceneObjects;
+
+			Manifold manifold;
+			CheckCollision(*OV::SearchObjectByName("obj2", sceneObjects)->Body->GetCollider(), *OV::SearchObjectByName("obj1", sceneObjects)->Body->GetCollider(), manifold);
 				
 			ImGui::Begin("Execute", 0, (no_resize ? ImGuiWindowFlags_NoResize : 0) | (no_move ? ImGuiWindowFlags_NoMove : 0));
 			if (ImGui::Button("Run"))
