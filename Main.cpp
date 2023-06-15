@@ -160,11 +160,12 @@ void rebuild(GLFWwindow* window, bool localPython) {
 }
 
 
-
+std::vector<Object> sceneObjects;
+std::vector<Object> PresceneObjects;
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
 	scroll_offset += yoffset;
-	printf("Scrolled by %f units\n", scroll_offset);
+
 }
 
 // A function for ImGui textinput
@@ -348,8 +349,7 @@ int main()
 
 	SavingSystem.load("SCENE.ov");
 
-	std::vector<Object> sceneObjects;
-	std::vector<Object> PresceneObjects;
+
 	vec3 bg_rgb = SavingSystem.getVec3("BG_COLOR", vec3(0));
 	float BackroundScreen[3];
 	BackroundScreen[0] =bg_rgb.r;
@@ -661,6 +661,7 @@ int main()
 
 			con.Draw(no_resize,no_move);
 
+
 			ImGui::Begin("Sources", 0, (no_resize ? ImGuiWindowFlags_NoResize : 0) | (no_move ? ImGuiWindowFlags_NoMove : 0));
 			if (ImGui::BeginTabBar("TabBar"))
 			{
@@ -935,8 +936,11 @@ int main()
 							for (int i = 0; i < PresceneObjects.size(); i++) {
 								PresceneObjects[i].position->x += (ndcMouseX - beforeMouseXCam);
 								PresceneObjects[i].position->y += (ndcMouseY - beforeMouseYCam);
+
+								
 							}
 						}
+
 
 						beforeMouseXCam = ndcMouseX;
 						beforeMouseYCam = ndcMouseY;
