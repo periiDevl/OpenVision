@@ -202,6 +202,8 @@ int main()
 	float FXAA_SPAN_MAX = myData.data[10];
 	float FXAA_REDUCE_MIN = myData.data[11];
 	float FXAA_REDUCE_MUL = myData.data[12];
+	float CMX = myData.data[13];
+	float CMY = myData.data[14];
 	bool build;
 
 	
@@ -415,6 +417,8 @@ int main()
 	float fov = 45;
 	char addedfile[256] = "";
 	bool onpopupmenu = false;
+
+
 
 	const float fixed_timestep = 1.0f / 60.0;
 	DefaultTheme();
@@ -933,12 +937,9 @@ int main()
 						float maxZIndex = -std::numeric_limits<float>::infinity(); 
 
 						if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_3) == GLFW_PRESS) {
-							for (int i = 0; i < PresceneObjects.size(); i++) {
-								PresceneObjects[i].position->x += (ndcMouseX - beforeMouseXCam);
-								PresceneObjects[i].position->y += (ndcMouseY - beforeMouseYCam);
+							CMX += (ndcMouseX - beforeMouseXCam);
+							CMY += (ndcMouseY - beforeMouseYCam);
 
-								
-							}
 						}
 
 
@@ -948,10 +949,10 @@ int main()
 
 						for (int i = 0; i < PresceneObjects.size(); i++) {
 							if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS && 
-								(PresceneObjects[i].position->x - abs(PresceneObjects[i].scale->x) / 2) - camera.Position.x < ndcMouseX &&
-								(PresceneObjects[i].position->x + abs(PresceneObjects[i].scale->x) / 2) + camera.Position.x > ndcMouseX &&
-								(PresceneObjects[i].position->y + abs(PresceneObjects[i].scale->y) / 2) - camera.Position.y > ndcMouseY &&
-								(PresceneObjects[i].position->y - abs(PresceneObjects[i].scale->y) / 2) + camera.Position.y < ndcMouseY)
+								(PresceneObjects[i].position->x +CMX - abs(PresceneObjects[i].scale->x) / 2) - camera.Position.x < ndcMouseX &&
+								(PresceneObjects[i].position->x +CMX + abs(PresceneObjects[i].scale->x) / 2) + camera.Position.x > ndcMouseX &&
+								(PresceneObjects[i].position->y +CMY + abs(PresceneObjects[i].scale->y) / 2) - camera.Position.y > ndcMouseY &&
+								(PresceneObjects[i].position->y +CMY - abs(PresceneObjects[i].scale->y) / 2) + camera.Position.y < ndcMouseY)
 								
 							{
 								if (PresceneObjects[i].layer > maxZIndex) {
@@ -986,17 +987,17 @@ int main()
 						}
 
 
-						PresceneObjects[i].Draw(window, shaderProgram, camera, glm::vec3(0, 0, 1), width, height, rattio);
+						PresceneObjects[i].Draw(window, shaderProgram, camera, glm::vec3(0, 0, 1), CMX, CMY);
 						glUseProgram(unlitProgram);
 						glUniform4f(glGetUniformLocation(unlitProgram, "color"),0.00, 1.0, 0, 1);
 
 						glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 						glLineWidth(3.0f);
-						PresceneObjects[selectedObject].Draw(window, unlitProgram, camera, glm::vec3(0, 0, 1), width, height, rattio);
+						PresceneObjects[selectedObject].Draw(window, unlitProgram, camera, glm::vec3(0, 0, 1), CMX, CMY);
 						glUniform4f(glGetUniformLocation(unlitProgram, "color"), 1.0, 0.00, 0.0, 1);
 						glLineWidth(1.5f);
 						PresceneObjects[selectedObject].DrawTMP(window, unlitProgram, camera, 
-							glm::vec2(PresceneObjects[selectedObject].position->x, PresceneObjects[selectedObject].position->y),
+							glm::vec2(PresceneObjects[selectedObject].position->x + CMX, PresceneObjects[selectedObject].position->y + CMY),
 							glm::vec2(PresceneObjects[selectedObject].scale->x, PresceneObjects[selectedObject].scale->y), "");
 						glLineWidth(0.0f);
 						glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -1057,13 +1058,13 @@ int main()
 					glUniform4f(glGetUniformLocation(unlitProgram, "color"), sceneObjects[i].OutlineColor.x, sceneObjects[i].OutlineColor.y, sceneObjects[i].OutlineColor.z, 1);
 					glLineWidth(sceneObjects[i].outlineWidth);
 					if (sceneObjects[i].outlineWidth > 0) {
-						sceneObjects[i].Draw(window, unlitProgram, camera, glm::vec3(0, 0, 1), width, height, rattio);
+						sceneObjects[i].Draw(window, unlitProgram, camera, glm::vec3(0, 0, 1), CMX, CMY);
 					}
 					glLineWidth(0.0f);
 					glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
 					if (sceneObjects[i].drawOnRuntime == true) {
-						sceneObjects[i].Draw(window, shaderProgram, camera, glm::vec3(0, 0, 1), width, height, rattio);
+						sceneObjects[i].Draw(window, shaderProgram, camera, glm::vec3(0, 0, 1), CMX, CMY);
 					}
 				}
 			}
@@ -1119,7 +1120,7 @@ int main()
 		SavingSystem.saveToFile("SCENE.ov");
 
 		myData.data = { float(vsync), float(msaa), BackroundScreen[0], BackroundScreen[1], BackroundScreen[2], float(LocalPy), 
-			float(PythonIndex),float(DrawFramebuffer), VigRadius, VigSoftness, FXAA_SPAN_MAX, FXAA_REDUCE_MIN, FXAA_REDUCE_MUL};
+			float(PythonIndex),float(DrawFramebuffer), VigRadius, VigSoftness, FXAA_SPAN_MAX, FXAA_REDUCE_MIN, FXAA_REDUCE_MUL, CMX, CMY};
 
 		myData.saveData();
 	}
