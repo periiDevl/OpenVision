@@ -48,7 +48,7 @@ public:
 	Object(std::vector <Vertex>& vertices, std::vector <GLuint>& indices);
 	void Draw(GLFWwindow* window, GLuint shader, Camera& camera, glm::vec3 axis);
 	void Draw(GLFWwindow* window, GLuint shader, Camera& camera,glm::vec3 axis, float cameraX, float cameraY);
-	void DrawTMP(GLFWwindow* window, GLuint shader, Camera& camera, glm::vec2 pos, glm::vec2 scale, Texture tex);
+	
 	PhysicsBody* Body;
 private :
 	GLuint shader;
