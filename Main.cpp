@@ -20,6 +20,26 @@
 #include"Script.h"
 #include"AddedScript.h"
 #include "SaveSystem.h"
+std::vector<Object> sceneObjects;
+std::vector<Object> PresceneObjects;
+void ObjectCreator(GLFWwindow* window, Object obj) {
+	static bool hasExecuted = false;
+
+	if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) && glfwGetKey(window, GLFW_KEY_D) && !hasExecuted) {
+		PresceneObjects.push_back(Object(verts, ind));
+		PresceneObjects[PresceneObjects.size() - 1].name = "obj Copyof (" + obj.name + ") id (" + to_string(PresceneObjects.size()) + ")";
+		//PresceneObjects[PresceneObjects.size() - 1].position = obj.position;
+		PresceneObjects[PresceneObjects.size() - 1].tex = obj.tex;
+		PresceneObjects[PresceneObjects.size() - 1].texChar = obj.texChar;
+		PresceneObjects[PresceneObjects.size() - 1].scale = obj.scale;
+		PresceneObjects[PresceneObjects.size() - 1].angle = obj.angle;
+		hasExecuted = true;
+	}
+
+	if (!glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) || !glfwGetKey(window, GLFW_KEY_D)) {
+		hasExecuted = false;
+	}
+}
 
 
 void createFile(const char* filename) {
@@ -162,8 +182,7 @@ void rebuild(GLFWwindow* window, bool localPython) {
 }
 
 
-std::vector<Object> sceneObjects;
-std::vector<Object> PresceneObjects;
+
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
 	scroll_offset += yoffset;
@@ -503,9 +522,9 @@ int main()
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
+		ObjectCreator(window, PresceneObjects[selectedObject]);
 		
 		static bool show_selected_pop = false;
-
 		if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
 		{
 			if (!show_selected_pop) 
@@ -668,7 +687,6 @@ int main()
 			if (ImGui::IsWindowHovered())
 			{
 				mouseOverUI = true;
-				printf("Hoverd");
 			}
 			ImGui::End();
 
@@ -742,7 +760,6 @@ int main()
 			if (ImGui::IsWindowHovered())
 			{
 				mouseOverUI = true;
-				printf("Hoverd");
 			}
 			ImGui::End();
 
@@ -827,7 +844,6 @@ int main()
 			if (ImGui::IsWindowHovered())
 			{
 				mouseOverUI = true;
-				printf("Hoverd");
 			}
 			ImGui::End();
 
@@ -841,7 +857,6 @@ int main()
 			if (ImGui::IsWindowHovered())
 			{
 				mouseOverUI = true;
-				printf("Hoverd");
 			}
 			ImGui::End();
 
@@ -851,7 +866,6 @@ int main()
 			if (ImGui::IsWindowHovered())
 			{
 				mouseOverUI = true;
-				printf("Hoverd");
 			}
 
 			if (ImGui::Button("Add object"))
@@ -962,6 +976,7 @@ int main()
 						ndcMouseX *= rattio.x * 3.7;
 						ndcMouseY *= rattio.y * 3.7;
 						int topIndex = -1; 
+						
 						float maxZIndex = -std::numeric_limits<float>::infinity(); 
 
 						if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_3) == GLFW_PRESS) {
@@ -974,7 +989,6 @@ int main()
 						beforeMouseXCam = ndcMouseX;
 						beforeMouseYCam = ndcMouseY;
 
-						con.log(mouseOverUI);
 						for (int i = 0; i < PresceneObjects.size(); i++) {
 							if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS && 
 								(PresceneObjects[i].position->x +CMX - abs(PresceneObjects[i].scale->x) / 2) - camera.Position.x < ndcMouseX &&
@@ -996,6 +1010,8 @@ int main()
 								beforeMouseY = ndcMouseY;
 							}
 							else {
+								
+
 								float dx = ndcMouseX - beforeMouseX;
 								float dy = ndcMouseY - beforeMouseY;
 
