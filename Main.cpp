@@ -20,6 +20,8 @@
 #include"Script.h"
 #include"AddedScript.h"
 #include "SaveSystem.h"
+
+
 void createFile(const char* filename) {
 	std::ofstream file(filename);
 
@@ -328,7 +330,7 @@ int main()
 	bool StartPhase = false;
 	bool no_resize = true;
 	bool no_move = true;
-
+	bool mouseOverUI = false;
 
 
 	std::vector<Texture> textures;
@@ -587,7 +589,6 @@ int main()
 
 
 		if (!run) {
-
 			if (!StartPhase) {
 				fov = 45;
 				glfwSetWindowTitle(window, "OpenVision *(Universal Editor)");
@@ -604,6 +605,7 @@ int main()
 				}
 				StartPhase = true;
 			}
+			mouseOverUI = false;
 			sceneObjects = PresceneObjects;
 
 			Manifold manifold;
@@ -663,7 +665,11 @@ int main()
 
 
 			}
-
+			if (ImGui::IsWindowHovered())
+			{
+				mouseOverUI = true;
+				printf("Hoverd");
+			}
 			ImGui::End();
 
 			con.Draw(no_resize,no_move);
@@ -732,6 +738,11 @@ int main()
 				}
 
 				ImGui::EndTabBar();
+			}
+			if (ImGui::IsWindowHovered())
+			{
+				mouseOverUI = true;
+				printf("Hoverd");
 			}
 			ImGui::End();
 
@@ -813,6 +824,11 @@ int main()
 					system(command.c_str());
 				}
 			}
+			if (ImGui::IsWindowHovered())
+			{
+				mouseOverUI = true;
+				printf("Hoverd");
+			}
 			ImGui::End();
 
 			ImGui::Begin("Window Control", 0, (no_resize ? ImGuiWindowFlags_NoResize : 0) | (no_move ? ImGuiWindowFlags_NoMove : 0));
@@ -822,12 +838,21 @@ int main()
 			ImGui::Checkbox("No Window Moving", &no_move);
 			ImGui::Checkbox("No Window Resize", &no_resize);
 			ImGui::EndTabItem();
+			if (ImGui::IsWindowHovered())
+			{
+				mouseOverUI = true;
+				printf("Hoverd");
+			}
 			ImGui::End();
 
 
 			ImGui::Begin("Object Inspector", 0, (no_resize ? ImGuiWindowFlags_NoResize : 0) | (no_move ? ImGuiWindowFlags_NoMove : 0));
 
-
+			if (ImGui::IsWindowHovered())
+			{
+				mouseOverUI = true;
+				printf("Hoverd");
+			}
 
 			if (ImGui::Button("Add object"))
 			{
@@ -949,13 +974,13 @@ int main()
 						beforeMouseXCam = ndcMouseX;
 						beforeMouseYCam = ndcMouseY;
 
-
+						con.log(mouseOverUI);
 						for (int i = 0; i < PresceneObjects.size(); i++) {
 							if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS && 
 								(PresceneObjects[i].position->x +CMX - abs(PresceneObjects[i].scale->x) / 2) - camera.Position.x < ndcMouseX &&
 								(PresceneObjects[i].position->x +CMX + abs(PresceneObjects[i].scale->x) / 2) + camera.Position.x > ndcMouseX &&
 								(PresceneObjects[i].position->y +CMY + abs(PresceneObjects[i].scale->y) / 2) - camera.Position.y > ndcMouseY &&
-								(PresceneObjects[i].position->y +CMY - abs(PresceneObjects[i].scale->y) / 2) + camera.Position.y < ndcMouseY)
+								(PresceneObjects[i].position->y +CMY - abs(PresceneObjects[i].scale->y) / 2) + camera.Position.y < ndcMouseY && !mouseOverUI)
 								
 							{
 								if (PresceneObjects[i].layer > maxZIndex) {
@@ -965,7 +990,7 @@ int main()
 							}
 						}
 
-						if (topIndex != -1) {
+						if (topIndex != -1 && !mouseOverUI) {
 							if (!PresceneObjects[topIndex].selected) {
 								beforeMouseX = ndcMouseX;
 								beforeMouseY = ndcMouseY;
@@ -1009,6 +1034,8 @@ int main()
 					}
 				}
 			}
+
+			
 		}
 		blackbox.DrawTMP(window, shaderProgram, camera, glm::vec2(0, (-36 / 1.5) / 1.5), glm::vec2(114, 0.5),"");
 		blackbox.DrawTMP(window, shaderProgram, camera, glm::vec2(0,( 36 / 1.5) / 1.5), glm::vec2(114, 0.5),"");
@@ -1083,9 +1110,8 @@ int main()
 			glDrawArrays(GL_TRIANGLES, 0, 6);
 		}
 
-
+		
 		ImGui::End();
-
 		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
