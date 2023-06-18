@@ -38,6 +38,12 @@ struct AddObject {
 	AddObject(const string& n) : name(n) {}
 
 };
+struct ModifyGuiBool {
+	bool wasValue;
+	bool* valueInMemory;
+
+	ModifyGuiBool(const bool v, bool* memory) : wasValue(v), valueInMemory(memory) {}
+};
 struct ModifyGuiInt {
 	int wasValue;
 	int* valueInMemory;
@@ -45,30 +51,107 @@ struct ModifyGuiInt {
 	ModifyGuiInt(const int v, int* memory) : wasValue(v) , valueInMemory(memory) {}
 
 };
+struct ModifyGuiFloat {
+	float wasValue;
+	float* valueInMemory;
 
-using Action = std::variant<AddObject, DeleteObject, ModifyGuiInt>;
+	ModifyGuiFloat(const float v, float* memory) : wasValue(v), valueInMemory(memory) {};
+};
+struct ModifyGuiString {
+	std::string wasValue;
+	std::string* valueInMemory;
+
+	ModifyGuiString(const std::string v, std::string* memory) : wasValue(v), valueInMemory(memory) {};
+};
+
+using Action = std::variant<AddObject, DeleteObject, ModifyGuiBool, ModifyGuiInt, ModifyGuiFloat, ModifyGuiString>;
 
 std::stack<Action> undoStack;
 
-bool InputIntWithEndFocus(const char* label, int* value, int step = 1, int stepFast = 100, ImGuiInputTextFlags flags = 0)
-{
-	static bool isFocused = false;
-	static int previousValue = *value;
+std::unordered_map<std::string, bool> focusStates;
+std::unordered_map<std::string, bool> previousValuesB;
 
-	bool valueChanged = ImGui::InputInt(label, value, step, stepFast, flags);
+bool InputBoolWithEndFocus(const char* label, bool* value)
+{
+	bool valueChanged = ImGui::Checkbox(label, value);
 	bool isItemActive = ImGui::IsItemActive();
+
+	bool& isFocused = focusStates[std::string(label)];  // Retrieve or create the focus state for this label
 
 	if (isItemActive)
 	{
-		cout << "changed label:" << label << endl;
+		std::cout << "changed label: " << label << std::endl;
 		if (!isFocused)
-			previousValue = *value;
-
-		isFocused = true;
+		{
+			// Store the previous value only if focus was acquired for the first time
+			isFocused = true;
+			previousValuesB[std::string(label)] = *value;
+		}
 	}
-	else if (isFocused && previousValue != *value)
+	else if (isFocused && previousValuesB[std::string(label)] != *value)
 	{
-		ModifyGuiInt action(previousValue, value);
+		ModifyGuiBool action(previousValuesB[std::string(label)], value);
+		isFocused = false;
+		undoStack.push(action);
+	}
+
+	return valueChanged;
+}
+std::unordered_map<std::string, int> previousValuesI;
+
+bool InputIntWithEndFocus(const char* label, int* value, int step = 1, int stepFast = 100, ImGuiInputTextFlags flags = 0)
+{
+	bool valueChanged = ImGui::InputInt(label, value, step, stepFast, flags);
+	bool isItemActive = ImGui::IsItemActive();
+
+	bool& isFocused = focusStates[std::string(label)];  // Retrieve or create the focus state for this label
+
+	if (isItemActive)
+	{
+		std::cout << "changed label: " << label << std::endl;
+		if (!isFocused)
+		{
+			// Store the previous value only if focus was acquired for the first time
+			isFocused = true;
+			previousValuesI[std::string(label)] = *value;
+		}
+	}
+	else if (isFocused && previousValuesI[std::string(label)] != *value)
+	{
+		ModifyGuiInt action(previousValuesI[std::string(label)], value);
+		isFocused = false;
+		undoStack.push(action);
+	}
+
+	return valueChanged;
+}
+
+std::unordered_map<std::string, float> previousValuesF;
+
+bool InputFloatWithEndFocus(const char* label, float* value, float step = 0.0f, float stepFast = 0.0f, ImGuiInputTextFlags flags = 0)
+{
+	std::ostringstream formatStream;
+	formatStream << "%" << step << "f";
+	std::string formatString = formatStream.str();
+
+	bool valueChanged = ImGui::InputFloat(label, value, step, stepFast, formatString.c_str(), flags);
+	bool isItemActive = ImGui::IsItemActive();
+
+	bool& isFocused = focusStates[std::string(label)];  // Retrieve or create the focus state for this label
+
+	if (isItemActive)
+	{
+		std::cout << "changed label: " << label << std::endl;
+		if (!isFocused)
+		{
+			// Store the previous value only if focus was acquired for the first time
+			isFocused = true;
+			previousValuesF[std::string(label)] = *value;
+		}
+	}
+	else if (isFocused && previousValuesF[std::string(label)] != *value)
+	{
+		ModifyGuiFloat action(previousValuesF[std::string(label)], value);
 		isFocused = false;
 		undoStack.push(action);
 	}
@@ -294,6 +377,15 @@ void undoAction() {
 		}
 		else if (const ModifyGuiInt* modifyIntAction = std::get_if<ModifyGuiInt>(&previousAction)) {
 			*modifyIntAction->valueInMemory = modifyIntAction->wasValue;
+		}
+		else if (const ModifyGuiFloat* modifyFloatAction = std::get_if<ModifyGuiFloat>(&previousAction)) {
+			*modifyFloatAction->valueInMemory = modifyFloatAction->wasValue;
+		}
+		else if (const ModifyGuiString* modifyStringAction = std::get_if<ModifyGuiString>(&previousAction)) {
+			*modifyStringAction->valueInMemory = modifyStringAction->wasValue;
+		}
+		else if (const ModifyGuiBool* modifyBoolAction = std::get_if<ModifyGuiBool>(&previousAction)) {
+			*modifyBoolAction->valueInMemory = modifyBoolAction->wasValue;
 		}
 	}
 }
@@ -665,30 +757,33 @@ int main()
 				if (glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS && strlen(objName) > 0) {
 					PresceneObjects[selectedObject].name = objName;
 					sceneObjects[selectedObject].name = objName;
+					// Create a string to undo
 				}
-				ImGui::Checkbox("Draw ##", &PresceneObjects[selectedObject].drawOnRuntime);
-				ImGui::InputFloat("Pos X##", &PresceneObjects[selectedObject].position->x, 0.3f, 1, "%.3f", 0);
-				ImGui::InputFloat("Pos Y##", &PresceneObjects[selectedObject].position->y, 0.3f, 1, "%.3f", 0);
+				InputBoolWithEndFocus("Draw ##", &PresceneObjects[selectedObject].drawOnRuntime);
 
-				ImGui::InputFloat("Scale X##", &PresceneObjects[selectedObject].scale->x, 0.3f, 1, "%.3f", 0);
+				InputFloatWithEndFocus("Pos X##", &PresceneObjects[selectedObject].position->x, 0.5f, 1, 0);
+				
+				InputFloatWithEndFocus("Pos Y##", &PresceneObjects[selectedObject].position->y, 0.5f, 1, 0);
 
-				ImGui::InputFloat("Scale Y##", &PresceneObjects[selectedObject].scale->y, 0.3f, 1, "%.3f", 0);
+				InputFloatWithEndFocus("Scale X##", &PresceneObjects[selectedObject].scale->x, 0.5f, 1, 0);
 
-				ImGui::InputFloat("Angle ##", PresceneObjects[selectedObject].angle, 0.3f, 1, "%.3f", 0);
+				InputFloatWithEndFocus("Scale Y##", &PresceneObjects[selectedObject].scale->y, 0.5f, 1, 0);
 
-				ImGui::InputInt("Layer ##", &PresceneObjects[selectedObject].layer, 1, 1);
+				InputFloatWithEndFocus("Angle ##", PresceneObjects[selectedObject].angle, 0.5f, 1, 0);
+
+				InputIntWithEndFocus("Layer ##", &PresceneObjects[selectedObject].layer, 1, 1);
 
 				ImGui::Text("Rigidbody Properties");
 
-				ImGui::InputInt("Physical Layer ##", &PresceneObjects[selectedObject].Body->layer);
+				InputIntWithEndFocus("Physical Layer ##", &PresceneObjects[selectedObject].Body->layer);
 				
-				ImGui::InputFloat("Friction ##", &PresceneObjects[selectedObject].Body->friction);
+				InputFloatWithEndFocus("Friction ##", &PresceneObjects[selectedObject].Body->friction);
 
-				ImGui::InputFloat("Bounciness ##", &PresceneObjects[selectedObject].Body->restitution);
+				InputFloatWithEndFocus("Bounciness ##", &PresceneObjects[selectedObject].Body->restitution);
 
-				ImGui::Checkbox("Trigger ##", &PresceneObjects[selectedObject].Body->isTrigger);
+				InputBoolWithEndFocus("Trigger ##", &PresceneObjects[selectedObject].Body->isTrigger);
 
-				ImGui::Checkbox("Static ##", &PresceneObjects[selectedObject].Body->isStatic);
+				InputBoolWithEndFocus("Static ##", &PresceneObjects[selectedObject].Body->isStatic);
 
 			}
 			ImGui::EndPopup();
@@ -1037,21 +1132,21 @@ int main()
 								sceneObjects[i].name = objName;
 							}
 
-							ImGui::Checkbox(("Draw ##" + std::to_string(i)).c_str(), &PresceneObjects[i].drawOnRuntime);
+							InputBoolWithEndFocus(("Draw ##" + std::to_string(i)).c_str(), &PresceneObjects[i].drawOnRuntime);
 							ImGui::Columns(2, nullptr, true);
-							ImGui::InputFloat(("Pos X##" + std::to_string(i)).c_str(), &PresceneObjects[i].position->x, 0.3f, 1, "%.3f", 0);
+							InputFloatWithEndFocus(("Pos X##" + std::to_string(i)).c_str(), &PresceneObjects[i].position->x, 0.3f, 1, 0);
 							ImGui::NextColumn();
-							ImGui::InputFloat(("Pos Y##" + std::to_string(i)).c_str(), &PresceneObjects[i].position->y, 0.3f, 1, "%.3f", 0);
+							InputFloatWithEndFocus(("Pos Y##" + std::to_string(i)).c_str(), &PresceneObjects[i].position->y, 0.3f, 1, 0);
 
 							ImGui::Columns(1, nullptr, true);
 							ImGui::Columns(2, nullptr, true);
-							ImGui::InputFloat(("Scale X##" + std::to_string(i)).c_str(), &PresceneObjects[i].scale->x, 0.3f, 1, "%.3f", 0);
+							InputFloatWithEndFocus(("Scale X##" + std::to_string(i)).c_str(), &PresceneObjects[i].scale->x, 0.3f, 1, 0);
 							ImGui::NextColumn();
 
-							ImGui::InputFloat(("Scale Y##" + std::to_string(i)).c_str(), &PresceneObjects[i].scale->y, 0.3f, 1, "%.3f", 0);
+							InputFloatWithEndFocus(("Scale Y##" + std::to_string(i)).c_str(), &PresceneObjects[i].scale->y, 0.3f, 1, 0);
 
 							ImGui::Columns(1, nullptr, true);
-							ImGui::InputFloat(("Angle ##" + std::to_string(i)).c_str(), PresceneObjects[i].angle, 0.3f, 1, "%.3f", 0);
+							InputFloatWithEndFocus(("Angle ##" + std::to_string(i)).c_str(), PresceneObjects[i].angle, 0.3f, 1, 0);
 
 							InputIntWithEndFocus(("Layer ##" + std::to_string(i)).c_str(), &PresceneObjects[i].layer, 1, 1);
 							
@@ -1059,17 +1154,17 @@ int main()
 
 							InputIntWithEndFocus(("Physical Layer ##" + std::to_string(i)).c_str(), &PresceneObjects[i].Body->layer);
 							
-							ImGui::InputFloat(("Friction ##" + std::to_string(i)).c_str(), &PresceneObjects[i].Body->friction);
+							InputFloatWithEndFocus(("Friction ##" + std::to_string(i)).c_str(), &PresceneObjects[i].Body->friction);
 
-							ImGui::InputFloat(("Bounciness ##" + std::to_string(i)).c_str(), &PresceneObjects[i].Body->restitution);
+							InputFloatWithEndFocus(("Bounciness ##" + std::to_string(i)).c_str(), &PresceneObjects[i].Body->restitution);
 
 							ImGui::Columns(1, nullptr, true);
 							ImGui::Columns(2, nullptr, true);
 
-							ImGui::Checkbox(("Trigger ##" + std::to_string(i)).c_str(), &PresceneObjects[i].Body->isTrigger);
+							InputBoolWithEndFocus(("Trigger ##" + std::to_string(i)).c_str(), &PresceneObjects[i].Body->isTrigger);
 
 							ImGui::NextColumn();
-							ImGui::Checkbox(("Static ##" + std::to_string(i)).c_str(), &PresceneObjects[i].Body->isStatic);
+							InputBoolWithEndFocus(("Static ##" + std::to_string(i)).c_str(), &PresceneObjects[i].Body->isStatic);
 							ImGui::Columns(1, nullptr, true);
 
 							
