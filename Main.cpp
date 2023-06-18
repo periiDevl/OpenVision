@@ -34,6 +34,9 @@ struct DeleteObject {
 };
 struct AddObject {
 	string name;
+
+	AddObject(const string& n) : name(n) {}
+
 };
 
 using Action = std::variant<AddObject, DeleteObject>;
@@ -600,7 +603,8 @@ int main()
 			{
 				if (ImGui::Button(("Delete Object##" + std::to_string(selectedObject)).c_str()))
 				{
-
+					DeleteObject action(PresceneObjects[selectedObject]);
+					undoStack.push(action);
 
 					PresceneObjects[selectedObject].deleted = true;
 					SavingSystem.remove("OBJ" + std::to_string(selectedObject) + "_NAME");
@@ -938,6 +942,9 @@ int main()
 
 				PresceneObjects.push_back(Object(verts, ind));
 				PresceneObjects[PresceneObjects.size() - 1].name = "obj" + to_string(PresceneObjects.size());
+				AddObject action("obj" + to_string(PresceneObjects.size()));
+				undoStack.push(action);
+
 			}
 			{
 				for (size_t i = 0; i < PresceneObjects.size(); i++)
