@@ -38,10 +38,43 @@ struct AddObject {
 	AddObject(const string& n) : name(n) {}
 
 };
+struct ModifyGuiInt {
+	int wasValue;
+	int* valueInMemory;
 
-using Action = std::variant<AddObject, DeleteObject>;
+	ModifyGuiInt(const int v, int* memory) : wasValue(v) , valueInMemory(memory) {}
+
+};
+
+using Action = std::variant<AddObject, DeleteObject, ModifyGuiInt>;
 
 std::stack<Action> undoStack;
+
+bool InputIntWithEndFocus(const char* label, int* value, int step = 1, int stepFast = 100, ImGuiInputTextFlags flags = 0)
+{
+	static bool isFocused = false;
+	static int previousValue = *value;
+
+	bool valueChanged = ImGui::InputInt(label, value, step, stepFast, flags);
+	bool isItemActive = ImGui::IsItemActive();
+
+	if (isItemActive)
+	{
+		cout << "changed label:" << label << endl;
+		if (!isFocused)
+			previousValue = *value;
+
+		isFocused = true;
+	}
+	else if (isFocused && previousValue != *value)
+	{
+		ModifyGuiInt action(previousValue, value);
+		isFocused = false;
+		undoStack.push(action);
+	}
+
+	return valueChanged;
+}
 
 void ObjectCreator(GLFWwindow* window, Object obj) {
 	static bool hasExecuted = false;
@@ -258,6 +291,9 @@ void undoAction() {
 		else if (const DeleteObject* deleteObjectAction = std::get_if<DeleteObject>(&previousAction)) {
 
 			PresceneObjects.push_back(deleteObjectAction->object);
+		}
+		else if (const ModifyGuiInt* modifyIntAction = std::get_if<ModifyGuiInt>(&previousAction)) {
+			*modifyIntAction->valueInMemory = modifyIntAction->wasValue;
 		}
 	}
 }
@@ -1017,12 +1053,12 @@ int main()
 							ImGui::Columns(1, nullptr, true);
 							ImGui::InputFloat(("Angle ##" + std::to_string(i)).c_str(), PresceneObjects[i].angle, 0.3f, 1, "%.3f", 0);
 
-							ImGui::InputInt(("Layer ##" + std::to_string(i)).c_str(), &PresceneObjects[i].layer, 1, 1);
+							InputIntWithEndFocus(("Layer ##" + std::to_string(i)).c_str(), &PresceneObjects[i].layer, 1, 1);
 							
 							ImGui::Text("Rigidbody Properties");
 
-							ImGui::InputInt(("Physical Layer ##" + std::to_string(i)).c_str(), &PresceneObjects[i].Body->layer);
-
+							InputIntWithEndFocus(("Physical Layer ##" + std::to_string(i)).c_str(), &PresceneObjects[i].Body->layer);
+							
 							ImGui::InputFloat(("Friction ##" + std::to_string(i)).c_str(), &PresceneObjects[i].Body->friction);
 
 							ImGui::InputFloat(("Bounciness ##" + std::to_string(i)).c_str(), &PresceneObjects[i].Body->restitution);
