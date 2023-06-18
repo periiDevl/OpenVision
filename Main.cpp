@@ -11,6 +11,8 @@
 #include <cstdlib>
 #include <string>
 #include <vector>
+#include <stack>
+#include <variant>
 #include <filesystem>
 #include"PhysicsWorld.h"
 #include <thread>
@@ -22,6 +24,22 @@
 #include "SaveSystem.h"
 std::vector<Object> sceneObjects;
 std::vector<Object> PresceneObjects;
+SaveSystem SavingSystem;
+
+
+struct DeleteObject {
+	Object object;
+
+	DeleteObject(const Object& obj) : object(obj) {}
+};
+struct AddObject {
+	string name;
+};
+
+using Action = std::variant<AddObject, DeleteObject>;
+
+std::stack<Action> undoStack;
+
 void ObjectCreator(GLFWwindow* window, Object obj) {
 	static bool hasExecuted = false;
 
@@ -203,6 +221,42 @@ static int InputTextCallback(ImGuiInputTextCallbackData* data)
 bool file_exists(const std::string& filename) {
 	std::ifstream file(filename);
 	return file.good();
+}
+void undoAction() {
+	if (!undoStack.empty()) {
+		Action previousAction = undoStack.top();
+		undoStack.pop();
+
+		if (const AddObject* addObjectAction = std::get_if<AddObject>(&previousAction)) {
+
+			for (size_t i = 0; i < PresceneObjects.size(); i++)
+			{
+				if (PresceneObjects[i].name == addObjectAction->name) {
+
+					PresceneObjects[i].deleted = true;
+					SavingSystem.remove("OBJ" + std::to_string(i) + "_NAME");
+					SavingSystem.remove("OBJ" + std::to_string(i) + "_POS_X");
+					SavingSystem.remove("OBJ" + std::to_string(i) + "_POS_Y");
+					SavingSystem.remove("OBJ" + std::to_string(i) + "_SCA_X");
+					SavingSystem.remove("OBJ" + std::to_string(i) + "_SCA_Y");
+					SavingSystem.remove("OBJ" + std::to_string(i) + "_ANGLE");
+					SavingSystem.remove("OBJ" + std::to_string(i) + "_TEXTURE");
+					SavingSystem.remove("OBJ" + std::to_string(i) + "_LAYER");
+					SavingSystem.remove("OBJ" + std::to_string(i) + "_RUNDRAW");
+					SavingSystem.remove("OBJ" + std::to_string(i) + "_FRIC");
+					SavingSystem.remove("OBJ" + std::to_string(i) + "_STATIC");
+					SavingSystem.remove("OBJ" + std::to_string(i) + "_TRIG");
+					PresceneObjects.erase(PresceneObjects.begin() + i);
+					sceneObjects.erase(sceneObjects.begin() + i);
+					return;
+				}
+			}
+		}
+		else if (const DeleteObject* deleteObjectAction = std::get_if<DeleteObject>(&previousAction)) {
+
+			PresceneObjects.push_back(deleteObjectAction->object);
+		}
+	}
 }
 
 
@@ -439,6 +493,8 @@ int main()
 	char addedfile[256] = "";
 	bool onpopupmenu = false;
 
+	bool releasedUndo = true;
+
 
 
 	const float fixed_timestep = 1.0f / 60.0;
@@ -626,6 +682,15 @@ int main()
 			}
 			mouseOverUI = false;
 			sceneObjects = PresceneObjects;
+			
+			if (!InputHandler.GetKey(GLFW_KEY_LEFT_CONTROL) || !InputHandler.GetKey(GLFW_KEY_Z)) {
+				releasedUndo = true;
+			}
+
+			if (InputHandler.GetKey(GLFW_KEY_LEFT_CONTROL) && InputHandler.GetKey(GLFW_KEY_Z) && releasedUndo) {
+				undoAction();
+				releasedUndo = false;
+			}
 
 			//Manifold manifold;
 			//CheckCollision(*OV::SearchObjectByName("obj2", sceneObjects)->Body->GetCollider(), *OV::SearchObjectByName("obj1", sceneObjects)->Body->GetCollider(), manifold);
@@ -902,6 +967,9 @@ int main()
 						{
 							if (ImGui::Button(("Delete Object##" + std::to_string(i)).c_str()))
 							{
+								DeleteObject action(PresceneObjects[i]);
+								undoStack.push(action);
+
 								PresceneObjects[i].deleted = true;
 								SavingSystem.remove("OBJ" + std::to_string(i) + "_NAME");
 								SavingSystem.remove("OBJ" + std::to_string(i) + "_POS_X");
