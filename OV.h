@@ -21,20 +21,7 @@ public:
 		obj.tex = Texture(Path.c_str());
 	}
 	
-	static float PublicFloat(int placement, std::string ID) {
-		std::string path = ID.substr(5) + ".ovpmf";
-		if (!std::filesystem::exists(path)) {
-			std::ofstream writer(path);
-			writer << placement;
-		}
 
-		std::ifstream reader(path);
-		std::string line;
-		std::getline(reader, line);
-		placement = std::stof(line);
-
-		return placement;
-	}
 
 
 	
