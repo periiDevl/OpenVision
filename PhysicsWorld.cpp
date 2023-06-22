@@ -53,6 +53,8 @@ void PhysicsWorld::Step(float deltaTime)
 					}
 
 					
+					GetContactPointsPolyVPoly(mainfold);
+
 
 					//vec2 point1 = bodyA->GetCollider().GetSupportPoint(-normal);
 					//vec2 point2 = bodyB->GetCollider()-GetSupportPoint(normal);

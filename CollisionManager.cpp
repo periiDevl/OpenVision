@@ -14,6 +14,26 @@ vec2 tripleProduct(vec2 a, vec2 b, vec2 c) {
     r.y = b.y * ac - a.y * bc;
     return r;
 }
+vec2 GetClosestPointOnEdge(const vec2& p, float& distSquared, const vec2& vA, const vec2& vB)
+{
+    vec2 lineDirection = vB - vA;
+
+    mat2 lineMatrix(lineDirection.x, -lineDirection.y,
+        lineDirection.y, lineDirection.x);
+
+    vec2 pointVector = p - vA;
+
+    vec2 transformedVector = lineMatrix * pointVector;
+
+    transformedVector.y = 0.0f;
+
+    vec2 closestPoint = vA + lineMatrix * transformedVector;
+
+    distSquared = distance2(p, closestPoint);
+
+    return closestPoint;
+}
+
 bool BoundingAABB(Collider& colA, Collider& colB, vec2& mtv)
 {
     colA.CalculateAABB();
@@ -304,4 +324,31 @@ bool PolyVCircle(PolygonCollider& colA, CircleCollider& colB, Manifold& manifold
 
 bool CircleVCircle(CircleCollider& colA, CircleCollider& colB, Manifold& manifold) {
     return glm::distance(*colA.Position, *colB.Position) <= colA.radius + colB.radius;
+}
+
+void GetContactPointPolyVPoly(PolygonCollider& colA, PolygonCollider& colB, Manifold& manifold)
+{
+    vec2 contatct1 = vec2(0);
+    vec2 contact2 = vec2(0);
+    int count = 0;
+
+    float minDistSq = 100000000000000;
+
+    vector<vec2> verticesA = colA.GetTransformedVertices();
+    vector<vec2> verticesB = colB.GetTransformedVertices();
+    for (size_t i = 0; i < verticesA.size(); i++)
+    {
+        vec2 p = verticesA[i];
+        for (size_t j = 0; j < verticesB.size(); j++)
+        {
+            vec2 vA = verticesB[j];
+            vec2 vB = verticesB[(j+1) % verticesB.size()];
+        
+            float disSquared = 0;
+            vec2 cp = GetClosestPointOnEdge(p, disSquared, vA, vB);
+            
+        }
+    }
+    
+
 }

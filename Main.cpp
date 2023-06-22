@@ -1153,7 +1153,7 @@ int main()
 							ImGui::Text("Rigidbody Properties");
 
 							InputIntWithEndFocus(("Physical Layer ##" + std::to_string(i)).c_str(), &PresceneObjects[i].Body->layer);
-							
+ 							
 							InputFloatWithEndFocus(("Friction ##" + std::to_string(i)).c_str(), &PresceneObjects[i].Body->friction);
 
 							InputFloatWithEndFocus(("Bounciness ##" + std::to_string(i)).c_str(), &PresceneObjects[i].Body->restitution);
