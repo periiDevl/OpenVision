@@ -14,22 +14,33 @@ vec2 tripleProduct(vec2 a, vec2 b, vec2 c) {
     r.y = b.y * ac - a.y * bc;
     return r;
 }
+
+bool NearlyEqual(float a, float b) {
+    return std::abs(a - b) < 0.0005f;
+}
+bool NearlyEqual(vec2 a, vec2 b) {
+    return length2(a - b) < 0.0005f;
+}
+
+
 vec2 GetClosestPointOnEdge(const vec2& p, float& distSquared, const vec2& vA, const vec2& vB)
 {
-    vec2 lineDirection = vB - vA;
+    glm::vec2 lineVec = vB - vA;
+    float lineLengthSq = glm::length2(lineVec);
 
-    mat2 lineMatrix(lineDirection.x, -lineDirection.y,
-        lineDirection.y, lineDirection.x);
+    if (lineLengthSq == 0.0f)
+    {
+        return vA;
+    }
 
-    vec2 pointVector = p - vA;
+    glm::vec2 pointVec = p - vA;
+    float t = glm::dot(pointVec, lineVec) / lineLengthSq;
 
-    vec2 transformedVector = lineMatrix * pointVector;
+    t = glm::clamp(t, 0.0f, 1.0f);
 
-    transformedVector.y = 0.0f;
+    glm::vec2 closestPoint = vA + t * lineVec;
 
-    vec2 closestPoint = vA + lineMatrix * transformedVector;
-
-    distSquared = distance2(p, closestPoint);
+    distSquared = distance2(p, closestPoint);;
 
     return closestPoint;
 }
@@ -326,13 +337,13 @@ bool CircleVCircle(CircleCollider& colA, CircleCollider& colB, Manifold& manifol
     return glm::distance(*colA.Position, *colB.Position) <= colA.radius + colB.radius;
 }
 
-void GetContactPointPolyVPoly(PolygonCollider& colA, PolygonCollider& colB, Manifold& manifold)
+void GetContactPointsPolyVPoly(PolygonCollider& colA, PolygonCollider& colB, Manifold& manifold)
 {
-    vec2 contatct1 = vec2(0);
+    vec2 contact1 = vec2(0);
     vec2 contact2 = vec2(0);
     int count = 0;
 
-    float minDistSq = 100000000000000;
+    float minDistSq = numeric_limits<float>().max();
 
     vector<vec2> verticesA = colA.GetTransformedVertices();
     vector<vec2> verticesB = colB.GetTransformedVertices();
@@ -342,13 +353,49 @@ void GetContactPointPolyVPoly(PolygonCollider& colA, PolygonCollider& colB, Mani
         for (size_t j = 0; j < verticesB.size(); j++)
         {
             vec2 vA = verticesB[j];
-            vec2 vB = verticesB[(j+1) % verticesB.size()];
-        
-            float disSquared = 0;
-            vec2 cp = GetClosestPointOnEdge(p, disSquared, vA, vB);
-            
+            vec2 vB = verticesB[(j + 1) % verticesB.size()];
+
+            float distSquared = 0;
+            vec2 cp = GetClosestPointOnEdge(p, distSquared, vA, vB);
+
+            if (NearlyEqual(distSquared, minDistSq) && !NearlyEqual(vA, vB)) {
+                contact2 = cp;
+                count = 2;
+            }
+            else if (distSquared < minDistSq) {
+                minDistSq = distSquared;
+                count = 1;
+                contact1 = cp;
+            }
         }
     }
-    
+    for (size_t i = 0; i < verticesB.size(); i++)
+    {
+        vec2 p = verticesB[i];
+        for (size_t j = 0; j < verticesA.size(); j++)
+        {
+            vec2 vA = verticesA[j];
+            vec2 vB = verticesA[(j + 1) % verticesA.size()];
 
+            float distSquared = 0;
+            vec2 cp = GetClosestPointOnEdge(p, distSquared, vA, vB);
+
+            if (NearlyEqual(distSquared, minDistSq) && !NearlyEqual(vA, vB)) {
+                contact2 = cp;
+                count = 2;
+            }
+            else if (distSquared < minDistSq) {
+                minDistSq = distSquared;
+                count = 1;
+                contact1 = cp;
+            }
+        }
+    }
+    if (count == 2) {
+        manifold.contactPoints.push_back(contact1);
+        manifold.contactPoints.push_back(contact2);
+    }
+    else if (count == 1){
+        manifold.contactPoints.push_back(contact1);
+    }
 }

@@ -19,7 +19,7 @@ bool PolyVPoly(PolygonCollider& colA, PolygonCollider& colB, Manifold& manifold)
 bool PolyVCircle(PolygonCollider& colA, CircleCollider& colB, Manifold& manifold);
 bool CircleVCircle(CircleCollider& colA, CircleCollider& colB, Manifold& manifold);
 
-void GetContactPointPolyVPoly(Collider& colA, Collider& colB, Manifold& manifold);
+void GetContactPointsPolyVPoly(PolygonCollider& colA, PolygonCollider& colB, Manifold& manifold);
 
 
 #endif

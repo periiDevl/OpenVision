@@ -80,7 +80,6 @@ bool InputBoolWithEndFocus(const char* label, bool* value)
 
 	if (isItemActive)
 	{
-		std::cout << "changed label: " << label << std::endl;
 		if (!isFocused)
 		{
 			// Store the previous value only if focus was acquired for the first time
@@ -108,7 +107,6 @@ bool InputIntWithEndFocus(const char* label, int* value, int step = 1, int stepF
 
 	if (isItemActive)
 	{
-		std::cout << "changed label: " << label << std::endl;
 		if (!isFocused)
 		{
 			// Store the previous value only if focus was acquired for the first time
@@ -141,7 +139,6 @@ bool InputFloatWithEndFocus(const char* label, float* value, float step = 0.0f, 
 
 	if (isItemActive)
 	{
-		std::cout << "changed label: " << label << std::endl;
 		if (!isFocused)
 		{
 			// Store the previous value only if focus was acquired for the first time
