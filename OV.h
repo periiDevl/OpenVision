@@ -4,6 +4,10 @@
 #include <fstream>
 #include <iostream>
 #include <filesystem>
+#include <SFML/Audio.hpp>
+#include<thread>
+
+
 class OV {
 public:
 	static Object* SearchObjectByName(std::string Name,std::vector<Object>& sceneObjects) {
@@ -24,7 +28,18 @@ public:
 
 
 
-	
+	static void PlaySound(const std::string& filePath)
+	{
+		std::thread soundThread(playSoundThread, filePath);
+		soundThread.detach();
+	}
+
+	static void PlaySoundLooped(const std::string& filePath)
+	{
+		std::thread soundThread(playSoundThreadLooped, filePath);
+		soundThread.detach();
+	}
+
 
 	glm::vec2 getImageAspectRatio(const char* filename) {
 		int width, height, channels;
@@ -40,7 +55,43 @@ public:
 			return glm::vec2(0.0f);
 		}
 	}
-	
+private:
+	static void playSoundThread(const std::string& filePath)
+	{
+		sf::SoundBuffer buffer;
+
+		if (!buffer.loadFromFile(filePath))
+		{
+			return;
+		}
+
+		sf::Sound sound;
+		sound.setBuffer(buffer);
+		sound.play();
+
+		while (sound.getStatus() == sf::Sound::Playing)
+		{
+		}
+
+	}
+	static void playSoundThreadLooped(const std::string& filePath)
+	{
+		sf::SoundBuffer buffer;
+
+		if (!buffer.loadFromFile(filePath))
+		{
+			return;
+		}
+
+		sf::Sound sound;
+		sound.setBuffer(buffer);
+		sound.setLoop(true); // Set the sound to loop
+		sound.play();
+
+		while (sound.getStatus() == sf::Sound::Playing)
+		{
+		}
+	}
 };
 
 #endif

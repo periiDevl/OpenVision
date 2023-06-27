@@ -1,3 +1,4 @@
+#pragma once
 #include"Object.h"
 #include"Math.h"
 #include"Settings.h"
@@ -22,6 +23,7 @@
 #include"Script.h"
 #include"AddedScript.h"
 #include "SaveSystem.h"
+#include <SFML/Audio.hpp>
 std::vector<Object> sceneObjects;
 std::vector<Object> PresceneObjects;
 SaveSystem SavingSystem;
@@ -70,6 +72,34 @@ std::stack<Action> undoStack;
 
 std::unordered_map<std::string, bool> focusStates;
 std::unordered_map<std::string, bool> previousValuesB;
+/*
+void playSoundThread(const std::string& filePath)
+{
+	sf::SoundBuffer buffer;
+
+	if (!buffer.loadFromFile(filePath))
+	{
+		return;
+	}
+
+	sf::Sound sound;
+	sound.setBuffer(buffer);
+	sound.play();
+
+	while (sound.getStatus() == sf::Sound::Playing)
+	{
+		sf::sleep(sf::milliseconds(10)); 
+	}
+
+}
+
+void playSound(const std::string& filePath)
+{
+	std::thread soundThread(playSoundThread, filePath);
+	soundThread.detach();
+}
+*/
+
 
 bool InputBoolWithEndFocus(const char* label, bool* value)
 {
@@ -390,6 +420,8 @@ void undoAction() {
 
 int main()
 {
+	
+
 	Presave<float> myData;
 
 	myData = Presave < float >();
@@ -1027,6 +1059,10 @@ int main()
 				system(command.c_str());
 				memset(scriptName, 0, sizeof(scriptName));
 			}
+			
+
+
+
 			ImGui::NextColumn();
 			if (ImGui::Button("Script (gloabl ov script)")) {
 				std::string command = "start Script.cpp";
