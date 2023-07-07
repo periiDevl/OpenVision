@@ -163,6 +163,7 @@
     <ClCompile Include="PolygonCollider.cpp" />
     <ClCompile Include="SaveSystem.cpp" />
     <ClCompile Include="Script.cpp" />
+	<ClCompile Include="Anewscript.cpp" />
 	<ClCompile Include="AddedScript.cpp" />
 	<ClCompile Include="ScriptTwo.cpp" />
 	<ClCompile Include="Hello.cpp" />
@@ -198,6 +199,7 @@
     <ClInclude Include="Presave.h" />
     <ClInclude Include="SaveSystem.h" />
     <ClInclude Include="Script.h" />
+	<ClInclude Include="Anewscript.h" />
 	<ClInclude Include="AddedScript.h" />
 	<ClInclude Include="ScriptTwo.h" />
 	<ClInclude Include="Hello.h" />

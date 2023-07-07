@@ -21,6 +21,7 @@
 #include"OVscriptHandaling.h"
 #include"Presave.h"
 #include"Script.h"
+#include"Anewscript.h"
 #include"AddedScript.h"
 #include "SaveSystem.h"
 #include <SFML/Audio.hpp>
@@ -251,6 +252,7 @@ void createFolder(string folderName) {
 }
 
 Script script;
+Anewscript Anewscriptscr;
 AddedScript AddedScriptscr;
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
@@ -730,7 +732,7 @@ int main()
 		camera.updateMatrix(fov, 0.1f, 100.0f);
 		glEnable(GL_DEPTH_TEST);
 
-
+		
 		crntTime = glfwGetTime();
 		timeDiff = crntTime - prevTime;
 		counter++;
@@ -1297,7 +1299,7 @@ int main()
 
 		blackbox.DrawTMP(window, shaderProgram, camera, glm::vec2((61.7 / 1.445) / 1.5, 0), glm::vec2(0.5, 64));
 		blackbox.DrawTMP(window, shaderProgram, camera, glm::vec2((-61.7 / 1.445) / 1.5,0), glm::vec2(0.5, 64));
-
+		
 		if (run) {
 			if (StartPhase)
 			{
@@ -1312,10 +1314,14 @@ int main()
 				con.CLEAR_CONSOLE();
 				fov = 22.45;
 				script.Start(con, InputHandler, world, sceneObjects, camera);
+				Anewscriptscr.Start(con, InputHandler, world, sceneObjects, camera);
 				AddedScriptscr.Start(con, InputHandler, world, sceneObjects, camera);
 
 				StartPhase = false;
 			}
+				script.Update(con, InputHandler, world, sceneObjects, camera);
+				Anewscriptscr.Update(con, InputHandler, world, sceneObjects, camera);
+				AddedScriptscr.Update(con, InputHandler, world, sceneObjects, camera);
 			if (timeDiff >= fixed_timestep) {
 				std::string FPS = std::to_string((1.0 / timeDiff) * counter);
 				std::string newTitle = "OpenVision - periidev & itaymadeit ~" + FPS + "FPS";
@@ -1326,8 +1332,6 @@ int main()
 
 
 			
-				script.Update(con, InputHandler, world, sceneObjects, camera);
-				AddedScriptscr.Update(con, InputHandler, world, sceneObjects, camera);
 
 
 				world.Step(fixed_timestep);
