@@ -740,8 +740,9 @@ int main()
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
-		ObjectCreator(window, PresceneObjects[selectedObject]);
-		
+		if (PresceneObjects.size() > 1) {
+			ObjectCreator(window, PresceneObjects[selectedObject]);
+		}
 		static bool show_selected_pop = false;
 		if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
 		{
