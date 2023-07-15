@@ -57,11 +57,6 @@ void PhysicsWorld::Step(float deltaTime)
 					
 					GetContactPointsPolyVPoly(polyA, polyB, manifold);
 
-					cout << "contact points:" << endl;
-					for (size_t i = 0; i < manifold.contactPoints.size(); i++)
-					{
-						cout << "p" << i << ":" << glm::to_string(manifold.contactPoints[i]) << endl;
-					}
 					//vec2 point1 = bodyA->GetCollider().GetSupportPoint(-normal);
 					//vec2 point2 = bodyB->GetCollider()-GetSupportPoint(normal);
 					int sizeContactPoints = 2;

@@ -24,7 +24,7 @@
 #include"Anewscript.h"
 #include"AddedScript.h"
 #include "SaveSystem.h"
-#include <SFML/Audio.hpp>
+//#include <SFML/Audio.hpp>
 std::vector<Object> sceneObjects;
 std::vector<Object> PresceneObjects;
 SaveSystem SavingSystem;
@@ -663,11 +663,13 @@ int main()
 	DefaultTheme();
 	glEnable(GL_MULTISAMPLE);
 
+	sceneObjects = PresceneObjects;
 	for (size_t i = 0; i < sceneObjects.size(); i++) {
 		sceneObjects[i].scenePosition = *PresceneObjects[i].position;
 		sceneObjects[i].sceneScale = *PresceneObjects[i].scale;
+		*sceneObjects[i].angle = float(*PresceneObjects[i].angle);
 	}
-	sceneObjects = PresceneObjects;
+	
 	glEnable(GL_DEPTH_TEST);
 
 
@@ -828,7 +830,7 @@ int main()
 		}
 
 
-
+		cout << *PresceneObjects[0].angle << endl;
 
 		if (!run) {
 			if (!StartPhase) {
@@ -839,6 +841,8 @@ int main()
 					*sceneObjects[i].position = PresceneObjects[i].scenePosition;
 					*sceneObjects[i].scale = PresceneObjects[i].sceneScale;
 					sceneObjects[i].Body->velocity = vec2(0, 0);
+					sceneObjects[i].angle = new float;
+					*sceneObjects[i].angle = *PresceneObjects[i].angle;
 					PresceneObjects[i].Body->velocity = vec2(0, 0);
 				}
 				//sceneObjects[0].Body->GetCollider()->CalculateAABB();
@@ -1134,7 +1138,7 @@ int main()
 						}
 					}
 
-
+					
 					if (PresceneObjects[i].deleted == false) {
 
 						if (ImGui::CollapsingHeader(PresceneObjects[i].name == "" ? std::to_string(i).c_str() : PresceneObjects[i].name.c_str()))
@@ -1304,11 +1308,13 @@ int main()
 		if (run) {
 			if (StartPhase)
 			{
+				PresceneObjects = sceneObjects;
 				for (size_t i = 0; i < PresceneObjects.size(); i++) {
 					sceneObjects[i].scenePosition = *sceneObjects[i].position;
 					sceneObjects[i].sceneScale = *sceneObjects[i].scale;
+					sceneObjects[i].angle = new float;
+					*sceneObjects[i].angle = *PresceneObjects[i].angle;
 				}
-				PresceneObjects = sceneObjects;
 				for (int i = 0; i < sceneObjects.size(); i++) {
 					world.AddBody(sceneObjects[i].Body);
 				}
@@ -1395,7 +1401,7 @@ int main()
 			SavingSystem.save("OBJ" + std::to_string(i) + "_POS_Y", sceneObjects[i].position->y);
 			SavingSystem.save("OBJ" + std::to_string(i) + "_SCA_X", sceneObjects[i].scale->x);
 			SavingSystem.save("OBJ" + std::to_string(i) + "_SCA_Y", sceneObjects[i].scale->y);
-			SavingSystem.save("OBJ" + std::to_string(i) + "_ANGLE", *sceneObjects[i].angle);
+			SavingSystem.save("OBJ" + std::to_string(i) + "_ANGLE", *PresceneObjects[i].angle);
 			SavingSystem.save("OBJ" + std::to_string(i) + "_TEXTURE", sceneObjects[i].texChar);
 			SavingSystem.save("OBJ" + std::to_string(i) + "_LAYER", sceneObjects[i].layer);
 			SavingSystem.save("OBJ" + std::to_string(i) + "_RUNDRAW", sceneObjects[i].drawOnRuntime);

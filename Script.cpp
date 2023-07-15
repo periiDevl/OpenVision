@@ -2,11 +2,10 @@
 #include<filesystem>
 
 
-std::vector<Texture> textures;
-float fl;
+Object* m;
 void Script::Start(Console& ovcon, InputSystem Input, PhysicsWorld& world, std::vector<Object>& sceneObjects, Camera& camera) {
 
-
+	m = OV::SearchObjectByName("F", sceneObjects);
     //OV::PlaySound("Overspeed Warning.wav");
 
 }   
@@ -16,6 +15,7 @@ void Script::Update(Console& ovcon, InputSystem Input, PhysicsWorld& world, std:
     
     if (Input.GetKeyDown(GLFW_KEY_SPACE))
     {
+        *m->angle = *m->angle + 5;
         //OV::PlaySound("Overspeed Warning.wav");
     }
 
