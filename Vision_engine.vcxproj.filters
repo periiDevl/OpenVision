@@ -105,6 +105,9 @@
     <ClCompile Include="Hello.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Anewscript.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h">
@@ -204,6 +207,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Hello.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Anewscript.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

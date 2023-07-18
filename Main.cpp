@@ -24,7 +24,6 @@
 #include"Anewscript.h"
 #include"AddedScript.h"
 #include "SaveSystem.h"
-#include "SFML/Audio.hpp"
 std::vector<Object> sceneObjects;
 std::vector<Object> PresceneObjects;
 SaveSystem SavingSystem;
