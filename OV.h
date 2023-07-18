@@ -6,6 +6,7 @@
 #include <filesystem>
 //#include <SFML/Audio.hpp>
 #include<thread>
+#include "SFML/Audio.hpp"
 
 
 class OV {
