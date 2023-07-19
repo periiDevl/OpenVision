@@ -651,7 +651,6 @@ int main()
 	unsigned int counter = 0;
 	int selectedObject = 0;
 	float fov = 45;
-	char addedfile[256] = "";
 	bool onpopupmenu = false;
 
 	bool releasedUndo = true;
@@ -933,12 +932,21 @@ int main()
 			{
 				if (ImGui::BeginTabItem("Textures"))
 				{
-					if (ImGui::Button("Add Texture"))
+					if (ImGui::Button("Refresh"))
 					{
-						textures.push_back(Texture(addedfile));
+						textures.clear();
+						for (const auto& file : std::filesystem::directory_iterator(dir_path)) {
+							std::string ext = file.path().extension().string();
+							if (ext == ".jpg" || ext == ".png" || ext == ".jpeg") {
+								std::string filepath = file.path().string();
+								Texture tex(filepath.c_str());
+								tex.ImageFile = tex.ImageFile = file.path().stem().string();
+								tex.FullImageFile = filepath;
+								textures.push_back(tex);
+							}
+						}
 					}
 
-					ImGui::InputText("Path : ", addedfile, sizeof(addedfile));
 
 					for (size_t k = 0; k < textures.size(); k++)
 					{
