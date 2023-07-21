@@ -25,27 +25,6 @@ Object::Object(std::vector<Vertex>& vertices, std::vector<GLuint>& indices)
 }
 
 
-void Object::Draw(GLFWwindow* window, GLuint shader, Camera& camera, glm::vec3 axis)
-{
-    shader = shader;
-    glUseProgram(shader);
-    VAO.Bind();
-	tex.Bind();
-	
-    unsigned int numDiffuse = 0;
-    glm::mat4 model = glm::mat4(1.0f);
-    model = glm::translate(model, glm::vec3(position->x, -position->y, layer / 100.0));
-
-    model = glm::rotate(model, Deg(*angle), axis);
-    model = glm::scale(model, glm::vec3(*scale, 1.0f));
-
-    glUniformMatrix4fv(glGetUniformLocation(shader, "model"), 1, GL_FALSE, glm::value_ptr(model));
-
-    glUniform3f(glGetUniformLocation(shader, "camPos"), camera.Position.x, camera.Position.y, camera.Position.z);
-    camera.Matrix(shader, "camMatrix");
-
-    glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
-}
 
 void Object::Draw(GLFWwindow* window, GLuint shader, Camera& camera, glm::vec3 axis, float cameraX, float cameraY)
 {
@@ -53,6 +32,9 @@ void Object::Draw(GLFWwindow* window, GLuint shader, Camera& camera, glm::vec3 a
     glUseProgram(shader);
     VAO.Bind();
     tex.Bind();
+
+    glUniform1f(glGetUniformLocation(shader, "tileX"), TileX);
+    glUniform1f(glGetUniformLocation(shader, "tileY"), TileY);
 
     unsigned int numDiffuse = 0;
     glm::mat4 model = glm::mat4(1.0f);
@@ -65,7 +47,7 @@ void Object::Draw(GLFWwindow* window, GLuint shader, Camera& camera, glm::vec3 a
 
     glUniform3f(glGetUniformLocation(shader, "camPos"), camera.Position.x, camera.Position.y, camera.Position.z);
     camera.Matrix(shader, "camMatrix");
-
+    //Used
     glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
 }
 

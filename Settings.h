@@ -64,34 +64,40 @@ const char* vertexShaderSource =
 "	gl_Position = camMatrix * vec4(crntPos, 1.0);\n"
 "}\n";
 
-
 const char* fragmentShaderSource =
 "#version 330 core \n"
 
 "out vec4 FragColor;\n"
 
 "in vec3 crntPos;\n"
-
 "in vec2 texCoord;\n"
 
 "uniform sampler2D diffuse0;\n"
+"uniform float tileX = 2.0f;\n"
+"uniform float tileY = 2.0f;\n"
 
 "vec4 lightColor = vec4(1, 1, 1, 1);\n"
 
 "vec4 ambientLight()\n"
 "{ \n"
+"	vec2 tiledTexCoord = fract(texCoord * vec2(tileX, tileY));\n"
+
+"	vec4 texColor = texture(diffuse0, tiledTexCoord);\n"
+
+"	// If the alpha of the texture is too low, discard the fragment\n"
+"	if (texColor.a < 0.01)\n"
+"		discard;\n"
 "	float ambient = 1.0f;\n"
-"	return texture(diffuse0, texCoord) * ambient * lightColor;\n"
+
+"	// Correctly blend the transparent texture color with the background color\n"
+"	vec4 bgColor = vec4(0.0); // You can set the background color here\n"
+"	return mix(bgColor, texColor, texColor.a) * ambient * lightColor;\n"
 "}\n"
 
 "void main()\n"
 "{ \n"
 "	FragColor = ambientLight();\n"
-"	if (texture(diffuse0, texCoord).a < 0.01)\n"
-"		discard;\n"
-
 "}\n";
-
 
 const char* UnlitFragment =
 R"(

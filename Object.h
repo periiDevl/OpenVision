@@ -26,6 +26,8 @@ public:
 	glm::vec2 sceneScale;
 	float* angle = 0;
 	int layer = 0;
+
+	float TileX = 1.0f, TileY = 1.0f;
 	std::vector <Vertex> vertices;
 	std::vector <GLuint> indices;
 	std::vector <Texture> textures;

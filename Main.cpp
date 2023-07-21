@@ -393,6 +393,9 @@ void undoAction() {
 					SavingSystem.remove("OBJ" + std::to_string(i) + "_FRIC");
 					SavingSystem.remove("OBJ" + std::to_string(i) + "_STATIC");
 					SavingSystem.remove("OBJ" + std::to_string(i) + "_TRIG");
+					SavingSystem.remove("OBJ" + std::to_string(i) + "_TTX");
+					SavingSystem.remove("OBJ" + std::to_string(i) + "_TTY");
+
 					PresceneObjects.erase(PresceneObjects.begin() + i);
 					sceneObjects.erase(sceneObjects.begin() + i);
 					return;
@@ -597,7 +600,7 @@ int main()
 
 	int amount = SavingSystem.getInt("OBJ_AMOUNT", 3);
 	for (int i = 0; i < amount; i++) {
-		float posx, posy, scalex, scaley, angle, layer, restitution, friction, velX, velY;
+		float posx, posy, scalex, scaley, angle, layer, restitution, friction, velX, velY, tilex, tiley;
 		bool runtimeDraw, isStatic, isTrigger;
 		int phys_layer = 0;
 		std::string name, texture;
@@ -617,6 +620,11 @@ int main()
 		restitution = SavingSystem.getFloat("OBJ" + std::to_string(i) + "_BOUNCE", 0.5f);
 		isStatic = SavingSystem.getFloat("OBJ" + std::to_string(i) + "_STATIC", 0.0f);
 		isTrigger = SavingSystem.getFloat("OBJ" + std::to_string(i) + "_TRIG", 0.0f);
+
+		tilex = SavingSystem.getFloat("OBJ" + std::to_string(i) + "_TTX", 0.0f);
+		tiley = SavingSystem.getFloat("OBJ" + std::to_string(i) + "_TTY", 0.0f);
+
+
 
 		Object obj = Object(verts, ind);
 		obj.name = name;
@@ -638,6 +646,9 @@ int main()
 		obj.Body->restitution = restitution;
 		obj.Body->isStatic = isStatic;
 		obj.Body->isTrigger = isTrigger;
+
+		obj.TileX = tilex;
+		obj.TileY = tiley;
 
 
 		obj.tex = Texture((texture).c_str());
@@ -779,6 +790,9 @@ int main()
 					SavingSystem.remove("OBJ" + std::to_string(selectedObject) + "_FRIC");
 					SavingSystem.remove("OBJ" + std::to_string(selectedObject) + "_STATIC");
 					SavingSystem.remove("OBJ" + std::to_string(selectedObject) + "_TRIG");
+
+					SavingSystem.remove("OBJ" + std::to_string(selectedObject) + "_TTX");
+					SavingSystem.remove("OBJ" + std::to_string(selectedObject) + "_TTY");
 					PresceneObjects.erase(PresceneObjects.begin() + selectedObject);
 					sceneObjects.erase(sceneObjects.begin() + selectedObject);
 				}
@@ -1147,6 +1161,11 @@ int main()
 
 					
 					if (PresceneObjects[i].deleted == false) {
+						if (i == selectedObject) {
+							ImGui::SetNextItemOpen(true);
+						}
+
+
 
 						if (ImGui::CollapsingHeader(PresceneObjects[i].name == "" ? std::to_string(i).c_str() : PresceneObjects[i].name.c_str()))
 						{
@@ -1168,6 +1187,9 @@ int main()
 								SavingSystem.remove("OBJ" + std::to_string(i) + "_FRIC");
 								SavingSystem.remove("OBJ" + std::to_string(i) + "_STATIC");
 								SavingSystem.remove("OBJ" + std::to_string(i) + "_TRIG");
+
+								SavingSystem.remove("OBJ" + std::to_string(i) + "_TTX");
+								SavingSystem.remove("OBJ" + std::to_string(i) + "_TTY");
 								PresceneObjects.erase(PresceneObjects.begin() + i);
 								sceneObjects.erase(sceneObjects.begin() + i);
 							}
@@ -1212,6 +1234,13 @@ int main()
 
 							ImGui::NextColumn();
 							InputBoolWithEndFocus(("Static ##" + std::to_string(i)).c_str(), &PresceneObjects[i].Body->isStatic);
+							ImGui::Columns(1, nullptr, true);
+
+							ImGui::Columns(2, nullptr, true);
+							InputFloatWithEndFocus(("Tex X##" + std::to_string(i)).c_str(), &PresceneObjects[i].TileX, 0.3f, 1, 0);
+							ImGui::NextColumn();
+							InputFloatWithEndFocus(("Tex Y##" + std::to_string(i)).c_str(), &PresceneObjects[i].TileY, 0.3f, 1, 0);
+
 							ImGui::Columns(1, nullptr, true);
 
 							
@@ -1417,6 +1446,9 @@ int main()
 			SavingSystem.save("OBJ" + std::to_string(i) + "_BOUNCE", sceneObjects[i].Body->restitution);
 			SavingSystem.save("OBJ" + std::to_string(i) + "_STATIC", sceneObjects[i].Body->isStatic);
 			SavingSystem.save("OBJ" + std::to_string(i) + "_TRIG", sceneObjects[i].Body->isTrigger);
+
+			SavingSystem.save("OBJ" + std::to_string(i) + "_TTX", sceneObjects[i].TileX);
+			SavingSystem.save("OBJ" + std::to_string(i) + "_TTY", sceneObjects[i].TileY);
 		}
 		SavingSystem.save("BG_COLOR", vec3(BackroundScreen[0], BackroundScreen[1], BackroundScreen[2]));
 		SavingSystem.saveToFile("SCENE.ov");
