@@ -66,37 +66,37 @@ const char* vertexShaderSource =
 
 const char* fragmentShaderSource =
 "#version 330 core \n"
-
 "out vec4 FragColor;\n"
-
 "in vec3 crntPos;\n"
 "in vec2 texCoord;\n"
-
 "uniform sampler2D diffuse0;\n"
 "uniform float tileX = 2.0f;\n"
 "uniform float tileY = 2.0f;\n"
-
 "vec4 lightColor = vec4(1, 1, 1, 1);\n"
 
 "vec4 ambientLight()\n"
 "{ \n"
-"	vec2 tiledTexCoord = fract(texCoord * vec2(tileX, tileY));\n"
+"    vec2 tiledTexCoord = fract(texCoord * vec2(tileX, tileY));\n"
+"    vec4 texColor = texture(diffuse0, tiledTexCoord);\n"
 
-"	vec4 texColor = texture(diffuse0, tiledTexCoord);\n"
 
-"	// If the alpha of the texture is too low, discard the fragment\n"
-"	if (texColor.a < 0.01)\n"
-"		discard;\n"
-"	float ambient = 1.0f;\n"
+"    float ambient = 1.0f;\n"
+"    vec4 bgColor = vec4(0.0);\n"
+"    float borderThreshold = 0.01; \n"
 
-"	// Correctly blend the transparent texture color with the background color\n"
-"	vec4 bgColor = vec4(0.0); // You can set the background color here\n"
-"	return mix(bgColor, texColor, texColor.a) * ambient * lightColor;\n"
+"    float distanceToBorder = min(min(tiledTexCoord.x, 1.0 - tiledTexCoord.x), min(tiledTexCoord.y, 1.0 - tiledTexCoord.y));\n"
+
+"    if (distanceToBorder < borderThreshold)\n"
+"        texColor.a = 0.0;\n"
+
+"    if (texColor.a < 0.01)\n"
+"        discard;\n"
+"    return mix(bgColor, texColor, texColor.a) * ambient * lightColor;\n"
 "}\n"
 
 "void main()\n"
 "{ \n"
-"	FragColor = ambientLight();\n"
+"    FragColor = ambientLight();\n"
 "}\n";
 
 const char* UnlitFragment =
@@ -166,12 +166,12 @@ void main()
     float dist = distance(texCoords, center);
     float vignette = smoothstep(radius, radius - softness, dist);
     
-    vec3 fxaa = ApplyFXAA(); // Assuming ApplyFXAA() is a function that returns vec3 color from FXAA algorithm
+    vec3 fxaa = ApplyFXAA();
     
     vec4 color = texture(screenTexture, texCoords);
     
     vec3 finalColor = color.rgb * vignette;
-    finalColor = mix(finalColor, fxaa, vignette); // Apply FXAA effect based on vignette
+    finalColor = mix(finalColor, fxaa, vignette);
     
     FragColor = vec4(finalColor, 1.0);
 }
