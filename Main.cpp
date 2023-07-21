@@ -1179,7 +1179,7 @@ int main()
 								SavingSystem.remove("OBJ" + std::to_string(i) + "_POS_X");
 								SavingSystem.remove("OBJ" + std::to_string(i) + "_POS_Y");
 								SavingSystem.remove("OBJ" + std::to_string(i) + "_SCA_X");
-								SavingSystem.remove("OBJ" + std::to_string(i) + "_SC A_Y");
+								SavingSystem.remove("OBJ" + std::to_string(i) + "_SCA_Y");
 								SavingSystem.remove("OBJ" + std::to_string(i) + "_ANGLE");
 								SavingSystem.remove("OBJ" + std::to_string(i) + "_TEXTURE");
 								SavingSystem.remove("OBJ" + std::to_string(i) + "_LAYER");
