@@ -26,12 +26,19 @@ Object::Object(std::vector<Vertex>& vertices, std::vector<GLuint>& indices)
 
 
 
-void Object::Draw(GLFWwindow* window, GLuint shader, Camera& camera, glm::vec3 axis, float cameraX, float cameraY)
+void Object::Draw(GLFWwindow* window, GLuint shader, Camera& camera, glm::vec3 axis, float cameraX, float cameraY, bool TextureNearest)
 {
     shader = shader;
     glUseProgram(shader);
     VAO.Bind();
+    if (!TextureNearest) {
+        tex.SetFilteringMode(GL_LINEAR, GL_LINEAR);
+    }
+    else {
+        tex.SetFilteringMode(GL_NEAREST, GL_NEAREST);
+    }
     tex.Bind();
+
 
     glUniform1f(glGetUniformLocation(shader, "tileX"), TileX);
     glUniform1f(glGetUniformLocation(shader, "tileY"), TileY);

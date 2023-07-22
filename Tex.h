@@ -15,7 +15,12 @@ public:
 	GLuint unit;
 
 	Texture(const char* image);
-
+	void SetFilteringMode(GLenum minFilter, GLenum magFilter) {
+		glBindTexture(GL_TEXTURE_2D, ID);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, minFilter);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, magFilter);
+		glBindTexture(GL_TEXTURE_2D, 0);
+	}
 	void texUnit(GLuint shader, const char* uniform);
 	void Bind();
 	void Unbind();

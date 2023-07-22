@@ -443,6 +443,7 @@ int main()
 	float FXAA_REDUCE_MUL = myData.data[12];
 	float CMX = myData.data[13];
 	float CMY = myData.data[14];
+	bool Nearest = myData.data[15];
 	bool build;
 
 	
@@ -842,10 +843,10 @@ int main()
 		}
 
 
-		cout << *PresceneObjects[0].angle << endl;
 
 		if (!run) {
 			if (!StartPhase) {
+				sf::Listener::setGlobalVolume(0);
 				fov = 45;
 				glfwSetWindowTitle(window, "OpenVision *(Universal Editor)");
 				for (size_t i = 0; i < PresceneObjects.size(); i++)
@@ -877,7 +878,7 @@ int main()
 
 			//Manifold manifold;
 			//CheckCollision(*OV::SearchObjectByName("obj2", sceneObjects)->Body->GetCollider(), *OV::SearchObjectByName("obj1", sceneObjects)->Body->GetCollider(), manifold);
-				
+			
 			ImGui::Begin("Execute", 0, (no_resize ? ImGuiWindowFlags_NoResize : 0) | (no_move ? ImGuiWindowFlags_NoMove : 0));
 			if (ImGui::Button("Run"))
 			{
@@ -987,22 +988,51 @@ int main()
 					*/
 					ImGui::Checkbox("Vertical-Synchronization", &vsync);
 					ImGui::Checkbox("External-Framebuffer", &DrawFramebuffer);
+					ImGui::Separator();
 					if (DrawFramebuffer) {
-						if (ImGui::CollapsingHeader("Vignette"))
+						if (ImGui::TreeNode("Framebuffer-Effects"))
 						{
-							ImGui::InputFloat("Radius", &VigRadius);
-							ImGui::InputFloat("Softness", &VigSoftness);
+							if (ImGui::TreeNode("Vignette")) {
+								ImGui::InputFloat("Radius", &VigRadius);
+								ImGui::InputFloat("Softness", &VigSoftness);
+								ImGui::TreePop();
+							}
+							if (ImGui::TreeNode("Anti-Aliasing")) {
+								
+								ImGui::InputFloat("FXAA_SPAN_MAX", &FXAA_SPAN_MAX);
+								ImGui::InputFloat("FXAA_REDUCE_MIN", &FXAA_REDUCE_MIN);
+								ImGui::InputFloat("FXAA_REDUCE_MUL", &FXAA_REDUCE_MUL);
+								ImGui::TreePop();
+							}
+							ImGui::TreePop();
 						}
-						ImGui::Text("Fast Approximate Anti-Aliasing");
-						ImGui::InputFloat("FXAA_SPAN_MAX", &FXAA_SPAN_MAX);
-						ImGui::InputFloat("FXAA_REDUCE_MIN", &FXAA_REDUCE_MIN);
-						ImGui::InputFloat("FXAA_REDUCE_MUL", &FXAA_REDUCE_MUL);
 					}
 					else {
-						ImGui::InputInt("MSAA Samples", &msaa);
+						if (ImGui::TreeNode("Anti-Aliasing")) {
+
+							ImGui::InputInt("MSAA Samples", &msaa);
+							ImGui::TreePop();
+						}
 					}
 					ImGui::Separator();
 
+					if (ImGui::TreeNode("Texture-Settings"))
+					{
+						static const char* items[] = { "GL_NEAREST", "GL_LINEAR"};
+						static int currentItem = 0;
+						ImGui::Text("Texture filtering :");
+						ImGui::Combo("##combo", &currentItem, items, IM_ARRAYSIZE(items));
+
+						if (currentItem == 0) {
+							Nearest = true;
+						}
+						else if (currentItem == 1) {
+							Nearest = false;
+						}
+
+						
+						ImGui::TreePop();
+					}
 
 					ImGui::Separator();
 					ImGui::Text("Backround Color");
@@ -1165,9 +1195,9 @@ int main()
 							ImGui::SetNextItemOpen(true);
 						}
 
+						ImGui::Separator();
 
-
-						if (ImGui::CollapsingHeader(PresceneObjects[i].name == "" ? std::to_string(i).c_str() : PresceneObjects[i].name.c_str()))
+						if (ImGui::TreeNode(PresceneObjects[i].name == "" ? std::to_string(i).c_str() : PresceneObjects[i].name.c_str()))
 						{
 							if (ImGui::Button(("Delete Object##" + std::to_string(i)).c_str()))
 							{
@@ -1244,7 +1274,7 @@ int main()
 							ImGui::Columns(1, nullptr, true);
 
 							
-
+							ImGui::TreePop();
 						}
 
 						ImGui::Separator();
@@ -1318,7 +1348,7 @@ int main()
 
 						glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 						glLineWidth(3.0f);
-						PresceneObjects[selectedObject].Draw(window, unlitProgram, camera, glm::vec3(0, 0, 1), CMX, CMY);
+						PresceneObjects[selectedObject].Draw(window, unlitProgram, camera, glm::vec3(0, 0, 1), CMX, CMY, Nearest);
 						glUniform4f(glGetUniformLocation(unlitProgram, "color"), 1.0, 0.00, 0.0, 1);
 						glLineWidth(1.5f);
 						PresceneObjects[selectedObject].DrawTMP(window, unlitProgram, camera, 
@@ -1327,7 +1357,7 @@ int main()
 						glLineWidth(0.0f);
 						glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
-						PresceneObjects[i].Draw(window, shaderProgram, camera, glm::vec3(0, 0, 1), CMX, CMY);
+						PresceneObjects[i].Draw(window, shaderProgram, camera, glm::vec3(0, 0, 1), CMX, CMY, Nearest);
 
 					}
 				}
@@ -1342,14 +1372,15 @@ int main()
 		blackbox.DrawTMP(window, shaderProgram, camera, glm::vec2((-61.7 / 1.445) / 1.5,0), glm::vec2(0.5, 64));
 		
 		if (run) {
+
 			if (StartPhase)
 			{
-				PresceneObjects = sceneObjects;
+				sf::Listener::setGlobalVolume(100);
 				for (size_t i = 0; i < PresceneObjects.size(); i++) {
-					sceneObjects[i].scenePosition = *sceneObjects[i].position;
-					sceneObjects[i].sceneScale = *sceneObjects[i].scale;
-					sceneObjects[i].angle = new float;
-					*sceneObjects[i].angle = *PresceneObjects[i].angle;
+					PresceneObjects[i].scenePosition = *sceneObjects[i].position;
+					PresceneObjects[i].sceneScale = *sceneObjects[i].scale;
+					PresceneObjects[i].angle = new float;
+					*PresceneObjects[i].angle = *sceneObjects[i].angle;
 				}
 				for (int i = 0; i < sceneObjects.size(); i++) {
 					world.AddBody(sceneObjects[i].Body);
@@ -1390,13 +1421,13 @@ int main()
 					glUniform4f(glGetUniformLocation(unlitProgram, "color"), sceneObjects[i].OutlineColor.x, sceneObjects[i].OutlineColor.y, sceneObjects[i].OutlineColor.z, 1);
 					glLineWidth(sceneObjects[i].outlineWidth);
 					if (sceneObjects[i].outlineWidth > 0) {
-						sceneObjects[i].Draw(window, unlitProgram, camera, glm::vec3(0, 0, 1), CMX, CMY);
+						sceneObjects[i].Draw(window, unlitProgram, camera, glm::vec3(0, 0, 1), CMX, CMY,Nearest);
 					}
 					glLineWidth(0.0f);
 					glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
 					if (sceneObjects[i].drawOnRuntime == true) {
-						sceneObjects[i].Draw(window, shaderProgram, camera, glm::vec3(0, 0, 1), CMX, CMY);
+						sceneObjects[i].Draw(window, shaderProgram, camera, glm::vec3(0, 0, 1), CMX, CMY, Nearest);
 					}
 				}
 			}
@@ -1454,7 +1485,7 @@ int main()
 		SavingSystem.saveToFile("SCENE.ov");
 
 		myData.data = { float(vsync), float(msaa), BackroundScreen[0], BackroundScreen[1], BackroundScreen[2], float(LocalPy), 
-			float(PythonIndex),float(DrawFramebuffer), VigRadius, VigSoftness, FXAA_SPAN_MAX, FXAA_REDUCE_MIN, FXAA_REDUCE_MUL, CMX, CMY};
+			float(PythonIndex),float(DrawFramebuffer), VigRadius, VigSoftness, FXAA_SPAN_MAX, FXAA_REDUCE_MIN, FXAA_REDUCE_MUL, CMX, CMY, float(Nearest)};
 
 		myData.saveData();
 	}
