@@ -421,29 +421,30 @@ void undoAction() {
 	}
 }
 
-
+namespace fs = std::filesystem;
 int main()
 {
-	
+	fs::path currentPath = fs::current_path();
+	fs::path ProjectName = currentPath.filename().string();
 
-	Presave<float> myData;
+	Presave<float> Data;
 
-	myData = Presave < float >();
-	myData.SafeOperation();
+	Data = Presave < float >();
+	Data.SafeOperation();
 	
-	bool vsync = myData.data[0];
-	int msaa = myData.data[1];
-	bool LocalPy = myData.data[5];
-	PythonIndex = myData.data[6];
-	bool DrawFramebuffer = myData.data[7];
-	float VigRadius = myData.data[8];
-	float VigSoftness = myData.data[9];
-	float FXAA_SPAN_MAX = myData.data[10];
-	float FXAA_REDUCE_MIN = myData.data[11];
-	float FXAA_REDUCE_MUL = myData.data[12];
-	float CMX = myData.data[13];
-	float CMY = myData.data[14];
-	bool Nearest = myData.data[15];
+	bool vsync = Data.data[0];
+	int msaa = Data.data[1];
+	bool LocalPy = Data.data[5];
+	PythonIndex = Data.data[6];
+	bool DrawFramebuffer = Data.data[7];
+	float VigRadius = Data.data[8];
+	float VigSoftness = Data.data[9];
+	float FXAA_SPAN_MAX = Data.data[10];
+	float FXAA_REDUCE_MIN = Data.data[11];
+	float FXAA_REDUCE_MUL = Data.data[12];
+	float CMX = Data.data[13];
+	float CMY = Data.data[14];
+	bool Nearest = Data.data[15];
 	bool build;
 
 	
@@ -848,7 +849,8 @@ int main()
 			if (!StartPhase) {
 				sf::Listener::setGlobalVolume(0);
 				fov = 45;
-				glfwSetWindowTitle(window, "OpenVision *(Universal Editor)");
+				std::string title = "OpenVision *(Universal Editor) ~ *" + ProjectName.string();
+				glfwSetWindowTitle(window, title.c_str());
 				for (size_t i = 0; i < PresceneObjects.size(); i++)
 				{
 					*sceneObjects[i].position = PresceneObjects[i].scenePosition;
@@ -1484,10 +1486,10 @@ int main()
 		SavingSystem.save("BG_COLOR", vec3(BackroundScreen[0], BackroundScreen[1], BackroundScreen[2]));
 		SavingSystem.saveToFile("SCENE.ov");
 
-		myData.data = { float(vsync), float(msaa), BackroundScreen[0], BackroundScreen[1], BackroundScreen[2], float(LocalPy), 
+		Data.data = { float(vsync), float(msaa), BackroundScreen[0], BackroundScreen[1], BackroundScreen[2], float(LocalPy), 
 			float(PythonIndex),float(DrawFramebuffer), VigRadius, VigSoftness, FXAA_SPAN_MAX, FXAA_REDUCE_MIN, FXAA_REDUCE_MUL, CMX, CMY, float(Nearest)};
 
-		myData.saveData();
+		Data.saveData();
 	}
 
 	glDeleteShader(vertexShader);
