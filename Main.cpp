@@ -26,6 +26,7 @@
 #include "SaveSystem.h"
 std::vector<Object> sceneObjects;
 std::vector<Object> PresceneObjects;
+
 SaveSystem SavingSystem;
 
 
@@ -571,6 +572,8 @@ int main()
 	bool no_move = true;
 	bool mouseOverUI = false;
 
+	Texture nulltex = Texture("");
+	Texture CenterDot = Texture("EngineAssets/CenterDot.png");
 
 	std::vector<Texture> textures;
 	std::filesystem::path dir_path = "Assets/";
@@ -658,6 +661,7 @@ int main()
 	}
 
 	Object blackbox = Object(verts, ind);
+
 	double prevTime = 0.0;
 	double crntTime = 0.0;
 	double timeDiff;
@@ -732,7 +736,8 @@ int main()
 		{
 			run = false;
 		}
-		if (DrawFramebuffer && run) {
+
+		if (DrawFramebuffer) {
 			glBindFramebuffer(GL_FRAMEBUFFER, FBO);
 		}
 		else {
@@ -1367,11 +1372,17 @@ int main()
 
 			
 		}
+		
+		blackbox.tex = nulltex;
 		blackbox.DrawTMP(window, shaderProgram, camera, glm::vec2(0, (-36 / 1.5) / 1.5), glm::vec2(114, 0.5));
 		blackbox.DrawTMP(window, shaderProgram, camera, glm::vec2(0,( 36 / 1.5) / 1.5), glm::vec2(114, 0.5));
 
 		blackbox.DrawTMP(window, shaderProgram, camera, glm::vec2((61.7 / 1.445) / 1.5, 0), glm::vec2(0.5, 64));
-		blackbox.DrawTMP(window, shaderProgram, camera, glm::vec2((-61.7 / 1.445) / 1.5,0), glm::vec2(0.5, 64));
+		blackbox.DrawTMP(window, shaderProgram, camera, glm::vec2((-61.7 / 1.445) / 1.5, 0), glm::vec2(0.5, 64));
+
+
+		blackbox.tex = CenterDot;
+		blackbox.DrawTMP(window, shaderProgram, camera, glm::vec2(CMX,CMY), glm::vec2(5, 5));
 		
 		if (run) {
 
@@ -1435,7 +1446,7 @@ int main()
 			}
 			
 		}
-		if (DrawFramebuffer && run) {
+		if (DrawFramebuffer) {
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 			glUseProgram(FramebufferProgram);

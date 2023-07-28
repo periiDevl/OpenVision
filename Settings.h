@@ -82,7 +82,7 @@ const char* fragmentShaderSource =
 
 "    float ambient = 1.0f;\n"
 "    vec4 bgColor = vec4(0.0);\n"
-"    float borderThreshold = 0.01; \n"
+"    float borderThreshold = 0.02; \n"
 
 "    float distanceToBorder = min(min(tiledTexCoord.x, 1.0 - tiledTexCoord.x), min(tiledTexCoord.y, 1.0 - tiledTexCoord.y));\n"
 

@@ -24,7 +24,37 @@ Object::Object(std::vector<Vertex>& vertices, std::vector<GLuint>& indices)
     EBO.Unbind();
 }
 
+void Object::Draw(GLFWwindow* window, GLuint shader, Camera& camera, glm::vec3 axis, bool TextureNearest)
+{
+    shader = shader;
+    glUseProgram(shader);
+    VAO.Bind();
+    if (!TextureNearest) {
+        tex.SetFilteringMode(GL_LINEAR, GL_LINEAR);
+    }
+    else {
+        tex.SetFilteringMode(GL_NEAREST, GL_NEAREST);
+    }
+    tex.Bind();
 
+
+    glUniform1f(glGetUniformLocation(shader, "tileX"), TileX);
+    glUniform1f(glGetUniformLocation(shader, "tileY"), TileY);
+
+    unsigned int numDiffuse = 0;
+    glm::mat4 model = glm::mat4(1.0f);
+    model = glm::translate(model, glm::vec3(position->x, -position->y, layer / 100.0));
+
+    model = glm::rotate(model, Deg(*angle), axis);
+    model = glm::scale(model, glm::vec3(*scale, 1.0f));
+
+    glUniformMatrix4fv(glGetUniformLocation(shader, "model"), 1, GL_FALSE, glm::value_ptr(model));
+
+    glUniform3f(glGetUniformLocation(shader, "camPos"), camera.Position.x, camera.Position.y, camera.Position.z);
+    camera.Matrix(shader, "camMatrix");
+    //Used
+    glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
+}
 
 void Object::Draw(GLFWwindow* window, GLuint shader, Camera& camera, glm::vec3 axis, float cameraX, float cameraY, bool TextureNearest)
 {
