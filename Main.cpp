@@ -342,8 +342,6 @@ void rebuild(GLFWwindow* window, bool localPython) {
 
 	std::system(command.c_str());
 
-	std::chrono::seconds wait_time(1);
-	std::this_thread::sleep_for(wait_time);
 	glfwSetWindowShouldClose(window, GLFW_TRUE);
 }
 
