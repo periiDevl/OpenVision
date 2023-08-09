@@ -37,7 +37,7 @@ void Object::Draw(GLFWwindow* window, GLuint shader, Camera& camera, glm::vec3 a
     }
     tex.Bind();
 
-
+    glUniform4f(glGetUniformLocation(shader, "tint"), tint.x, tint.y, tint.z, tint.w);
     glUniform1f(glGetUniformLocation(shader, "tileX"), TileX);
     glUniform1f(glGetUniformLocation(shader, "tileY"), TileY);
 
@@ -69,6 +69,7 @@ void Object::Draw(GLFWwindow* window, GLuint shader, Camera& camera, glm::vec3 a
     }
     tex.Bind();
 
+    glUniform4f(glGetUniformLocation(shader, "tint"), tint.x, tint.y, tint.z, tint.w);
 
     glUniform1f(glGetUniformLocation(shader, "tileX"), TileX);
     glUniform1f(glGetUniformLocation(shader, "tileY"), TileY);

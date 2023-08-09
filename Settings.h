@@ -32,72 +32,76 @@ std::vector <GLuint> ind(indices, indices + sizeof(indices) / sizeof(GLuint));
 
 Camera camera(width, height, glm::vec3(0.0f, 0.0f, 80.0f));
 
-const char* vertexShaderSource = 
-"#version 330 core \n"
+const char* vertexShaderSource = R"(
+#version 330 core
 
-"layout(location = 0) in vec3 aPos;\n"
+layout(location = 0) in vec3 aPos;
 
-"layout(location = 1) in vec3 aNormal;\n"
+layout(location = 1) in vec3 aNormal;
 
-"layout(location = 2) in vec3 aColor;\n"
+layout(location = 2) in vec3 aColor;
 
-"layout(location = 3) in vec2 aTex;\n"
+layout(location = 3) in vec2 aTex;
 
-"out vec3 crntPos;\n"
+out vec3 crntPos;
 
-"out vec3 Normal;\n"
+out vec3 Normal;
 
-"out vec3 color;\n"
+out vec3 color;
 
-"out vec2 texCoord;\n"
+out vec2 texCoord;
 
-"uniform mat4 camMatrix;\n"
+uniform mat4 camMatrix;
 
-"uniform mat4 model;\n"
+uniform mat4 model;
 
-"void main()\n"
-"{ \n"
-"	crntPos = vec3(model * vec4(aPos, 1.0f));\n"
-"	Normal = aNormal;\n"
-"	color = aColor;\n"
-"	texCoord = aTex;\n"
-"	gl_Position = camMatrix * vec4(crntPos, 1.0);\n"
-"}\n";
+void main()
+{
+    crntPos = vec3(model * vec4(aPos, 1.0f));
+    Normal = aNormal;
+    color = aColor;
+    texCoord = aTex;
+    gl_Position = camMatrix * vec4(crntPos, 1.0);
+}
+)";
 
 const char* fragmentShaderSource =
-"#version 330 core \n"
-"out vec4 FragColor;\n"
-"in vec3 crntPos;\n"
-"in vec2 texCoord;\n"
-"uniform sampler2D diffuse0;\n"
-"uniform float tileX = 2.0f;\n"
-"uniform float tileY = 2.0f;\n"
-"vec4 lightColor = vec4(1, 1, 1, 1);\n"
+R"(
+#version 330 core
+out vec4 FragColor;
+in vec3 crntPos;
+in vec2 texCoord;
+uniform sampler2D diffuse0;
+uniform float tileX = 2.0f;
+uniform float tileY = 2.0f;
+vec4 lightColor = vec4(1, 1, 1, 1);
 
-"vec4 ambientLight()\n"
-"{ \n"
-"    vec2 tiledTexCoord = fract(texCoord * vec2(tileX, tileY));\n"
-"    vec4 texColor = texture(diffuse0, tiledTexCoord);\n"
+uniform vec4 tint;
+
+vec4 ambientLight()
+{
+    vec2 tiledTexCoord = fract(texCoord * vec2(tileX, tileY));
+    vec4 texColor = texture(diffuse0, tiledTexCoord);
 
 
-"    float ambient = 1.0f;\n"
-"    vec4 bgColor = vec4(0.0);\n"
-"    float borderThreshold = 0.02; \n"
+    float ambient = 1.0f;
+    vec4 bgColor = vec4(0.0);
+    float borderThreshold = 0.02;
 
-"    float distanceToBorder = min(min(tiledTexCoord.x, 1.0 - tiledTexCoord.x), min(tiledTexCoord.y, 1.0 - tiledTexCoord.y));\n"
+    float distanceToBorder = min(min(tiledTexCoord.x, 1.0 - tiledTexCoord.x), min(tiledTexCoord.y, 1.0 - tiledTexCoord.y));
 
-"    if (distanceToBorder < borderThreshold)\n"
-"        texColor.a = 0.0;\n"
+    if (distanceToBorder < borderThreshold)
+        texColor.a = 0.0;
 
-"    if (texColor.a < 0.01)\n"
-"        discard;\n"
-"    return mix(bgColor, texColor, texColor.a) * ambient * lightColor;\n"
-"}\n"
+    if (texColor.a < 0.01)
+        discard;
+    return mix(bgColor, texColor, texColor.a) * ambient * lightColor;
+}
 
-"void main()\n"
-"{ \n"
-"    FragColor = ambientLight();\n"
-"}\n";
+void main()
+{
+    FragColor = ambientLight() * tint;
+})";
 
 const char* UnlitFragment =
 R"(

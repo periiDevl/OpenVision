@@ -29,7 +29,28 @@ std::vector<Object> PresceneObjects;
 
 SaveSystem SavingSystem;
 
+void clearSavingSystem(int I)
+{
+	SavingSystem.remove("OBJ" + std::to_string(I) + "_NAME");
+	SavingSystem.remove("OBJ" + std::to_string(I) + "_POS_X");
+	SavingSystem.remove("OBJ" + std::to_string(I) + "_POS_Y");
+	SavingSystem.remove("OBJ" + std::to_string(I) + "_SCA_X");
+	SavingSystem.remove("OBJ" + std::to_string(I) + "_SCA_Y");
+	SavingSystem.remove("OBJ" + std::to_string(I) + "_ANGLE");
+	SavingSystem.remove("OBJ" + std::to_string(I) + "_TEXTURE");
+	SavingSystem.remove("OBJ" + std::to_string(I) + "_LAYER");
+	SavingSystem.remove("OBJ" + std::to_string(I) + "_RUNDRAW");
+	SavingSystem.remove("OBJ" + std::to_string(I) + "_FRIC");
+	SavingSystem.remove("OBJ" + std::to_string(I) + "_STATIC");
+	SavingSystem.remove("OBJ" + std::to_string(I) + "_TRIG");
 
+	SavingSystem.remove("OBJ" + std::to_string(I) + "_TTX");
+	SavingSystem.remove("OBJ" + std::to_string(I) + "_TTY");
+
+	SavingSystem.remove("OBJ" + std::to_string(I) + "TINX");
+	SavingSystem.remove("OBJ" + std::to_string(I) + "TINY");
+	SavingSystem.remove("OBJ" + std::to_string(I) + "TINZ");
+}
 struct DeleteObject {
 	Object object;
 
@@ -264,7 +285,90 @@ double scroll_offset = 45.0;
 int PythonIndex = 0;
 
 
+void ObjectUI(GLFWwindow* window, int i)
+{
 
+	if (ImGui::Button(("Delete Object##" + std::to_string(i)).c_str()))
+	{
+		DeleteObject action(PresceneObjects[i]);
+		undoStack.push(action);
+
+		PresceneObjects[i].deleted = true;
+		clearSavingSystem(i);
+		PresceneObjects.erase(PresceneObjects.begin() + i);
+		sceneObjects.erase(sceneObjects.begin() + i);
+	}
+	char objName[128];
+	strcpy_s(objName, sizeof(objName), PresceneObjects[i].name.c_str());
+	ImGui::InputText(("Obj Name##" + std::to_string(i)).c_str(), objName, ImGuiInputTextFlags_EnterReturnsTrue);
+	if (glfwGetKey(window, GLFW_KEY_ENTER) && strlen(objName) > 0) {
+		PresceneObjects[i].name = objName;
+		sceneObjects[i].name = objName;
+	}
+
+	if (ImGui::TreeNodeEx(("Visual ##" + std::to_string(i)).c_str(), ImGuiTreeNodeFlags_DefaultOpen))
+	{
+		InputBoolWithEndFocus(("Draw (On runtime) ##" + std::to_string(i)).c_str(), &PresceneObjects[i].drawOnRuntime);
+		ImGui::Columns(2, nullptr, true);
+		InputFloatWithEndFocus(("Pos X##" + std::to_string(i)).c_str(), &PresceneObjects[i].position->x, 0.3f, 1, 0);
+		ImGui::NextColumn();
+		InputFloatWithEndFocus(("Pos Y##" + std::to_string(i)).c_str(), &PresceneObjects[i].position->y, 0.3f, 1, 0);
+
+		ImGui::Columns(1, nullptr, true);
+		ImGui::Columns(2, nullptr, true);
+		InputFloatWithEndFocus(("Scale X##" + std::to_string(i)).c_str(), &PresceneObjects[i].scale->x, 0.3f, 1, 0);
+		ImGui::NextColumn();
+
+		InputFloatWithEndFocus(("Scale Y##" + std::to_string(i)).c_str(), &PresceneObjects[i].scale->y, 0.3f, 1, 0);
+
+		ImGui::Columns(1, nullptr, true);
+		InputFloatWithEndFocus(("Angle ##" + std::to_string(i)).c_str(), PresceneObjects[i].angle, 0.3f, 1, 0);
+
+		InputIntWithEndFocus(("Layer ##" + std::to_string(i)).c_str(), &PresceneObjects[i].layer, 1, 1);
+		ImGui::Columns(2, nullptr, true);
+		InputFloatWithEndFocus(("Tex X##" + std::to_string(i)).c_str(), &PresceneObjects[i].TileX, 0.3f, 1, 0);
+		ImGui::NextColumn();
+		InputFloatWithEndFocus(("Tex Y##" + std::to_string(i)).c_str(), &PresceneObjects[i].TileY, 0.3f, 1, 0);
+
+		ImGui::Columns(1, nullptr, true);
+
+		float tint[3];
+
+
+		tint[0] = PresceneObjects[i].tint.x;
+		tint[1] = PresceneObjects[i].tint.y;
+		tint[2] = PresceneObjects[i].tint.z;
+
+		ImGui::ColorEdit3(("Tint ##" + std::to_string(i)).c_str(), tint);
+
+		PresceneObjects[i].tint.x = tint[0];
+		PresceneObjects[i].tint.y = tint[1];
+		PresceneObjects[i].tint.z = tint[2];
+
+		ImGui::TreePop();
+	}
+	if (ImGui::TreeNodeEx(("Rigidbody Properties ##" + std::to_string(i)).c_str(), ImGuiTreeNodeFlags_DefaultOpen)) {
+		InputIntWithEndFocus(("Physical Layer ##" + std::to_string(i)).c_str(), &PresceneObjects[i].Body->layer);
+
+		InputFloatWithEndFocus(("Friction ##" + std::to_string(i)).c_str(), &PresceneObjects[i].Body->friction);
+
+		InputFloatWithEndFocus(("Bounciness ##" + std::to_string(i)).c_str(), &PresceneObjects[i].Body->restitution);
+
+		ImGui::Columns(1, nullptr, true);
+		ImGui::Columns(2, nullptr, true);
+
+		InputBoolWithEndFocus(("Trigger ##" + std::to_string(i)).c_str(), &PresceneObjects[i].Body->isTrigger);
+
+		ImGui::NextColumn();
+		InputBoolWithEndFocus(("Static ##" + std::to_string(i)).c_str(), &PresceneObjects[i].Body->isStatic);
+		ImGui::Columns(1, nullptr, true);
+
+		ImGui::TreePop();
+
+	}
+
+
+}
 
 float rectangleVertices[] =
 {
@@ -380,20 +484,7 @@ void undoAction() {
 				if (PresceneObjects[i].name == addObjectAction->name) {
 
 					PresceneObjects[i].deleted = true;
-					SavingSystem.remove("OBJ" + std::to_string(i) + "_NAME");
-					SavingSystem.remove("OBJ" + std::to_string(i) + "_POS_X");
-					SavingSystem.remove("OBJ" + std::to_string(i) + "_POS_Y");
-					SavingSystem.remove("OBJ" + std::to_string(i) + "_SCA_X");
-					SavingSystem.remove("OBJ" + std::to_string(i) + "_SCA_Y");
-					SavingSystem.remove("OBJ" + std::to_string(i) + "_ANGLE");
-					SavingSystem.remove("OBJ" + std::to_string(i) + "_TEXTURE");
-					SavingSystem.remove("OBJ" + std::to_string(i) + "_LAYER");
-					SavingSystem.remove("OBJ" + std::to_string(i) + "_RUNDRAW");
-					SavingSystem.remove("OBJ" + std::to_string(i) + "_FRIC");
-					SavingSystem.remove("OBJ" + std::to_string(i) + "_STATIC");
-					SavingSystem.remove("OBJ" + std::to_string(i) + "_TRIG");
-					SavingSystem.remove("OBJ" + std::to_string(i) + "_TTX");
-					SavingSystem.remove("OBJ" + std::to_string(i) + "_TTY");
+					clearSavingSystem(i);
 
 					PresceneObjects.erase(PresceneObjects.begin() + i);
 					sceneObjects.erase(sceneObjects.begin() + i);
@@ -571,7 +662,7 @@ int main()
 	bool mouseOverUI = false;
 
 	Texture nulltex = Texture("");
-	Texture CenterDot = Texture("EngineAssets/CenterDot.png");
+	//Texture CenterDot = Texture("EngineAssets/CenterDot.png");
 
 	std::vector<Texture> textures;
 	std::filesystem::path dir_path = "Assets/";
@@ -605,6 +696,7 @@ int main()
 	for (int i = 0; i < amount; i++) {
 		float posx, posy, scalex, scaley, angle, layer, restitution, friction, velX, velY, tilex, tiley;
 		bool runtimeDraw, isStatic, isTrigger;
+		glm::vec4 tint;
 		int phys_layer = 0;
 		std::string name, texture;
 
@@ -627,7 +719,9 @@ int main()
 		tilex = SavingSystem.getFloat("OBJ" + std::to_string(i) + "_TTX", 0.0f);
 		tiley = SavingSystem.getFloat("OBJ" + std::to_string(i) + "_TTY", 0.0f);
 
-
+		tint.x = SavingSystem.getFloat("OBJ" + std::to_string(i) + "TINX", 0.0f);
+		tint.y = SavingSystem.getFloat("OBJ" + std::to_string(i) + "TINY", 0.0f);
+		tint.z = SavingSystem.getFloat("OBJ" + std::to_string(i) + "TINZ", 0.0f);
 
 		Object obj = Object(verts, ind);
 		obj.name = name;
@@ -652,7 +746,7 @@ int main()
 
 		obj.TileX = tilex;
 		obj.TileY = tiley;
-
+		obj.tint = glm::vec4(tint.x, tint.y, tint.z, 1);
 
 		obj.tex = Texture((texture).c_str());
 		PresceneObjects.push_back(obj);
@@ -722,6 +816,8 @@ int main()
 	if (fboStatus != GL_FRAMEBUFFER_COMPLETE)
 		std::cout << "Framebuffer error: " << fboStatus << std::endl;
 
+
+
 	while (!glfwWindowShouldClose(window))
 	{
 		build = file_exists("ov.ov");
@@ -777,65 +873,7 @@ int main()
 
 			if (ImGui::CollapsingHeader(sceneObjects[selectedObject].name == "" ? std::to_string(selectedObject).c_str() : sceneObjects[selectedObject].name.c_str()))
 			{
-				if (ImGui::Button(("Delete Object##" + std::to_string(selectedObject)).c_str()))
-				{
-					DeleteObject action(PresceneObjects[selectedObject]);
-					undoStack.push(action);
-
-					PresceneObjects[selectedObject].deleted = true;
-					SavingSystem.remove("OBJ" + std::to_string(selectedObject) + "_NAME");
-					SavingSystem.remove("OBJ" + std::to_string(selectedObject) + "_POS_X");
-					SavingSystem.remove("OBJ" + std::to_string(selectedObject) + "_POS_Y");
-					SavingSystem.remove("OBJ" + std::to_string(selectedObject) + "_SCA_X");
-					SavingSystem.remove("OBJ" + std::to_string(selectedObject) + "_SCA_Y");
-					SavingSystem.remove("OBJ" + std::to_string(selectedObject) + "_ANGLE");
-					SavingSystem.remove("OBJ" + std::to_string(selectedObject) + "_TEXTURE");
-					SavingSystem.remove("OBJ" + std::to_string(selectedObject) + "_LAYER");
-					SavingSystem.remove("OBJ" + std::to_string(selectedObject) + "_RUNDRAW");
-					SavingSystem.remove("OBJ" + std::to_string(selectedObject) + "_FRIC");
-					SavingSystem.remove("OBJ" + std::to_string(selectedObject) + "_STATIC");
-					SavingSystem.remove("OBJ" + std::to_string(selectedObject) + "_TRIG");
-
-					SavingSystem.remove("OBJ" + std::to_string(selectedObject) + "_TTX");
-					SavingSystem.remove("OBJ" + std::to_string(selectedObject) + "_TTY");
-					PresceneObjects.erase(PresceneObjects.begin() + selectedObject);
-					sceneObjects.erase(sceneObjects.begin() + selectedObject);
-				}
-				char F[128] = "";
-				char objName[128];
-				strcpy_s(objName, sizeof(objName), PresceneObjects[selectedObject].name.c_str());
-				ImGui::InputText(("Obj Name##" + std::to_string(selectedObject)).c_str(), objName, ImGuiInputTextFlags_EnterReturnsTrue);
-				if (glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS && strlen(objName) > 0) {
-					PresceneObjects[selectedObject].name = objName;
-					sceneObjects[selectedObject].name = objName;
-					// Create a string to undo
-				}
-				InputBoolWithEndFocus("Draw ##", &PresceneObjects[selectedObject].drawOnRuntime);
-
-				InputFloatWithEndFocus("Pos X##", &PresceneObjects[selectedObject].position->x, 0.5f, 1, 0);
-				
-				InputFloatWithEndFocus("Pos Y##", &PresceneObjects[selectedObject].position->y, 0.5f, 1, 0);
-
-				InputFloatWithEndFocus("Scale X##", &PresceneObjects[selectedObject].scale->x, 0.5f, 1, 0);
-
-				InputFloatWithEndFocus("Scale Y##", &PresceneObjects[selectedObject].scale->y, 0.5f, 1, 0);
-
-				InputFloatWithEndFocus("Angle ##", PresceneObjects[selectedObject].angle, 0.5f, 1, 0);
-
-				InputIntWithEndFocus("Layer ##", &PresceneObjects[selectedObject].layer, 1, 1);
-
-				ImGui::Text("Rigidbody Properties");
-
-				InputIntWithEndFocus("Physical Layer ##", &PresceneObjects[selectedObject].Body->layer);
-				
-				InputFloatWithEndFocus("Friction ##", &PresceneObjects[selectedObject].Body->friction);
-
-				InputFloatWithEndFocus("Bounciness ##", &PresceneObjects[selectedObject].Body->restitution);
-
-				InputBoolWithEndFocus("Trigger ##", &PresceneObjects[selectedObject].Body->isTrigger);
-
-				InputBoolWithEndFocus("Static ##", &PresceneObjects[selectedObject].Body->isStatic);
-
+				ObjectUI(window, selectedObject);
 			}
 			ImGui::EndPopup();
 		}
@@ -950,6 +988,12 @@ int main()
 			ImGui::Begin("Sources", 0, (no_resize ? ImGuiWindowFlags_NoResize : 0) | (no_move ? ImGuiWindowFlags_NoMove : 0));
 			if (ImGui::BeginTabBar("TabBar"))
 			{
+				if (ImGui::BeginTabItem("Object Settings"))
+				{
+					ObjectUI(window,selectedObject);
+
+					ImGui::EndTabItem();
+				}
 				if (ImGui::BeginTabItem("Textures"))
 				{
 					if (ImGui::Button("Refresh"))
@@ -1202,84 +1246,10 @@ int main()
 
 						ImGui::Separator();
 
-						if (ImGui::TreeNode(PresceneObjects[i].name == "" ? std::to_string(i).c_str() : PresceneObjects[i].name.c_str()))
+						if (ImGui::CollapsingHeader(sceneObjects[i].name == "" ? std::to_string(i).c_str() : sceneObjects[i].name.c_str()))
 						{
-							if (ImGui::Button(("Delete Object##" + std::to_string(i)).c_str()))
-							{
-								DeleteObject action(PresceneObjects[i]);
-								undoStack.push(action);
-
-								PresceneObjects[i].deleted = true;
-								SavingSystem.remove("OBJ" + std::to_string(i) + "_NAME");
-								SavingSystem.remove("OBJ" + std::to_string(i) + "_POS_X");
-								SavingSystem.remove("OBJ" + std::to_string(i) + "_POS_Y");
-								SavingSystem.remove("OBJ" + std::to_string(i) + "_SCA_X");
-								SavingSystem.remove("OBJ" + std::to_string(i) + "_SCA_Y");
-								SavingSystem.remove("OBJ" + std::to_string(i) + "_ANGLE");
-								SavingSystem.remove("OBJ" + std::to_string(i) + "_TEXTURE");
-								SavingSystem.remove("OBJ" + std::to_string(i) + "_LAYER");
-								SavingSystem.remove("OBJ" + std::to_string(i) + "_RUNDRAW");
-								SavingSystem.remove("OBJ" + std::to_string(i) + "_FRIC");
-								SavingSystem.remove("OBJ" + std::to_string(i) + "_STATIC");
-								SavingSystem.remove("OBJ" + std::to_string(i) + "_TRIG");
-
-								SavingSystem.remove("OBJ" + std::to_string(i) + "_TTX");
-								SavingSystem.remove("OBJ" + std::to_string(i) + "_TTY");
-								PresceneObjects.erase(PresceneObjects.begin() + i);
-								sceneObjects.erase(sceneObjects.begin() + i);
-							}
-							char objName[128];
-							strcpy_s(objName, sizeof(objName), PresceneObjects[i].name.c_str());
-							ImGui::InputText(("Obj Name##" + std::to_string(i)).c_str(), objName, ImGuiInputTextFlags_EnterReturnsTrue);
-							if (glfwGetKey(window, GLFW_KEY_ENTER) && strlen(objName) > 0){
-								PresceneObjects[i].name = objName;
-								sceneObjects[i].name = objName;
-							}
-
-							InputBoolWithEndFocus(("Draw ##" + std::to_string(i)).c_str(), &PresceneObjects[i].drawOnRuntime);
-							ImGui::Columns(2, nullptr, true);
-							InputFloatWithEndFocus(("Pos X##" + std::to_string(i)).c_str(), &PresceneObjects[i].position->x, 0.3f, 1, 0);
-							ImGui::NextColumn();
-							InputFloatWithEndFocus(("Pos Y##" + std::to_string(i)).c_str(), &PresceneObjects[i].position->y, 0.3f, 1, 0);
-
-							ImGui::Columns(1, nullptr, true);
-							ImGui::Columns(2, nullptr, true);
-							InputFloatWithEndFocus(("Scale X##" + std::to_string(i)).c_str(), &PresceneObjects[i].scale->x, 0.3f, 1, 0);
-							ImGui::NextColumn();
-
-							InputFloatWithEndFocus(("Scale Y##" + std::to_string(i)).c_str(), &PresceneObjects[i].scale->y, 0.3f, 1, 0);
-
-							ImGui::Columns(1, nullptr, true);
-							InputFloatWithEndFocus(("Angle ##" + std::to_string(i)).c_str(), PresceneObjects[i].angle, 0.3f, 1, 0);
-
-							InputIntWithEndFocus(("Layer ##" + std::to_string(i)).c_str(), &PresceneObjects[i].layer, 1, 1);
+							ObjectUI(window,i);
 							
-							ImGui::Text("Rigidbody Properties");
-
-							InputIntWithEndFocus(("Physical Layer ##" + std::to_string(i)).c_str(), &PresceneObjects[i].Body->layer);
- 							
-							InputFloatWithEndFocus(("Friction ##" + std::to_string(i)).c_str(), &PresceneObjects[i].Body->friction);
-
-							InputFloatWithEndFocus(("Bounciness ##" + std::to_string(i)).c_str(), &PresceneObjects[i].Body->restitution);
-
-							ImGui::Columns(1, nullptr, true);
-							ImGui::Columns(2, nullptr, true);
-
-							InputBoolWithEndFocus(("Trigger ##" + std::to_string(i)).c_str(), &PresceneObjects[i].Body->isTrigger);
-
-							ImGui::NextColumn();
-							InputBoolWithEndFocus(("Static ##" + std::to_string(i)).c_str(), &PresceneObjects[i].Body->isStatic);
-							ImGui::Columns(1, nullptr, true);
-
-							ImGui::Columns(2, nullptr, true);
-							InputFloatWithEndFocus(("Tex X##" + std::to_string(i)).c_str(), &PresceneObjects[i].TileX, 0.3f, 1, 0);
-							ImGui::NextColumn();
-							InputFloatWithEndFocus(("Tex Y##" + std::to_string(i)).c_str(), &PresceneObjects[i].TileY, 0.3f, 1, 0);
-
-							ImGui::Columns(1, nullptr, true);
-
-							
-							ImGui::TreePop();
 						}
 
 						ImGui::Separator();
@@ -1379,8 +1349,8 @@ int main()
 		blackbox.DrawTMP(window, shaderProgram, camera, glm::vec2((-61.7 / 1.445) / 1.5, 0), glm::vec2(0.5, 64));
 
 
-		blackbox.tex = CenterDot;
-		blackbox.DrawTMP(window, shaderProgram, camera, glm::vec2(CMX,CMY), glm::vec2(5, 5));
+		//blackbox.tex = CenterDot;
+		//blackbox.DrawTMP(window, shaderProgram, camera, glm::vec2(CMX,CMY), glm::vec2(5, 5));
 		
 		if (run) {
 
@@ -1491,6 +1461,10 @@ int main()
 
 			SavingSystem.save("OBJ" + std::to_string(i) + "_TTX", sceneObjects[i].TileX);
 			SavingSystem.save("OBJ" + std::to_string(i) + "_TTY", sceneObjects[i].TileY);
+
+			SavingSystem.save("OBJ" + std::to_string(i) + "TINX", sceneObjects[i].tint.x);
+			SavingSystem.save("OBJ" + std::to_string(i) + "TINY", sceneObjects[i].tint.y);
+			SavingSystem.save("OBJ" + std::to_string(i) + "TINZ", sceneObjects[i].tint.z);
 		}
 		SavingSystem.save("BG_COLOR", vec3(BackroundScreen[0], BackroundScreen[1], BackroundScreen[2]));
 		SavingSystem.saveToFile("SCENE.ov");

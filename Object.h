@@ -26,6 +26,7 @@ public:
 	glm::vec2 sceneScale;
 	float* angle = 0;
 	int layer = 0;
+	glm::vec4 tint = glm::vec4(1);
 
 	float TileX = 1.0f, TileY = 1.0f;
 	std::vector <Vertex> vertices;
