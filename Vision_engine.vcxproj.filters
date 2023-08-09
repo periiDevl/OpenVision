@@ -108,6 +108,9 @@
     <ClCompile Include="Anewscript.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="OV.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h">

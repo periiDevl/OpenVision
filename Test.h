@@ -1,14 +1,14 @@
+
 #pragma once
+#include<iostream>
 #include"Console.h"
 #include"Object.h"
-#include "SaveSystem.h"
 #include"InputSystem.h"
-#include "OV.h"
-class Script {
+#include"OV.h"
+class Test {
 public:
-
 	void Start();
 	void Update();
 
-
 };
+    

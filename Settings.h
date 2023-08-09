@@ -3,12 +3,6 @@
 float GlobalWorldScale = 0.5f;
 
 
-//Window settings
-glm::vec2 rattio(16, 9);
-
-int width = 95 * rattio.x;
-const unsigned int height = 95 * rattio.y;
-
 
 //const unsigned int width = 1920;
 //const unsigned int height = 1080;
@@ -30,7 +24,6 @@ GLuint indices[] =
 std::vector <Vertex> verts(vertices, vertices + sizeof(vertices) / sizeof(Vertex));
 std::vector <GLuint> ind(indices, indices + sizeof(indices) / sizeof(GLuint));
 
-Camera camera(width, height, glm::vec3(0.0f, 0.0f, 80.0f));
 
 const char* vertexShaderSource = R"(
 #version 330 core

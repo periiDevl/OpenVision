@@ -158,13 +158,13 @@
     <ClCompile Include="InputSystem.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Object.cpp" />
+    <ClCompile Include="OV.cpp" />
     <ClCompile Include="PhysicsBody.cpp" />
     <ClCompile Include="PhysicsWorld.cpp" />
     <ClCompile Include="PolygonCollider.cpp" />
     <ClCompile Include="SaveSystem.cpp" />
     <ClCompile Include="Script.cpp" />
-    <ClCompile Include="Anewscript.cpp" />
-    <ClCompile Include="AddedScript.cpp" />
+	<ClCompile Include="Test.cpp" />
     <ClCompile Include="ScriptTwo.cpp" />
     <ClCompile Include="Hello.cpp" />
     <ClCompile Include="stb.cpp" />
@@ -199,8 +199,7 @@
     <ClInclude Include="Presave.h" />
     <ClInclude Include="SaveSystem.h" />
     <ClInclude Include="Script.h" />
-    <ClInclude Include="Anewscript.h" />
-    <ClInclude Include="AddedScript.h" />
+	<ClInclude Include="Test.h" />
     <ClInclude Include="ScriptTwo.h" />
     <ClInclude Include="Hello.h" />
     <ClInclude Include="Settings.h" />

@@ -4,13 +4,38 @@
 #include <fstream>
 #include <iostream>
 #include <filesystem>
-//#include <SFML/Audio.hpp>
 #include<thread>
 #include "SFML/Audio.hpp"
+#include"Console.h"
+#include <iostream>
+#include <string>
+#include <unordered_map>
+#include <GLFW/glfw3.h>
+#include <imgui.h> 
+#include <imgui_impl_glfw.h>
+#include <imgui_impl_opengl3.h>
+#include"InputSystem.h"
 
+class Object;
+class Camera;
+
+extern glm::vec2 rattio;
+
+extern int width;
+extern const unsigned int height;
+
+extern std::vector<Object> sceneObjects;
+extern Console con;
+extern InputSystem InputHandler;
+extern PhysicsWorld world;
+extern Camera camera;
 
 class OV {
+
 public:
+
+
+
 	static void renderText(const std::string& text, const std::string& fontPath, float x, float y, float fontSize = 14.0f, ImVec4 textColor = ImVec4(1.0f, 1.0f, 1.0f, 1.0f)) {
 		static std::unordered_map<std::string, ImFont*> loadedFonts;
 		static std::unordered_map<std::string, GLuint> fontTextures;

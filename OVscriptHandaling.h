@@ -78,7 +78,7 @@ void addMainCpp(const std::string& filename, const std::string& file)
 {
 	if (!is_sentence_in_file(filename, "#include\"" + file + ".h\"")
 		&& !is_sentence_in_file(filename, file + " " + file + "scr" + ";")
-		&& !is_sentence_in_file(filename, "				" + file + "scr" + ".Start(con, InputHandler, world, sceneObjects, camera);")) {
+		&& !is_sentence_in_file(filename, "				" + file + "scr" + ".Start();")) {
 		std::ifstream infile(filename);
 
 		std::string line;
@@ -96,17 +96,17 @@ void addMainCpp(const std::string& filename, const std::string& file)
 				lines.push_back(line);
 				lines.push_back(file + " " + file + "scr" + ";");
 			}
-			else if (line == "				script.Start(con, InputHandler, world, sceneObjects, camera);") {
+			else if (line == "				script.Start();") {
 				found_line = true;
 
 				lines.push_back(line);
-				lines.push_back("				" + file + "scr" + ".Start(con, InputHandler, world, sceneObjects, camera);");
+				lines.push_back("				" + file + "scr" + ".Start();");
 			}
-			else if (line == "				script.Update(con, InputHandler, world, sceneObjects, camera);") {
+			else if (line == "				script.Update();") {
 				found_line = true;
 
 				lines.push_back(line);
-				lines.push_back("				" + file + "scr" + ".Update(con, InputHandler, world, sceneObjects, camera);");
+				lines.push_back("				" + file + "scr" + ".Update();");
 			}
 			else {
 				lines.push_back(line);
@@ -124,7 +124,7 @@ void removeMainCpp(const std::string& filename, const std::string& file)
 {
 	if (is_sentence_in_file(filename, "#include\"" + file + ".h\"")
 		|| is_sentence_in_file(filename, file + " " + file + "scr" + ";")
-		|| is_sentence_in_file(filename, "				" + file + "scr" + ".Start(con, InputHandler, world, sceneObjects, camera);")) {
+		|| is_sentence_in_file(filename, "				" + file + "scr" + ".Start();")) {
 		std::ifstream infile(filename);
 
 		std::string line;
@@ -137,10 +137,10 @@ void removeMainCpp(const std::string& filename, const std::string& file)
 			else if (line == file + " " + file + "scr" + ";") {
 				found_line = true;
 			}
-			else if (line == "				" + file + "scr" + ".Start(con, InputHandler, world, sceneObjects, camera);") {
+			else if (line == "				" + file + "scr" + ".Start();") {
 				found_line = true;
 			}
-			else if (line == "				" + file + "scr" + ".Update(con, InputHandler, world, sceneObjects, camera);") {
+			else if (line == "				" + file + "scr" + ".Update();") {
 				found_line = true;
 			}
 			else {
@@ -174,8 +174,8 @@ void addH(const std::string& filename, const std::string& file, const std::strin
 #include"OV.h"
 class )" + file + R"( {
 public:
-	void Start(Console& ovcon, InputSystem Input, PhysicsWorld& world, std::vector<Object>& sceneObjects,Camera& camera);
-	void Update(Console& ovcon, InputSystem Input, PhysicsWorld& world, std::vector<Object>& sceneObjects,Camera& camera);
+	void Start();
+	void Update();
 
 };
     )";
@@ -215,11 +215,11 @@ void addCpp(const std::string& filename, const std::string& file, const std::str
 
 		std::string script =
 			R"(#include")" + file + R"(.h"
-void )" + file + R"(::Start(Console& ovcon, InputSystem Input, PhysicsWorld& world, std::vector<Object>& sceneObjects, Camera& camera)
+void )" + file + R"(::Start()
 {											
 
 }
-void )" + file + R"(::Update(Console& ovcon, InputSystem Input, PhysicsWorld& world, std::vector<Object>& sceneObjects, Camera& camera)
+void )" + file + R"(::Update()
 {
 
 }

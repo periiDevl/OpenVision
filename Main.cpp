@@ -21,10 +21,8 @@
 #include"OVscriptHandaling.h"
 #include"Presave.h"
 #include"Script.h"
-#include"Anewscript.h"
-#include"AddedScript.h"
+#include"Test.h"
 #include "SaveSystem.h"
-std::vector<Object> sceneObjects;
 std::vector<Object> PresceneObjects;
 
 SaveSystem SavingSystem;
@@ -273,12 +271,10 @@ void createFolder(string folderName) {
 }
 
 Script script;
-Anewscript Anewscriptscr;
-AddedScript AddedScriptscr;
+Test Testscr;
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 
-Console con;
 
 double scroll_offset = 45.0;
 
@@ -1368,15 +1364,13 @@ int main()
 				}
 				con.CLEAR_CONSOLE();
 				fov = 22.45;
-				script.Start(con, InputHandler, world, sceneObjects, camera);
-				Anewscriptscr.Start(con, InputHandler, world, sceneObjects, camera);
-				AddedScriptscr.Start(con, InputHandler, world, sceneObjects, camera);
+				script.Start();
+				Testscr.Start();
 
 				StartPhase = false;
 			}
-				script.Update(con, InputHandler, world, sceneObjects, camera);
-				Anewscriptscr.Update(con, InputHandler, world, sceneObjects, camera);
-				AddedScriptscr.Update(con, InputHandler, world, sceneObjects, camera);
+				script.Update();
+				Testscr.Update();
 			if (timeDiff >= fixed_timestep) {
 				std::string FPS = std::to_string((1.0 / timeDiff) * counter);
 				std::string newTitle = "OpenVision - periidev & itaymadeit ~" + FPS + "FPS";
