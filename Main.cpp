@@ -272,7 +272,6 @@ void createFolder(string folderName) {
 
 Script script;
 Test Testscr;
-
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 
 
@@ -283,24 +282,25 @@ int PythonIndex = 0;
 
 void ObjectUI(GLFWwindow* window, int i)
 {
+	if (PresceneObjects[i].name != "MainCameraOvSTD") {
+		if (ImGui::Button(("Delete Object##" + std::to_string(i)).c_str()))
+		{
+			DeleteObject action(PresceneObjects[i]);
+			undoStack.push(action);
 
-	if (ImGui::Button(("Delete Object##" + std::to_string(i)).c_str()))
-	{
-		DeleteObject action(PresceneObjects[i]);
-		undoStack.push(action);
-
-		PresceneObjects[i].deleted = true;
-		clearSavingSystem(i);
-		PresceneObjects.erase(PresceneObjects.begin() + i);
-		sceneObjects.erase(sceneObjects.begin() + i);
-	}
-	char objName[128];
-	strcpy_s(objName, sizeof(objName), PresceneObjects[i].name.c_str());
-	ImGui::InputText(("Obj Name##" + std::to_string(i)).c_str(), objName, ImGuiInputTextFlags_EnterReturnsTrue);
-	if (glfwGetKey(window, GLFW_KEY_ENTER) && strlen(objName) > 0) {
-		PresceneObjects[i].name = objName;
-		sceneObjects[i].name = objName;
-	}
+			PresceneObjects[i].deleted = true;
+			clearSavingSystem(i);
+			PresceneObjects.erase(PresceneObjects.begin() + i);
+			sceneObjects.erase(sceneObjects.begin() + i);
+		}
+		char objName[128];
+		strcpy_s(objName, sizeof(objName), PresceneObjects[i].name.c_str());
+		ImGui::InputText(("Obj Name##" + std::to_string(i)).c_str(), objName, ImGuiInputTextFlags_EnterReturnsTrue);
+		if (glfwGetKey(window, GLFW_KEY_ENTER) && strlen(objName) > 0) {
+			PresceneObjects[i].name = objName;
+			sceneObjects[i].name = objName;
+		}	
+	} 
 
 	if (ImGui::TreeNodeEx(("Visual ##" + std::to_string(i)).c_str(), ImGuiTreeNodeFlags_DefaultOpen))
 	{
@@ -884,6 +884,10 @@ int main()
 
 		if (!run) {
 			if (!StartPhase) {
+
+				camera.Position.x = 0;
+				camera.Position.y = 0;
+
 				sf::Listener::setGlobalVolume(0);
 				fov = 45;
 				std::string title = "OpenVision *(Universal Editor) ~ *" + ProjectName.string();
@@ -1337,19 +1341,21 @@ int main()
 			
 		}
 		
+		Object RuntimeCam = *OV::SearchObjectByName("MainCameraOvSTD", PresceneObjects);
 		blackbox.tex = nulltex;
-		blackbox.DrawTMP(window, shaderProgram, camera, glm::vec2(0, (-36 / 1.5) / 1.5), glm::vec2(114, 0.5));
-		blackbox.DrawTMP(window, shaderProgram, camera, glm::vec2(0,( 36 / 1.5) / 1.5), glm::vec2(114, 0.5));
+		blackbox.DrawTMP(window, shaderProgram, camera, glm::vec2(RuntimeCam.position->x, ((-36 / 1.5) / 1.5) + RuntimeCam.position->y), glm::vec2(59, 0.5));
+		blackbox.DrawTMP(window, shaderProgram, camera, glm::vec2(RuntimeCam.position->x, ((36 / 1.5) / 1.5) + RuntimeCam.position->y), glm::vec2(59, 0.5));
 
-		blackbox.DrawTMP(window, shaderProgram, camera, glm::vec2((61.7 / 1.445) / 1.5, 0), glm::vec2(0.5, 64));
-		blackbox.DrawTMP(window, shaderProgram, camera, glm::vec2((-61.7 / 1.445) / 1.5, 0), glm::vec2(0.5, 64));
+		blackbox.DrawTMP(window, shaderProgram, camera, glm::vec2((61.7 / 1.445 / 1.5) + RuntimeCam.position->x, RuntimeCam.position->y), glm::vec2(0.5, 33.8));
+		blackbox.DrawTMP(window, shaderProgram, camera, glm::vec2((-61.7 / 1.445 / 1.5) + RuntimeCam.position->x, RuntimeCam.position->y), glm::vec2(0.5, 33.8));
+
 
 
 		//blackbox.tex = CenterDot;
 		//blackbox.DrawTMP(window, shaderProgram, camera, glm::vec2(CMX,CMY), glm::vec2(5, 5));
 		
 		if (run) {
-
+			
 			if (StartPhase)
 			{
 				sf::Listener::setGlobalVolume(100);
@@ -1380,7 +1386,8 @@ int main()
 
 
 
-			
+				camera.Position.x = RuntimeCam.position->x;
+				camera.Position.y = -RuntimeCam.position->y;
 
 
 				world.Step(fixed_timestep);
