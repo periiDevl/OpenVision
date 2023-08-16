@@ -21,7 +21,8 @@
 #include"OVscriptHandaling.h"
 #include"Presave.h"
 #include"Script.h"
-#include"Test.h"
+#include"NewScript.h"
+#include"ExitTest.h"
 #include "SaveSystem.h"
 std::vector<Object> PresceneObjects;
 
@@ -271,7 +272,8 @@ void createFolder(string folderName) {
 }
 
 Script script;
-Test Testscr;
+NewScript NewScriptscr;
+ExitTest ExitTestscr;
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 
 
@@ -812,7 +814,7 @@ int main()
 	if (fboStatus != GL_FRAMEBUFFER_COMPLETE)
 		std::cout << "Framebuffer error: " << fboStatus << std::endl;
 
-
+	bool firsttime = true;
 
 	while (!glfwWindowShouldClose(window))
 	{
@@ -884,6 +886,12 @@ int main()
 
 		if (!run) {
 			if (!StartPhase) {
+				if (!firsttime) {
+				script.Exit();
+				NewScriptscr.Exit();
+				ExitTestscr.Exit();
+				}
+				firsttime = false;
 
 				camera.Position.x = 0;
 				camera.Position.y = 0;
@@ -1371,15 +1379,24 @@ int main()
 				con.CLEAR_CONSOLE();
 				fov = 22.45;
 				script.Start();
-				Testscr.Start();
+				NewScriptscr.Start();
+				ExitTestscr.Start();
 
 				StartPhase = false;
 			}
 				script.Update();
-				Testscr.Update();
+				NewScriptscr.Update();
+				ExitTestscr.Update();
+
+			if (glfwWindowShouldClose(window))
+			{
+				script.Exit();
+				NewScriptscr.Exit();
+				ExitTestscr.Exit();
+			}
 			if (timeDiff >= fixed_timestep) {
 				std::string FPS = std::to_string((1.0 / timeDiff) * counter);
-				std::string newTitle = "OpenVision - periidev & itaymadeit ~" + FPS + "FPS";
+				std::string newTitle = ProjectName.string() + " ~" + FPS + "FPS";
 				glfwSetWindowTitle(window, newTitle.c_str());
 				prevTime = crntTime;
 				counter = 0;

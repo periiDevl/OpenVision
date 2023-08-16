@@ -5,10 +5,10 @@
 #include"Object.h"
 #include"InputSystem.h"
 #include"OV.h"
-class Test {
+class NewScript {
 public:
 	void Start();
 	void Update();
-
+	void Exit();
 };
     

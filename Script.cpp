@@ -19,3 +19,8 @@ void Script::Update() {
     }
 
 }
+
+void Script::Exit() {
+    con.log("Exited");
+    std::cout << "Exited";
+}

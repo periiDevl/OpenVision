@@ -108,6 +108,12 @@ void addMainCpp(const std::string& filename, const std::string& file)
 				lines.push_back(line);
 				lines.push_back("				" + file + "scr" + ".Update();");
 			}
+			else if (line == "				script.Exit();") {
+				found_line = true;
+
+				lines.push_back(line);
+				lines.push_back("				" + file + "scr" + ".Exit();");
+			}
 			else {
 				lines.push_back(line);
 			}
@@ -120,6 +126,7 @@ void addMainCpp(const std::string& filename, const std::string& file)
 		outfile.close();
 	}
 }
+
 void removeMainCpp(const std::string& filename, const std::string& file)
 {
 	if (is_sentence_in_file(filename, "#include\"" + file + ".h\"")
@@ -141,6 +148,9 @@ void removeMainCpp(const std::string& filename, const std::string& file)
 				found_line = true;
 			}
 			else if (line == "				" + file + "scr" + ".Update();") {
+				found_line = true;
+			}
+			else if (line == "				" + file + "scr" + ".Exit();") {
 				found_line = true;
 			}
 			else {
@@ -176,7 +186,7 @@ class )" + file + R"( {
 public:
 	void Start();
 	void Update();
-
+	void Exit();
 };
     )";
 		createfile << script;
@@ -220,6 +230,10 @@ void )" + file + R"(::Start()
 
 }
 void )" + file + R"(::Update()
+{
+
+}
+void )" + file + R"(::Exit()
 {
 
 }
