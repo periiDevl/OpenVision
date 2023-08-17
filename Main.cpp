@@ -28,6 +28,7 @@ std::vector<Object> PresceneObjects;
 
 SaveSystem SavingSystem;
 
+
 void clearSavingSystem(int I)
 {
 	SavingSystem.remove("OBJ" + std::to_string(I) + "_NAME");
@@ -512,6 +513,9 @@ void undoAction() {
 namespace fs = std::filesystem;
 int main()
 {
+	
+
+
 	fs::path currentPath = fs::current_path();
 	fs::path ProjectName = currentPath.filename().string();
 
@@ -751,6 +755,8 @@ int main()
 	}
 
 	Object blackbox = Object(verts, ind);
+	//Engine Assets
+	Texture EngineOVObjectIconGui("EngineAssets/ObjectIcon.png");
 
 	double prevTime = 0.0;
 	double crntTime = 0.0;
@@ -815,7 +821,8 @@ int main()
 		std::cout << "Framebuffer error: " << fboStatus << std::endl;
 
 	bool firsttime = true;
-
+	ImGuiStyle& style = ImGui::GetStyle();
+	float originalButtonPadding = style.FramePadding.y;
 	while (!glfwWindowShouldClose(window))
 	{
 		build = file_exists("ov.ov");
@@ -1211,6 +1218,9 @@ int main()
 
 			ImGui::Begin("Object Inspector", 0, (no_resize ? ImGuiWindowFlags_NoResize : 0) | (no_move ? ImGuiWindowFlags_NoMove : 0));
 
+
+
+
 			if (ImGui::IsWindowHovered())
 			{
 				mouseOverUI = true;
@@ -1254,11 +1264,40 @@ int main()
 
 						ImGui::Separator();
 
+						ImTextureID imguiTextureID = reinterpret_cast<ImTextureID>(static_cast<intptr_t>(EngineOVObjectIconGui.ID));
+						ImGuiStyle& style = ImGui::GetStyle();
+
+						
+						ImVec2 originalButtonTextAlign = style.ButtonTextAlign;
+						ImVec2 originalFramePadding = style.FramePadding;
+
+						
+						style.ButtonTextAlign = ImVec2(0.5f, 0.5f);
+						style.FramePadding = ImVec2(1.0f, 1.0f);
+
+						ImVec2 imageSize(28, 28);
+						if (ImGui::ImageButton(imguiTextureID, imageSize))
+						{
+						}
+
+						style.ButtonTextAlign = originalButtonTextAlign;
+						style.FramePadding = originalFramePadding;
+
+						ImGui::SameLine();
+
+						
+						
+
+						style.FramePadding.y = 8.0f;
+
 						if (ImGui::CollapsingHeader(sceneObjects[i].name == "" ? std::to_string(i).c_str() : sceneObjects[i].name.c_str()))
 						{
-							ObjectUI(window,i);
-							
+							style.FramePadding.y = originalButtonPadding;
+							ObjectUI(window, i);
 						}
+						style.FramePadding.y = originalButtonPadding;
+
+
 
 						ImGui::Separator();
 
