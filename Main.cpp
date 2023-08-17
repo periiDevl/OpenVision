@@ -757,6 +757,9 @@ int main()
 	Object blackbox = Object(verts, ind);
 	//Engine Assets
 	Texture EngineOVObjectIconGui("EngineAssets/ObjectIcon.png");
+	Texture EngineOVCameraIconGui("EngineAssets/CameraIcon.png");
+	Texture EngineOVTrashIconGui("EngineAssets/OvTrashIcon.png");
+	Texture EngineOVScriptIconGui("EngineAssets/OvScriptIcon.png");
 
 	double prevTime = 0.0;
 	double crntTime = 0.0;
@@ -825,6 +828,7 @@ int main()
 	float originalButtonPadding = style.FramePadding.y;
 	while (!glfwWindowShouldClose(window))
 	{
+
 		build = file_exists("ov.ov");
 		glUniform1f(glGetUniformLocation(FramebufferProgram, "minEdgeContrast"), FXAA_REDUCE_MIN);
 		glUniform1f(glGetUniformLocation(FramebufferProgram, "subPixelAliasing"), FXAA_REDUCE_MUL);
@@ -915,6 +919,11 @@ int main()
 					sceneObjects[i].angle = new float;
 					*sceneObjects[i].angle = *PresceneObjects[i].angle;
 					PresceneObjects[i].Body->velocity = vec2(0, 0);
+
+					if (PresceneObjects[i].name == "MainCameraOvSTD") {
+						PresceneObjects[i].tex = EngineOVCameraIconGui;
+					}
+
 				}
 				//sceneObjects[0].Body->GetCollider()->CalculateAABB();
 				for (int i = 0; i < sceneObjects.size(); i++) {
@@ -1118,7 +1127,6 @@ int main()
 			static char scriptName[128] = "";
 
 			ImGui::Begin("Scripts", 0, (no_resize ? ImGuiWindowFlags_NoResize : 0) | (no_move ? ImGuiWindowFlags_NoMove : 0));
-			ImGui::Columns(2, nullptr, true);
 			ImGui::InputText("Script Name", scriptName, IM_ARRAYSIZE(scriptName));
 
 			if (ImGui::Button("Add Script"))
@@ -1185,21 +1193,62 @@ int main()
 
 
 
-			ImGui::NextColumn();
-			if (ImGui::Button("Script (gloabl ov script)")) {
-				std::string command = "start Script.cpp";
-				system(command.c_str());
-			}
-			for (const auto& line : lines) {
-				if (ImGui::Button(line.c_str())) {
-					std::string command = "start " + std::string(line) + ".cpp";
-					system(command.c_str());
-				}
-			}
+
 			if (ImGui::IsWindowHovered())
 			{
 				mouseOverUI = true;
 			}
+			ImGui::End();
+
+
+			ImGui::Begin("Scripts Select");
+			if (ImGui::Button("Script (gloabl ov script)")) {
+				std::string command = "start Script.cpp";
+				system(command.c_str());
+			}
+			ImTextureID imguiTextureID = reinterpret_cast<ImTextureID>(static_cast<intptr_t>(EngineOVScriptIconGui.ID));
+			int itemsPerRow = 3;
+			int rowCount = (lines.size() + itemsPerRow - 1) / itemsPerRow;
+
+
+			
+			float gridWidth = itemsPerRow * (500 + ImGui::GetStyle().ItemSpacing.x);
+
+			
+			ImGui::BeginChild("GridChild", ImVec2(gridWidth, 0), false, ImGuiWindowFlags_NoScrollbar);
+			for (int row = 0; row < rowCount; ++row) {
+				for (int col = 0; col < itemsPerRow; ++col) {
+					int index = row * itemsPerRow + col;
+
+					if (index < lines.size()) {
+						const auto& line = lines[index];
+
+						ImGui::PushID(index);
+						ImGui::BeginGroup();
+
+						if (ImGui::ImageButton((ImTextureID)imguiTextureID, ImVec2(50, 50))) {
+							std::string command = "start " + line + ".cpp";
+							system(command.c_str());
+						}
+
+						ImVec2 textPosition = ImGui::GetItemRectMin();
+						textPosition.y += 50;
+						textPosition.x += (50 - ImGui::CalcTextSize(line.c_str()).x) * 0.5f + 10;
+						ImGui::SetCursorScreenPos(textPosition);
+						ImGui::Text("%s", line.c_str());
+
+						ImGui::EndGroup();
+						ImGui::PopID();
+					}
+
+					ImGui::SameLine();
+				}
+				ImGui::NewLine();
+			}
+			ImGui::EndChild();
+
+
+
 			ImGui::End();
 
 			ImGui::Begin("Window Control", 0, (no_resize ? ImGuiWindowFlags_NoResize : 0) | (no_move ? ImGuiWindowFlags_NoMove : 0));
@@ -1265,6 +1314,12 @@ int main()
 						ImGui::Separator();
 
 						ImTextureID imguiTextureID = reinterpret_cast<ImTextureID>(static_cast<intptr_t>(EngineOVObjectIconGui.ID));
+						if (PresceneObjects[i].name != "MainCameraOvSTD") {
+							imguiTextureID = reinterpret_cast<ImTextureID>(static_cast<intptr_t>(EngineOVObjectIconGui.ID));
+						}
+						else if (PresceneObjects[i].name == "MainCameraOvSTD") {
+							imguiTextureID = reinterpret_cast<ImTextureID>(static_cast<intptr_t>(EngineOVCameraIconGui.ID));
+						}
 						ImGuiStyle& style = ImGui::GetStyle();
 
 						
@@ -1278,6 +1333,18 @@ int main()
 						ImVec2 imageSize(28, 28);
 						if (ImGui::ImageButton(imguiTextureID, imageSize))
 						{
+						}
+
+						if (ImGui::IsItemHovered())
+						{
+							ImGui::BeginTooltip();
+							if (PresceneObjects[i].name != "MainCameraOvSTD") {
+								ImGui::Text("An OpenVision regular object.");
+							}
+							else if (PresceneObjects[i].name == "MainCameraOvSTD") {
+								ImGui::Text("OpenVision's camera object (displayes the object's to the screen)");
+							}
+							ImGui::EndTooltip();
 						}
 
 						style.ButtonTextAlign = originalButtonTextAlign;
@@ -1389,6 +1456,7 @@ int main()
 		}
 		
 		Object RuntimeCam = *OV::SearchObjectByName("MainCameraOvSTD", PresceneObjects);
+		
 		blackbox.tex = nulltex;
 		blackbox.DrawTMP(window, shaderProgram, camera, glm::vec2(RuntimeCam.position->x, ((-36 / 1.5) / 1.5) + RuntimeCam.position->y), glm::vec2(59, 0.5));
 		blackbox.DrawTMP(window, shaderProgram, camera, glm::vec2(RuntimeCam.position->x, ((36 / 1.5) / 1.5) + RuntimeCam.position->y), glm::vec2(59, 0.5));
@@ -1463,7 +1531,6 @@ int main()
 					}
 					glLineWidth(0.0f);
 					glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-
 					if (sceneObjects[i].drawOnRuntime == true) {
 						sceneObjects[i].Draw(window, shaderProgram, camera, glm::vec3(0, 0, 1), CMX, CMY, Nearest);
 					}

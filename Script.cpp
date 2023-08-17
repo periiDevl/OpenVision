@@ -5,7 +5,7 @@ Object* m;
 void Script::Start() {
 
 	m = OV::SearchObjectByName("F", sceneObjects);
-    OV::PlaySound("Overspeed Warning.wav");
+    //OV::PlaySound("Overspeed Warning.wav");
 
 }   
 void Script::Update() {
@@ -15,7 +15,7 @@ void Script::Update() {
     if (InputHandler.GetKeyDown(GLFW_KEY_SPACE))
     {
         *m->angle = *m->angle + 5;
-        OV::PlaySound("Overspeed Warning.wav");
+        //OV::PlaySound("Overspeed Warning.wav");
     }
 
 }
