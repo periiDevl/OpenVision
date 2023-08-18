@@ -300,8 +300,18 @@ void ObjectUI(GLFWwindow* window, int i)
 		strcpy_s(objName, sizeof(objName), PresceneObjects[i].name.c_str());
 		ImGui::InputText(("Obj Name##" + std::to_string(i)).c_str(), objName, ImGuiInputTextFlags_EnterReturnsTrue);
 		if (glfwGetKey(window, GLFW_KEY_ENTER) && strlen(objName) > 0) {
-			PresceneObjects[i].name = objName;
-			sceneObjects[i].name = objName;
+			bool nameexists = false;
+			for (size_t i = 0; i < PresceneObjects.size(); i++)
+			{
+				if (objName == PresceneObjects[i].name)
+				{
+					nameexists = true;
+				}
+			}
+			if (!nameexists) {
+				PresceneObjects[i].name = objName;
+				sceneObjects[i].name = objName;
+			}
 		}	
 	} 
 
@@ -1230,6 +1240,14 @@ int main()
 							std::string command = "start " + line + ".cpp";
 							system(command.c_str());
 						}
+						if (ImGui::IsItemHovered())
+						{
+							ImGui::BeginTooltip();
+							
+							ImGui::Text(("Edit \"" + line + "\" Script.").c_str());
+							
+							ImGui::EndTooltip();
+						}
 
 						ImVec2 textPosition = ImGui::GetItemRectMin();
 						textPosition.y += 50;
@@ -1357,7 +1375,7 @@ int main()
 
 						style.FramePadding.y = 8.0f;
 
-						if (ImGui::CollapsingHeader(sceneObjects[i].name == "" ? std::to_string(i).c_str() : sceneObjects[i].name.c_str()))
+						if (ImGui::CollapsingHeader(PresceneObjects[i].name.c_str()))
 						{
 							style.FramePadding.y = originalButtonPadding;
 							ObjectUI(window, i);
