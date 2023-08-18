@@ -770,6 +770,9 @@ int main()
 	Texture EngineOVCameraIconGui("EngineAssets/CameraIcon.png");
 	Texture EngineOVTrashIconGui("EngineAssets/OvTrashIcon.png");
 	Texture EngineOVScriptIconGui("EngineAssets/OvScriptIcon.png");
+	Texture EngineOVRebuildIconGui("EngineAssets/OvRebuildIcon.png");
+	Texture EngineOVRunIconGui("EngineAssets/OvRunIcon.png");
+	Texture EngineOVBuildIconGui("EngineAssets/OvBuildIcon.png");
 
 	double prevTime = 0.0;
 	double crntTime = 0.0;
@@ -957,7 +960,19 @@ int main()
 			//CheckCollision(*OV::SearchObjectByName("obj2", sceneObjects)->Body->GetCollider(), *OV::SearchObjectByName("obj1", sceneObjects)->Body->GetCollider(), manifold);
 			
 			ImGui::Begin("Execute", 0, (no_resize ? ImGuiWindowFlags_NoResize : 0) | (no_move ? ImGuiWindowFlags_NoMove : 0));
-			if (ImGui::Button("Run"))
+
+
+			ImGuiStyle& style = ImGui::GetStyle();
+
+
+			ImVec2 originalButtonTextAlign = style.ButtonTextAlign;
+			ImVec2 originalFramePadding = style.FramePadding;
+
+			ImTextureID RebuildimguiTextureID = reinterpret_cast<ImTextureID>(static_cast<intptr_t>(EngineOVRunIconGui.ID));
+			style.ButtonTextAlign = ImVec2(0.5f, 0.5f);
+			style.FramePadding = ImVec2(1.0f, 1.0f);
+
+			if (ImGui::ImageButton(RebuildimguiTextureID, ImVec2(30, 30)))
 			{
 				if (run == false) {
 
@@ -968,30 +983,60 @@ int main()
 
 					run = false;
 				}
+
 			}
-			if (ImGui::Button("Rebuild"))
+			if (ImGui::IsItemHovered())
+			{
+				ImGui::BeginTooltip();
+
+				ImGui::Text("Run");
+
+				ImGui::EndTooltip();
+			}
+			ImGui::SameLine();
+			RebuildimguiTextureID = reinterpret_cast<ImTextureID>(static_cast<intptr_t>(EngineOVRebuildIconGui.ID));
+
+			if (ImGui::ImageButton(RebuildimguiTextureID, ImVec2(30, 30)))
 			{
 				rebuild(window, LocalPy);
 			}
-			if (ImGui::Button("Build"))
+			if (ImGui::IsItemHovered())
+			{
+				ImGui::BeginTooltip();
+
+				ImGui::Text("Re-build project");
+
+				ImGui::EndTooltip();
+			}
+
+			ImGui::SameLine();
+			RebuildimguiTextureID = reinterpret_cast<ImTextureID>(static_cast<intptr_t>(EngineOVBuildIconGui.ID));
+
+			if (ImGui::ImageButton(RebuildimguiTextureID, ImVec2(30, 30)))
 			{
 				createFolder("BuildGL");
 				filesystem::copy("Assets", "BuildGL/Assets");
-				
+
 				createFile("BuildGL/ov.ov");
 				filesystem::copy("Vision_engine.exe", "BuildGL/Vision_engine.exe");
 				filesystem::copy("OpenVisionIcon.png", "BuildGL/OpenVisionIcon.png");
 				filesystem::copy("SCENE.ov", "BuildGL/SCENE.ov");
 				filesystem::copy("SETTINGS.ov", "BuildGL/SETTINGS.ov");
 				filesystem::copy("SCRIPTS.ov", "BuildGL/SCRIPTS.ov");
-
-				
-
 			}
-			ImGui::InputInt("PyIndex", &PythonIndex);
-			ImGui::Checkbox("Local-Python (not recommended)", &LocalPy);
+			if (ImGui::IsItemHovered())
+			{
+				ImGui::BeginTooltip();
 
-			if (ImGui::Button("Exit OV"))
+				ImGui::Text("Export project");
+
+				ImGui::EndTooltip();
+			}
+
+			ImGui::SameLine();
+			RebuildimguiTextureID = reinterpret_cast<ImTextureID>(static_cast<intptr_t>(EngineOVTrashIconGui.ID));
+
+			if (ImGui::ImageButton(RebuildimguiTextureID, ImVec2(30, 30)))
 			{
 				std::system("taskkill /f /im python.exe");
 				glfwSetWindowShouldClose(window, GLFW_TRUE);
@@ -1008,8 +1053,24 @@ int main()
 					std::cout << "Error: could not terminate process.\n";
 				}
 
-
 			}
+			if (ImGui::IsItemHovered())
+			{
+				ImGui::BeginTooltip();
+
+				ImGui::Text("Exit program");
+
+				ImGui::EndTooltip();
+			}
+
+			style.ButtonTextAlign = originalButtonTextAlign;
+			style.FramePadding = originalFramePadding;
+
+			//move later
+			//ImGui::InputInt("PyIndex", &PythonIndex);
+			//ImGui::Checkbox("Local-Python (not recommended)", &LocalPy);
+
+
 			if (ImGui::IsWindowHovered())
 			{
 				mouseOverUI = true;
@@ -1211,7 +1272,7 @@ int main()
 			ImGui::End();
 
 
-			ImGui::Begin("Scripts Select");
+			ImGui::Begin("Scripts Select", 0, (no_resize ? ImGuiWindowFlags_NoResize : 0) | (no_move ? ImGuiWindowFlags_NoMove : 0));
 			if (ImGui::Button("Script (gloabl ov script)")) {
 				std::string command = "start Script.cpp";
 				system(command.c_str());
@@ -1225,7 +1286,7 @@ int main()
 			float gridWidth = itemsPerRow * (500 + ImGui::GetStyle().ItemSpacing.x);
 
 			
-			ImGui::BeginChild("GridChild", ImVec2(gridWidth, 0), false, ImGuiWindowFlags_NoScrollbar);
+			ImGui::BeginChild("GridChild", ImVec2(gridWidth, 0), false);
 			for (int row = 0; row < rowCount; ++row) {
 				for (int col = 0; col < itemsPerRow; ++col) {
 					int index = row * itemsPerRow + col;
@@ -1338,11 +1399,7 @@ int main()
 						else if (PresceneObjects[i].name == "MainCameraOvSTD") {
 							imguiTextureID = reinterpret_cast<ImTextureID>(static_cast<intptr_t>(EngineOVCameraIconGui.ID));
 						}
-						ImGuiStyle& style = ImGui::GetStyle();
 
-						
-						ImVec2 originalButtonTextAlign = style.ButtonTextAlign;
-						ImVec2 originalFramePadding = style.FramePadding;
 
 						
 						style.ButtonTextAlign = ImVec2(0.5f, 0.5f);
