@@ -2,82 +2,84 @@
 #include"imgui.h"
 #include"imgui_impl_glfw.h"
 #include"imgui_impl_opengl3.h"
+#define MY_THEME_COLOR_PRIMARY      ImVec4(0.2f, 0.2f, 0.2f, 1.0f)
+#define MY_THEME_COLOR_SECONDARY    ImVec4(0.15f, 0.15f, 0.15f, 1.0f)
+#define MY_THEME_COLOR_TEXT         ImVec4(0.8f, 0.8f, 0.8f, 1.0f)
+#define MY_THEME_COLOR_WINDOW_BG    ImVec4(0.1f, 0.1f, 0.1f, 1.0f)
+#define MY_THEME_COLOR_BORDER       ImVec4(0.3f, 0.3f, 0.3f, 0.5f)
+#define MY_THEME_COLOR_HEADER       ImVec4(0.15f, 0.15f, 0.15f, 1.0f)
+#define MY_THEME_COLOR_COLLAPSED    ImVec4(0.3f, 0.3f, 0.3f, 0.6f)
+#define MY_THEME_COLOR_HOVER        ImVec4(0.25f, 0.25f, 0.25f, 1.0f)
 
 void DefaultTheme()
 {
-	ImGuiStyle& style = ImGui::GetStyle();
+    ImGuiStyle& style = ImGui::GetStyle();
+    ImVec4* colors = style.Colors;
 
-	style.WindowTitleAlign = ImVec2(0.5f, 0.5f);
-	style.WindowPadding = ImVec2(15.0f, 15.0f);
-	style.FramePadding = ImVec2(8.0f, 4.0f);
-	style.ItemSpacing = ImVec2(8.0f, 6.0f);
-	style.ItemInnerSpacing = ImVec2(6.0f, 6.0f);
-	style.IndentSpacing = 20.0f;
-	style.ScrollbarSize = 15.0f;
-	style.GrabMinSize = 10.0f;
-	style.WindowBorderSize = 1.0f;
-	style.ChildBorderSize = 1.0f;
-	style.PopupBorderSize = 1.0f;
-	style.FrameBorderSize = 1.0f;
-	style.TabBorderSize = 1.0f;
-	style.WindowRounding = 4.0f;
-	style.ChildRounding = 4.0f;
-	style.FrameRounding = 3.0f;
-	style.PopupRounding = 4.0f;
-	style.ScrollbarRounding = 9.0f;
-	style.GrabRounding = 3.0f;
-	style.TabRounding = 4.0f;
-
-	style.Colors[ImGuiCol_Text] = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
-	style.Colors[ImGuiCol_TextDisabled] = ImVec4(0.50f, 0.50f, 0.50f, 1.00f);
-	style.Colors[ImGuiCol_WindowBg] = ImVec4(0.13f - 0.033, 0.14f - 0.033, 0.15f - 0.033, 1.00f);
-	style.Colors[ImGuiCol_ChildBg] = ImVec4(0.13f, 0.14f, 0.15f, 1.00f);
-	style.Colors[ImGuiCol_PopupBg] = ImVec4(0.13f, 0.14f, 0.15f, 1.00f);
-	style.Colors[ImGuiCol_Border] = ImVec4(0.43f, 0.43f, 0.50f, 0.50f);
-	style.Colors[ImGuiCol_BorderShadow] = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
-	style.Colors[ImGuiCol_FrameBg] = ImVec4(0.25f, 0.25f, 0.25f, 1.00f);
-	style.Colors[ImGuiCol_FrameBgHovered] = ImVec4(0.38f, 0.38f, 0.38f, 1.00f);
-	style.Colors[ImGuiCol_FrameBgActive] = ImVec4(0.67f, 0.67f, 0.67f, 0.39f);
-	style.Colors[ImGuiCol_TitleBg] = ImVec4(0.08f, 0.08f, 0.09f, 1.00f);
-	style.Colors[ImGuiCol_TitleBgActive] = ImVec4(0.08f, 0.08f, 0.09f, 1.00f);
-	style.Colors[ImGuiCol_TitleBgCollapsed] = ImVec4(0.00f, 0.00f, 0.00f, 0.51f);
-	style.Colors[ImGuiCol_MenuBarBg] = ImVec4(0.14f, 0.14f, 0.14f, 1.00f);
-	style.Colors[ImGuiCol_ScrollbarBg] = ImVec4(0.02f, 0.02f, 0.02f, 0.53f);
-	style.Colors[ImGuiCol_ScrollbarGrab] = ImVec4(0.31f, 0.31f, 0.31f, 1.00f);
-	style.Colors[ImGuiCol_ScrollbarGrabHovered] = ImVec4(0.41f, 0.41f, 0.41f, 1.00f);
-	style.Colors[ImGuiCol_ScrollbarGrabActive] = ImVec4(0.51f, 0.51f, 0.51f, 1.00f);
-	style.Colors[ImGuiCol_CheckMark] = ImVec4(0.11f, 0.64f, 0.92f, 1.00f);
-	style.Colors[ImGuiCol_SliderGrab] = ImVec4(0.11f, 0.64f, 0.92f, 1.00f);
-	style.Colors[ImGuiCol_SliderGrabActive] = ImVec4(0.08f, 0.50f, 0.72f, 1.00f);
-	style.Colors[ImGuiCol_Button] = ImVec4(0.25f, 0.25f, 0.25f, 1.00f);
-	style.Colors[ImGuiCol_ButtonHovered] = ImVec4(0.38f, 0.38f, 0.38f, 1.00f);
-	style.Colors[ImGuiCol_ButtonActive] = ImVec4(0.67f, 0.67f, 0.67f, 0.39f);
-	style.Colors[ImGuiCol_Header] = ImVec4(0.22f, 0.22f, 0.22f, 1.00f);
-	style.Colors[ImGuiCol_HeaderHovered] = ImVec4(0.25f, 0.25f, 0.25f, 1.00f);
-	style.Colors[ImGuiCol_HeaderActive] = ImVec4(0.67f, 0.67f, 0.67f, 0.39f);
-	style.Colors[ImGuiCol_Separator] = style.Colors[ImGuiCol_Border];
-	style.Colors[ImGuiCol_SeparatorHovered] = ImVec4(0.41f, 0.42f, 0.44f, 1.00f);
-	style.Colors[ImGuiCol_SeparatorActive] = ImVec4(0.26f, 0.59f, 0.98f, 0.95f);
-	style.Colors[ImGuiCol_ResizeGrip] = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
-	style.Colors[ImGuiCol_ResizeGripHovered] = ImVec4(0.29f, 0.30f, 0.31f, 0.67f);
-	style.Colors[ImGuiCol_ResizeGripActive] = ImVec4(0.26f, 0.59f, 0.98f, 0.95f);
-	style.Colors[ImGuiCol_Tab] = ImVec4(0.08f, 0.08f, 0.09f, 0.83f);
-	style.Colors[ImGuiCol_TabHovered] = ImVec4(0.33f, 0.34f, 0.36f, 0.83f);
-	style.Colors[ImGuiCol_TabActive] = ImVec4(0.23f, 0.23f, 0.24f, 1.00f);
-	style.Colors[ImGuiCol_TabUnfocused] = ImVec4(0.08f, 0.08f, 0.09f, 1.00f);
-	style.Colors[ImGuiCol_TabUnfocusedActive] = ImVec4(0.13f, 0.14f, 0.15f, 1.00f);
-	style.Colors[ImGuiCol_PlotLines] = ImVec4(0.61f, 0.61f, 0.61f, 1.00f);
-	style.Colors[ImGuiCol_PlotLinesHovered] = ImVec4(1.00f, 0.43f, 0.35f, 1.00f);
-	style.Colors[ImGuiCol_PlotHistogram] = ImVec4(0.90f, 0.70f, 0.00f, 1.00f);
-	style.Colors[ImGuiCol_PlotHistogramHovered] = ImVec4(1.00f, 0.60f, 0.00f, 1.00f);
-	style.Colors[ImGuiCol_TextSelectedBg] = ImVec4(0.26f, 0.59f, 0.98f, 0.35f);
-	style.Colors[ImGuiCol_DragDropTarget] = ImVec4(0.11f, 0.64f, 0.92f, 1.00f);
-	style.Colors[ImGuiCol_NavHighlight] = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
-	style.Colors[ImGuiCol_NavWindowingHighlight] = ImVec4(1.00f, 1.00f, 1.00f, 0.70f);
-	style.Colors[ImGuiCol_NavWindowingDimBg] = ImVec4(0.80f, 0.80f, 0.80f, 0.20f);
-	style.Colors[ImGuiCol_ModalWindowDimBg] = ImVec4(0.80f, 0.80f, 0.80f, 0.35f);
-	style.GrabRounding = style.FrameRounding = 2.3f;
+    // Modify ImGui style settings
+    style.WindowPadding = ImVec2(10, 10);
+    style.WindowRounding = 4.0f;
+    style.FrameRounding = 4.0f;
+    style.GrabRounding = 4.0f;
+    style.ScrollbarRounding = 4.0f;
+    style.FrameBorderSize = 1.0f;
+    style.WindowTitleAlign = ImVec2(0.5f, 0.5f);
 
 
+
+    colors[ImGuiCol_Text] = MY_THEME_COLOR_TEXT;
+    colors[ImGuiCol_TextDisabled] = ImVec4(0.5f, 0.5f, 0.5f, 1.0f);
+    colors[ImGuiCol_WindowBg] = MY_THEME_COLOR_WINDOW_BG;
+    colors[ImGuiCol_Border] = MY_THEME_COLOR_BORDER;
+    colors[ImGuiCol_BorderShadow] = ImVec4(0.0f, 0.0f, 0.0f, 0.0f);
+    colors[ImGuiCol_FrameBg] = MY_THEME_COLOR_SECONDARY;
+    colors[ImGuiCol_FrameBgHovered] = MY_THEME_COLOR_HOVER;
+    colors[ImGuiCol_FrameBgActive] = MY_THEME_COLOR_PRIMARY;
+    colors[ImGuiCol_TitleBg] = MY_THEME_COLOR_HEADER;
+    colors[ImGuiCol_TitleBgActive] = MY_THEME_COLOR_HEADER;
+    colors[ImGuiCol_TitleBgCollapsed] = MY_THEME_COLOR_HEADER;
+    colors[ImGuiCol_MenuBarBg] = MY_THEME_COLOR_SECONDARY;
+    colors[ImGuiCol_ScrollbarBg] = MY_THEME_COLOR_SECONDARY;
+    colors[ImGuiCol_ScrollbarGrab] = MY_THEME_COLOR_PRIMARY;
+    colors[ImGuiCol_ScrollbarGrabHovered] = MY_THEME_COLOR_HOVER;
+    colors[ImGuiCol_ScrollbarGrabActive] = MY_THEME_COLOR_PRIMARY;
+    colors[ImGuiCol_CheckMark] = MY_THEME_COLOR_PRIMARY;
+    colors[ImGuiCol_SliderGrab] = MY_THEME_COLOR_PRIMARY;
+    colors[ImGuiCol_SliderGrabActive] = MY_THEME_COLOR_PRIMARY;
+    colors[ImGuiCol_Button] = MY_THEME_COLOR_PRIMARY;
+    colors[ImGuiCol_ButtonHovered] = MY_THEME_COLOR_HOVER;
+    colors[ImGuiCol_ButtonActive] = MY_THEME_COLOR_PRIMARY;
+    colors[ImGuiCol_Header] = MY_THEME_COLOR_PRIMARY;
+    colors[ImGuiCol_HeaderHovered] = MY_THEME_COLOR_HOVER;
+    colors[ImGuiCol_HeaderActive] = MY_THEME_COLOR_PRIMARY;
+    colors[ImGuiCol_ResizeGrip] = MY_THEME_COLOR_PRIMARY;
+    colors[ImGuiCol_ResizeGripHovered] = MY_THEME_COLOR_HOVER;
+    colors[ImGuiCol_ResizeGripActive] = MY_THEME_COLOR_PRIMARY;
+    colors[ImGuiCol_PlotLines] = MY_THEME_COLOR_PRIMARY;
+    colors[ImGuiCol_PlotLinesHovered] = MY_THEME_COLOR_PRIMARY;
+    colors[ImGuiCol_PlotHistogram] = MY_THEME_COLOR_PRIMARY;
+    colors[ImGuiCol_PlotHistogramHovered] = MY_THEME_COLOR_PRIMARY;
+    colors[ImGuiCol_TextSelectedBg] = MY_THEME_COLOR_PRIMARY;
+    colors[ImGuiCol_DragDropTarget] = MY_THEME_COLOR_PRIMARY;
+    colors[ImGuiCol_NavHighlight] = MY_THEME_COLOR_PRIMARY;
+    colors[ImGuiCol_NavWindowingHighlight] = MY_THEME_COLOR_PRIMARY;
+    colors[ImGuiCol_NavWindowingDimBg] = MY_THEME_COLOR_SECONDARY;
+    colors[ImGuiCol_ModalWindowDimBg] = MY_THEME_COLOR_SECONDARY;
+    colors[ImGuiCol_Tab] = MY_THEME_COLOR_SECONDARY;
+    colors[ImGuiCol_TabHovered] = MY_THEME_COLOR_HOVER;
+    colors[ImGuiCol_TabActive] = MY_THEME_COLOR_PRIMARY;
+    colors[ImGuiCol_TabUnfocused] = MY_THEME_COLOR_SECONDARY;
+    colors[ImGuiCol_TabUnfocusedActive] = MY_THEME_COLOR_PRIMARY;
+    colors[ImGuiCol_Tab] = MY_THEME_COLOR_SECONDARY;
+    colors[ImGuiCol_TabHovered] = MY_THEME_COLOR_HOVER;
+    colors[ImGuiCol_TabActive] = MY_THEME_COLOR_PRIMARY;
+    colors[ImGuiCol_TabUnfocused] = MY_THEME_COLOR_SECONDARY;
+    colors[ImGuiCol_TabUnfocusedActive] = MY_THEME_COLOR_PRIMARY;
+
+    style.ChildRounding = 4.0f;
+    style.ChildBorderSize = 1.0f;
+    style.PopupRounding = 4.0f;
+    style.PopupBorderSize = 1.0f;
+    style.WindowBorderSize = 1.0f;
 }
 
