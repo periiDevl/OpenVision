@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include"Object.h"
 #include"Math.h"
 #include"Settings.h"
@@ -466,7 +466,7 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 
 }
 
-// A function for ImGui textinput
+
 
 static int InputTextCallback(ImGuiInputTextCallbackData* data)
 {
@@ -773,6 +773,7 @@ int main()
 	Texture EngineOVRebuildIconGui("EngineAssets/OvRebuildIcon.png");
 	Texture EngineOVRunIconGui("EngineAssets/OvRunIcon.png");
 	Texture EngineOVBuildIconGui("EngineAssets/OvBuildIcon.png");
+	Texture EngineOVMMSIconGui("EngineAssets/mmsicon.png");
 
 	double prevTime = 0.0;
 	double crntTime = 0.0;
@@ -955,23 +956,70 @@ int main()
 				undoAction();
 				releasedUndo = false;
 			}
-
+			ImTextureID RebuildimguiTextureID = reinterpret_cast<ImTextureID>(static_cast<intptr_t>(EngineOVTrashIconGui.ID));
 			//Manifold manifold;
 			//CheckCollision(*OV::SearchObjectByName("obj2", sceneObjects)->Body->GetCollider(), *OV::SearchObjectByName("obj1", sceneObjects)->Body->GetCollider(), manifold);
+			ImGui::BeginMainMenuBar();
+
+
+			ImGui::Separator();
+
+			if (ImGui::BeginMenu("File"))
+			{
+
+				if (ImGui::MenuItem("Save"))
+				{
+					//save
+				}
+				ImGui::EndMenu();
+			}
+
+			ImGui::Separator();
+
+			if (ImGui::BeginMenu("Debug"))
+			{
+				RebuildimguiTextureID = reinterpret_cast<ImTextureID>(static_cast<intptr_t>(EngineOVMMSIconGui.ID));
+				if (ImGui::ImageButton(RebuildimguiTextureID, ImVec2(30, 30)))
+				{
+				}
+				ImGui::SameLine(); 
+				ImGui::Text("Mono-MS");
+
+				ImGui::Separator();
+
+				if (ImGui::ImageButton(RebuildimguiTextureID, ImVec2(30, 30)))
+				{
+				}
+				ImGui::SameLine();
+				ImGui::Text("CUGNYSIS");
+
+
+
+				ImGui::EndMenu();
+			}
+
+			ImGui::Separator();
+
+
+			ImGui::EndMainMenuBar();
 			
 			ImGui::Begin("Execute", 0, (no_resize ? ImGuiWindowFlags_NoResize : 0) | (no_move ? ImGuiWindowFlags_NoMove : 0));
-
-
 			ImGuiStyle& style = ImGui::GetStyle();
 
 
 			ImVec2 originalButtonTextAlign = style.ButtonTextAlign;
 			ImVec2 originalFramePadding = style.FramePadding;
 
-			ImTextureID RebuildimguiTextureID = reinterpret_cast<ImTextureID>(static_cast<intptr_t>(EngineOVRunIconGui.ID));
+			
 			style.ButtonTextAlign = ImVec2(0.5f, 0.5f);
 			style.FramePadding = ImVec2(1.0f, 1.0f);
 
+
+			style.ButtonTextAlign = originalButtonTextAlign;
+			style.FramePadding = originalFramePadding;
+
+
+			RebuildimguiTextureID = reinterpret_cast<ImTextureID>(static_cast<intptr_t>(EngineOVRunIconGui.ID));
 			if (ImGui::ImageButton(RebuildimguiTextureID, ImVec2(30, 30)))
 			{
 				if (run == false) {
@@ -1533,6 +1581,7 @@ int main()
 		Object RuntimeCam = *OV::SearchObjectByName("MainCameraOvSTD", PresceneObjects);
 		
 		blackbox.tex = nulltex;
+		blackbox.layer = 100;
 		blackbox.DrawTMP(window, shaderProgram, camera, glm::vec2(RuntimeCam.position->x, ((-36 / 1.5) / 1.5) + RuntimeCam.position->y), glm::vec2(59, 0.5));
 		blackbox.DrawTMP(window, shaderProgram, camera, glm::vec2(RuntimeCam.position->x, ((36 / 1.5) / 1.5) + RuntimeCam.position->y), glm::vec2(59, 0.5));
 
