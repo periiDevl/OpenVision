@@ -7,6 +7,7 @@
 class Console
 {
 public:
+    bool isConsoleHove;
     Console()
     {
         memset(input_buf, 0, sizeof(input_buf));
@@ -38,9 +39,19 @@ public:
             ImGui::End();
             return;
         }
+        
+
+        
 
         // Display logs
         ImGui::BeginChild("ScrollingRegion", ImVec2(0, -ImGui::GetTextLineHeightWithSpacing()), false, ImGuiWindowFlags_HorizontalScrollbar);
+        if (ImGui::IsWindowHovered())
+        {
+            isConsoleHove = true;
+        }
+        else {
+            isConsoleHove = false;
+        }
         for (int i = 0; i < logs.size(); i++)
             ImGui::TextUnformatted(logs[i].c_str());
         ImGui::SetScrollHereY(1.0f);

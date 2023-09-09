@@ -525,7 +525,7 @@ int main()
 {
 	
 
-
+	
 	fs::path currentPath = fs::current_path();
 	fs::path ProjectName = currentPath.filename().string();
 
@@ -766,6 +766,7 @@ int main()
 
 	Object blackbox = Object(verts, ind);
 	//Engine Assets
+	
 	Texture EngineOVObjectIconGui("EngineAssets/ObjectIcon.png");
 	Texture EngineOVCameraIconGui("EngineAssets/CameraIcon.png");
 	Texture EngineOVTrashIconGui("EngineAssets/OvTrashIcon.png");
@@ -774,6 +775,7 @@ int main()
 	Texture EngineOVRunIconGui("EngineAssets/OvRunIcon.png");
 	Texture EngineOVBuildIconGui("EngineAssets/OvBuildIcon.png");
 	Texture EngineOVMMSIconGui("EngineAssets/mmsicon.png");
+	Texture EngineCuserIconGui("EngineAssets/Curser.png");
 
 	double prevTime = 0.0;
 	double crntTime = 0.0;
@@ -908,6 +910,7 @@ int main()
 		}
 
 
+#pragma region Pre-Runtime
 
 		if (!run) {
 			if (!StartPhase) {
@@ -956,10 +959,15 @@ int main()
 				undoAction();
 				releasedUndo = false;
 			}
+
+#pragma endregion Pre-Runtime
+
+#pragma region UI
 			ImTextureID RebuildimguiTextureID = reinterpret_cast<ImTextureID>(static_cast<intptr_t>(EngineOVTrashIconGui.ID));
 			//Manifold manifold;
 			//CheckCollision(*OV::SearchObjectByName("obj2", sceneObjects)->Body->GetCollider(), *OV::SearchObjectByName("obj1", sceneObjects)->Body->GetCollider(), manifold);
 			ImGui::BeginMainMenuBar();
+			
 
 
 			ImGui::Separator();
@@ -1003,7 +1011,12 @@ int main()
 
 			ImGui::EndMainMenuBar();
 			
+			ImGui::End();
 			ImGui::Begin("Execute", 0, (no_resize ? ImGuiWindowFlags_NoResize : 0) | (no_move ? ImGuiWindowFlags_NoMove : 0));
+			if (ImGui::IsWindowHovered())
+			{
+				mouseOverUI = true;
+			}
 			ImGuiStyle& style = ImGui::GetStyle();
 
 
@@ -1126,9 +1139,17 @@ int main()
 			ImGui::End();
 
 			con.Draw(no_resize,no_move);
+			if (con.isConsoleHove)
+			{
+				mouseOverUI = true;
+			}
 
-
+			ImGui::End();
 			ImGui::Begin("Sources", 0, (no_resize ? ImGuiWindowFlags_NoResize : 0) | (no_move ? ImGuiWindowFlags_NoMove : 0));
+			if (ImGui::IsWindowHovered())
+			{
+				mouseOverUI = true;
+			}
 			if (ImGui::BeginTabBar("TabBar"))
 			{
 				if (ImGui::BeginTabItem("Object Settings"))
@@ -1236,16 +1257,15 @@ int main()
 
 				ImGui::EndTabBar();
 			}
-			if (ImGui::IsWindowHovered())
-			{
-				mouseOverUI = true;
-			}
+
 			ImGui::End();
 
 
 			static char scriptName[128] = "";
 
+			ImGui::End();
 			ImGui::Begin("Scripts", 0, (no_resize ? ImGuiWindowFlags_NoResize : 0) | (no_move ? ImGuiWindowFlags_NoMove : 0));
+			
 			ImGui::InputText("Script Name", scriptName, IM_ARRAYSIZE(scriptName));
 
 			if (ImGui::Button("Add Script"))
@@ -1319,8 +1339,12 @@ int main()
 			}
 			ImGui::End();
 
-
+			ImGui::End();
 			ImGui::Begin("Scripts Select", 0, (no_resize ? ImGuiWindowFlags_NoResize : 0) | (no_move ? ImGuiWindowFlags_NoMove : 0));
+			if (ImGui::IsWindowHovered())
+			{
+				mouseOverUI = true;
+			}
 			if (ImGui::Button("Script (gloabl ov script)")) {
 				std::string command = "start Script.cpp";
 				system(command.c_str());
@@ -1335,6 +1359,10 @@ int main()
 
 			
 			ImGui::BeginChild("GridChild", ImVec2(gridWidth, 0), false);
+			if (ImGui::IsWindowHovered())
+			{
+				mouseOverUI = true;
+			}
 			for (int row = 0; row < rowCount; ++row) {
 				for (int col = 0; col < itemsPerRow; ++col) {
 					int index = row * itemsPerRow + col;
@@ -1377,8 +1405,9 @@ int main()
 
 
 			ImGui::End();
-
+			ImGui::End();
 			ImGui::Begin("Window Control", 0, (no_resize ? ImGuiWindowFlags_NoResize : 0) | (no_move ? ImGuiWindowFlags_NoMove : 0));
+			
 			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 0.0f, 0.0f, 1.0f));
 			ImGui::Text("Values here will not be saved.");
 			ImGui::PopStyleColor();
@@ -1391,12 +1420,9 @@ int main()
 			}
 			ImGui::End();
 
-
+			ImGui::End();
 			ImGui::Begin("Object Inspector", 0, (no_resize ? ImGuiWindowFlags_NoResize : 0) | (no_move ? ImGuiWindowFlags_NoMove : 0));
-
-
-
-
+			
 			if (ImGui::IsWindowHovered())
 			{
 				mouseOverUI = true;
@@ -1494,6 +1520,21 @@ int main()
 						if (!onpopupmenu) {
 							glfwGetCursorPos(window, &mouseX, &mouseY);
 						}
+
+#pragma endregion UI
+
+
+#pragma region Mouse-Detection
+
+						if (!mouseOverUI)
+						{
+							glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+
+						}
+						else {
+							glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+
+						}
 						//camera.Position.x = 0.001f;
 						ndcMouseX = (float)mouseX / (float)width * 2.0f - 1.0f;
 						ndcMouseY = (float)mouseY / (float)height * 2.0f - 1.0f;
@@ -1577,7 +1618,8 @@ int main()
 
 			
 		}
-		
+#pragma endregion Mouse-Detection
+
 		Object RuntimeCam = *OV::SearchObjectByName("MainCameraOvSTD", PresceneObjects);
 		
 		blackbox.tex = nulltex;
@@ -1588,11 +1630,13 @@ int main()
 		blackbox.DrawTMP(window, shaderProgram, camera, glm::vec2((61.7 / 1.445 / 1.5) + RuntimeCam.position->x, RuntimeCam.position->y), glm::vec2(0.5, 33.8));
 		blackbox.DrawTMP(window, shaderProgram, camera, glm::vec2((-61.7 / 1.445 / 1.5) + RuntimeCam.position->x, RuntimeCam.position->y), glm::vec2(0.5, 33.8));
 
+		blackbox.tex = EngineCuserIconGui;
+		blackbox.DrawTMP(window, shaderProgram, camera, glm::vec2(ndcMouseX, ndcMouseY), glm::vec2(2, 2));
 
 
 		//blackbox.tex = CenterDot;
 		//blackbox.DrawTMP(window, shaderProgram, camera, glm::vec2(CMX,CMY), glm::vec2(5, 5));
-		
+#pragma region Runtime
 		if (run) {
 			
 			if (StartPhase)
@@ -1671,8 +1715,9 @@ int main()
 			glBindTexture(GL_TEXTURE_2D, framebufferTexture);
 			glDrawArrays(GL_TRIANGLES, 0, 6);
 		}
+#pragma endregion Runtime
 
-		
+
 		ImGui::End();
 		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
