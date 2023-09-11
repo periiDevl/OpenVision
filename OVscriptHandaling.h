@@ -172,7 +172,7 @@ void addH(const std::string& filename, const std::string& file, const std::strin
 	if (!is_sentence_in_file(filename, "	<ClInclude Include=\"" + file + ".h\" />")) {
 		std::ifstream infile(filename);
 
-		ofstream createfile(file + ".h");
+		ofstream createfile("DynaLL/" + file + ".h");
 
 		std::string script =
 			R"(
@@ -221,7 +221,7 @@ void addCpp(const std::string& filename, const std::string& file, const std::str
 	if (!is_sentence_in_file(filename, "	<ClCompile Include=\"" + file + ".cpp\" />")) {
 		std::ifstream infile(filename);
 
-		ofstream createfile(file + ".cpp");
+		ofstream createfile("DynaLL/"+file + ".cpp");
 
 		std::string script =
 			R"(#include")" + file + R"(.h"
@@ -274,5 +274,5 @@ void removeOVscript(const std::string& file)
 {
 	removeCpp("DynaLL/Dll1.vcxproj", file);
 	removeH("DynaLL/Dll1.vcxproj", file);
-	removeMainCpp("OVLIB.cpp", file);
+	removeMainCpp("DynaLL/OVLIB.cpp", file);
 }
