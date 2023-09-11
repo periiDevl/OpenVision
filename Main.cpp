@@ -21,12 +21,12 @@
 #include"OVscriptHandaling.h"
 #include"Presave.h"
 #include"Script.h"
-#include"NewScript.h"
-#include"ExitTest.h"
 #include "SaveSystem.h"
+#include"OVLIB.h"
 std::vector<Object> PresceneObjects;
 
 SaveSystem SavingSystem;
+
 
 
 void clearSavingSystem(int I)
@@ -273,8 +273,6 @@ void createFolder(string folderName) {
 }
 
 Script script;
-NewScript NewScriptscr;
-ExitTest ExitTestscr;
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 
 
@@ -524,7 +522,7 @@ namespace fs = std::filesystem;
 int main()
 {
 	
-
+	ScriptStart();
 	
 	fs::path currentPath = fs::current_path();
 	fs::path ProjectName = currentPath.filename().string();
@@ -916,8 +914,6 @@ int main()
 			if (!StartPhase) {
 				if (!firsttime) {
 				script.Exit();
-				NewScriptscr.Exit();
-				ExitTestscr.Exit();
 				}
 				firsttime = false;
 
@@ -1525,7 +1521,7 @@ int main()
 
 
 #pragma region Mouse-Detection
-
+						/*
 						if (!mouseOverUI)
 						{
 							glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
@@ -1535,11 +1531,12 @@ int main()
 							glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 
 						}
+						*/
 						//camera.Position.x = 0.001f;
 						ndcMouseX = (float)mouseX / (float)width * 2.0f - 1.0f;
 						ndcMouseY = (float)mouseY / (float)height * 2.0f - 1.0f;
-						ndcMouseX *= rattio.x * 3.7;
-						ndcMouseY *= rattio.y * 3.7;
+						ndcMouseX *= rattio.x * 3.65;
+						ndcMouseY *= rattio.y * 3.65;
 						int topIndex = -1; 
 						
 						float maxZIndex = -std::numeric_limits<float>::infinity(); 
@@ -1631,7 +1628,11 @@ int main()
 		blackbox.DrawTMP(window, shaderProgram, camera, glm::vec2((-61.7 / 1.445 / 1.5) + RuntimeCam.position->x, RuntimeCam.position->y), glm::vec2(0.5, 33.8));
 
 		blackbox.tex = EngineCuserIconGui;
-		blackbox.DrawTMP(window, shaderProgram, camera, glm::vec2(ndcMouseX, ndcMouseY), glm::vec2(2, 2));
+		/*
+		if (!mouseOverUI) {
+			blackbox.DrawTMP(window, shaderProgram, camera, glm::vec2(ndcMouseX, ndcMouseY), glm::vec2(2.5, 2.5));
+		}
+		*/
 
 
 		//blackbox.tex = CenterDot;
@@ -1654,20 +1655,14 @@ int main()
 				con.CLEAR_CONSOLE();
 				fov = 22.45;
 				script.Start();
-				NewScriptscr.Start();
-				ExitTestscr.Start();
 
 				StartPhase = false;
 			}
 				script.Update();
-				NewScriptscr.Update();
-				ExitTestscr.Update();
 
 			if (glfwWindowShouldClose(window))
 			{
 				script.Exit();
-				NewScriptscr.Exit();
-				ExitTestscr.Exit();
 			}
 			if (timeDiff >= fixed_timestep) {
 				std::string FPS = std::to_string((1.0 / timeDiff) * counter);

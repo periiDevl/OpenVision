@@ -96,19 +96,19 @@
     <ClCompile Include="InputSystem.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="AddedScript.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="ScriptTwo.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Hello.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Anewscript.cpp">
+    <ClCompile Include="OV.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="OV.cpp">
+    <ClCompile Include="NewScript.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ExitTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -203,16 +203,16 @@
     <ClInclude Include="InputSystem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="AddedScript.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="ScriptTwo.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Hello.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Anewscript.h">
+    <ClInclude Include="NewScript.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ExitTest.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

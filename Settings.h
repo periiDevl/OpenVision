@@ -79,7 +79,7 @@ vec4 ambientLight()
 
     float ambient = 1.0f;
     vec4 bgColor = vec4(0.0);
-    float borderThreshold = 0.03;
+    float borderThreshold = 0.001;
 
     float distanceToBorder = min(min(tiledTexCoord.x, 1.0 - tiledTexCoord.x), min(tiledTexCoord.y, 1.0 - tiledTexCoord.y));
 
