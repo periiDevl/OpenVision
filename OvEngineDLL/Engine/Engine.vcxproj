@@ -79,11 +79,11 @@
     <LibraryPath>F:\Development\C++\OpenVision\OpenVision%28Engine%29\OvEngineDLL\Engine\Libraries\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>F:\Development\C++\OpenVision\OpenVision%28Engine%29\OvEngineDLL\Engine\Libraries\include;$(IncludePath)</IncludePath>
+    <IncludePath>F:\Development\C++\OpenVision\OpenVision%28Engine%29;F:\Development\C++\OpenVision\OpenVision%28Engine%29\OvEngineDLL\Engine\Libraries\include;$(IncludePath)</IncludePath>
     <LibraryPath>F:\Development\C++\OpenVision\OpenVision%28Engine%29\OvEngineDLL\Engine\Libraries\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>F:\Development\C++\OpenVision\OpenVision%28Engine%29\OvEngineDLL\Engine\Libraries\include;$(IncludePath)</IncludePath>
+    <IncludePath>F:\Development\C++\OpenVision\OpenVision%28Engine%29;F:\Development\C++\OpenVision\OpenVision%28Engine%29\OvEngineDLL\Engine\Libraries\include;$(IncludePath)</IncludePath>
     <LibraryPath>F:\Development\C++\OpenVision\OpenVision%28Engine%29\OvEngineDLL\Engine\Libraries\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -94,6 +94,8 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <AdditionalIncludeDirectories>imgui</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -130,6 +132,8 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <AdditionalIncludeDirectories>imgui</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -165,6 +169,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp" />
+    <ClCompile Include="OV.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

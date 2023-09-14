@@ -23,6 +23,7 @@
 #include"Script.h"
 #include "SaveSystem.h"
 #include"OVLIB.h"
+
 std::vector<Object> PresceneObjects;
 
 SaveSystem SavingSystem;
@@ -281,6 +282,7 @@ double scroll_offset = 45.0;
 int PythonIndex = 0;
 
 
+
 void ObjectUI(GLFWwindow* window, int i)
 {
 	if (PresceneObjects[i].name != "MainCameraOvSTD") {
@@ -519,10 +521,14 @@ void undoAction() {
 }
 
 namespace fs = std::filesystem;
+
+
 int main()
 {
+
+	std::cout << OVObjects.size();
+
 	
-	ScriptStart();
 	
 	fs::path currentPath = fs::current_path();
 	fs::path ProjectName = currentPath.filename().string();
@@ -670,7 +676,6 @@ int main()
 	bool no_resize = true;
 	bool no_move = true;
 	bool mouseOverUI = false;
-
 	Texture nulltex = Texture("");
 	//Texture CenterDot = Texture("EngineAssets/CenterDot.png");
 
@@ -785,7 +790,7 @@ int main()
 
 	bool releasedUndo = true;
 
-
+	
 
 	const float fixed_timestep = 1.0f / 60.0;
 	DefaultTheme();
@@ -842,7 +847,7 @@ int main()
 	float originalButtonPadding = style.FramePadding.y;
 	while (!glfwWindowShouldClose(window))
 	{
-
+		
 		build = file_exists("ov.ov");
 		glUniform1f(glGetUniformLocation(FramebufferProgram, "minEdgeContrast"), FXAA_REDUCE_MIN);
 		glUniform1f(glGetUniformLocation(FramebufferProgram, "subPixelAliasing"), FXAA_REDUCE_MUL);
@@ -1642,24 +1647,46 @@ int main()
 			
 			if (StartPhase)
 			{
+				
+				OVObjects.clear();
 				sf::Listener::setGlobalVolume(100);
 				for (size_t i = 0; i < PresceneObjects.size(); i++) {
 					PresceneObjects[i].scenePosition = *sceneObjects[i].position;
 					PresceneObjects[i].sceneScale = *sceneObjects[i].scale;
 					PresceneObjects[i].angle = new float;
 					*PresceneObjects[i].angle = *sceneObjects[i].angle;
+
+					OVObjects.push_back(Ov_Object{ PresceneObjects[i].scenePosition.x, PresceneObjects[i].scenePosition.y, PresceneObjects[i].sceneScale.x, PresceneObjects[i].sceneScale.y});
 				}
+				
 				for (int i = 0; i < sceneObjects.size(); i++) {
 					world.AddBody(sceneObjects[i].Body);
 				}
+				//std::cout << OVObjects.size();
+				/*
+				for (size_t i = 0; i < OVObjects.size(); i++)
+				{
+					std::cout << OVObjects[i].x;
+				}
+				*/
+				//OVObjects = sceneObjects;
+
 				con.CLEAR_CONSOLE();
 				fov = 22.45;
 				script.Start();
+				//sharedVar = 15;
 
+				int sharedVar = GetSharedVar();
+				sharedVar = 89;
+				SetSharedVar(sharedVar);
+				ScriptStart();
+				//std::cout << sharedVar;
 				StartPhase = false;
 			}
 				script.Update();
 
+				ScriptUpdate();
+				
 			if (glfwWindowShouldClose(window))
 			{
 				script.Exit();
@@ -1679,10 +1706,15 @@ int main()
 
 				world.Step(fixed_timestep);
 			}
-
+			//OVObjects[1].scale_x = 100;
 			
 			for (size_t i = 0; i < sceneObjects.size(); i++)
 			{
+				
+				sceneObjects[i].scenePosition = glm::vec2(OVObjects[i].x, OVObjects[i].y);
+				sceneObjects[i].sceneScale = glm::vec2(OVObjects[i].scale_x, OVObjects[i].scale_y);
+				
+				
 				if (!sceneObjects[i].deleted) {
 					glLineWidth(0.0f);
 					glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
