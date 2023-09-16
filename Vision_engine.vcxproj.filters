@@ -105,12 +105,6 @@
     <ClCompile Include="OV.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="NewScript.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ExitTest.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h">
@@ -207,12 +201,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Hello.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="NewScript.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ExitTest.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

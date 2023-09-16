@@ -25,6 +25,9 @@ public:
 	void AddBody(PhysicsBody* body);
 	void RemoveBody(PhysicsBody* body);
 	vector<PhysicsBody*> GetBodies();
+	void SeperateBodies(PhysicsBody* bodyA, PhysicsBody* bodyB, Manifold manifold);
+	void SimpleResolution(PhysicsBody* bodyA, PhysicsBody* bodyB, Manifold manifold);
+	void RotationResolution(PhysicsBody* bodyA, PhysicsBody* bodyB, Manifold manifold);
 	bool TouchingLayer(PhysicsBody* body, int layer);
 	void UpdateLayerBodies();
 private:

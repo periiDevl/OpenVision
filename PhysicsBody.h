@@ -41,6 +41,8 @@ public:
 	bool isTrigger, isStatic;
 	int layer;
 
+	float angularInertia, angularVelocity;
+
 	vec2 force, velocity;
 
 private:

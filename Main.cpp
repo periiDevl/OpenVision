@@ -568,7 +568,7 @@ int main()
 	}
 	inputFile.close();
 	
-	PhysicsWorld world(vec3(0, 55.0f, 0), 10);
+	PhysicsWorld world(vec3(0, -55.0f, 0), 10);
 
 
 	const std::filesystem::path directory_path = std::filesystem::current_path();
@@ -1683,6 +1683,9 @@ int main()
 				//std::cout << sharedVar;
 				StartPhase = false;
 			}
+
+			cout << "player vel:" << glm::to_string(sceneObjects[0].Body->velocity);
+			cout << "angular vel:" << sceneObjects[0].Body->angularVelocity << endl;
 				script.Update();
 
 				ScriptUpdate();
