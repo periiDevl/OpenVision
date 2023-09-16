@@ -43,7 +43,7 @@ void Object::Draw(GLFWwindow* window, GLuint shader, Camera& camera, glm::vec3 a
 
     unsigned int numDiffuse = 0;
     glm::mat4 model = glm::mat4(1.0f);
-    model = glm::translate(model, glm::vec3(position->x, -position->y, layer / 100.0));
+    model = glm::translate(model, glm::vec3(position->x, position->y, layer / 100.0));
 
     model = glm::rotate(model, Deg(*angle), axis);
     model = glm::scale(model, glm::vec3(*scale, 1.0f));
@@ -76,7 +76,7 @@ void Object::Draw(GLFWwindow* window, GLuint shader, Camera& camera, glm::vec3 a
 
     unsigned int numDiffuse = 0;
     glm::mat4 model = glm::mat4(1.0f);
-    model = glm::translate(model, glm::vec3(position->x + cameraX, -position->y - cameraY, layer / 100.0));
+    model = glm::translate(model, glm::vec3(position->x + cameraX, position->y + cameraY, layer / 100.0));
 
     model = glm::rotate(model, Deg(*angle), axis);
     model = glm::scale(model, glm::vec3(*scale, 1.0f));
@@ -98,7 +98,7 @@ void Object::DrawTMP(GLFWwindow* window, GLuint shader, Camera& camera, glm::vec
 
     unsigned int numDiffuse = 0;
     glm::mat4 model = glm::mat4(1.0f);
-    model = glm::translate(model, glm::vec3(pos.x, -pos.y, layer / 100.0));
+    model = glm::translate(model, glm::vec3(pos.x, pos.y, layer / 100.0));
 
     model = glm::scale(model, glm::vec3(scale.x, scale.y, 1.0f));
 

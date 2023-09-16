@@ -933,10 +933,10 @@ int main()
 				{
 					*sceneObjects[i].position = PresceneObjects[i].scenePosition;
 					*sceneObjects[i].scale = PresceneObjects[i].sceneScale;
-					sceneObjects[i].Body->velocity = vec2(0, 0);
+					sceneObjects[i].Body->SetVelocity(vec2(0, 0));
 					sceneObjects[i].angle = new float;
 					*sceneObjects[i].angle = *PresceneObjects[i].angle;
-					PresceneObjects[i].Body->velocity = vec2(0, 0);
+					PresceneObjects[i].Body->SetVelocity(vec2(0, 0));
 
 					if (PresceneObjects[i].name == "MainCameraOvSTD") {
 						PresceneObjects[i].tex = EngineOVCameraIconGui;
@@ -1520,8 +1520,8 @@ int main()
 
 						if (!onpopupmenu) {
 							glfwGetCursorPos(window, &mouseX, &mouseY);
+							
 						}
-
 #pragma endregion UI
 
 
@@ -1539,7 +1539,7 @@ int main()
 						*/
 						//camera.Position.x = 0.001f;
 						ndcMouseX = (float)mouseX / (float)width * 2.0f - 1.0f;
-						ndcMouseY = (float)mouseY / (float)height * 2.0f - 1.0f;
+						ndcMouseY = -((float)mouseY / (float)height * 2.0f - 1.0f);
 						ndcMouseX *= rattio.x * 3.65;
 						ndcMouseY *= rattio.y * 3.65;
 						int topIndex = -1; 
@@ -1684,11 +1684,41 @@ int main()
 				StartPhase = false;
 			}
 
-			cout << "player vel:" << glm::to_string(sceneObjects[0].Body->velocity);
-			cout << "angular vel:" << sceneObjects[0].Body->angularVelocity << endl;
 				script.Update();
 
 				ScriptUpdate();
+
+				for (size_t i = 0; i < sceneObjects.size(); i++)
+				{
+					if (sceneObjects[i].Body->getVelocity() != vec2(0.0f) && sceneObjects[i].Body->isStatic) {
+						cout << "invalid object name:" << sceneObjects[i].name << endl;
+						cout << "invalid object name:" << sceneObjects[i].name << endl;
+						cout << "invalid object name:" << sceneObjects[i].name << endl;
+						cout << "invalid object name:" << sceneObjects[i].name << endl;
+						cout << "invalid object name:" << sceneObjects[i].name << endl;
+						cout << "invalid object name:" << sceneObjects[i].name << endl;
+						cout << "invalid object name:" << sceneObjects[i].name << endl;
+						cout << "invalid object name:" << sceneObjects[i].name << endl;
+						cout << "invalid object name:" << sceneObjects[i].name << endl;
+						cout << "invalid object name:" << sceneObjects[i].name << endl;
+						cout << "invalid object name:" << sceneObjects[i].name << endl;
+						cout << "invalid object name:" << sceneObjects[i].name << endl;
+						cout << "invalid object name:" << sceneObjects[i].name << endl;
+						cout << "invalid object name:" << sceneObjects[i].name << endl;
+						cout << "invalid object name:" << sceneObjects[i].name << endl;
+						cout << "invalid object name:" << sceneObjects[i].name << endl;
+						cout << "invalid object name:" << sceneObjects[i].name << endl;
+						cout << "invalid object name:" << sceneObjects[i].name << endl;
+						cout << "invalid object name:" << sceneObjects[i].name << endl;
+						cout << "invalid object name:" << sceneObjects[i].name << endl;
+						cout << "invalid object name:" << sceneObjects[i].name << endl;
+						cout << "invalid object name:" << sceneObjects[i].name << endl;
+						cout << "invalid object name:" << sceneObjects[i].name << endl;
+						cout << "invalid object name:" << sceneObjects[i].name << endl;
+						cout << "invalid object name:" << sceneObjects[i].name << endl;
+						cout << "invalid object name:" << sceneObjects[i].name << endl;
+					}
+				}
 				
 			if (glfwWindowShouldClose(window))
 			{
@@ -1745,6 +1775,8 @@ int main()
 			glBindTexture(GL_TEXTURE_2D, framebufferTexture);
 			glDrawArrays(GL_TRIANGLES, 0, 6);
 		}
+		
+
 #pragma endregion Runtime
 
 

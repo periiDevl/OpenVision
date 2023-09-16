@@ -10,7 +10,6 @@ PhysicsBody::PhysicsBody(glm::vec2* pos, float* rot, glm::vec2* sca, float mass,
 
 void PhysicsBody::Step(float deltaTime){
 
-	cout << "velocity:" << glm::to_string(velocity) << endl;
 	*position += velocity * deltaTime;
 	force += gravity * mass;
 	velocity += (force * vec2(0, -1))/ mass * deltaTime ;
@@ -22,14 +21,27 @@ void PhysicsBody::Step(float deltaTime){
 Collider* PhysicsBody::GetCollider(){
 	return collider;
 }
-void PhysicsBody::ApplyForce(vec2 newForce){
+void PhysicsBody::ApplyForce(const vec2 newForce){
 	force += newForce;
 }
-void PhysicsBody::SetGravity(vec2 newGravity){
+void PhysicsBody::SetGravity(const vec2 newGravity){
 	gravity = newGravity;
 }
 
 void PhysicsBody::SetCollider(Collider* newCollider)
 {
 	collider = newCollider;
+}
+
+void PhysicsBody::SetVelocity(const vec2 newVelocity)
+{
+	if (isStatic)
+		return;
+	
+	velocity = newVelocity;
+}
+
+vec2 PhysicsBody::getVelocity()
+{
+	return velocity;
 }
