@@ -28,10 +28,11 @@ public:
 
 	Collider* GetCollider();
 	
-	void ApplyForce(vec2 newForce);
+	void ApplyForce(const vec2 newForce);
 
-	void SetGravity(vec2 newGravity);
+	void SetGravity(const vec2 newGravity);
 	void SetCollider(Collider* newCollider);
+	void SetVelocity(const vec2 newVelocity);
 
 	vec2* position;
 	vec2* scale;
@@ -41,11 +42,15 @@ public:
 	bool isTrigger, isStatic;
 	int layer;
 
-	vec2 force, velocity;
+	float angularInertia, angularVelocity;
+
+	vec2 getVelocity();
+	vec2 force;
 
 private:
 	vec2 gravity;
 	Collider* collider;
+	vec2 velocity;
 
 };
 

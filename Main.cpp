@@ -27,38 +27,7 @@
 std::vector<Object> PresceneObjects;
 
 SaveSystem SavingSystem;
-void SaveObjectsToFile(const std::string& filename) {
-	std::ofstream outputFile(filename);
-	if (!outputFile.is_open()) {
-		std::cerr << "Error: Unable to open the output file." << std::endl;
-		return;
-	}
 
-	for (const Object& object : PresceneObjects) {
-		glm::vec2* pos = object.position;
-		float posx = pos->x;
-		float posy = pos->y;
-		glm::vec2* scale = object.scale;
-		float scalex = scale->x;
-		float scaley = scale->y;
-		outputFile << posx << " " << posy << " " << scalex << " " << scaley << std::endl;
-	}
-
-	outputFile.close();
-}
-
-std::vector<float> splitStringToFloats(const std::string& input) {
-	std::vector<float> floatArray;
-	std::stringstream ss(input);
-	std::string token;
-
-	while (std::getline(ss, token, ',')) {
-		float value = std::stof(token);
-		floatArray.push_back(value);
-	}
-
-	return floatArray;
-}
 
 
 void clearSavingSystem(int I)
@@ -556,11 +525,8 @@ namespace fs = std::filesystem;
 
 int main()
 {
-	//std::vector<Ov_Object> OVOb;
 
-	std::cout << GetSharedVarX(0).x;
-
-
+	std::cout << OVObjects.size();
 
 	
 	
@@ -602,7 +568,7 @@ int main()
 	}
 	inputFile.close();
 	
-	PhysicsWorld world(vec3(0, 55.0f, 0), 10);
+	PhysicsWorld world(vec3(0, -50.0f, 0), 10);
 
 
 	const std::filesystem::path directory_path = std::filesystem::current_path();
@@ -879,7 +845,6 @@ int main()
 	bool firsttime = true;
 	ImGuiStyle& style = ImGui::GetStyle();
 	float originalButtonPadding = style.FramePadding.y;
-	std::vector<Ov_Object> o;
 	while (!glfwWindowShouldClose(window))
 	{
 		
@@ -968,10 +933,10 @@ int main()
 				{
 					*sceneObjects[i].position = PresceneObjects[i].scenePosition;
 					*sceneObjects[i].scale = PresceneObjects[i].sceneScale;
-					sceneObjects[i].Body->velocity = vec2(0, 0);
+					sceneObjects[i].Body->SetVelocity(vec2(0, 0));
 					sceneObjects[i].angle = new float;
 					*sceneObjects[i].angle = *PresceneObjects[i].angle;
-					PresceneObjects[i].Body->velocity = vec2(0, 0);
+					PresceneObjects[i].Body->SetVelocity(vec2(0, 0));
 
 					if (PresceneObjects[i].name == "MainCameraOvSTD") {
 						PresceneObjects[i].tex = EngineOVCameraIconGui;
@@ -1555,8 +1520,8 @@ int main()
 
 						if (!onpopupmenu) {
 							glfwGetCursorPos(window, &mouseX, &mouseY);
+							
 						}
-
 #pragma endregion UI
 
 
@@ -1573,8 +1538,14 @@ int main()
 						}
 						*/
 						//camera.Position.x = 0.001f;
+
+						if (glfwGetKey(window, GLFW_KEY_P)) {
+							//DrawVertices(window, unlitProgram, camera, *sceneObjects.back().position, *sceneObjects.back().scale);
+						}
+
+
 						ndcMouseX = (float)mouseX / (float)width * 2.0f - 1.0f;
-						ndcMouseY = (float)mouseY / (float)height * 2.0f - 1.0f;
+						ndcMouseY = -((float)mouseY / (float)height * 2.0f - 1.0f);
 						ndcMouseX *= rattio.x * 3.65;
 						ndcMouseY *= rattio.y * 3.65;
 						int topIndex = -1; 
@@ -1682,17 +1653,18 @@ int main()
 			
 			if (StartPhase)
 			{
-				SaveObjectsToFile("runtimeconfig.ov");
-				ScriptStart();
-				sf::Listener::setGlobalVolume(100);
 				
+				OVObjects.clear();
+				sf::Listener::setGlobalVolume(100);
 				for (size_t i = 0; i < PresceneObjects.size(); i++) {
 					PresceneObjects[i].scenePosition = *sceneObjects[i].position;
 					PresceneObjects[i].sceneScale = *sceneObjects[i].scale;
 					PresceneObjects[i].angle = new float;
 					*PresceneObjects[i].angle = *sceneObjects[i].angle;
 
+					OVObjects.push_back(Ov_Object{ PresceneObjects[i].scenePosition.x, PresceneObjects[i].scenePosition.y, PresceneObjects[i].sceneScale.x, PresceneObjects[i].sceneScale.y});
 				}
+				
 				for (int i = 0; i < sceneObjects.size(); i++) {
 					world.AddBody(sceneObjects[i].Body);
 				}
@@ -1703,80 +1675,29 @@ int main()
 					std::cout << OVObjects[i].x;
 				}
 				*/
-				//OVObjects = sceneObjects;?
-				//std::cout << ObjectsSize() + "Objects size" << std::endl;
-				//std::cout << sceneObjects.size() << std::endl;
-				
-				for (size_t i = 0; i < ObjectsSize(); i++)
-				{
-					sceneObjects[i].position->x = GetSharedVarX(i).x;
-					sceneObjects[i].position->y = GetSharedVarX(i).y;
-					sceneObjects[i].scale->x = GetSharedVarX(i).scale_x;
-					sceneObjects[i].scale->y = GetSharedVarX(i).scale_y;
-				}
-				
-				
-				/*
-				for (size_t i = 0; i < ObjectsSize(); i++)
-				{
-					
-					if (GetSharedVarX(i).x == 90)
-					{
-						std::cout << "HI";
-					}
-					//sceneObjects[i].position->x = GetSharedVarX(i).x;
-					//sceneObjects[i].position->y = GetSharedVarX(i).y;
-					//sceneObjects[i].scale->y = GetSharedVarX(i).scale_y;
-					//sceneObjects[i].scale->x = GetSharedVarX(i).scale_x;
-				}
-				*/
-				/*
-				std::string input = "90, 9, 12, 67";
-				std::vector<float> result = splitStringToFloats(input);
-
-				// Print the float values
-				for (size_t i = 0; i < sceneObjects.size(); ++i) {
-					sceneObjects[i].position->x = result[i];
-					
-				}
-
-				*/
+				//OVObjects = sceneObjects;
 
 				con.CLEAR_CONSOLE();
 				fov = 22.45;
 				script.Start();
 				//sharedVar = 15;
+
 				int sharedVar = GetSharedVar();
 				sharedVar = 89;
-				
-				
-				//(sharedObject.x, sharedObject.y)
-				//std::vector<int> sharedArray = GetShared();
-				//.log(sharedArray[0]);
-				
-
-
+				SetSharedVar(sharedVar);
+				ScriptStart();
 				//std::cout << sharedVar;
 				StartPhase = false;
 			}
 
-
-			/*
-			std::vector<Ov_Object> obj = { Ov_Object{10,10,10,10, 10} };
-			GetSharedObject(obj);
-
-			//std::cout << obj[0].x;
-			/*
-			Ov_Object sharedObject = GetSharedObject();
-			glm::vec2 objp(sharedObject.x, sharedObject.y);
-			glm::vec2 objs(sharedObject.x, sharedObject.y);
-			sceneObjects[sharedObject.where].position = &objp;
-			sceneObjects[sharedObject.where].scale = &objs;
-			*/
-
 				script.Update();
 
 				ScriptUpdate();
+
+				for (size_t i = 0; i < sceneObjects.size(); i++)
+				{
+					sceneObjects[i].Body->GetCollider()->CalculateAABB();
+				}
 				
 			if (glfwWindowShouldClose(window))
 			{
@@ -1802,7 +1723,8 @@ int main()
 			for (size_t i = 0; i < sceneObjects.size(); i++)
 			{
 				
-
+				sceneObjects[i].scenePosition = glm::vec2(OVObjects[i].x, OVObjects[i].y);
+				sceneObjects[i].sceneScale = glm::vec2(OVObjects[i].scale_x, OVObjects[i].scale_y);
 				
 				
 				if (!sceneObjects[i].deleted) {
@@ -1832,6 +1754,8 @@ int main()
 			glBindTexture(GL_TEXTURE_2D, framebufferTexture);
 			glDrawArrays(GL_TRIANGLES, 0, 6);
 		}
+		
+
 #pragma endregion Runtime
 
 
