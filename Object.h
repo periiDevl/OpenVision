@@ -42,7 +42,7 @@ public:
 	float Deg(float radians)
 	{
 
-		return radians * 3.14159 / 180;
+		return radians * 3.14159f / 180;
 	}
 	GLuint GetShaderSource() {
 		return shader;

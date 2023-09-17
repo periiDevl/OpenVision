@@ -568,7 +568,7 @@ int main()
 	}
 	inputFile.close();
 	
-	PhysicsWorld world(vec3(0, -55.0f, 0), 10);
+	PhysicsWorld world(vec3(0, -50.0f, 0), 10);
 
 
 	const std::filesystem::path directory_path = std::filesystem::current_path();
@@ -1538,6 +1538,12 @@ int main()
 						}
 						*/
 						//camera.Position.x = 0.001f;
+
+						if (glfwGetKey(window, GLFW_KEY_P)) {
+							//DrawVertices(window, unlitProgram, camera, *sceneObjects.back().position, *sceneObjects.back().scale);
+						}
+
+
 						ndcMouseX = (float)mouseX / (float)width * 2.0f - 1.0f;
 						ndcMouseY = -((float)mouseY / (float)height * 2.0f - 1.0f);
 						ndcMouseX *= rattio.x * 3.65;
@@ -1690,34 +1696,7 @@ int main()
 
 				for (size_t i = 0; i < sceneObjects.size(); i++)
 				{
-					if (sceneObjects[i].Body->getVelocity() != vec2(0.0f) && sceneObjects[i].Body->isStatic) {
-						cout << "invalid object name:" << sceneObjects[i].name << endl;
-						cout << "invalid object name:" << sceneObjects[i].name << endl;
-						cout << "invalid object name:" << sceneObjects[i].name << endl;
-						cout << "invalid object name:" << sceneObjects[i].name << endl;
-						cout << "invalid object name:" << sceneObjects[i].name << endl;
-						cout << "invalid object name:" << sceneObjects[i].name << endl;
-						cout << "invalid object name:" << sceneObjects[i].name << endl;
-						cout << "invalid object name:" << sceneObjects[i].name << endl;
-						cout << "invalid object name:" << sceneObjects[i].name << endl;
-						cout << "invalid object name:" << sceneObjects[i].name << endl;
-						cout << "invalid object name:" << sceneObjects[i].name << endl;
-						cout << "invalid object name:" << sceneObjects[i].name << endl;
-						cout << "invalid object name:" << sceneObjects[i].name << endl;
-						cout << "invalid object name:" << sceneObjects[i].name << endl;
-						cout << "invalid object name:" << sceneObjects[i].name << endl;
-						cout << "invalid object name:" << sceneObjects[i].name << endl;
-						cout << "invalid object name:" << sceneObjects[i].name << endl;
-						cout << "invalid object name:" << sceneObjects[i].name << endl;
-						cout << "invalid object name:" << sceneObjects[i].name << endl;
-						cout << "invalid object name:" << sceneObjects[i].name << endl;
-						cout << "invalid object name:" << sceneObjects[i].name << endl;
-						cout << "invalid object name:" << sceneObjects[i].name << endl;
-						cout << "invalid object name:" << sceneObjects[i].name << endl;
-						cout << "invalid object name:" << sceneObjects[i].name << endl;
-						cout << "invalid object name:" << sceneObjects[i].name << endl;
-						cout << "invalid object name:" << sceneObjects[i].name << endl;
-					}
+					sceneObjects[i].Body->GetCollider()->CalculateAABB();
 				}
 				
 			if (glfwWindowShouldClose(window))

@@ -21,8 +21,10 @@ struct Manifold {
 	glm::vec2 normal;
 	float depth;
 	glm::vec2 mtv;
-	
+
 	std::vector<glm::vec2> contactPoints;
+
+	Manifold() : normal(glm::vec2(0.0f)), depth(0.0f), mtv(glm::vec2(0.0f)), contactPoints(std::vector<glm::vec2>()) {}
 };
 
 struct Edge {

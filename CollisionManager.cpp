@@ -176,8 +176,8 @@ void ProjectCircle(vec2 position, float radius, vec2 axis, float& min, float& ma
     }
 }
 void ProjectVertices(vector<vec2> vertices, vec2 axis, float& min, float& max) {
-    min = INFINITY;
-    max = -INFINITY;
+    min = FLT_MAX;
+    max = FLT_MIN;
 
     for (size_t i = 0; i < vertices.size(); i++)
     {
@@ -192,12 +192,11 @@ void ProjectVertices(vector<vec2> vertices, vec2 axis, float& min, float& max) {
 
 }
 bool PolyVPoly(PolygonCollider& colA, PolygonCollider& colB, Manifold& manifold) {
-    vec2 normal;
+    vec2 normal = vec2(0.0f);
     float depth = INFINITY;
     vector<vec2> verticesA = colA.GetTransformedVertices();
     vector<vec2> verticesB = colB.GetTransformedVertices();
-    vec2 contactPoint1 = vec2(0);
-    vec2 contactPoint2 = vec2(0);
+
     for (size_t i = 0; i < verticesA.size(); i++)
     {
         vec2 vA = verticesA[i];
@@ -221,9 +220,6 @@ bool PolyVPoly(PolygonCollider& colA, PolygonCollider& colB, Manifold& manifold)
         {
             depth = axisDepth;
             normal = checkAxis;
-            
-            float dis = (std::min(maxA, maxB) - std::max(minA, minB)) / (maxB - minB);
-            contactPoint1 = vA + edge * dis;
         }
     }
     for (size_t i = 0; i < verticesB.size(); i++)
@@ -249,15 +245,12 @@ bool PolyVPoly(PolygonCollider& colA, PolygonCollider& colB, Manifold& manifold)
         {
             depth = axisDepth;
             normal = checkAxis;
-
-            float dis = (std::min(maxA, maxB) - std::max(minA, minB)) / (maxA - minA);
-            contactPoint2 = vA + edge * dis;
         }
     }
 
     vec2 direction = *colB.Position - *colA.Position;
 
-    if (dot(direction, normal) > 0) {
+    if (dot(direction, normal) < 0) {
         normal = -normal;
     }
     
@@ -296,7 +289,7 @@ bool PolyVCircle(PolygonCollider& colA, CircleCollider& colB, Manifold& manifold
             return false;
 
         axisDepth = std::min(maxB - minA, maxA - minB);
-        if (axisDepth < depth);
+        if (axisDepth < depth)
         {
             depth = axisDepth;
             normal = checkAxis;

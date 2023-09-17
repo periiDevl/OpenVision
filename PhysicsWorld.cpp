@@ -18,7 +18,6 @@ void PhysicsWorld::Step(float deltaTime)
 		for (int i = 0; i < bodies.size(); i++) {
 			if (!bodies[i]->isStatic) {
 				bodies[i]->Step(deltaTime / iterations);
-				cout << "position" << glm::to_string(*bodies[i]->position )<< endl;
 			}
 		}
 	}
@@ -37,22 +36,27 @@ void PhysicsWorld::Step(float deltaTime)
 				}
 
 				Manifold manifold;
+
 				if (CheckCollision(*bodies[i]->GetCollider(), *bodies[l]->GetCollider(), manifold)) {
+					cout << "collision detected" << endl;
 					if (manifold.mtv == vec2(0.0f)) {
 						continue;
 					}
+					cout << "mtv:" << glm::to_string(manifold.mtv) << endl;
+
+					
 
 					PhysicsBody* bodyA = bodies[i];
 					PhysicsBody* bodyB = bodies[l];
 
-					SeperateBodies(bodyA, bodyB, manifold);
+					SeparateBodies(bodyA, bodyB, manifold);
 
 					PolygonCollider& polyA = dynamic_cast<PolygonCollider&>(*bodyA->GetCollider());
 					PolygonCollider& polyB = dynamic_cast<PolygonCollider&>(*bodyB->GetCollider());
 					GetContactPointsPolyVPoly(polyA, polyB, manifold);
 					vector<vec2> contactPoints = manifold.contactPoints;
 
-					RotationResolution(bodyA, bodyB, manifold);
+					SimpleResolution(bodyA, bodyB, manifold);
 				}
 			}	
 		}
@@ -61,16 +65,16 @@ void PhysicsWorld::Step(float deltaTime)
 	
 }
 
-void PhysicsWorld::SeperateBodies(PhysicsBody* bodyA, PhysicsBody * bodyB, Manifold manifold) {
+void PhysicsWorld::SeparateBodies(PhysicsBody* bodyA, PhysicsBody * bodyB, Manifold manifold) {
 	if (!bodyA->isStatic && !bodyB->isStatic) {
-		*bodyA->position += manifold.mtv / 2.0f;
-		*bodyB->position -= manifold.mtv / 2.0f;
+		*bodyA->position -= manifold.mtv / 2.0f;
+		*bodyB->position += manifold.mtv / 2.0f;
 	}
 	if (!bodyA->isStatic && bodyB->isStatic) {
-		*bodyA->position += manifold.mtv;
+		*bodyA->position -= manifold.mtv;
 	}
 	if (bodyA->isStatic && !bodyB->isStatic) {
-		*bodyB->position -= manifold.mtv;
+		*bodyB->position += manifold.mtv;
 	}
 }
 void PhysicsWorld::RotationResolution(PhysicsBody* bodyA, PhysicsBody* bodyB,Manifold manifold) {
@@ -101,7 +105,7 @@ void PhysicsWorld::RotationResolution(PhysicsBody* bodyA, PhysicsBody* bodyB,Man
 		vec2 angularLinearVelocityA = raPerp * bodyA->angularVelocity;
 		vec2 angularLinearVelocityB = rbPerp * bodyB->angularVelocity;
 	
-		cout << "bV:" << glm::to_string(bodyB->getVelocity()) << "aV:" << glm::to_string(bodyA->getVelocity()) << endl;
+		//cout << "bV:" << glm::to_string(bodyB->getVelocity()) << "aV:" << glm::to_string(bodyA->getVelocity()) << endl;
 
 		vec2 relativeVel =
 			(bodyB->getVelocity() + angularLinearVelocityB) -
@@ -112,7 +116,7 @@ void PhysicsWorld::RotationResolution(PhysicsBody* bodyA, PhysicsBody* bodyB,Man
 		
 		float contactVelMag = glm::dot(relativeVel, normal);
 
-		cout << "relV:" << glm::to_string(relativeVel) << " normal:" << glm::to_string(normal) << endl;
+		//cout << "relV:" << glm::to_string(relativeVel) << " normal:" << glm::to_string(normal) << endl;
 
 		if (contactVelMag > 0) {
 			continue;
@@ -125,19 +129,19 @@ void PhysicsWorld::RotationResolution(PhysicsBody* bodyA, PhysicsBody* bodyB,Man
 			(raPerpDotN * raPerpDotN) * (1 / bodyA->angularInertia) +
 			(rbPerpDotN * rbPerpDotN) * (1 / bodyB->angularInertia);
 
-		cout << "mag:" << contactVelMag << endl;
+		//cout << "mag:" << contactVelMag << endl;
 		float j = -(1.0f + e) * contactVelMag;
-		cout << "j0:" << j << endl;
+		//cout << "j0:" << j << endl;
 		j /= denom;
-		cout << "j1:" << j << endl;
+		//cout << "j1:" << j << endl;
 		j /= contactPoints.size();
-		cout << "j2:" << j << endl;
+		//cout << "j2:" << j << endl;
 
 		j = -(1 + e) * glm::dot(relativeVel, manifold.normal) / ((bodyA->isStatic ? 0 : 1 / bodyA->mass) + (bodyB->isStatic ? 0 : 1 / bodyB->mass) + 0.000000000001f);
 
 		vec2 impulse = j * normal;
 
-		cout << "impulse:" << glm::to_string(impulse) << endl;
+		//cout << "impulse:" << glm::to_string(impulse) << endl;
 
 		impulses.push_back(impulse);
 	}

@@ -9,10 +9,9 @@ PhysicsBody::PhysicsBody(glm::vec2* pos, float* rot, glm::vec2* sca, float mass,
 }
 
 void PhysicsBody::Step(float deltaTime){
-
 	*position += velocity * deltaTime;
 	force += gravity * mass;
-	velocity += (force * vec2(0, -1))/ mass * deltaTime ;
+	velocity += force / mass * deltaTime ;
 	force = vec2(0.0f);
 
 	*rotation += angularVelocity * deltaTime;
