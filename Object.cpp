@@ -110,5 +110,36 @@ void Object::DrawTMP(GLFWwindow* window, GLuint shader, Camera& camera, glm::vec
 }
 
 
+void Object::DrawCustomVertices(GLFWwindow* window, GLuint shader, Camera& camera, const std::vector<glm::vec3>& vertices)
+{
+    shader = shader;
+    glUseProgram(shader);
+
+    GLuint VAO;
+    GLuint VBO;
+
+    glGenVertexArrays(1, &VAO);
+    glGenBuffers(1, &VBO);
+
+    glBindVertexArray(VAO);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+
+    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(glm::vec3), vertices.data(), GL_STATIC_DRAW);
+
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+
+    glBindVertexArray(0);
+
+    glUniform3f(glGetUniformLocation(shader, "camPos"), camera.Position.x, camera.Position.y, camera.Position.z);
+    camera.Matrix(shader, "camMatrix");
+
+    glBindVertexArray(VAO);
+    glDrawArrays(GL_TRIANGLES, 0, vertices.size());
+    glBindVertexArray(0);
+
+    glDeleteVertexArrays(1, &VAO);
+    glDeleteBuffers(1, &VBO);
+}
 
 

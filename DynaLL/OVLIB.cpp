@@ -4,15 +4,54 @@
 #include "OVLIB.h"
 #include"Script.h"
 #include"PW.h"
+#include <fstream>
+#include <sstream>
 int sharedVar = 17;
+std::vector<int> sharedArray;
+std::string sharedString = "";
 
-std::vector<Ov_Object> OVObjects;
+std::vector<Ov_Object> OVObjects = { Ov_Object{90, 90,90,90} };
 Script script;
 PW PWscr;
 
 void ScriptStart()
 {
-    OVObjects[1].x = 1000;
+    OVObjects.clear();
+    std::ifstream inputFile("runtimeconfig.ov");
+    if (!inputFile.is_open()) {
+        std::cerr << "Error: Unable to open the file." << std::endl;
+    }
+
+    std::string line;
+    int lineIndex = 0;
+
+    while (std::getline(inputFile, line)) {
+        std::istringstream iss(line);
+        std::vector<float> values;
+
+        float val;
+        while (iss >> val) {
+            values.push_back(val);
+        }
+
+        if (values.size() == 4) {
+            Ov_Object object;
+            object.x = values[0];
+            object.y = values[1];
+            object.scale_x = values[2];
+            object.scale_y = values[3];
+
+            OVObjects.push_back(object);
+        }
+        else {
+            std::cerr << "Error: Invalid data on line " << lineIndex + 1 << std::endl;
+        }
+
+        lineIndex++;
+    }
+
+    inputFile.close();
+
     script.Start();
     PWscr.Start();
     std::cout << "Hello";
@@ -31,12 +70,44 @@ void ScriptExit()
     PWscr.Exit();
 
 }
-void SetSharedVar(int value)
-{
-    sharedVar = value;
-}
+
 
 int GetSharedVar()
 {
     return sharedVar;
 }
+int ObjectsSize()
+{
+    return OVObjects.size();
+}
+std::string GetSharedString()
+{
+    return sharedString;
+}
+
+Ov_Object GetOvObjectList(int i)
+{
+    return OVObjects[i];
+}
+Ov_Object GetSharedVarX(int i)
+{
+    return OVObjects[i];
+}
+/*
+std::vector<int> GetShared()
+{
+    std::vector<int> hello = { 1 };
+    return hello;
+}
+*/
+/*
+void GetSharedObject(std::vector<Ov_Object>& OVObjectss)
+{
+    OVObjectss = OVObjects;
+}
+
+void SetSharedObject(std::vector<Ov_Object> OVObjectss)
+{
+    OVObjects = OVObjectss;
+}
+*/
