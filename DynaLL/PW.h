@@ -16,7 +16,7 @@ class PW {
 public:
 	void Start() {
 		std::cout << OVObjects[0].x;
-		OVObjects[0].scale_x = 10;
+		OVObjects[0].scale_x = 1;
 		/*
 		/*
 		for (size_t i = 0; i < OVObjects.size(); i++)

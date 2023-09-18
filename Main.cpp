@@ -24,6 +24,9 @@
 #include "SaveSystem.h"
 #include"OVLIB.h"
 
+
+
+
 std::vector<Object> PresceneObjects;
 
 SaveSystem SavingSystem;
@@ -441,6 +444,7 @@ std::string executeCommandAndGetOutput(const char* command) {
 
 	return output.str();
 }
+
 std::string getPythonLocationByLine(int line) {
 	std::string whereCommand = "where python";
 	std::string pythonLocations = executeCommandAndGetOutput(whereCommand.c_str());
@@ -461,10 +465,12 @@ std::string getPythonLocationByLine(int line) {
 
 	return locations[line];
 }
+
+
 void rebuild(GLFWwindow* window, bool localPython) {
+
 	std::cout << "python locations " << endl << executeCommandAndGetOutput("where python") << endl;
 	std::cout << getPythonLocationByLine(PythonIndex) << endl;
-	std::system((getPythonLocationByLine(PythonIndex) + std::string(" -m pip install watchdog")).c_str());
 	std::string command = std::string("start /B python builder.py");
 
 	if (!localPython) {
@@ -486,7 +492,6 @@ void rebuild(GLFWwindow* window, bool localPython) {
 
 	std::system(command.c_str());
 
-	glfwSetWindowShouldClose(window, GLFW_TRUE);
 }
 
 
@@ -556,6 +561,9 @@ namespace fs = std::filesystem;
 
 int main()
 {
+
+
+
 	//std::vector<Ov_Object> OVOb;
 
 	std::cout << GetSharedVarX(0).x;
@@ -695,7 +703,7 @@ int main()
 	glUniform2f(glGetUniformLocation(FramebufferProgram, "resolution"), width, height);
 
 
-
+	bool stop = false;
 	float ndcMouseX;
 	float ndcMouseY;
 	double mouseX;
@@ -1095,7 +1103,9 @@ int main()
 
 			if (ImGui::ImageButton(RebuildimguiTextureID, ImVec2(30, 30)))
 			{
-				rebuild(window, LocalPy);
+				
+				glfwSetWindowShouldClose(window,GLFW_TRUE);
+				//rebuild(window, LocalPy);
 			}
 			if (ImGui::IsItemHovered())
 			{
@@ -1135,20 +1145,10 @@ int main()
 
 			if (ImGui::ImageButton(RebuildimguiTextureID, ImVec2(30, 30)))
 			{
+				stop = true;
 				std::system("taskkill /f /im python.exe");
 				glfwSetWindowShouldClose(window, GLFW_TRUE);
-				std::string processName = "MSBuild.exe";
-				std::string processPath = "Build\MSBuild\Current\Bin\"";
-				std::string command = "taskkill /f /im " + processName;
-
-				std::cout << "Terminating " << processName << " process...\n";
-				int result = std::system(command.c_str());
-				if (result == 0) {
-					std::cout << "Process terminated successfully.\n";
-				}
-				else {
-					std::cout << "Error: could not terminate process.\n";
-				}
+				
 
 			}
 			if (ImGui::IsItemHovered())
@@ -1311,7 +1311,7 @@ int main()
 				outputFile.close();
 				addOVscript(scriptName);
 				memset(scriptName, 0, sizeof(scriptName));
-				rebuild(window, LocalPy);
+				//rebuild(window, LocalPy);
 			}
 
 			if (ImGui::Button("Remove Script"))
@@ -1354,7 +1354,7 @@ int main()
 
 					removeOVscript(scriptName);
 					memset(scriptName, 0, sizeof(scriptName));
-					rebuild(window, LocalPy);
+					//rebuild(window, LocalPy);
 				}
 			}
 
@@ -1893,8 +1893,11 @@ int main()
 	glfwDestroyWindow(window);
 	glfwTerminate();
 
-
-
+	if (!stop) {
+		rebuild(window, LocalPy);
+	}
+	//std::system("taskkill /f /im python.exe");
+	//system("Vision_engine.exe");
 	return 0;
 }
 
