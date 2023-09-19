@@ -23,9 +23,9 @@ PolygonCollider::PolygonCollider(vec2* pos, float* rot, vec2* sca)
 
 	vertices = vector<vec2>();
 	vertices.push_back(vec2(-0.5f,  0.5f));
-	vertices.push_back(vec2( 0.5f,  0.5f));
-	vertices.push_back(vec2( 0.5f, -0.5f));
 	vertices.push_back(vec2(-0.5f, -0.5f));
+	vertices.push_back(vec2( 0.5f, -0.5f));
+	vertices.push_back(vec2( 0.5f,  0.5f));
 
 	type = ColliderType::Box;
 
@@ -35,7 +35,7 @@ PolygonCollider::PolygonCollider(vec2* pos, float* rot, vec2* sca)
 vector<vec2> PolygonCollider::GetTransformedVertices()
 {
 	glm::mat4 model = glm::mat4(1.0f);
-	model = glm::translate(model, glm::vec3(Position->x, -Position->y, 0.0f));
+	model = glm::translate(model, glm::vec3(Position->x, Position->y, 0.0f));
 	model = glm::rotate(model, radians(*Rotation), glm::vec3(0, 0, 1));
 	model = glm::scale(model, glm::vec3(*Scale, 1.0f));
 

@@ -79,7 +79,7 @@ void PhysicsWorld::SeparateBodies(PhysicsBody* bodyA, PhysicsBody * bodyB, Manif
 }
 void PhysicsWorld::RotationResolution(PhysicsBody* bodyA, PhysicsBody* bodyB,Manifold manifold) {
 
-	vec2 normal = -manifold.normal;
+	vec2 normal = manifold.normal;
 	vector<vec2> contactPoints = manifold.contactPoints;
 
 	float e = std::min(bodyA->restitution, bodyB->restitution);

@@ -197,66 +197,56 @@ bool PolyVPoly(PolygonCollider& colA, PolygonCollider& colB, Manifold& manifold)
     vector<vec2> verticesA = colA.GetTransformedVertices();
     vector<vec2> verticesB = colB.GetTransformedVertices();
 
-    for (size_t i = 0; i < verticesA.size(); i++)
-    {
-        vec2 vA = verticesA[i];
-        vec2 vB = verticesA[(i + 1) % verticesA.size()];
+    for (size_t i = 0; i < verticesA.size(); i++) {
+        size_t nextIndex = (i + 1) % verticesA.size();
+        vec2 edge = verticesA[nextIndex] - verticesA[i];
+        vec2 axis = glm::normalize(vec2(-edge.y, edge.x));
 
-        vec2 edge = vB - vA;
-        vec2 checkAxis = normalize(vec2(-edge.y, edge.x));
+        float minA, maxA, minB, maxB;
+        ProjectVertices(verticesA, axis, minA, maxA);
+        ProjectVertices(verticesB, axis, minB, maxB);
 
-        float minA, maxA;
-        float minB, maxB;
-        ProjectVertices(verticesA, checkAxis, minA, maxA);
-        ProjectVertices(verticesB, checkAxis, minB, maxB);
-
-        if (minA >= maxB || minB >= maxA) {
+        if (maxA < minB || maxB < minA) {
             return false;
         }
-
-        float axisDepth = std::min(maxB - minA, maxA - minB);
-
-        if (axisDepth < depth)
-        {
-            depth = axisDepth;
-            normal = checkAxis;
+        else {
+            float overlap = std::min(maxA, maxB) - std::max(minA, minB);
+            if (overlap < depth) {
+                depth = overlap;
+                normal = axis;
+            }
         }
-    }
-    for (size_t i = 0; i < verticesB.size(); i++)
-    {
-        vec2 vA = verticesB[i];
-        vec2 vB = verticesB[(i + 1) % verticesB.size()];
-
-        vec2 edge = vB - vA;
-        vec2 checkAxis = normalize(vec2(-edge.y, edge.x));
-
-        float minA, maxA;
-        float minB, maxB;
-        ProjectVertices(verticesA, checkAxis, minA, maxA);
-        ProjectVertices(verticesB, checkAxis, minB, maxB);
-
-        if (minA >= maxB || minB >= maxA) {
-            return false;
-        }
-
-        float axisDepth = std::min(maxB - minA, maxA - minB);
-
-        if (axisDepth < depth)
-        {
-            depth = axisDepth;
-            normal = checkAxis;
-        }
-    }
-
-    vec2 direction = *colB.Position - *colA.Position;
-
-    if (dot(direction, normal) < 0) {
-        normal = -normal;
     }
     
+    for (size_t i = 0; i < verticesB.size(); i++) {
+        size_t nextIndex = (i + 1) % verticesB.size();
+        vec2 edge = verticesB[nextIndex] - verticesB[i];
+        vec2 axis = glm::normalize(vec2(-edge.y, edge.x));
+
+        float minA, maxA, minB, maxB;
+        ProjectVertices(verticesA, axis, minA, maxA);
+        ProjectVertices(verticesB, axis, minB, maxB);
+
+        if (maxA < minB || maxB < minA) {
+            return false;
+        }
+        else {
+            float overlap = std::min(maxA, maxB) - std::max(minA, minB);
+            if (overlap < depth) {
+                depth = overlap;
+                normal = axis;
+            }
+        }
+    }
+    
+    if (glm::dot(normal, *colA.Position- *colB.Position) > 0) {
+        normal = -normal;
+    }
+
     manifold.normal = normal;
     manifold.depth = depth;
     manifold.mtv = normal * depth;
+    
     return true;
 }
 
