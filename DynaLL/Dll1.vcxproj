@@ -158,7 +158,6 @@
     <ClInclude Include="OVLIB.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Script.h" />
-    <ClInclude Include="PW.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp" />
@@ -170,6 +169,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="Script.cpp" />
+	<ClCompile Include="Hello.cpp" />
     <ClCompile Include="PW.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

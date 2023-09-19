@@ -172,7 +172,6 @@
     <ClCompile Include="SaveSystem.cpp" />
     <ClCompile Include="Script.cpp" />
     <ClCompile Include="ScriptTwo.cpp" />
-    <ClCompile Include="Hello.cpp" />
     <ClCompile Include="stb.cpp" />
     <ClCompile Include="Tex.cpp" />
     <ClCompile Include="VAO.cpp" />
@@ -206,7 +205,6 @@
     <ClInclude Include="SaveSystem.h" />
     <ClInclude Include="Script.h" />
     <ClInclude Include="ScriptTwo.h" />
-    <ClInclude Include="Hello.h" />
     <ClInclude Include="Settings.h" />
     <ClInclude Include="Tex.h" />
     <ClInclude Include="VAO.h" />

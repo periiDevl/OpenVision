@@ -43,6 +43,7 @@ void removeH(const std::string& filename, const std::string& fileToRemove)
 
 	std::remove((fileToRemove + ".h").c_str());
 }
+/*
 void removeCpp(const std::string& filename, const std::string& fileToRemove)
 {
 	std::ifstream infile(filename);
@@ -72,7 +73,7 @@ void removeCpp(const std::string& filename, const std::string& fileToRemove)
 	std::remove((fileToRemove + ".cpp").c_str());
 }
 
-
+*/
 
 void addMainCpp(const std::string& filename, const std::string& file)
 {
@@ -178,15 +179,20 @@ void addH(const std::string& filename, const std::string& file, const std::strin
 			R"(
 #pragma once
 #include<iostream>
-#include"Console.h"
-#include"Object.h"
-#include"InputSystem.h"
-#include"OV.h"
+#include"OVLIB.h"
+#include"pch.h"
+
 class )" + file + R"( {
 public:
-	void Start();
-	void Update();
-	void Exit();
+	void Start() {
+
+	}
+	void Update() {
+	
+	}
+	void Exit() {
+
+	}
 };
     )";
 		createfile << script;
@@ -216,6 +222,7 @@ public:
 
 	}
 }
+/*
 void addCpp(const std::string& filename, const std::string& file, const std::string& lastFilename)
 {
 	if (!is_sentence_in_file(filename, "	<ClCompile Include=\"" + file + ".cpp\" />")) {
@@ -263,16 +270,17 @@ void )" + file + R"(::Exit()
 		outfile.close();
 	}
 }
+*/
 void addOVscript(const std::string& file)
 {
-	addCpp("DynaLL/Dll1.vcxproj", file, "Script");
+	//addCpp("DynaLL/Dll1.vcxproj", file, "Script");
 	addH("DynaLL/Dll1.vcxproj", file, "Script");
 	addMainCpp("DynaLL/OVLIB.cpp", file);
 }
 
 void removeOVscript(const std::string& file)
 {
-	removeCpp("DynaLL/Dll1.vcxproj", file);
+	//removeCpp("DynaLL/Dll1.vcxproj", file);
 	removeH("DynaLL/Dll1.vcxproj", file);
 	removeMainCpp("DynaLL/OVLIB.cpp", file);
 }

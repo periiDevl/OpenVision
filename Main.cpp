@@ -1312,7 +1312,7 @@ int main()
 
 			if (ImGui::Button("Add Script"))
 			{
-				std::ofstream outputFile("SCRIPTS.ov", std::ios::app);
+				std::ofstream outputFile("scripts.ov", std::ios::app);
 				outputFile << scriptName << std::endl;
 				outputFile.close();
 				addOVscript(scriptName);
@@ -1689,7 +1689,15 @@ int main()
 
 		}
 #pragma endregion Mouse-Detection
+		if (DrawFramebuffer) {
+			glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
+			glUseProgram(FramebufferProgram);
+			glBindVertexArray(rectVAO);
+			glDisable(GL_DEPTH_TEST);
+			glBindTexture(GL_TEXTURE_2D, framebufferTexture);
+			glDrawArrays(GL_TRIANGLES, 0, 6);
+		}
 		Object RuntimeCam = *OV::SearchObjectByName("MainCameraOvSTD", PresceneObjects);
 
 		blackbox.tex = nulltex;
@@ -1809,7 +1817,7 @@ int main()
 			sceneObjects[sharedObject.where].scale = &objs;
 			*/
 
-
+			/*
 			vector<vec2> vertices = dynamic_cast<PolygonCollider&>(*sceneObjects[0].Body->GetCollider()).GetTransformedVertices();
 			vector<vec3> vertices3 = vector<vec3>();
 			for (size_t i = 0; i < vertices.size(); i++)
@@ -1818,7 +1826,7 @@ int main()
 				cout << "vertex:" << glm::to_string(vertices3[i]) << endl;
 			}
 			sceneObjects[0].DrawCustomVertices(window, shaderProgram, camera, vertices3);
-
+			*/
 			script.Update();
 
 
@@ -1868,15 +1876,7 @@ int main()
 			}
 
 		}
-		if (DrawFramebuffer) {
-			glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-			glUseProgram(FramebufferProgram);
-			glBindVertexArray(rectVAO);
-			glDisable(GL_DEPTH_TEST);
-			glBindTexture(GL_TEXTURE_2D, framebufferTexture);
-			glDrawArrays(GL_TRIANGLES, 0, 6);
-		}
 #pragma endregion Runtime
 
 
