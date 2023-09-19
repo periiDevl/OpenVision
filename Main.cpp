@@ -827,6 +827,7 @@ int main()
 	double timeDiff;
 	unsigned int counter = 0;
 	int selectedObject = 0;
+	int hoveredObject = 0;
 	float fov = 45;
 	bool onpopupmenu = false;
 
@@ -941,11 +942,13 @@ int main()
 		if (ImGui::BeginPopup("Selected Object Settings"))
 		{
 			onpopupmenu = true;
-
+			ObjectUI(window, hoveredObject);
+			/*
 			if (ImGui::CollapsingHeader(sceneObjects[selectedObject].name == "" ? std::to_string(selectedObject).c_str() : sceneObjects[selectedObject].name.c_str()))
 			{
-				ObjectUI(window, selectedObject);
+				ObjectUI(window, hoveredObject);
 			}
+			*/
 			ImGui::EndPopup();
 		}
 
@@ -1578,8 +1581,10 @@ int main()
 						ndcMouseX *= rattio.x * 3.65;
 						ndcMouseY *= -rattio.y * 3.65;
 						int topIndex = -1;
+						int topIndex2 = -1;
 
 						float maxZIndex = -std::numeric_limits<float>::infinity();
+						float maxZIndex2 = -std::numeric_limits<float>::infinity();
 
 						if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_3) == GLFW_PRESS) {
 							CMX += (ndcMouseX - beforeMouseXCam);
@@ -1590,9 +1595,34 @@ int main()
 
 						beforeMouseXCam = ndcMouseX;
 						beforeMouseYCam = ndcMouseY;
+						hoveredObject = selectedObject;
+						for (int i = 0; i < PresceneObjects.size(); i++) {
+							if (
+								(PresceneObjects[i].position->x + CMX - abs(PresceneObjects[i].scale->x) / 2) - camera.Position.x < ndcMouseX &&
+								(PresceneObjects[i].position->x + CMX + abs(PresceneObjects[i].scale->x) / 2) + camera.Position.x > ndcMouseX &&
+								(PresceneObjects[i].position->y + CMY + abs(PresceneObjects[i].scale->y) / 2) - camera.Position.y > ndcMouseY &&
+								(PresceneObjects[i].position->y + CMY - abs(PresceneObjects[i].scale->y) / 2) + camera.Position.y < ndcMouseY && !mouseOverUI)
+
+							{
+								hoveredObject = i;
+								if (i != selectedObject) {
+									glUseProgram(unlitProgram);
+									glUniform4f(glGetUniformLocation(unlitProgram, "color"), 1.00, 0.48, 0.48, 1);
+
+									glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+									glLineWidth(1.0f);
+									PresceneObjects[i].Draw(window, unlitProgram, camera, glm::vec3(0, 0, 1), CMX, CMY, Nearest);
+									glUniform4f(glGetUniformLocation(unlitProgram, "color"), 1.00, 0.48, 0.48, 1);
+									glLineWidth(1.0f);
+
+								}
+								
+							}
+							
+						}
 
 						for (int i = 0; i < PresceneObjects.size(); i++) {
-							if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS &&
+							if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS && onpopupmenu == false &&
 								(PresceneObjects[i].position->x + CMX - abs(PresceneObjects[i].scale->x) / 2) - camera.Position.x < ndcMouseX &&
 								(PresceneObjects[i].position->x + CMX + abs(PresceneObjects[i].scale->x) / 2) + camera.Position.x > ndcMouseX &&
 								(PresceneObjects[i].position->y + CMY + abs(PresceneObjects[i].scale->y) / 2) - camera.Position.y > ndcMouseY &&
@@ -1634,12 +1664,12 @@ int main()
 
 
 						glUseProgram(unlitProgram);
-						glUniform4f(glGetUniformLocation(unlitProgram, "color"), 0.00, 1.0, 0, 1);
+						glUniform4f(glGetUniformLocation(unlitProgram, "color"), 1.00, 0.42, 0.24, 1);
 
 						glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-						glLineWidth(3.0f);
+						glLineWidth(2.0f);
 						PresceneObjects[selectedObject].Draw(window, unlitProgram, camera, glm::vec3(0, 0, 1), CMX, CMY, Nearest);
-						glUniform4f(glGetUniformLocation(unlitProgram, "color"), 1.0, 0.00, 0.0, 1);
+						glUniform4f(glGetUniformLocation(unlitProgram, "color"), 1.00, 0.42, 0.24, 1);
 						glLineWidth(1.5f);
 						PresceneObjects[selectedObject].DrawTMP(window, unlitProgram, camera,
 							glm::vec2(PresceneObjects[selectedObject].position->x + CMX, PresceneObjects[selectedObject].position->y + CMY),
@@ -1778,12 +1808,7 @@ int main()
 
 			script.Update();
 
-			ScriptUpdate();
 
-			if (glfwWindowShouldClose(window))
-			{
-				script.Exit();
-			}
 			if (timeDiff >= fixed_timestep) {
 				std::string FPS = std::to_string((1.0 / timeDiff) * counter);
 				std::string newTitle = ProjectName.string() + " ~" + FPS + "FPS";
@@ -1791,13 +1816,18 @@ int main()
 				prevTime = crntTime;
 				counter = 0;
 
-
+				ScriptUpdate();
 
 				camera.Position.x = RuntimeCam.position->x + offsetX;
 				camera.Position.y = RuntimeCam.position->y + offsetY;
 
 
 				world.Step(fixed_timestep);
+			}
+			if (glfwWindowShouldClose(window))
+			{
+				script.Exit();
+				ScriptExit();
 			}
 			//OVObjects[1].scale_x = 100;
 
