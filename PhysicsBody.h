@@ -23,6 +23,8 @@ public:
 	PhysicsBody();
 	PhysicsBody(glm::vec2* pos, float* rot, glm::vec2* sca, float mass, float density,float fric, float restitution,bool isTrigger, bool isStatic);
 
+	void Values();
+
 	
 	void Step(float deltaTime);
 
@@ -33,6 +35,8 @@ public:
 	void SetGravity(const vec2 newGravity);
 	void SetCollider(Collider* newCollider);
 	void SetVelocity(const vec2 newVelocity);
+	void SetAngularVelocity(const float newAngularVelocity);
+
 
 	vec2* position;
 	vec2* scale;

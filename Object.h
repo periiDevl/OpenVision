@@ -25,6 +25,7 @@ public:
 	glm::vec2 scenePosition;
 	glm::vec2 sceneScale;
 	float* angle = 0;
+	float sceneAngle = 0;
 	int layer = 0;
 	glm::vec4 tint = glm::vec4(1);
 

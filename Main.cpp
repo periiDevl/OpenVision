@@ -1,11 +1,11 @@
 ﻿#pragma once
-#include"Object.h"
-#include"Math.h"
-#include"Settings.h"
-#include"IMGUITheme.h"
-#include"imgui.h"
-#include"imgui_impl_glfw.h"
-#include"imgui_impl_opengl3.h"
+#include "Object.h"
+#include "Math.h"
+#include "Settings.h"
+#include "IMGUITheme.h"
+#include "imgui.h"
+#include "imgui_impl_glfw.h"
+#include "imgui_impl_opengl3.h"
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -15,14 +15,14 @@
 #include <stack>
 #include <variant>
 #include <filesystem>
-#include"PhysicsWorld.h"
+#include "PhysicsWorld.h"
 #include <thread>
-#include"Console.h"
-#include"OVscriptHandaling.h"
-#include"Presave.h"
-#include"Script.h"
+#include "Console.h"
+#include "OVscriptHandaling.h"
+#include "Presave.h"
+#include "Script.h"
 #include "SaveSystem.h"
-#include"OVLIB.h"
+#include "OVLIB.h"
 
 
 
@@ -566,7 +566,9 @@ int main()
 
 	//std::vector<Ov_Object> OVOb;
 
-	std::cout << GetSharedVarX(0).x;
+	
+
+	//std::cout << GetSharedVarX(0).x;
 
 
 
@@ -791,6 +793,7 @@ int main()
 		obj.sceneScale.x = scalex;
 		obj.sceneScale.y = scaley;
 		*obj.angle = angle;
+		obj.sceneAngle = angle;
 		obj.texChar = texture;
 		obj.layer = layer;
 		obj.drawOnRuntime = runtimeDraw;
@@ -843,7 +846,7 @@ int main()
 	for (size_t i = 0; i < sceneObjects.size(); i++) {
 		sceneObjects[i].scenePosition = *PresceneObjects[i].position;
 		sceneObjects[i].sceneScale = *PresceneObjects[i].scale;
-		*sceneObjects[i].angle = float(*PresceneObjects[i].angle);
+		sceneObjects[i].sceneAngle = *PresceneObjects[i].angle;
 	}
 
 	glEnable(GL_DEPTH_TEST);
@@ -920,11 +923,12 @@ int main()
 		crntTime = glfwGetTime();
 		timeDiff = crntTime - prevTime;
 		counter++;
+		
 
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
-		if (PresceneObjects.size() > 1) {
+		if (PresceneObjects.size() > 1 && selectedObject != -1) {
 			ObjectCreator(window, PresceneObjects[selectedObject]);
 		}
 		static bool show_selected_pop = false;
@@ -979,10 +983,9 @@ int main()
 				{
 					*sceneObjects[i].position = PresceneObjects[i].scenePosition;
 					*sceneObjects[i].scale = PresceneObjects[i].sceneScale;
+					*sceneObjects[i].angle = PresceneObjects[i].sceneAngle;
 					sceneObjects[i].Body->SetVelocity(glm::vec2(0, 0));
-					sceneObjects[i].angle = new float;
-					*sceneObjects[i].angle = *PresceneObjects[i].angle;
-					sceneObjects[i].Body->SetVelocity(glm::vec2(0, 0));
+					sceneObjects[i].Body->SetAngularVelocity(0);
 
 					if (PresceneObjects[i].name == "MainCameraOvSTD") {
 						PresceneObjects[i].tex = EngineOVCameraIconGui;
@@ -1363,7 +1366,7 @@ int main()
 
 			if (ImGui::Button("Open Script"))
 			{
-				std::string command = "start " + std::string(scriptName) + ".cpp";
+				std::string command = "start DynaLL/" + std::string(scriptName) + ".h";
 				system(command.c_str());
 				memset(scriptName, 0, sizeof(scriptName));
 			}
@@ -1385,7 +1388,7 @@ int main()
 				mouseOverUI = true;
 			}
 			if (ImGui::Button("Script (gloabl ov script)")) {
-				std::string command = "start Script.cpp";
+				std::string command = "start DynaLL/Script.h";
 				system(command.c_str());
 			}
 			ImTextureID imguiTextureID = reinterpret_cast<ImTextureID>(static_cast<intptr_t>(EngineOVScriptIconGui.ID));
@@ -1413,7 +1416,7 @@ int main()
 						ImGui::BeginGroup();
 
 						if (ImGui::ImageButton((ImTextureID)imguiTextureID, ImVec2(50, 50))) {
-							std::string command = "start " + line + ".cpp";
+							std::string command = "start DynaLL/" + line + ".h";
 							system(command.c_str());
 						}
 						if (ImGui::IsItemHovered())
@@ -1711,7 +1714,6 @@ int main()
 		//blackbox.DrawTMP(window, shaderProgram, camera, glm::vec2(CMX,CMY), glm::vec2(5, 5));
 #pragma region Runtime
 		if (run) {
-
 			if (StartPhase)
 			{
 				SaveObjectsToFile("runtimeconfig.ov");
@@ -1721,13 +1723,14 @@ int main()
 				for (size_t i = 0; i < PresceneObjects.size(); i++) {
 					PresceneObjects[i].scenePosition = *sceneObjects[i].position;
 					PresceneObjects[i].sceneScale = *sceneObjects[i].scale;
-					PresceneObjects[i].angle = new float;
-					*PresceneObjects[i].angle = *sceneObjects[i].angle;
+					PresceneObjects[i].sceneAngle = *sceneObjects[i].angle;
 
 				}
 				for (int i = 0; i < sceneObjects.size(); i++) {
 					world.AddBody(sceneObjects[i].Body);
 				}
+				sceneObjects[0].Body->Values();
+
 				//std::cout << OVObjects.size();
 				/*
 				for (size_t i = 0; i < OVObjects.size(); i++)
@@ -1805,6 +1808,16 @@ int main()
 			sceneObjects[sharedObject.where].position = &objp;
 			sceneObjects[sharedObject.where].scale = &objs;
 			*/
+
+
+			vector<vec2> vertices = dynamic_cast<PolygonCollider&>(*sceneObjects[0].Body->GetCollider()).GetTransformedVertices();
+			vector<vec3> vertices3 = vector<vec3>();
+			for (size_t i = 0; i < vertices.size(); i++)
+			{
+				vertices3.push_back(vec3(vertices[i], 0));
+				cout << "vertex:" << glm::to_string(vertices3[i]) << endl;
+			}
+			sceneObjects[0].DrawCustomVertices(window, shaderProgram, camera, vertices3);
 
 			script.Update();
 

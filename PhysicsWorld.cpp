@@ -56,7 +56,7 @@ void PhysicsWorld::Step(float deltaTime)
 					GetContactPointsPolyVPoly(polyA, polyB, manifold);
 					vector<vec2> contactPoints = manifold.contactPoints;
 
-					SimpleResolution(bodyA, bodyB, manifold);
+					RotationResolution(bodyA, bodyB, manifold);
 				}
 			}	
 		}
@@ -89,61 +89,26 @@ void PhysicsWorld::RotationResolution(PhysicsBody* bodyA, PhysicsBody* bodyB,Man
 
 	vector<vec2> raList = vector<vec2>();
 	vector<vec2> rbList = vector<vec2>();
-
-
-	for (size_t i = 0; i < contactPoints.size(); i++)
-	{
+	for (size_t i = 0; i < contactPoints.size(); ++i) {
 		vec2 ra = contactPoints[i] - *bodyA->position;
 		vec2 rb = contactPoints[i] - *bodyB->position;
-		
 		raList.push_back(ra);
 		rbList.push_back(rb);
 
-		vec2 raPerp = vec2(-ra.y, ra.x); // Im gonna kill myself
-		vec2 rbPerp = vec2(-rb.y, rb.x);
-		
-		vec2 angularLinearVelocityA = raPerp * bodyA->angularVelocity;
-		vec2 angularLinearVelocityB = rbPerp * bodyB->angularVelocity;
-	
-		//cout << "bV:" << glm::to_string(bodyB->getVelocity()) << "aV:" << glm::to_string(bodyA->getVelocity()) << endl;
+		vec2 relativeVel = bodyB->getVelocity() - bodyA->getVelocity();
 
-		vec2 relativeVel =
-			(bodyB->getVelocity() + angularLinearVelocityB) -
-			(bodyA->getVelocity() + angularLinearVelocityA);
-
-		//relativeVel is where b is heading
-		//normal is where b should go based on collision
-		
-		float contactVelMag = glm::dot(relativeVel, normal);
-
-		//cout << "relV:" << glm::to_string(relativeVel) << " normal:" << glm::to_string(normal) << endl;
+		float contactVelMag = dot(relativeVel, normal);
 
 		if (contactVelMag > 0) {
 			continue;
 		}
+		else {
+			float numerator = -(1 + e) * contactVelMag;
+			float denom = (1/bodyA->mass) +(1/bodyB->mass);
 
-		float raPerpDotN = glm::dot(raPerp, normal);
-		float rbPerpDotN = glm::dot(rbPerp, normal);
-
-		float denom = (1 / bodyA->mass) + (1 / bodyB->mass) + 0.001f +
-			(raPerpDotN * raPerpDotN) * (1 / bodyA->angularInertia) +
-			(rbPerpDotN * rbPerpDotN) * (1 / bodyB->angularInertia);
-
-		//cout << "mag:" << contactVelMag << endl;
-		float j = -(1.0f + e) * contactVelMag;
-		//cout << "j0:" << j << endl;
-		j /= denom;
-		//cout << "j1:" << j << endl;
-		j /= contactPoints.size();
-		//cout << "j2:" << j << endl;
-
-		j = -(1 + e) * glm::dot(relativeVel, manifold.normal) / ((bodyA->isStatic ? 0 : 1 / bodyA->mass) + (bodyB->isStatic ? 0 : 1 / bodyB->mass) + 0.000000000001f);
-
-		vec2 impulse = j * normal;
-
-		//cout << "impulse:" << glm::to_string(impulse) << endl;
-
-		impulses.push_back(impulse);
+			float impulseMagnitude = numerator / denom;
+			impulses.push_back(normal * impulseMagnitude);
+		}
 	}
 
 
@@ -154,9 +119,9 @@ void PhysicsWorld::RotationResolution(PhysicsBody* bodyA, PhysicsBody* bodyB,Man
 		vec2 rb = rbList[i];
 
 		bodyA->SetVelocity(bodyA->getVelocity() - impulse / bodyA->mass);
-		//bodyA->angularVelocity += -glm::cross(ra, impulse) / bodyA->angularInertia;
+		bodyA->angularVelocity += -glm::cross(ra, impulse) / bodyA->angularInertia;
 		bodyB->SetVelocity(bodyB->getVelocity() + impulse / bodyB->mass);
-		//bodyB->angularVelocity += cross(rb, impulse) / bodyB->angularInertia;
+		bodyB->angularVelocity += glm::cross(rb, impulse) / bodyB->angularInertia;
 	}
 }
 void PhysicsWorld::SimpleResolution(PhysicsBody* bodyA, PhysicsBody* bodyB, Manifold manifold) {
@@ -178,6 +143,9 @@ void PhysicsWorld::SimpleResolution(PhysicsBody* bodyA, PhysicsBody* bodyB, Mani
 	if (std::abs(jt) > std::abs(j) * friction) {
 		jt = std::copysign(std::abs(j) * friction, jt);
 	}
+	
+	// NEEDS TO BE REMOVED:
+	jt = 0;
 
 	// apply impulse to the bodies
 	if (!bodyA->isStatic && !bodyB->isStatic) {
@@ -239,6 +207,8 @@ void PhysicsWorld::AddBody(PhysicsBody* body) {
 	}
 
 	body->SetGravity(gravity);
+	body->SetVelocity(vec2(0,0));
+	body->SetAngularVelocity(0);
 	bodies.push_back(body);
 }
 
