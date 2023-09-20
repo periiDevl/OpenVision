@@ -390,25 +390,27 @@ void ObjectUI(GLFWwindow* window, int i)
 
 		ImGui::TreePop();
 	}
-	if (ImGui::TreeNodeEx(("Rigidbody Properties ##" + std::to_string(i)).c_str(), ImGuiTreeNodeFlags_DefaultOpen)) {
-		InputIntWithEndFocus(("Physical Layer ##" + std::to_string(i)).c_str(), &PresceneObjects[i].Body->layer);
 
-		InputFloatWithEndFocus(("Friction ##" + std::to_string(i)).c_str(), &PresceneObjects[i].Body->friction);
-
-		InputFloatWithEndFocus(("Bounciness ##" + std::to_string(i)).c_str(), &PresceneObjects[i].Body->restitution);
-
-		ImGui::Columns(1, nullptr, true);
-		ImGui::Columns(2, nullptr, true);
-
-		InputBoolWithEndFocus(("Trigger ##" + std::to_string(i)).c_str(), &PresceneObjects[i].Body->isTrigger);
-
-		ImGui::NextColumn();
-		InputBoolWithEndFocus(("Static ##" + std::to_string(i)).c_str(), &PresceneObjects[i].Body->isStatic);
-		ImGui::Columns(1, nullptr, true);
-
-		ImGui::TreePop();
-
-	}
+	// Im lazy to fix it now, will be fixed later now I want to check if this is even working 
+	//if (ImGui::TreeNodeEx(("Rigidbody Properties ##" + std::to_string(i)).c_str(), ImGuiTreeNodeFlags_DefaultOpen)) {
+	//	InputIntWithEndFocus(("Physical Layer ##" + std::to_string(i)).c_str(), &PresceneObjects[i].Body->layer);
+	//
+	//	InputFloatWithEndFocus(("Friction ##" + std::to_string(i)).c_str(), &PresceneObjects[i].Body->friction);
+	//
+	//	InputFloatWithEndFocus(("Bounciness ##" + std::to_string(i)).c_str(), &PresceneObjects[i].Body->restitution);
+	//
+	//	ImGui::Columns(1, nullptr, true);
+	//	ImGui::Columns(2, nullptr, true);
+	//
+	//	InputBoolWithEndFocus(("Trigger ##" + std::to_string(i)).c_str(), &PresceneObjects[i].Body->isTrigger);
+	//
+	//	ImGui::NextColumn();
+	//	InputBoolWithEndFocus(("Static ##" + std::to_string(i)).c_str(), &PresceneObjects[i].Body->isStatic);
+	//	ImGui::Columns(1, nullptr, true);
+	//
+	//	ImGui::TreePop();
+	//
+	//}
 
 
 }
@@ -801,8 +803,8 @@ int main()
 		obj.Body->layer = phys_layer;
 		obj.Body->friction = friction;
 		obj.Body->restitution = restitution;
-		obj.Body->isStatic = isStatic;
-		obj.Body->isTrigger = isTrigger;
+		obj.Body->IsStatic(isStatic);
+		obj.Body->IsTrigger(isTrigger);
 
 		obj.TileX = tilex;
 		obj.TileY = tiley;
@@ -984,8 +986,8 @@ int main()
 					*sceneObjects[i].position = PresceneObjects[i].scenePosition;
 					*sceneObjects[i].scale = PresceneObjects[i].sceneScale;
 					*sceneObjects[i].angle = PresceneObjects[i].sceneAngle;
-					sceneObjects[i].Body->SetVelocity(glm::vec2(0, 0));
-					sceneObjects[i].Body->SetAngularVelocity(0);
+					sceneObjects[i].Body->LinearVelocity(glm::vec2(0, 0));
+					sceneObjects[i].Body->AngularVelocity(0);
 
 					if (PresceneObjects[i].name == "MainCameraOvSTD") {
 						PresceneObjects[i].tex = EngineOVCameraIconGui;
@@ -1911,8 +1913,8 @@ int main()
 			SavingSystem.save("OBJ" + std::to_string(i) + "_PHYSLAYER", sceneObjects[i].Body->layer);
 			SavingSystem.save("OBJ" + std::to_string(i) + "_FRIC", sceneObjects[i].Body->friction);
 			SavingSystem.save("OBJ" + std::to_string(i) + "_BOUNCE", sceneObjects[i].Body->restitution);
-			SavingSystem.save("OBJ" + std::to_string(i) + "_STATIC", sceneObjects[i].Body->isStatic);
-			SavingSystem.save("OBJ" + std::to_string(i) + "_TRIG", sceneObjects[i].Body->isTrigger);
+			SavingSystem.save("OBJ" + std::to_string(i) + "_STATIC", sceneObjects[i].Body->IsStatic());
+			SavingSystem.save("OBJ" + std::to_string(i) + "_TRIG", sceneObjects[i].Body->IsTrigger());
 
 			SavingSystem.save("OBJ" + std::to_string(i) + "_TTX", sceneObjects[i].TileX);
 			SavingSystem.save("OBJ" + std::to_string(i) + "_TTY", sceneObjects[i].TileY);

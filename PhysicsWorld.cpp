@@ -16,7 +16,7 @@ void PhysicsWorld::Step(float deltaTime)
 	for (int iter = 0; iter < iterations; iter++)
 	{
 		for (int i = 0; i < bodies.size(); i++) {
-			if (!bodies[i]->isStatic) {
+			if (!bodies[i]->IsStatic()) {
 				bodies[i]->Step(deltaTime / iterations);
 			}
 		}
@@ -26,23 +26,21 @@ void PhysicsWorld::Step(float deltaTime)
 	{
 
 		for (int i = 0; i < bodies.size(); i++) {
-			if (bodies[i]->isTrigger) {
+			if (bodies[i]->IsTrigger()) {
 				continue;
 			}
 
 			for (int l = i + 1; l < bodies.size(); l++) {
-				if (bodies[l]->isTrigger) {
+				if (bodies[l]->IsTrigger()) {
 					continue;
 				}
 
 				Manifold manifold;
 
 				if (CheckCollision(*bodies[i]->GetCollider(), *bodies[l]->GetCollider(), manifold)) {
-					cout << "collision detected" << endl;
 					if (manifold.mtv == vec2(0.0f)) {
 						continue;
 					}
-					cout << "mtv:" << glm::to_string(manifold.mtv) << endl;
 
 					
 
@@ -56,7 +54,7 @@ void PhysicsWorld::Step(float deltaTime)
 					GetContactPointsPolyVPoly(polyA, polyB, manifold);
 					vector<vec2> contactPoints = manifold.contactPoints;
 
-					RotationResolution(bodyA, bodyB, manifold);
+					SimpleResolution(bodyA, bodyB, manifold);
 				}
 			}	
 		}
@@ -66,14 +64,17 @@ void PhysicsWorld::Step(float deltaTime)
 }
 
 void PhysicsWorld::SeparateBodies(PhysicsBody* bodyA, PhysicsBody * bodyB, Manifold manifold) {
-	if (!bodyA->isStatic && !bodyB->isStatic) {
+	bool staticA = bodyA->IsStatic();
+	bool staticB = bodyB->IsStatic();
+
+	if (!staticA && !staticB) {
 		*bodyA->position -= manifold.mtv / 2.0f;
 		*bodyB->position += manifold.mtv / 2.0f;
 	}
-	if (!bodyA->isStatic && bodyB->isStatic) {
+	if (!staticA && staticB) {
 		*bodyA->position -= manifold.mtv;
 	}
-	if (bodyA->isStatic && !bodyB->isStatic) {
+	if (staticA && !staticB) {
 		*bodyB->position += manifold.mtv;
 	}
 }
@@ -102,10 +103,10 @@ void PhysicsWorld::RotationResolution(PhysicsBody* bodyA, PhysicsBody* bodyB,Man
 		vec2 raPerp = vec2(-ra.y, ra.x);
 		vec2 rbPerp = vec2(-rb.y, rb.x);
 
-		vec2 angularLinearVelA = raPerp * bodyA->angularVelocity;
-		vec2 angularLinearVelB = rbPerp * bodyB->angularVelocity;
+		vec2 angularLinearVelA = raPerp * bodyA->AngularVelocity();
+		vec2 angularLinearVelB = rbPerp * bodyB->AngularVelocity();
 
-		vec2 relativeVel = (bodyB->getVelocity() + angularLinearVelB) - (bodyA->getVelocity() + angularLinearVelA);
+		vec2 relativeVel = (bodyB->LinearVelocity() + angularLinearVelB) - (bodyA->LinearVelocity() + angularLinearVelA);
 		float contactVelMag = dot(relativeVel, normal);
 
 
@@ -115,9 +116,9 @@ void PhysicsWorld::RotationResolution(PhysicsBody* bodyA, PhysicsBody* bodyB,Man
 		float raPerpDotN = glm::dot(raPerp, normal);
 		float rbPerpDotN = glm::dot(rbPerp, normal);
 
-		float denom = (1.0f/bodyA->mass) +(1.0f/bodyB->mass) + 
-			(raPerpDotN * raPerpDotN) * (1.0f / bodyA->angularInertia) + 
-			(rbPerpDotN * rbPerpDotN) * (1.0f / bodyB->angularInertia);
+		float denom = (bodyA->InvMass()) +(bodyB->InvMass()) +
+			(raPerpDotN * raPerpDotN) * (1.0f / bodyA->Inertia()) + 
+			(rbPerpDotN * rbPerpDotN) * (1.0f / bodyB->Inertia());
 
 		float j = (-(1.0f + e) * contactVelMag) ;// / (float)contactPoints.size();
 		j /= denom; 
@@ -134,43 +135,38 @@ void PhysicsWorld::RotationResolution(PhysicsBody* bodyA, PhysicsBody* bodyB,Man
 		vec2 ra = raList[i];
 		vec2 rb = rbList[i];
 
-		bodyA->SetVelocity(bodyA->getVelocity() - impulse / bodyA->mass);
+		bodyA->AddLinearVelocity(-impulse / bodyA->Mass());
 		//bodyA->angularVelocity += -glm::cross(ra, impulse) / bodyA->angularInertia;
-		bodyB->SetVelocity(bodyB->getVelocity() + impulse / bodyB->mass);
+		bodyB->AddLinearVelocity( impulse / bodyB->Mass());
 		//bodyB->angularVelocity += glm::cross(rb, impulse) / bodyB->angularInertia;
 	}
 }
 void PhysicsWorld::SimpleResolution(PhysicsBody* bodyA, PhysicsBody* bodyB, Manifold manifold) {
-	vec2 relVel = bodyB->getVelocity() - bodyA->getVelocity();
+	vec2 relVel = bodyB->LinearVelocity() - bodyA->LinearVelocity();
 
 	vector<vec2> contactPoints = manifold.contactPoints;
 
 	float e = std::min(bodyA->restitution, bodyB->restitution); 
-	float j = -(1 + e) * glm::dot(relVel, manifold.normal) / ((bodyA->isStatic ? 0 : 1 / bodyA->mass) + (bodyB->isStatic ? 0 : 1 / bodyB->mass) + 0.000000000001f);
+	float j = -(1 + e) * glm::dot(relVel, manifold.normal) / ((bodyA->InvMass()) + (bodyB->InvMass()) + 0.000000000001f);
 
-	//          // friction stuff
-	//          vec2 tangent = vec2(-manifold.normal.y, manifold.normal.x);
-	//          vec2 relVelTangent = relVel - glm::dot(relVel, manifold.normal) * manifold.normal;
-	//          
-	//          float friction = std::min(bodyA->friction, bodyB->friction);
-	//          float jt = -dot(relVelTangent, tangent) / ((bodyA->isStatic ? 0 : 1 / bodyA->mass) + (bodyB->isStatic ? 0 : 1 / bodyB->mass) + 0.000000000001f);
-	//          jt /= contactPoints.size(); // average for multiple contact points
-	//          
-	//          if (std::abs(jt) > std::abs(j) * friction) {
-	//          	jt = std::copysign(std::abs(j) * friction, jt);
-	//          }
-	//          
-	// apply impulse to the bodies
-	// if (!bodyA->isStatic && !bodyB->isStatic) {
-	// 	bodyA->SetVelocity(bodyA->getVelocity() - (j * manifold.normal + jt * tangent) / bodyA->mass);
-	// 	bodyB->SetVelocity(bodyB->getVelocity() + (j * manifold.normal + jt * tangent) / bodyB->mass);
-	// }
-	// if (!bodyA->isStatic && bodyB->isStatic) {
-	// 	bodyA->SetVelocity(bodyA->getVelocity() - (j * manifold.normal + jt * tangent) / bodyA->mass);
-	// }
-	// if (bodyA->isStatic && !bodyB->isStatic) {
-	// 	bodyB->SetVelocity(bodyB->getVelocity() + (j * manifold.normal + jt * tangent) / bodyB->mass);
-	// }
+	// friction stuff
+	vec2 tangent = vec2(-manifold.normal.y, manifold.normal.x);
+	vec2 relVelTangent = relVel - glm::dot(relVel, manifold.normal) * manifold.normal;
+	
+	float friction = std::min(bodyA->friction, bodyB->friction);
+	float jt = -dot(relVelTangent, tangent) / ((bodyA->InvMass()) + (bodyB->InvMass()) + 0.000000000001f);
+	jt /= contactPoints.size(); // average for multiple contact points
+	
+	if (std::abs(jt) > std::abs(j) * friction) {
+		jt = std::copysign(std::abs(j) * friction, jt);
+	}
+	// no friction for debugging
+	jt = 0;
+	         
+	//apply impulse to the bodies
+
+	bodyA->AddLinearVelocity((-j * manifold.normal + jt * tangent) / bodyA->Mass());
+	bodyB->AddLinearVelocity(( j * manifold.normal + jt * tangent) / bodyB->Mass());
 }
 bool PhysicsWorld::TouchingLayer(PhysicsBody* body, int layer) {
 
@@ -220,8 +216,8 @@ void PhysicsWorld::AddBody(PhysicsBody* body) {
 	}
 
 	body->SetGravity(gravity);
-	body->SetVelocity(vec2(0,0));
-	body->SetAngularVelocity(0);
+	body->LinearVelocity(vec2(0,0));
+	body->AngularVelocity(0);
 	bodies.push_back(body);
 }
 

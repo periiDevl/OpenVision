@@ -69,7 +69,6 @@ vec2 PhysicsBody::LinearVelocity()
 {
 	return linearVelocity;
 }
-
 vec2 PhysicsBody::LinearVelocity(const vec2 value)
 {
 	if (linearVelocity == value)
@@ -78,7 +77,6 @@ vec2 PhysicsBody::LinearVelocity(const vec2 value)
 	linearVelocity = value;
 	return linearVelocity;
 }
-
 vec2 PhysicsBody::AddLinearVelocity(const vec2 addedValue)
 {
 	linearVelocity += addedValue;
@@ -126,6 +124,44 @@ float PhysicsBody::Mass(const float value)
 	return mass;
 }
 
+float PhysicsBody::Inertia()
+{
+	return inertia;
+}
+float PhysicsBody::Inertia(const float value)
+{
+	if (inertia == value)
+		return inertia;
+
+	// Change mass based on that which will change the inertia as well
+	// 1/12 * x * (width*width + height*height) = inertia
+	// x = 12 * (i / (width * width + height * height)) (it took me 20 minutes to solve this equation)
+	
+	Mass(12 * (value / (scale->x * scale->x + scale->y * scale->y)));
+
+	return inertia;
+}
+
+float PhysicsBody::InvInertia()
+{
+	return inertia;
+}
+
+float PhysicsBody::InvMass()
+{
+	return invMass;
+}
+float PhysicsBody::InvMass(const float value)
+{
+	if ((1.0f/invMass) == mass)
+		return invMass;
+
+	// If setting the inverse mass to a different value, change the mass and thus the inverse mass
+	Mass((1.0f / invMass));
+	
+	return invMass;
+}
+
 bool PhysicsBody::IsTrigger()
 {
 	return isTrigger;
@@ -163,16 +199,3 @@ bool PhysicsBody::IsStatic(bool value)
 }
 
 
-float PhysicsBody::AngularInertia()
-{
-	return inertia;
-}
-
-float PhysicsBody::AngularInertia(const float value)
-{
-	if (inertia == value)
-		return inertia;
-
-	inertia = value;
-	return inertia;
-}

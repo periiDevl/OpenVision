@@ -37,12 +37,12 @@ public:
 
 
 	/// <summary>
-	/// A function for getting the current linear velocity
+	/// A function for getting the current linear velocity (what did you expect?)
 	/// </summary>
 	/// <returns>a vec2 representing the linear velocity</returns>
 	vec2 LinearVelocity();
 	/// <summary>
-	/// A function for setting the linear velocity
+	/// A function for setting the linear velocity  
 	/// </summary>
 	/// <returns>a vec2 representing the new linear velocity</returns>
 	vec2 LinearVelocity(const vec2 value);
@@ -53,7 +53,7 @@ public:
 	vec2 AddLinearVelocity(const vec2 addedValue);
 	
 	/// <summary>
-	/// A function for getting the current angular velocity
+	/// A function for getting the current angular velocity (what did you expect?)
 	/// </summary>
 	/// <returns>a float representing the angular velocity</returns>
 	float AngularVelocity();
@@ -76,13 +76,16 @@ public:
 	float Mass();
 	float Mass(const float value);
 
+	float InvMass();
+	float InvMass(const float value);
+
 
 	/// I will work on friction and restitution variables later now I dont care about it
 	float area, density, friction, restitution;
 
 
 	/// <summary>
-	/// A function for getting the is-trigger property
+	/// A function for getting the is-trigger property (what did you expect?)
 	/// </summary>
 	/// <returns>a bool representing the is-trigger property</returns>
 	bool IsTrigger();
@@ -94,7 +97,7 @@ public:
 
 
 	/// <summary>
-	/// A function for getting the is-static property
+	/// A function for getting the is-static property (what did you expect?)
 	/// </summary>
 	/// <returns>a bool representing the is-static property</returns>
 	bool IsStatic();
@@ -108,18 +111,24 @@ public:
 	int layer;
 
 	/// <summary>
-	/// A function for getting the angular inertia
+	/// A function for getting the inertia (what did you expect?)
 	/// </summary>
-	/// <returns>a float representing the angular inertia</returns>
-	float AngularInertia();
+	/// <returns>a float representing the inertia</returns>
+	float Inertia();
 
 	/// <summary>
-	/// A function for setting the angular inertia
+	/// A function for setting the inertia 
 	/// </summary>
-	/// <returns>a float representing the new angular inertia</returns>
-	float AngularInertia(const float value);
+	/// <returns>a float representing the new inertia</returns>
+	float Inertia(const float value);
 
+	/// <summary>
+	/// A function for getting 1/inertia (what did you expect?)
+	/// </summary>
+	/// <returns>a float representing the inertia</returns>
+	float InvInertia();
 
+	// Im not making another function for setting the mass using the inverse inertia, forget it
 
 private:
 
