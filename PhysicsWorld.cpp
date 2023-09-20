@@ -135,9 +135,9 @@ void PhysicsWorld::RotationResolution(PhysicsBody* bodyA, PhysicsBody* bodyB,Man
 		vec2 rb = rbList[i];
 
 		bodyA->SetVelocity(bodyA->getVelocity() - impulse / bodyA->mass);
-		bodyA->angularVelocity += -glm::cross(ra, impulse) / bodyA->angularInertia;
+		//bodyA->angularVelocity += -glm::cross(ra, impulse) / bodyA->angularInertia;
 		bodyB->SetVelocity(bodyB->getVelocity() + impulse / bodyB->mass);
-		bodyB->angularVelocity += glm::cross(rb, impulse) / bodyB->angularInertia;
+		//bodyB->angularVelocity += glm::cross(rb, impulse) / bodyB->angularInertia;
 	}
 }
 void PhysicsWorld::SimpleResolution(PhysicsBody* bodyA, PhysicsBody* bodyB, Manifold manifold) {

@@ -34,28 +34,107 @@ public:
 
 	void SetGravity(const vec2 newGravity);
 	void SetCollider(Collider* newCollider);
-	void SetVelocity(const vec2 newVelocity);
-	void SetAngularVelocity(const float newAngularVelocity);
+
+
+	/// <summary>
+	/// A function for getting the current linear velocity
+	/// </summary>
+	/// <returns>a vec2 representing the linear velocity</returns>
+	vec2 LinearVelocity();
+	/// <summary>
+	/// A function for setting the linear velocity
+	/// </summary>
+	/// <returns>a vec2 representing the new linear velocity</returns>
+	vec2 LinearVelocity(const vec2 value);
+	/// <summary>
+	/// A function for adding to the current linear velocity
+	/// </summary>
+	/// <returns>a vec2 representing the new linear velocity</returns>
+	vec2 AddLinearVelocity(const vec2 addedValue);
+	
+	/// <summary>
+	/// A function for getting the current angular velocity
+	/// </summary>
+	/// <returns>a float representing the angular velocity</returns>
+	float AngularVelocity();
+	/// <summary>
+	/// A function for getting the current angular velocity
+	/// </summary>
+	/// <returns>a float representing the angular velocity</returns>
+	float AngularVelocity(const float value);
+	/// <summary>
+	/// A function for getting the current angular velocity
+	/// </summary>
+	/// <returns>a float representing the angular velocity</returns>
+	float AddAngularVelocity(const float addedValue);
 
 
 	vec2* position;
 	vec2* scale;
 	float* rotation;
 
-	float mass, area, density, friction, restitution;
-	bool isTrigger, isStatic;
+	float Mass();
+	float Mass(const float value);
+
+
+	/// I will work on friction and restitution variables later now I dont care about it
+	float area, density, friction, restitution;
+
+
+	/// <summary>
+	/// A function for getting the is-trigger property
+	/// </summary>
+	/// <returns>a bool representing the is-trigger property</returns>
+	bool IsTrigger();
+	/// <summary>
+	/// A function for setting the is-trigger property
+	/// </summary>
+	/// <returns>a bool representing the is-trigger property</returns>
+	bool IsTrigger(bool value);
+
+
+	/// <summary>
+	/// A function for getting the is-static property
+	/// </summary>
+	/// <returns>a bool representing the is-static property</returns>
+	bool IsStatic();
+
+	/// <summary>
+	/// A function for setting the is-static property
+	/// </summary>
+	/// <returns>a bool representing the is-static property</returns>
+	bool IsStatic(bool value);
+	
 	int layer;
 
-	float angularInertia, angularVelocity;
+	/// <summary>
+	/// A function for getting the angular inertia
+	/// </summary>
+	/// <returns>a float representing the angular inertia</returns>
+	float AngularInertia();
 
-	vec2 getVelocity();
-	vec2 force;
+	/// <summary>
+	/// A function for setting the angular inertia
+	/// </summary>
+	/// <returns>a float representing the new angular inertia</returns>
+	float AngularInertia(const float value);
+
+
 
 private:
+
 	vec2 gravity;
 	Collider* collider;
-	vec2 velocity;
+	vec2 force;
+	vec2 linearVelocity;
 
+	float angularVelocity;
+	float invMass;
+	float mass;
+	float invInertia;
+	float inertia;
+
+	bool isTrigger, isStatic;
 };
 
 #endif

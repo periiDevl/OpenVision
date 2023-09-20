@@ -1737,7 +1737,7 @@ int main()
 				for (int i = 0; i < sceneObjects.size(); i++) {
 					world.AddBody(sceneObjects[i].Body);
 				}
-				sceneObjects[0].Body->Values();
+
 
 				//std::cout << OVObjects.size();
 				/*
