@@ -147,7 +147,8 @@ void PhysicsWorld::SimpleResolution(PhysicsBody* bodyA, PhysicsBody* bodyB, Mani
 	vector<vec2> contactPoints = manifold.contactPoints;
 
 	float e = std::min(bodyA->restitution, bodyB->restitution); 
-	float j = -(1 + e) * glm::dot(relVel, manifold.normal) / ((bodyA->InvMass()) + (bodyB->InvMass()) + 0.000000000001f);
+	
+	float j = -(1 + e) * glm::dot(relVel, manifold.normal) / (bodyA->InvMass() + bodyB->InvMass() + 0.000000000001f);
 
 	// friction stuff
 	vec2 tangent = vec2(-manifold.normal.y, manifold.normal.x);
@@ -163,10 +164,20 @@ void PhysicsWorld::SimpleResolution(PhysicsBody* bodyA, PhysicsBody* bodyB, Mani
 	// no friction for debugging
 	jt = 0;
 	         
-	//apply impulse to the bodies
-
-	bodyA->AddLinearVelocity((-j * manifold.normal + jt * tangent) / bodyA->Mass());
-	bodyB->AddLinearVelocity(( j * manifold.normal + jt * tangent) / bodyB->Mass());
+	//      //apply impulse to the bodies
+	//      if (!bodyA->IsStatic() && !bodyB->IsStatic()) {
+	//      	bodyA->LinearVelocity(bodyA->LinearVelocity() - (j * manifold.normal + jt * tangent) / bodyA->Mass());
+	//      	bodyB->LinearVelocity(bodyB->LinearVelocity() + (j * manifold.normal + jt * tangent) / bodyB->Mass());
+	//      }
+	//      if (!bodyA->IsStatic() && bodyB->IsStatic()) {
+	//      	bodyA->LinearVelocity(bodyA->LinearVelocity() - (j * manifold.normal + jt * tangent) / bodyA->Mass());
+	//      }
+	//      if (bodyA->IsStatic() && !bodyB->IsStatic()) {
+	//      	bodyB->LinearVelocity(bodyB->LinearVelocity() + (j * manifold.normal + jt * tangent) / bodyB->Mass());
+	//      }
+	// 
+	bodyA->AddLinearVelocity(-(j * manifold.normal + jt * tangent * bodyA->InvMass()));
+	bodyB->AddLinearVelocity( (j * manifold.normal + jt * tangent * bodyB->InvMass()));
 }
 bool PhysicsWorld::TouchingLayer(PhysicsBody* body, int layer) {
 

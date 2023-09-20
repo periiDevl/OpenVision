@@ -71,6 +71,9 @@ vec2 PhysicsBody::LinearVelocity()
 }
 vec2 PhysicsBody::LinearVelocity(const vec2 value)
 {
+	if (isStatic)
+		return vec2(0);
+
 	if (linearVelocity == value)
 		return linearVelocity;
 
@@ -79,6 +82,9 @@ vec2 PhysicsBody::LinearVelocity(const vec2 value)
 }
 vec2 PhysicsBody::AddLinearVelocity(const vec2 addedValue)
 {
+	if (isStatic)
+		return vec2(0);
+
 	linearVelocity += addedValue;
 	return linearVelocity;
 }
@@ -89,6 +95,9 @@ float PhysicsBody::AngularVelocity()
 }
 float PhysicsBody::AngularVelocity(const float value)
 {
+	if (isStatic)
+		return 0;
+
 	if (angularVelocity == value)
 		return angularVelocity;
 
