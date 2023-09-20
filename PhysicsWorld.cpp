@@ -42,7 +42,7 @@ void PhysicsWorld::Step(float deltaTime)
 						continue;
 					}
 
-					
+					cout << "mtv:" << glm::to_string(manifold.mtv) << endl;
 
 					PhysicsBody* bodyA = bodies[i];
 					PhysicsBody* bodyB = bodies[l];
@@ -54,7 +54,7 @@ void PhysicsWorld::Step(float deltaTime)
 					GetContactPointsPolyVPoly(polyA, polyB, manifold);
 					vector<vec2> contactPoints = manifold.contactPoints;
 
-					SimpleResolution(bodyA, bodyB, manifold);
+					RotationResolution(bodyA, bodyB, manifold);
 				}
 			}	
 		}
@@ -106,23 +106,27 @@ void PhysicsWorld::RotationResolution(PhysicsBody* bodyA, PhysicsBody* bodyB,Man
 		vec2 angularLinearVelA = raPerp * bodyA->AngularVelocity();
 		vec2 angularLinearVelB = rbPerp * bodyB->AngularVelocity();
 
-		vec2 relativeVel = (bodyB->LinearVelocity() + angularLinearVelB) - (bodyA->LinearVelocity() + angularLinearVelA);
+
+		vec2 relativeVel = (bodyB->LinearVelocity() + angularLinearVelB) - (bodyA->LinearVelocity() - angularLinearVelA);
 		float contactVelMag = dot(relativeVel, normal);
 
-
-		//if (contactVelMag > 0.0f)
-		//	continue;
+		if (contactVelMag > 0.0f)
+			continue;
 		
 		float raPerpDotN = glm::dot(raPerp, normal);
 		float rbPerpDotN = glm::dot(rbPerp, normal);
 
-		float denom = (bodyA->InvMass()) +(bodyB->InvMass()) +
-			(raPerpDotN * raPerpDotN) * (1.0f / bodyA->Inertia()) + 
-			(rbPerpDotN * rbPerpDotN) * (1.0f / bodyB->Inertia());
+		float denom = bodyA->InvMass() + bodyB->InvMass() +
+			(raPerpDotN * raPerpDotN) * bodyA->InvInertia() + 
+			(rbPerpDotN * rbPerpDotN) * bodyB->InvInertia();
 
-		float j = (-(1.0f + e) * contactVelMag) ;// / (float)contactPoints.size();
+		float j = -(1.0f + e) * contactVelMag;
+		
+		// The next 2 lines are the problem, now how do I fix them... o-o
 		j /= denom; 
 		j /= (float)contactPoints.size();
+		
+		
 
 		impulses.push_back(j * normal);
 
@@ -135,9 +139,9 @@ void PhysicsWorld::RotationResolution(PhysicsBody* bodyA, PhysicsBody* bodyB,Man
 		vec2 ra = raList[i];
 		vec2 rb = rbList[i];
 
-		bodyA->AddLinearVelocity(-impulse / bodyA->Mass());
+		bodyA->AddLinearVelocity(-impulse * bodyA->InvMass());
 		//bodyA->angularVelocity += -glm::cross(ra, impulse) / bodyA->angularInertia;
-		bodyB->AddLinearVelocity( impulse / bodyB->Mass());
+		bodyB->AddLinearVelocity( impulse * bodyB->InvMass());
 		//bodyB->angularVelocity += glm::cross(rb, impulse) / bodyB->angularInertia;
 	}
 }
