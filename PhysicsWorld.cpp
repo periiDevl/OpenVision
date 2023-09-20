@@ -6,6 +6,9 @@ namespace glm {
 	float cross(const glm::vec2& a, const glm::vec2& b) {
 		return a.x * b.y - a.y * b.x;
 	}
+	vec2 cross(const float& a, const glm::vec2& b) {
+		return vec2{ -a * b.y, a * b.x };
+	}
 }
 PhysicsWorld::PhysicsWorld(glm::vec3 gravity, int iterations) {
 	this->gravity = gravity;
@@ -78,71 +81,46 @@ void PhysicsWorld::SeparateBodies(PhysicsBody* bodyA, PhysicsBody * bodyB, Manif
 		*bodyB->position += manifold.mtv;
 	}
 }
-void PhysicsWorld::RotationResolution(PhysicsBody* bodyA, PhysicsBody* bodyB,Manifold manifold) {
+void PhysicsWorld::RotationResolution(PhysicsBody* bodyA, PhysicsBody* bodyB, Manifold manifold) {
 
 	vec2 normal = manifold.normal;
 	vector<vec2> contactPoints = manifold.contactPoints;
 
 	float e = std::min(bodyA->restitution, bodyB->restitution);
-	
-	vector<vec2> impulses = vector<vec2>();
-
-
-	vector<vec2> raList = vector<vec2>();
-	vector<vec2> rbList = vector<vec2>();
-
 
 
 	for (size_t i = 0; i < contactPoints.size(); ++i) {
 		vec2 ra = contactPoints[i] - *bodyA->position;
 		vec2 rb = contactPoints[i] - *bodyB->position;
 
-		raList.push_back(ra);
-		rbList.push_back(rb);
-
-		vec2 raPerp = vec2(-ra.y, ra.x);
-		vec2 rbPerp = vec2(-rb.y, rb.x);
-
-		vec2 angularLinearVelA = raPerp * bodyA->AngularVelocity();
-		vec2 angularLinearVelB = rbPerp * bodyB->AngularVelocity();
+		vec2 relativeVel =
+			bodyB->LinearVelocity() + glm::cross(bodyB->AngularVelocity(), rb)
+			- bodyA->LinearVelocity() - glm::cross(bodyA->AngularVelocity(), ra);
 
 
-		vec2 relativeVel = (bodyB->LinearVelocity() + angularLinearVelB) - (bodyA->LinearVelocity() - angularLinearVelA);
-		float contactVelMag = dot(relativeVel, normal);
+		float velAlongNormal = dot(relativeVel, normal);
 
-		if (contactVelMag > 0.0f)
-			continue;
-		
-		float raPerpDotN = glm::dot(raPerp, normal);
-		float rbPerpDotN = glm::dot(rbPerp, normal);
+		if (velAlongNormal > 0.0f)
+			return;
 
-		float denom = bodyA->InvMass() + bodyB->InvMass() +
-			(raPerpDotN * raPerpDotN) * bodyA->InvInertia() + 
-			(rbPerpDotN * rbPerpDotN) * bodyB->InvInertia();
+		float raCrossN = cross(ra, normal);
+		float rbCrossN = cross(rb, normal);
 
-		float j = -(1.0f + e) * contactVelMag;
-		
-		// The next 2 lines are the problem, now how do I fix them... o-o
-		j /= denom; 
-		j /= (float)contactPoints.size();
-		
-		
+		float invMassSum = bodyA->InvMass() + bodyB->InvMass()
+			+ (raCrossN * raCrossN) * bodyA->InvInertia()
+			+ (rbCrossN * rbCrossN) * bodyB->InvInertia();
 
-		impulses.push_back(j * normal);
+		cout << "inv mass sum:" << invMassSum << endl;
+		float j = -(1.0f + e) * velAlongNormal;
+		j /= (invMassSum * (float)contactPoints.size());
 
-	}
-
-
-	for (int i = 0; i < impulses.size(); i++)
-	{
-		vec2 impulse = impulses[i];
-		vec2 ra = raList[i];
-		vec2 rb = rbList[i];
+		vec2 impulse = normal * j;
 
 		bodyA->AddLinearVelocity(-impulse * bodyA->InvMass());
-		//bodyA->angularVelocity += -glm::cross(ra, impulse) / bodyA->angularInertia;
-		bodyB->AddLinearVelocity( impulse * bodyB->InvMass());
-		//bodyB->angularVelocity += glm::cross(rb, impulse) / bodyB->angularInertia;
+		bodyB->AddLinearVelocity(impulse * bodyB->InvMass());
+		//bodyA->AddAngularVelocity(bodyA->InvInertia() * glm::cross(ra, -impulse));
+		//bodyB->AddAngularVelocity(bodyB->InvInertia() * glm::cross(rb, impulse));
+
 	}
 }
 void PhysicsWorld::SimpleResolution(PhysicsBody* bodyA, PhysicsBody* bodyB, Manifold manifold) {
