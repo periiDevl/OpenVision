@@ -135,6 +135,9 @@ float PhysicsBody::Mass(const float value)
 
 float PhysicsBody::Inertia()
 {
+	if (isStatic) {
+		return 0;
+	}
 	return inertia;
 }
 float PhysicsBody::Inertia(const float value)
@@ -161,6 +164,9 @@ float PhysicsBody::InvInertia()
 
 float PhysicsBody::InvMass()
 {
+	if (isStatic) {
+		return 0;
+	}
 	return invMass;
 }
 float PhysicsBody::InvMass(const float value)

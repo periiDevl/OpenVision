@@ -16,7 +16,7 @@ namespace glm {
 
 	}
 	bool nearEqual(const vec2& a, const vec2& b) {
-		return glm::all(glm::epsilonEqual(a, b, 0.0001f));
+		return glm::all(glm::epsilonEqual(a, b, 0.000001f));
 	}
 
 }
@@ -123,7 +123,7 @@ void PhysicsWorld::RotationResolution(PhysicsBody* bodyA, PhysicsBody* bodyB, Ma
 		float velAlongNormal = dot(relativeVel, normal);
 
 		if (velAlongNormal > 0.0f)
-			continue;
+			return;
 
 		float raPerpDotN = dot(raPerp, normal);
 		float rbPerpDotN = dot(rbPerp, normal);
@@ -146,7 +146,11 @@ void PhysicsWorld::RotationResolution(PhysicsBody* bodyA, PhysicsBody* bodyB, Ma
 		j /= invMassSum;
 		j /= (float)contactPoints.size();
 
+
 		vec2 impulse = normal * j;
+		cout << "impulse:" << glm::to_string(-impulse) << endl;
+		cout << "impulse:" << glm::to_string(-impulse) << endl;
+
 		impulses.push_back(impulse);
 
 	}
@@ -157,7 +161,6 @@ void PhysicsWorld::RotationResolution(PhysicsBody* bodyA, PhysicsBody* bodyB, Ma
 		vec2 rb = rbList[i];
 		bodyA->AddAngularVelocity(glm::cross(ra, -impulse) * bodyA->InvInertia());
 		bodyB->AddAngularVelocity(glm::cross(rb, impulse) * bodyB->InvInertia());
-
 		
 		bodyA->AddLinearVelocity(-impulse * bodyA->InvMass());
 		bodyB->AddLinearVelocity( impulse * bodyB->InvMass());
