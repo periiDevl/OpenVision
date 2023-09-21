@@ -15,6 +15,9 @@ namespace glm {
 		return vec2(-s * a.y, s * a.x);
 
 	}
+	bool nearEqual(const vec2& a, const vec2& b) {
+		return glm::all(glm::epsilonEqual(a, b, 0.0001f));
+	}
 
 }
 PhysicsWorld::PhysicsWorld(glm::vec3 gravity, int iterations) {
@@ -48,7 +51,7 @@ void PhysicsWorld::Step(float deltaTime)
 				Manifold manifold;
 
 				if (CheckCollision(*bodies[i]->GetCollider(), *bodies[l]->GetCollider(), manifold)) {
-					if (manifold.mtv == vec2(0.0f)) {
+					if (nearEqual(manifold.mtv, vec2(0))) {
 						continue;
 					}
 
@@ -100,9 +103,15 @@ void PhysicsWorld::RotationResolution(PhysicsBody* bodyA, PhysicsBody* bodyB, Ma
 		vec2 ra = contactPoints[i] - *bodyA->position;
 		vec2 rb = contactPoints[i] - *bodyB->position;
 
+		vec2 raPerp = vec2(-ra.y, ra.x);
+		vec2 rbPerp = vec2(-rb.y, rb.x);
+		
+		vec2 angularLinearVelA = raPerp * bodyA->AngularVelocity();
+		vec2 angularLinearVelB = rbPerp * bodyB->AngularVelocity();
+
 		vec2 relativeVel =
-			  bodyB->LinearVelocity() + glm::cross(bodyB->AngularVelocity(), rb)
-			- bodyA->LinearVelocity() - glm::cross(bodyA->AngularVelocity(), ra);
+			  (bodyB->LinearVelocity() + angularLinearVelB)
+			- (bodyA->LinearVelocity() + angularLinearVelA);
 
 
 		float velAlongNormal = dot(relativeVel, normal);
@@ -110,24 +119,38 @@ void PhysicsWorld::RotationResolution(PhysicsBody* bodyA, PhysicsBody* bodyB, Ma
 		if (velAlongNormal > 0.0f)
 			return;
 
-		float raCrossN = cross(ra, normal);
-		float rbCrossN = cross(rb, normal);
+		float raPerpDotN = dot(raPerp, normal);
+		float rbPerpDotN = dot(rbPerp, normal);
 
 		float invMassSum = (bodyA->InvMass() + bodyB->InvMass()) +
-			((raCrossN * raCrossN) * bodyA->InvInertia()) +
-			((rbCrossN * rbCrossN) * bodyB->InvInertia());
+			((raPerpDotN * raPerpDotN) * bodyA->InvInertia()) +
+			((rbPerpDotN * rbPerpDotN) * bodyB->InvInertia());
+
+		cout << "bodyA + bodyB:" << (bodyA->InvMass() + bodyB->InvMass()) << endl;
+		cout << "first part:" << ((raPerpDotN * raPerpDotN) * bodyA->InvInertia()) << endl;
+		cout << "inv mass A:" << bodyA->InvInertia() << endl;
+		cout << "inv mass B:" << bodyB->InvInertia() << endl;
+		cout << "raCrossN sqr:" << (raPerpDotN * raPerpDotN);
+		//cout << "rbCrossN:" << rbPerpDotN << endl;
 
 		cout << "inv mass sum:" << invMassSum << endl;
+
+
 		float j = -(1.0f + e) * velAlongNormal;
 		j /= invMassSum;
 		j /= (float)contactPoints.size();
 
 		vec2 impulse = normal * j;
 
+		//bodyA->AddAngularVelocity(glm::cross(ra, -impulse) * bodyA->InvInertia());
+		//bodyB->AddAngularVelocity(glm::cross(rb, impulse) * bodyB->InvInertia());
+
+		//j = -(1 + e) * glm::dot(relativeVel, manifold.normal) / (bodyA->InvMass() + bodyB->InvMass() + 0.0001f);
+		
+		//impulse = normal * j;
+
 		bodyA->AddLinearVelocity(-impulse * bodyA->InvMass());
 		bodyB->AddLinearVelocity( impulse * bodyB->InvMass());
-		bodyA->AddAngularVelocity(glm::cross(ra, -impulse) * bodyA->InvInertia());
-		bodyB->AddAngularVelocity(glm::cross(rb, impulse) * bodyB->InvInertia());
 
 	}
 }
@@ -138,7 +161,7 @@ void PhysicsWorld::SimpleResolution(PhysicsBody* bodyA, PhysicsBody* bodyB, Mani
 
 	float e = std::min(bodyA->restitution, bodyB->restitution); 
 	
-	float j = -(1 + e) * glm::dot(relVel, manifold.normal) / (bodyA->InvMass() + bodyB->InvMass() + 0.000000000001f);
+	float j = -(1 + e) * glm::dot(relVel, manifold.normal) / (bodyA->InvMass() + bodyB->InvMass() + 0.0001f);
 
 	// friction stuff
 	vec2 tangent = vec2(-manifold.normal.y, manifold.normal.x);
@@ -154,18 +177,7 @@ void PhysicsWorld::SimpleResolution(PhysicsBody* bodyA, PhysicsBody* bodyB, Mani
 	// no friction for debugging
 	jt = 0;
 	         
-	//      //apply impulse to the bodies
-	//      if (!bodyA->IsStatic() && !bodyB->IsStatic()) {
-	//      	bodyA->LinearVelocity(bodyA->LinearVelocity() - (j * manifold.normal + jt * tangent) / bodyA->Mass());
-	//      	bodyB->LinearVelocity(bodyB->LinearVelocity() + (j * manifold.normal + jt * tangent) / bodyB->Mass());
-	//      }
-	//      if (!bodyA->IsStatic() && bodyB->IsStatic()) {
-	//      	bodyA->LinearVelocity(bodyA->LinearVelocity() - (j * manifold.normal + jt * tangent) / bodyA->Mass());
-	//      }
-	//      if (bodyA->IsStatic() && !bodyB->IsStatic()) {
-	//      	bodyB->LinearVelocity(bodyB->LinearVelocity() + (j * manifold.normal + jt * tangent) / bodyB->Mass());
-	//      }
-	// 
+	
 	bodyA->AddLinearVelocity(-(j * manifold.normal + jt * tangent * bodyA->InvMass()));
 	bodyB->AddLinearVelocity( (j * manifold.normal + jt * tangent * bodyB->InvMass()));
 }

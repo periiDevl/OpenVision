@@ -153,6 +153,9 @@ float PhysicsBody::Inertia(const float value)
 
 float PhysicsBody::InvInertia()
 {
+	if (isStatic) {
+		return 0;
+	}
 	return inertia;
 }
 

@@ -392,25 +392,29 @@ void ObjectUI(GLFWwindow* window, int i)
 	}
 
 	// Im lazy to fix it now, will be fixed later now I want to check if this is even working 
-	//if (ImGui::TreeNodeEx(("Rigidbody Properties ##" + std::to_string(i)).c_str(), ImGuiTreeNodeFlags_DefaultOpen)) {
-	//	InputIntWithEndFocus(("Physical Layer ##" + std::to_string(i)).c_str(), &PresceneObjects[i].Body->layer);
-	//
-	//	InputFloatWithEndFocus(("Friction ##" + std::to_string(i)).c_str(), &PresceneObjects[i].Body->friction);
-	//
-	//	InputFloatWithEndFocus(("Bounciness ##" + std::to_string(i)).c_str(), &PresceneObjects[i].Body->restitution);
-	//
-	//	ImGui::Columns(1, nullptr, true);
-	//	ImGui::Columns(2, nullptr, true);
-	//
-	//	InputBoolWithEndFocus(("Trigger ##" + std::to_string(i)).c_str(), &PresceneObjects[i].Body->isTrigger);
-	//
-	//	ImGui::NextColumn();
-	//	InputBoolWithEndFocus(("Static ##" + std::to_string(i)).c_str(), &PresceneObjects[i].Body->isStatic);
-	//	ImGui::Columns(1, nullptr, true);
-	//
-	//	ImGui::TreePop();
-	//
-	//}
+	if (ImGui::TreeNodeEx(("Rigidbody Properties ##" + std::to_string(i)).c_str(), ImGuiTreeNodeFlags_DefaultOpen)) {
+		InputIntWithEndFocus(("Physical Layer ##" + std::to_string(i)).c_str(), &PresceneObjects[i].Body->layer);
+	
+		InputFloatWithEndFocus(("Friction ##" + std::to_string(i)).c_str(), &PresceneObjects[i].Body->friction);
+	
+		InputFloatWithEndFocus(("Bounciness ##" + std::to_string(i)).c_str(), &PresceneObjects[i].Body->restitution);
+	
+		ImGui::Columns(1, nullptr, true);
+		ImGui::Columns(2, nullptr, true);
+	
+		bool triggerValue = PresceneObjects[i].Body->IsTrigger();
+		InputBoolWithEndFocus(("Trigger ##" + std::to_string(i)).c_str(), &triggerValue);
+		PresceneObjects[i].Body->IsTrigger(triggerValue);
+
+		ImGui::NextColumn();
+		bool staticValue = PresceneObjects[i].Body->IsStatic();
+		InputBoolWithEndFocus(("Static ##" + std::to_string(i)).c_str(), &staticValue);
+		PresceneObjects[i].Body->IsStatic(staticValue);
+		ImGui::Columns(1, nullptr, true);
+	
+		ImGui::TreePop();
+	
+	}
 
 
 }

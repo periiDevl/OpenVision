@@ -326,7 +326,7 @@ void GetContactPointsPolyVPoly(PolygonCollider& colA, PolygonCollider& colB, Man
     vec2 contact2 = vec2(0);
     int count = 0;
 
-    float minDistSq = numeric_limits<float>().max();
+    float minDistSq = FLT_MAX;
 
     vector<vec2> verticesA = colA.GetTransformedVertices();
     vector<vec2> verticesB = colB.GetTransformedVertices();
@@ -341,7 +341,7 @@ void GetContactPointsPolyVPoly(PolygonCollider& colA, PolygonCollider& colB, Man
             float distSquared = 0;
             vec2 cp = GetClosestPointOnEdge(p, distSquared, vA, vB);
 
-            if (NearlyEqual(distSquared, minDistSq) && !NearlyEqual(vA, vB)) {
+            if (NearlyEqual(distSquared, minDistSq) && !NearlyEqual(cp, contact1)) {
                 contact2 = cp;
                 count = 2;
             }
@@ -363,7 +363,7 @@ void GetContactPointsPolyVPoly(PolygonCollider& colA, PolygonCollider& colB, Man
             float distSquared = 0;
             vec2 cp = GetClosestPointOnEdge(p, distSquared, vA, vB);
 
-            if (NearlyEqual(distSquared, minDistSq) && !NearlyEqual(vA, vB)) {
+            if (NearlyEqual(distSquared, minDistSq) && !NearlyEqual(cp, contact1)) {
                 contact2 = cp;
                 count = 2;
             }
