@@ -3,12 +3,19 @@
 /// Adding a function for cross that takes 2 vector2 
 /// </summary>
 namespace glm {
-	float cross(const glm::vec2& a, const glm::vec2& b) {
+	float cross(const vec2& a, const vec2& b) {
 		return a.x * b.y - a.y * b.x;
 	}
-	vec2 cross(const float& a, const glm::vec2& b) {
-		return vec2{ -a * b.y, a * b.x };
+	vec2 cross(const vec2& a, float s) {
+		return vec2(s * a.y, -s * a.x);
+
 	}
+	vec2 cross(float s, const vec2& a)
+	{
+		return vec2(-s * a.y, s * a.x);
+
+	}
+
 }
 PhysicsWorld::PhysicsWorld(glm::vec3 gravity, int iterations) {
 	this->gravity = gravity;
@@ -94,7 +101,7 @@ void PhysicsWorld::RotationResolution(PhysicsBody* bodyA, PhysicsBody* bodyB, Ma
 		vec2 rb = contactPoints[i] - *bodyB->position;
 
 		vec2 relativeVel =
-			bodyB->LinearVelocity() + glm::cross(bodyB->AngularVelocity(), rb)
+			  bodyB->LinearVelocity() + glm::cross(bodyB->AngularVelocity(), rb)
 			- bodyA->LinearVelocity() - glm::cross(bodyA->AngularVelocity(), ra);
 
 
@@ -106,20 +113,21 @@ void PhysicsWorld::RotationResolution(PhysicsBody* bodyA, PhysicsBody* bodyB, Ma
 		float raCrossN = cross(ra, normal);
 		float rbCrossN = cross(rb, normal);
 
-		float invMassSum = bodyA->InvMass() + bodyB->InvMass()
-			+ (raCrossN * raCrossN) * bodyA->InvInertia()
-			+ (rbCrossN * rbCrossN) * bodyB->InvInertia();
+		float invMassSum = (bodyA->InvMass() + bodyB->InvMass()) +
+			((raCrossN * raCrossN) * bodyA->InvInertia()) +
+			((rbCrossN * rbCrossN) * bodyB->InvInertia());
 
 		cout << "inv mass sum:" << invMassSum << endl;
 		float j = -(1.0f + e) * velAlongNormal;
-		j /= (invMassSum * (float)contactPoints.size());
+		j /= invMassSum;
+		j /= (float)contactPoints.size();
 
 		vec2 impulse = normal * j;
 
 		bodyA->AddLinearVelocity(-impulse * bodyA->InvMass());
-		bodyB->AddLinearVelocity(impulse * bodyB->InvMass());
-		//bodyA->AddAngularVelocity(bodyA->InvInertia() * glm::cross(ra, -impulse));
-		//bodyB->AddAngularVelocity(bodyB->InvInertia() * glm::cross(rb, impulse));
+		bodyB->AddLinearVelocity( impulse * bodyB->InvMass());
+		bodyA->AddAngularVelocity(glm::cross(ra, -impulse) * bodyA->InvInertia());
+		bodyB->AddAngularVelocity(glm::cross(rb, impulse) * bodyB->InvInertia());
 
 	}
 }

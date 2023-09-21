@@ -47,7 +47,7 @@ void PhysicsBody::Step(float deltaTime){
 	linearVelocity += force / mass * deltaTime ;
 	force = vec2(0.0f);
 
-	*rotation += angularVelocity * deltaTime;
+	*rotation += angularVelocity * deltaTime;// *0.0174533f;
 }
 
 Collider* PhysicsBody::GetCollider(){
