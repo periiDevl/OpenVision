@@ -97,27 +97,33 @@ void PhysicsWorld::RotationResolution(PhysicsBody* bodyA, PhysicsBody* bodyB, Ma
 	vector<vec2> contactPoints = manifold.contactPoints;
 
 	float e = std::min(bodyA->restitution, bodyB->restitution);
-
+	
+	vector<vec2> raList = vector<vec2>();
+	vector<vec2> rbList = vector<vec2>();
+	vector<vec2> impulses = vector<vec2>();
 
 	for (size_t i = 0; i < contactPoints.size(); ++i) {
 		vec2 ra = contactPoints[i] - *bodyA->position;
+		raList.push_back(ra);
 		vec2 rb = contactPoints[i] - *bodyB->position;
+		rbList.push_back(rb);
+
 
 		vec2 raPerp = vec2(-ra.y, ra.x);
 		vec2 rbPerp = vec2(-rb.y, rb.x);
-		
+
 		vec2 angularLinearVelA = raPerp * bodyA->AngularVelocity();
 		vec2 angularLinearVelB = rbPerp * bodyB->AngularVelocity();
 
 		vec2 relativeVel =
-			  (bodyB->LinearVelocity() + angularLinearVelB)
+			(bodyB->LinearVelocity() + angularLinearVelB)
 			- (bodyA->LinearVelocity() + angularLinearVelA);
 
 
 		float velAlongNormal = dot(relativeVel, normal);
 
 		if (velAlongNormal > 0.0f)
-			return;
+			continue;
 
 		float raPerpDotN = dot(raPerp, normal);
 		float rbPerpDotN = dot(rbPerp, normal);
@@ -141,14 +147,18 @@ void PhysicsWorld::RotationResolution(PhysicsBody* bodyA, PhysicsBody* bodyB, Ma
 		j /= (float)contactPoints.size();
 
 		vec2 impulse = normal * j;
+		impulses.push_back(impulse);
 
-		//bodyA->AddAngularVelocity(glm::cross(ra, -impulse) * bodyA->InvInertia());
-		//bodyB->AddAngularVelocity(glm::cross(rb, impulse) * bodyB->InvInertia());
+	}
+	for (size_t i = 0; i < impulses.size(); i++)
+	{
+		vec2 impulse = impulses[i];
+		vec2 ra = raList[i];
+		vec2 rb = rbList[i];
+		bodyA->AddAngularVelocity(glm::cross(ra, -impulse) * bodyA->InvInertia());
+		bodyB->AddAngularVelocity(glm::cross(rb, impulse) * bodyB->InvInertia());
 
-		//j = -(1 + e) * glm::dot(relativeVel, manifold.normal) / (bodyA->InvMass() + bodyB->InvMass() + 0.0001f);
 		
-		//impulse = normal * j;
-
 		bodyA->AddLinearVelocity(-impulse * bodyA->InvMass());
 		bodyB->AddLinearVelocity( impulse * bodyB->InvMass());
 
