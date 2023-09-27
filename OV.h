@@ -5,7 +5,6 @@
 #include <iostream>
 #include <filesystem>
 #include<thread>
-#include "SFML/Audio.hpp"
 #include"Console.h"
 #include <iostream>
 #include <string>
@@ -129,7 +128,7 @@ public:
 	
 
 
-
+	/*
 	static void PlaySound(const std::string& filePath)
 	{
 		std::thread soundThread(playSoundThread, filePath);
@@ -141,7 +140,7 @@ public:
 		std::thread soundThread(playSoundThreadLooped, filePath);
 		soundThread.detach();
 	}
-
+	*/
 
 	glm::vec2 getImageAspectRatio(const char* filename) {
 		int width, height, channels;
@@ -158,6 +157,7 @@ public:
 		}
 	}
 private:
+	/*
 	static void playSoundThread(const std::string& filePath)
 	{
 		sf::SoundBuffer buffer;
@@ -194,6 +194,7 @@ private:
 		{
 		}
 	}
+	*/
 };
 
 #endif

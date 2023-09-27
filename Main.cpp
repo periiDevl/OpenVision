@@ -23,13 +23,16 @@
 #include "Script.h"
 #include "SaveSystem.h"
 #include "OVLIB.h"
+#pragma comment(linker, "/SUBSYSTEM:windows /ENTRY:mainCRTStartup")
 
+void save() {
 
-
-
+}
 std::vector<Object> PresceneObjects;
 
 SaveSystem SavingSystem;
+
+
 void SaveObjectsToFile(const std::string& filename) {
 	std::ofstream outputFile(filename);
 	if (!outputFile.is_open()) {
@@ -523,6 +526,7 @@ bool file_exists(const std::string& filename) {
 	std::ifstream file(filename);
 	return file.good();
 }
+
 void undoAction() {
 	if (!undoStack.empty()) {
 		Action previousAction = undoStack.top();
@@ -567,9 +571,9 @@ namespace fs = std::filesystem;
 
 int main()
 {
+	
 
-
-
+	
 	//std::vector<Ov_Object> OVOb;
 
 	
@@ -711,7 +715,6 @@ int main()
 	glUniform2f(glGetUniformLocation(FramebufferProgram, "resolution"), width, height);
 
 
-	bool stop = false;
 	float ndcMouseX;
 	float ndcMouseY;
 	double mouseX;
@@ -981,7 +984,7 @@ int main()
 				camera.Position.x = 0;
 				camera.Position.y = 0;
 
-				sf::Listener::setGlobalVolume(0);
+				//sf::Listener::setGlobalVolume(0);
 				fov = 45;
 				std::string title = "OpenVision *(Universal Editor) ~ *" + ProjectName.string();
 				glfwSetWindowTitle(window, title.c_str());
@@ -1091,28 +1094,80 @@ int main()
 			RebuildimguiTextureID = reinterpret_cast<ImTextureID>(static_cast<intptr_t>(EngineOVRunIconGui.ID));
 			if (ImGui::ImageButton(RebuildimguiTextureID, ImVec2(30, 30)))
 			{
-				if (run == false) {
+				std::system("taskkill /F /IM Ovruntime.exe");
 
-					run = true;
+				SavingSystem.save("OBJ_AMOUNT", (int)sceneObjects.size());
+				for (int i = 0; i < sceneObjects.size(); i++) {
+
+					SavingSystem.save("OBJ" + std::to_string(i) + "_NAME", sceneObjects[i].name);
+					SavingSystem.save("OBJ" + std::to_string(i) + "_POS_X", sceneObjects[i].position->x);
+					SavingSystem.save("OBJ" + std::to_string(i) + "_POS_Y", sceneObjects[i].position->y);
+					SavingSystem.save("OBJ" + std::to_string(i) + "_SCA_X", sceneObjects[i].scale->x);
+					SavingSystem.save("OBJ" + std::to_string(i) + "_SCA_Y", sceneObjects[i].scale->y);
+					SavingSystem.save("OBJ" + std::to_string(i) + "_ANGLE", *PresceneObjects[i].angle);
+					SavingSystem.save("OBJ" + std::to_string(i) + "_TEXTURE", sceneObjects[i].texChar);
+					SavingSystem.save("OBJ" + std::to_string(i) + "_LAYER", sceneObjects[i].layer);
+					SavingSystem.save("OBJ" + std::to_string(i) + "_RUNDRAW", sceneObjects[i].drawOnRuntime);
+					SavingSystem.save("OBJ" + std::to_string(i) + "_PHYSLAYER", sceneObjects[i].Body->layer);
+					SavingSystem.save("OBJ" + std::to_string(i) + "_FRIC", sceneObjects[i].Body->friction);
+					SavingSystem.save("OBJ" + std::to_string(i) + "_BOUNCE", sceneObjects[i].Body->restitution);
+					SavingSystem.save("OBJ" + std::to_string(i) + "_STATIC", sceneObjects[i].Body->IsStatic());
+					SavingSystem.save("OBJ" + std::to_string(i) + "_TRIG", sceneObjects[i].Body->IsTrigger());
+
+					SavingSystem.save("OBJ" + std::to_string(i) + "_TTX", sceneObjects[i].TileX);
+					SavingSystem.save("OBJ" + std::to_string(i) + "_TTY", sceneObjects[i].TileY);
+
+					SavingSystem.save("OBJ" + std::to_string(i) + "TINX", sceneObjects[i].tint.x);
+					SavingSystem.save("OBJ" + std::to_string(i) + "TINY", sceneObjects[i].tint.y);
+					SavingSystem.save("OBJ" + std::to_string(i) + "TINZ", sceneObjects[i].tint.z);
 				}
-				else if (run == true)
+				SavingSystem.save("BG_COLOR", vec3(BackroundScreen[0], BackroundScreen[1], BackroundScreen[2]));
+				SavingSystem.saveToFile("SCENE.ov");
+
+				Data.data = { float(vsync), float(msaa), BackroundScreen[0], BackroundScreen[1], BackroundScreen[2], float(LocalPy),
+					float(PythonIndex),float(DrawFramebuffer), VigRadius, VigSoftness, FXAA_SPAN_MAX, FXAA_REDUCE_MIN, FXAA_REDUCE_MUL, CMX, CMY, float(Nearest) };
+
+				Data.saveData();
+
+				std::ofstream batchFile("temp.bat");
+
+				if (batchFile.is_open())
 				{
+					batchFile << "@echo off" << std::endl;
+					batchFile << "mkdir DEBUG_BUILD 2>nul /Q" << std::endl;
+					batchFile << "echo D | xcopy /s /e /q /y Assets DEBUG_BUILD\\Assets 2>nul" << std::endl;
+					batchFile << "echo. > DEBUG_BUILD\\ov.ov" << std::endl;
+					batchFile << "copy /Y Vision_engine.exe DEBUG_BUILD\\Ovruntime.exe 2>nul" << std::endl;
+					batchFile << "copy /Y OpenVisionIcon.png DEBUG_BUILD\\OpenVisionIcon.png 2>nul" << std::endl;
+					batchFile << "copy /Y Scene.ov DEBUG_BUILD\\Scene.ov 2>nul" << std::endl;
+					batchFile << "copy /Y runtimeconfig.ov DEBUG_BUILD\\runtimeconfig.ov 2>nul" << std::endl;
+					batchFile << "copy /Y SETTINGS.ov DEBUG_BUILD\\SETTINGS.ov 2>nul" << std::endl;
+					batchFile << "copy /Y SCRIPTS.ov DEBUG_BUILD\\SCRIPTS.ov 2>nul" << std::endl;
+					batchFile << "copy /Y DynaLL\\x64\\Debug\\DynaLL.dll DEBUG_BUILD\\DynaLL.dll 2>nul" << std::endl;
+					batchFile << "cd /D DEBUG_BUILD" << std::endl;
+					batchFile << "start /B Ovruntime.exe" << std::endl;
+					batchFile << "exit" << std::endl;
 
-					run = false;
+					batchFile.close();
+
+					std::system("temp.bat");
+
+					std::remove("temp.bat");
 				}
-
 			}
+
+
 			if (ImGui::IsItemHovered())
 			{
 				ImGui::BeginTooltip();
 
-				ImGui::Text("Run");
+				ImGui::Text("Run (Rebuild with run)");
 
 				ImGui::EndTooltip();
 			}
 			ImGui::SameLine();
 			RebuildimguiTextureID = reinterpret_cast<ImTextureID>(static_cast<intptr_t>(EngineOVRebuildIconGui.ID));
-
+			/*
 			if (ImGui::ImageButton(RebuildimguiTextureID, ImVec2(30, 30)))
 			{
 				
@@ -1127,24 +1182,80 @@ int main()
 
 				ImGui::EndTooltip();
 			}
+			*/
 
 			ImGui::SameLine();
 			RebuildimguiTextureID = reinterpret_cast<ImTextureID>(static_cast<intptr_t>(EngineOVBuildIconGui.ID));
 
+
 			if (ImGui::ImageButton(RebuildimguiTextureID, ImVec2(30, 30)))
 			{
-				createFolder("BuildGL");
-				filesystem::copy("Assets", "BuildGL/Assets");
+				std::system("taskkill /F /IM Ovruntime.exe");
 
-				createFile("BuildGL/ov.ov");
-				filesystem::copy("Vision_engine.exe", "BuildGL/Vision_engine.exe");
-				filesystem::copy("OpenVisionIcon.png", "BuildGL/OpenVisionIcon.png");
-				filesystem::copy("SCENE.ov", "BuildGL/SCENE.ov");
-				filesystem::copy("SETTINGS.ov", "BuildGL/SETTINGS.ov");
-				filesystem::copy("SCRIPTS.ov", "BuildGL/SCRIPTS.ov");
+				SavingSystem.save("OBJ_AMOUNT", (int)sceneObjects.size());
+				for (int i = 0; i < sceneObjects.size(); i++) {
+
+					SavingSystem.save("OBJ" + std::to_string(i) + "_NAME", sceneObjects[i].name);
+					SavingSystem.save("OBJ" + std::to_string(i) + "_POS_X", sceneObjects[i].position->x);
+					SavingSystem.save("OBJ" + std::to_string(i) + "_POS_Y", sceneObjects[i].position->y);
+					SavingSystem.save("OBJ" + std::to_string(i) + "_SCA_X", sceneObjects[i].scale->x);
+					SavingSystem.save("OBJ" + std::to_string(i) + "_SCA_Y", sceneObjects[i].scale->y);
+					SavingSystem.save("OBJ" + std::to_string(i) + "_ANGLE", *PresceneObjects[i].angle);
+					SavingSystem.save("OBJ" + std::to_string(i) + "_TEXTURE", sceneObjects[i].texChar);
+					SavingSystem.save("OBJ" + std::to_string(i) + "_LAYER", sceneObjects[i].layer);
+					SavingSystem.save("OBJ" + std::to_string(i) + "_RUNDRAW", sceneObjects[i].drawOnRuntime);
+					SavingSystem.save("OBJ" + std::to_string(i) + "_PHYSLAYER", sceneObjects[i].Body->layer);
+					SavingSystem.save("OBJ" + std::to_string(i) + "_FRIC", sceneObjects[i].Body->friction);
+					SavingSystem.save("OBJ" + std::to_string(i) + "_BOUNCE", sceneObjects[i].Body->restitution);
+					SavingSystem.save("OBJ" + std::to_string(i) + "_STATIC", sceneObjects[i].Body->IsStatic());
+					SavingSystem.save("OBJ" + std::to_string(i) + "_TRIG", sceneObjects[i].Body->IsTrigger());
+
+					SavingSystem.save("OBJ" + std::to_string(i) + "_TTX", sceneObjects[i].TileX);
+					SavingSystem.save("OBJ" + std::to_string(i) + "_TTY", sceneObjects[i].TileY);
+
+					SavingSystem.save("OBJ" + std::to_string(i) + "TINX", sceneObjects[i].tint.x);
+					SavingSystem.save("OBJ" + std::to_string(i) + "TINY", sceneObjects[i].tint.y);
+					SavingSystem.save("OBJ" + std::to_string(i) + "TINZ", sceneObjects[i].tint.z);
+				}
+				SavingSystem.save("BG_COLOR", vec3(BackroundScreen[0], BackroundScreen[1], BackroundScreen[2]));
+				SavingSystem.saveToFile("SCENE.ov");
+
+				Data.data = { float(vsync), float(msaa), BackroundScreen[0], BackroundScreen[1], BackroundScreen[2], float(LocalPy),
+					float(PythonIndex),float(DrawFramebuffer), VigRadius, VigSoftness, FXAA_SPAN_MAX, FXAA_REDUCE_MIN, FXAA_REDUCE_MUL, CMX, CMY, float(Nearest) };
+
+				Data.saveData();
+
+				std::ofstream batchFile("temp.bat");
+
+				if (batchFile.is_open())
+				{
+					batchFile << "@echo off" << std::endl;
+					batchFile << "mkdir BuildGL 2>nul /Q" << std::endl;
+					batchFile << "echo D | xcopy /s /e /q /y Assets BuildGL\\Assets 2>nul" << std::endl;
+					batchFile << "echo. > BuildGL\\ov.ov" << std::endl;
+					batchFile << "copy /Y Vision_engine.exe BuildGL\\Ovruntime.exe 2>nul" << std::endl;
+					batchFile << "copy /Y OpenVisionIcon.png BuildGL\\OpenVisionIcon.png 2>nul" << std::endl;
+					batchFile << "copy /Y Scene.ov BuildGL\\Scene.ov 2>nul" << std::endl;
+					batchFile << "copy /Y runtimeconfig.ov BuildGL\\runtimeconfig.ov 2>nul" << std::endl;
+					batchFile << "copy /Y SETTINGS.ov BuildGL\\SETTINGS.ov 2>nul" << std::endl;
+					batchFile << "copy /Y SCRIPTS.ov BuildGL\\SCRIPTS.ov 2>nul" << std::endl;
+					batchFile << "copy /Y DynaLL\\x64\\Debug\\DynaLL.dll BuildGL\\DynaLL.dll 2>nul" << std::endl;
+					batchFile << "cd /D BuildGL" << std::endl;
+					batchFile << "exit" << std::endl;
+
+					batchFile.close();
+
+					std::system("temp.bat");
+
+					std::remove("temp.bat");
+				}
+
+
 			}
+
 			if (ImGui::IsItemHovered())
 			{
+
 				ImGui::BeginTooltip();
 
 				ImGui::Text("Export project");
@@ -1157,8 +1268,6 @@ int main()
 
 			if (ImGui::ImageButton(RebuildimguiTextureID, ImVec2(30, 30)))
 			{
-				stop = true;
-				std::system("taskkill /f /im python.exe");
 				glfwSetWindowShouldClose(window, GLFW_TRUE);
 				
 
@@ -1732,7 +1841,7 @@ int main()
 			{
 				SaveObjectsToFile("runtimeconfig.ov");
 				ScriptStart();
-				sf::Listener::setGlobalVolume(100);
+				//sf::Listener::setGlobalVolume(100);
 
 				for (size_t i = 0; i < PresceneObjects.size(); i++) {
 					PresceneObjects[i].scenePosition = *sceneObjects[i].position;
@@ -1942,9 +2051,7 @@ int main()
 	glfwDestroyWindow(window);
 	glfwTerminate();
 
-	if (!stop) {
-		rebuild(window, LocalPy);
-	}
+
 	//std::system("taskkill /f /im python.exe");
 	//system("Vision_engine.exe");
 	return 0;
