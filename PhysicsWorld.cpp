@@ -50,7 +50,7 @@ void PhysicsWorld::Step(float deltaTime)
 
 				Manifold manifold;
 
-				if (CheckCollision(*bodies[i]->GetCollider(), *bodies[l]->GetCollider(), manifold)) {
+				if (CollisionManager::CheckCollision(*bodies[i]->GetCollider(), *bodies[l]->GetCollider(), manifold)) {
 					if (nearEqual(manifold.mtv, vec2(0))) {
 						continue;
 					}
@@ -64,10 +64,10 @@ void PhysicsWorld::Step(float deltaTime)
 
 					PolygonCollider& polyA = dynamic_cast<PolygonCollider&>(*bodyA->GetCollider());
 					PolygonCollider& polyB = dynamic_cast<PolygonCollider&>(*bodyB->GetCollider());
-					GetContactPointsPolyVPoly(polyA, polyB, manifold);
+					CollisionManager::GetContactPointsPolyVPoly(polyA, polyB, manifold);
 					vector<vec2> contactPoints = manifold.contactPoints;
 
-					RotationResolution(bodyA, bodyB, manifold);
+					SimpleResolution(bodyA, bodyB, manifold);
 				}
 			}	
 		}
@@ -205,7 +205,7 @@ bool PhysicsWorld::TouchingLayer(PhysicsBody* body, int layer) {
 	Manifold manifold;
 	for (size_t l = 0; l < layeredBodies[layer].size(); l++) {
 
-		if (CheckCollision(*layeredBodies[layer][l]->GetCollider(), *body->GetCollider(), manifold)) {
+		if (CollisionManager::CheckCollision(*layeredBodies[layer][l]->GetCollider(), *body->GetCollider(), manifold)) {
 			return true;
 		}
 	}

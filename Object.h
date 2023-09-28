@@ -51,6 +51,7 @@ public:
 
 	Object(std::vector <Vertex>& vertices, std::vector <GLuint>& indices);
 	void Draw(GLFWwindow* window, GLuint shader, Camera& camera, glm::vec3 axis, float cameraX, float cameraY, bool TextureNearest);
+	vector<vec2> GetVertices(Camera& camera, glm::vec3 axis, float cameraX, float cameraY);
 	void Draw(GLFWwindow* window, GLuint shader, Camera& camera,glm::vec3 axis, bool TextureNearest);
 	void DrawTMP(GLFWwindow* window, GLuint shader, Camera& camera, glm::vec2 pos, glm::vec2 scale);
 	void DrawCustomVertices(GLFWwindow* window, GLuint shader, Camera& camera, const std::vector<glm::vec3>& vertices);

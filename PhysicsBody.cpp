@@ -112,6 +112,9 @@ float PhysicsBody::AddAngularVelocity(const float addedValue)
 
 float PhysicsBody::Mass()
 {
+	if (isStatic)
+		return 0;
+
 	return mass;
 }
 float PhysicsBody::Mass(const float value)
@@ -139,6 +142,33 @@ float PhysicsBody::Inertia()
 		return 0;
 	}
 	return inertia;
+
+	int a = 0;
+	int b = 2;
+	if (a > b) 
+	{
+		if (a - 1 > b) 
+		{
+			// תעשה 1
+		}
+		else 
+		{
+			// תעשה 2
+		}
+	}
+	else 
+	{
+		if (a +1 < b) 
+		{
+			// תעשה 3
+		}
+		else {
+			// תעשה 4
+		}
+	}
+
+
+
 }
 float PhysicsBody::Inertia(const float value)
 {

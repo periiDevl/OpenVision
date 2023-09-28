@@ -311,6 +311,26 @@ void createFolder(string folderName) {
 }
 
 Script script;
+
+/// <summary>
+/// Checks if the mouse touches the object in any way using the SAT Algorithm for collision-detection
+/// </summary>
+/// <param name="obj">The object who is checked</param>
+/// <param name="camera">Camera</param>
+/// <param name="axis">Draw Axis</param>
+/// <param name="cmx"></param>
+/// <param name="cmy"></param>
+/// <param name="mx">The x position of the mouse</param>
+/// <param name="my">The y position of the mouse</param>
+/// <returns>A boolean which value's is equal to their collision state</returns>
+bool MouseOverObject(Object obj, Camera& camera, glm::vec3 axis, float cmx, float cmy, float mx, float my) {
+	// Using SAT to check if the mouse is over the object "a"
+	vector<vec2> vertices = obj.GetVertices(camera, axis, cmx, cmy);
+
+	return CollisionManager::PolyVPoint(vertices, vec2(mx, my));
+}
+
+int main();
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 
 
@@ -1715,12 +1735,8 @@ int main()
 						beforeMouseYCam = ndcMouseY;
 						hoveredObject = selectedObject;
 						for (int i = 0; i < PresceneObjects.size(); i++) {
-							if (
-								(PresceneObjects[i].position->x + CMX - abs(PresceneObjects[i].scale->x) / 2) - camera.Position.x < ndcMouseX &&
-								(PresceneObjects[i].position->x + CMX + abs(PresceneObjects[i].scale->x) / 2) + camera.Position.x > ndcMouseX &&
-								(PresceneObjects[i].position->y + CMY + abs(PresceneObjects[i].scale->y) / 2) - camera.Position.y > ndcMouseY &&
-								(PresceneObjects[i].position->y + CMY - abs(PresceneObjects[i].scale->y) / 2) + camera.Position.y < ndcMouseY && !mouseOverUI)
-
+							if (MouseOverObject(PresceneObjects[i], camera, glm::vec3(0, 0, 1), CMX, CMY, ndcMouseX, ndcMouseY) && !mouseOverUI)
+								
 							{
 								hoveredObject = i;
 								if (i != selectedObject) {

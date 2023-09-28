@@ -45,7 +45,7 @@ vec2 GetClosestPointOnEdge(const vec2& p, float& distSquared, const vec2& vA, co
     return closestPoint;
 }
 
-bool BoundingAABB(Collider& colA, Collider& colB, vec2& mtv)
+bool CollisionManager::BoundingAABB(Collider& colA, Collider& colB, vec2& mtv)
 {
     colA.CalculateAABB();
     colB.CalculateAABB();
@@ -81,7 +81,7 @@ bool BoundingAABB(Collider& colA, Collider& colB, vec2& mtv)
 
     return true;
 }
-bool BoundingAABB(Collider& colA,Collider& colB)
+bool CollisionManager::BoundingAABB(Collider& colA,Collider& colB)
 {
     colA.CalculateAABB();
     colB.CalculateAABB();
@@ -100,7 +100,7 @@ bool BoundingAABB(Collider& colA,Collider& colB)
 
     return true;
 }
-bool BoundingCircle(Collider& colA, Collider& colB, vec2& mtv) {
+bool CollisionManager::BoundingCircle(Collider& colA, Collider& colB, vec2& mtv) {
     if (glm::distance(*colA.Position, *colB.Position) <= colA.bRadius + colB.bRadius) {
         mtv = glm::normalize(*colA.Position - *colB.Position) * (colA.bRadius + colB.bRadius - glm::distance(*colA.Position, *colB.Position));
         return true;
@@ -109,7 +109,7 @@ bool BoundingCircle(Collider& colA, Collider& colB, vec2& mtv) {
     return false;
 }
 
-bool CheckCollision(Collider& colA, Collider& colB, Manifold& manifold)
+bool CollisionManager::CheckCollision(Collider& colA, Collider& colB, Manifold& manifold)
 {
     if (BoundingAABB(colA, colB)) {
         if ((colA.type == ColliderType::Polygon || colA.type == ColliderType::Box) && (colB.type == ColliderType::Polygon || colB.type == ColliderType::Box)) {
@@ -144,7 +144,7 @@ bool CheckCollision(Collider& colA, Collider& colB, Manifold& manifold)
     return false;
 }
 
-int FindClosestPointOnPoly(vec2 point, vector<vec2> vertices)
+int CollisionManager::FindClosestPointOnPoly(vec2 point, vector<vec2> vertices)
 {
     int result = -1;
     float minDistance = INFINITY;
@@ -161,7 +161,7 @@ int FindClosestPointOnPoly(vec2 point, vector<vec2> vertices)
 
     return result;
 }
-void ProjectCircle(vec2 position, float radius, vec2 axis, float& min, float& max) {
+void CollisionManager::ProjectCircle(vec2 position, float radius, vec2 axis, float& min, float& max) {
     vec2 dir = normalize(axis);
     vec2 dirAndRadius = dir * radius;
 
@@ -175,7 +175,7 @@ void ProjectCircle(vec2 position, float radius, vec2 axis, float& min, float& ma
         std::swap(min, max);
     }
 }
-void ProjectVertices(vector<vec2> vertices, vec2 axis, float& min, float& max) {
+void CollisionManager::ProjectVertices(vector<vec2> vertices, vec2 axis, float& min, float& max) {
     min = FLT_MAX;
     max = FLT_MIN;
 
@@ -191,7 +191,25 @@ void ProjectVertices(vector<vec2> vertices, vec2 axis, float& min, float& max) {
     }
 
 }
-bool PolyVPoly(PolygonCollider& colA, PolygonCollider& colB, Manifold& manifold) {
+bool CollisionManager::PolyVPoint(vector<vec2> vertices, vec2 point) {
+
+    for (size_t i = 0; i < vertices.size(); i++) {
+        size_t nextIndex = (i + 1) % vertices.size();
+        vec2 edge = vertices[nextIndex] - vertices[i];
+        vec2 axis = glm::normalize(vec2(-edge.y, edge.x));
+
+        float minA, maxA;
+        ProjectVertices(vertices, axis, minA, maxA);
+        float projB = dot(point, axis);
+
+
+        if (maxA < projB || projB < minA) {
+            return false;
+        }
+    }
+    return true;
+}
+bool CollisionManager::PolyVPoly(PolygonCollider& colA, PolygonCollider& colB, Manifold& manifold) {
     vec2 normal = vec2(0.0f);
     float depth = INFINITY;
     vector<vec2> verticesA = colA.GetTransformedVertices();
@@ -217,7 +235,7 @@ bool PolyVPoly(PolygonCollider& colA, PolygonCollider& colB, Manifold& manifold)
             }
         }
     }
-    
+
     for (size_t i = 0; i < verticesB.size(); i++) {
         size_t nextIndex = (i + 1) % verticesB.size();
         vec2 edge = verticesB[nextIndex] - verticesB[i];
@@ -238,20 +256,20 @@ bool PolyVPoly(PolygonCollider& colA, PolygonCollider& colB, Manifold& manifold)
             }
         }
     }
-    
-    if (glm::dot(normal, *colA.Position- *colB.Position) > 0) {
+
+    if (glm::dot(normal, *colA.Position - *colB.Position) > 0) {
         normal = -normal;
     }
 
     manifold.normal = normal;
     manifold.depth = depth;
     manifold.mtv = normal * depth;
-    
+
     return true;
 }
 
 
-bool PolyVCircle(PolygonCollider& colA, CircleCollider& colB, Manifold& manifold) {
+bool CollisionManager::PolyVCircle(PolygonCollider& colA, CircleCollider& colB, Manifold& manifold) {
     vec2 normal;
     float depth = INFINITY;
     
@@ -316,11 +334,11 @@ bool PolyVCircle(PolygonCollider& colA, CircleCollider& colB, Manifold& manifold
 
 }
 
-bool CircleVCircle(CircleCollider& colA, CircleCollider& colB, Manifold& manifold) {
+bool CollisionManager::CircleVCircle(CircleCollider& colA, CircleCollider& colB, Manifold& manifold) {
     return glm::distance(*colA.Position, *colB.Position) <= colA.radius + colB.radius;
 }
 
-void GetContactPointsPolyVPoly(PolygonCollider& colA, PolygonCollider& colB, Manifold& manifold)
+void CollisionManager::GetContactPointsPolyVPoly(PolygonCollider& colA, PolygonCollider& colB, Manifold& manifold)
 {
     vec2 contact1 = vec2(0);
     vec2 contact2 = vec2(0);
