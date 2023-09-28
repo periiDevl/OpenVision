@@ -1757,10 +1757,7 @@ int main()
 
 						for (int i = 0; i < PresceneObjects.size(); i++) {
 							if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS && onpopupmenu == false &&
-								(PresceneObjects[i].position->x + CMX - abs(PresceneObjects[i].scale->x) / 2) - camera.Position.x < ndcMouseX &&
-								(PresceneObjects[i].position->x + CMX + abs(PresceneObjects[i].scale->x) / 2) + camera.Position.x > ndcMouseX &&
-								(PresceneObjects[i].position->y + CMY + abs(PresceneObjects[i].scale->y) / 2) - camera.Position.y > ndcMouseY &&
-								(PresceneObjects[i].position->y + CMY - abs(PresceneObjects[i].scale->y) / 2) + camera.Position.y < ndcMouseY && !mouseOverUI)
+								MouseOverObject(PresceneObjects[i], camera, glm::vec3(0, 0, 1), CMX, CMY, ndcMouseX, ndcMouseY) && !mouseOverUI)
 
 							{
 								if (PresceneObjects[i].layer > maxZIndex) {
@@ -1805,9 +1802,7 @@ int main()
 						PresceneObjects[selectedObject].Draw(window, unlitProgram, camera, glm::vec3(0, 0, 1), CMX, CMY, Nearest);
 						glUniform4f(glGetUniformLocation(unlitProgram, "color"), 1.00, 0.42, 0.24, 1);
 						glLineWidth(1.5f);
-						PresceneObjects[selectedObject].DrawTMP(window, unlitProgram, camera,
-							glm::vec2(PresceneObjects[selectedObject].position->x + CMX, PresceneObjects[selectedObject].position->y + CMY),
-							glm::vec2(PresceneObjects[selectedObject].scale->x, PresceneObjects[selectedObject].scale->y));
+						
 						glLineWidth(0.0f);
 						glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
