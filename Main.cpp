@@ -869,6 +869,7 @@ int main()
 
 	const float fixed_timestep = 1.0f / 60.0;
 	DefaultTheme();
+	ImVec2 originalItemSpacing = ImGui::GetStyle().ItemSpacing;
 	glEnable(GL_MULTISAMPLE);
 
 	sceneObjects = PresceneObjects;
@@ -995,6 +996,8 @@ int main()
 #pragma region Pre-Runtime
 
 		if (!run) {
+			style.ItemSpacing.x = originalItemSpacing.x;
+			style.ItemSpacing.y = originalItemSpacing.y;
 			if (!StartPhase) {
 				if (!firsttime) {
 					script.Exit();
@@ -1091,7 +1094,7 @@ int main()
 			ImGui::EndMainMenuBar();
 
 			ImGui::End();
-			ImGui::Begin("Execute", 0, (no_resize ? ImGuiWindowFlags_NoResize : 0) | (no_move ? ImGuiWindowFlags_NoMove : 0));
+			ImGui::Begin("Execute", 0, (no_resize ? ImGuiWindowFlags_NoResize : 0) | (no_move ? ImGuiWindowFlags_NoMove : 0) | ImGuiWindowFlags_NoTitleBar);
 			if (ImGui::IsWindowHovered())
 			{
 				mouseOverUI = true;
@@ -1322,7 +1325,7 @@ int main()
 			}
 
 			ImGui::End();
-			ImGui::Begin("Sources", 0, (no_resize ? ImGuiWindowFlags_NoResize : 0) | (no_move ? ImGuiWindowFlags_NoMove : 0));
+			ImGui::Begin("Sources", 0, (no_resize ? ImGuiWindowFlags_NoResize : 0) | (no_move ? ImGuiWindowFlags_NoMove : 0) | ImGuiWindowFlags_NoTitleBar);
 			if (ImGui::IsWindowHovered())
 			{
 				mouseOverUI = true;
@@ -1441,7 +1444,7 @@ int main()
 			static char scriptName[128] = "";
 
 			ImGui::End();
-			ImGui::Begin("Scripts", 0, (no_resize ? ImGuiWindowFlags_NoResize : 0) | (no_move ? ImGuiWindowFlags_NoMove : 0));
+			ImGui::Begin("Scripts", 0, (no_resize ? ImGuiWindowFlags_NoResize : 0) | (no_move ? ImGuiWindowFlags_NoMove : 0) | ImGuiWindowFlags_NoTitleBar);
 
 			ImGui::InputText("Script Name", scriptName, IM_ARRAYSIZE(scriptName));
 
@@ -1517,7 +1520,7 @@ int main()
 			ImGui::End();
 
 			ImGui::End();
-			ImGui::Begin("Scripts Select", 0, (no_resize ? ImGuiWindowFlags_NoResize : 0) | (no_move ? ImGuiWindowFlags_NoMove : 0));
+			ImGui::Begin("Scripts Select", 0, (no_resize ? ImGuiWindowFlags_NoResize : 0) | (no_move ? ImGuiWindowFlags_NoMove : 0) | ImGuiWindowFlags_NoTitleBar);
 			if (ImGui::IsWindowHovered())
 			{
 				mouseOverUI = true;
@@ -1583,7 +1586,7 @@ int main()
 
 			ImGui::End();
 			ImGui::End();
-			ImGui::Begin("Window Control", 0, (no_resize ? ImGuiWindowFlags_NoResize : 0) | (no_move ? ImGuiWindowFlags_NoMove : 0));
+			ImGui::Begin("Window Control", 0, (no_resize ? ImGuiWindowFlags_NoResize : 0) | (no_move ? ImGuiWindowFlags_NoMove : 0) | ImGuiWindowFlags_NoTitleBar);
 
 			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 0.0f, 0.0f, 1.0f));
 			ImGui::Text("Values here will not be saved.");
@@ -1598,7 +1601,7 @@ int main()
 			ImGui::End();
 
 			ImGui::End();
-			ImGui::Begin("Object Inspector", 0, (no_resize ? ImGuiWindowFlags_NoResize : 0) | (no_move ? ImGuiWindowFlags_NoMove : 0));
+			ImGui::Begin("Object Inspector", 0, (no_resize ? ImGuiWindowFlags_NoResize : 0) | (no_move ? ImGuiWindowFlags_NoMove : 0) | ImGuiWindowFlags_NoTitleBar);
 
 			if (ImGui::IsWindowHovered())
 			{
@@ -1641,7 +1644,7 @@ int main()
 							ImGui::SetNextItemOpen(true);
 						}
 
-						ImGui::Separator();
+						//ImGui::Separator();
 
 						ImTextureID imguiTextureID = reinterpret_cast<ImTextureID>(static_cast<intptr_t>(EngineOVObjectIconGui.ID));
 						if (PresceneObjects[i].name != "MainCameraOvSTD") {
@@ -1655,8 +1658,9 @@ int main()
 
 						style.ButtonTextAlign = ImVec2(0.5f, 0.5f);
 						style.FramePadding = ImVec2(1.0f, 1.0f);
+						style.ItemSpacing.x = 4.0f;
 
-						ImVec2 imageSize(28, 28);
+						ImVec2 imageSize(32, 32);
 						if (ImGui::ImageButton(imguiTextureID, imageSize))
 						{
 						}
@@ -1679,25 +1683,33 @@ int main()
 						ImGui::SameLine();
 
 
+						
+						ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(1.0f, 0.0f));
 
+						style.FramePadding.y = 11.0f;
+						style.ItemSpacing.y = 0.0f;
+						ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 0.0f);
+						ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 0.0f);
 
-						style.FramePadding.y = 8.0f;
 
 						if (ImGui::CollapsingHeader(PresceneObjects[i].name.c_str()))
 						{
 							style.FramePadding.y = originalButtonPadding;
 							ObjectUI(window, i);
 						}
+						
 						style.FramePadding.y = originalButtonPadding;
 
 
 
-						ImGui::Separator();
+						//ImGui::Separator();
 
 						if (!onpopupmenu) {
 							glfwGetCursorPos(window, &mouseX, &mouseY);
 						}
-
+						ImGui::PopStyleVar();
+						ImGui::PopStyleVar();
+						//ImGui::PopStyleVar();
 #pragma endregion UI
 
 
