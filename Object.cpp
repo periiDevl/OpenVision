@@ -40,6 +40,8 @@ void Object::Draw(GLFWwindow* window, GLuint shader, Camera& camera, glm::vec3 a
     glUniform1f(glGetUniformLocation(shader, "tileX"), TileX);
     glUniform1f(glGetUniformLocation(shader, "tileY"), TileY);
 
+    
+
     unsigned int numDiffuse = 0;
     glm::mat4 model = glm::mat4(1.0f);
     model = glm::translate(model, glm::vec3(position->x, position->y, layer / 100.0));
@@ -54,7 +56,19 @@ void Object::Draw(GLFWwindow* window, GLuint shader, Camera& camera, glm::vec3 a
     //Used
     glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
 }
+glm::vec2 calculateAspectRatio(float scale1, float scale2) {
+    // Ensure that both scale1 and scale2 are positive values
+    if (scale1 <= 0 || scale2 <= 0) {
+        return glm::vec2(1.0f, 1.0f); // Default to a square aspect ratio
+    }
 
+    // Calculate the aspect ratio while maintaining proportions
+    float aspectX = scale1 / scale2;
+    float aspectY = scale2 / scale1;
+
+    // Create and return the glm::vec2 with the aspect ratio
+    return glm::vec2(aspectX, aspectY);
+}
 void Object::Draw(GLFWwindow* window, GLuint shader, Camera& camera, glm::vec3 axis, float cameraX, float cameraY, bool TextureNearest)
 {
     shader = shader;
@@ -72,6 +86,7 @@ void Object::Draw(GLFWwindow* window, GLuint shader, Camera& camera, glm::vec3 a
 
     glUniform1f(glGetUniformLocation(shader, "tileX"), TileX);
     glUniform1f(glGetUniformLocation(shader, "tileY"), TileY);
+
 
     unsigned int numDiffuse = 0;
     glm::mat4 model = glm::mat4(1.0f);

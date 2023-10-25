@@ -58,43 +58,51 @@ void main()
 }
 )";
 
-const char* fragmentShaderSource =
-R"(
+const char* fragmentShaderSource = R"(
 #version 330 core
 out vec4 FragColor;
-in vec3 crntPos;
 in vec2 texCoord;
 uniform sampler2D diffuse0;
 uniform float tileX = 2.0f;
 uniform float tileY = 2.0f;
 vec4 lightColor = vec4(1, 1, 1, 1);
-
 uniform vec4 tint;
 
-vec4 ambientLight()
+vec4 roundedRectangle(vec2 p, vec2 size, float radius)
 {
-    vec2 tiledTexCoord = fract(texCoord * vec2(tileX, tileY));
-    vec4 texColor = texture(diffuse0, tiledTexCoord);
+    vec2 halfSize = size * 0.5;
+    vec2 position = abs(p - halfSize) - halfSize + vec2(radius);
+    float length = length(max(position, 0.0)) - radius;
+    float inside = length < 0.0 ? 1.0 : 0.0;
 
+    // Adjust alpha to make the corners transparent
+    float alpha = inside == 1.0 ? 1.0 : 0.0;
 
-    float ambient = 1.0f;
-    vec4 bgColor = vec4(0.0);
-    float borderThreshold = 0.001;
-
-    float distanceToBorder = min(min(tiledTexCoord.x, 1.0 - tiledTexCoord.x), min(tiledTexCoord.y, 1.0 - tiledTexCoord.y));
-
-    if (distanceToBorder < borderThreshold)
-        discard;
-    if (texColor.a < 0.5)
-        discard;
-
-    return mix(bgColor, texColor, texColor.a) * ambient * lightColor;
+    return vec4(inside, inside, inside, alpha);
 }
 
 void main()
 {
-    FragColor = ambientLight() * tint;
-})";
+    vec2 tiledTexCoord = fract(texCoord * vec2(tileX, tileY));
+    vec4 texColor = texture(diffuse0, tiledTexCoord);
+
+    float ambient = 1.0f;
+    vec4 bgColor = vec4(0.0);
+
+    vec2 roundedRectSize = vec2(1.0, 1.0); // Adjust the size of the rounded rectangle
+    float cornerRadius = 0.1; // Adjust the corner radius
+
+    vec4 mask = roundedRectangle(tiledTexCoord, roundedRectSize, cornerRadius);
+
+    if (mask.a < 0.5) {
+        discard; // Discard fragments outside the rounded rectangle
+    }
+    if (texColor.a < 0.5)
+        discard;
+    FragColor = mix(bgColor, texColor, texColor.a) * ambient * lightColor * tint * mask;
+}
+)";
+
 
 const char* UnlitFragment =
 R"(

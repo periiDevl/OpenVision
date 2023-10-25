@@ -25,13 +25,22 @@
 #include "OVLIB.h"
 #pragma comment(linker, "/SUBSYSTEM:windows /ENTRY:mainCRTStartup")
 
-void save() {
 
-}
 std::vector<Object> PresceneObjects;
 
 SaveSystem SavingSystem;
+glm::vec4 LineDraw(glm::vec2 A, glm::vec2 B)
+{
+	// Calculate the scaling factors for both x and y directions
+	float xScale = glm::distance(A, B);
+	float yScale = 1.0f; // Assuming no scaling in the y-direction
 
+	// Calculate the position of the line's starting point (point A) after scaling
+	glm::vec2 direction = glm::normalize(B - A);
+	glm::vec2 startPos = A - direction * xScale;
+
+	return glm::vec4(startPos.x, startPos.y, xScale, yScale);
+}
 
 void SaveObjectsToFile(const std::string& filename) {
 	std::ofstream outputFile(filename);
@@ -1714,6 +1723,9 @@ int main()
 
 
 #pragma region Mouse-Detection
+						
+
+						
 						/*
 						if (!mouseOverUI)
 						{
@@ -1820,6 +1832,8 @@ int main()
 
 						PresceneObjects[i].Draw(window, shaderProgram, camera, glm::vec3(0, 0, 1), CMX, CMY, Nearest);
 
+
+
 					}
 				}
 			}
@@ -1839,6 +1853,9 @@ int main()
 		Object RuntimeCam = *OV::SearchObjectByName("MainCameraOvSTD", PresceneObjects);
 
 		blackbox.tex = nulltex;
+		glm::vec4 pos = LineDraw(glm::vec2(0), glm::vec2(-2));
+		blackbox.DrawTMP(window, shaderProgram, camera, glm::vec2(pos.x, 0), glm::vec2(pos.y, 3));
+
 		blackbox.layer = 100;
 		float offsetX = 5;
 		float offsetY = 7;
@@ -1847,8 +1864,10 @@ int main()
 
 		blackbox.DrawTMP(window, shaderProgram, camera, glm::vec2((61.7 / 1.445 / 1.5) + RuntimeCam.position->x + offsetX, RuntimeCam.position->y + offsetY), glm::vec2(0.5, 33.8));
 		blackbox.DrawTMP(window, shaderProgram, camera, glm::vec2((-61.7 / 1.445 / 1.5) + RuntimeCam.position->x + offsetX, RuntimeCam.position->y + offsetY), glm::vec2(0.5, 33.8));
-
+		
 		blackbox.tex = EngineCuserIconGui;
+
+		
 		/*
 		if (!mouseOverUI) {
 			blackbox.DrawTMP(window, shaderProgram, camera, glm::vec2(ndcMouseX, ndcMouseY), glm::vec2(2.5, 2.5));
