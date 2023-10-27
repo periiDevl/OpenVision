@@ -28,7 +28,7 @@ public:
 	float sceneAngle = 0;
 	int layer = 0;
 	glm::vec4 tint = glm::vec4(1);
-
+	float cornerRadius = 0.001f;
 	float TileX = 1.0f, TileY = 1.0f;
 	std::vector <Vertex> vertices;
 	std::vector <GLuint> indices;

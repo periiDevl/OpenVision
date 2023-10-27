@@ -29,18 +29,7 @@
 std::vector<Object> PresceneObjects;
 
 SaveSystem SavingSystem;
-glm::vec4 LineDraw(glm::vec2 A, glm::vec2 B)
-{
-	// Calculate the scaling factors for both x and y directions
-	float xScale = glm::distance(A, B);
-	float yScale = 1.0f; // Assuming no scaling in the y-direction
-
-	// Calculate the position of the line's starting point (point A) after scaling
-	glm::vec2 direction = glm::normalize(B - A);
-	glm::vec2 startPos = A - direction * xScale;
-
-	return glm::vec4(startPos.x, startPos.y, xScale, yScale);
-}
+bool ScaleXBool = true;
 
 void SaveObjectsToFile(const std::string& filename) {
 	std::ofstream outputFile(filename);
@@ -254,6 +243,35 @@ bool InputFloatWithEndFocus(const char* label, float* value, float step = 0.0f, 
 
 	return valueChanged;
 }
+bool InputFloatSliderWithEndFocus(const char* label, float* value, float min = 0.0f, float max = 0.0f, ImGuiInputTextFlags flags = 0)
+{
+	std::ostringstream formatStream;
+	formatStream << "%" << min << "f";
+	std::string formatString = formatStream.str();
+
+	bool valueChanged = ImGui::SliderFloat(label, value, min, max, formatString.c_str(), flags);
+	bool isItemActive = ImGui::IsItemActive();
+
+	bool& isFocused = focusStates[std::string(label)];  // Retrieve or create the focus state for this label
+
+	if (isItemActive)
+	{
+		if (!isFocused)
+		{
+			// Store the previous value only if focus was acquired for the first time
+			isFocused = true;
+			previousValuesF[std::string(label)] = *value;
+		}
+	}
+	else if (isFocused && previousValuesF[std::string(label)] != *value)
+	{
+		ModifyGuiFloat action(previousValuesF[std::string(label)], value);
+		isFocused = false;
+		undoStack.push(action);
+	}
+
+	return valueChanged;
+}
 
 void ObjectCreator(GLFWwindow* window, Object obj) {
 	static bool hasExecuted = false;
@@ -346,9 +364,9 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 double scroll_offset = 45.0;
 
 int PythonIndex = 0;
-
-
-
+bool scaling = false;
+float initialMouseX = 0.0f; // Initialize initialMouseX outside of your event loop
+float initialScaleX = 1.0f;
 void ObjectUI(GLFWwindow* window, int i)
 {
 	if (PresceneObjects[i].name != "MainCameraOvSTD") {
@@ -446,6 +464,15 @@ void ObjectUI(GLFWwindow* window, int i)
 	
 		ImGui::TreePop();
 	
+	}
+
+	if (ImGui::TreeNodeEx(("Rigidbody Properties ##" + std::to_string(i)).c_str(), ImGuiTreeNodeFlags_DefaultOpen)) {
+
+		InputFloatSliderWithEndFocus(("cornerRadius ##" + std::to_string(i)).c_str(), &PresceneObjects[i].cornerRadius, 0.01, 0.5);
+
+
+		ImGui::TreePop();
+
 	}
 
 
@@ -791,7 +818,7 @@ int main()
 
 	int amount = SavingSystem.getInt("OBJ_AMOUNT", 3);
 	for (int i = 0; i < amount; i++) {
-		float posx, posy, scalex, scaley, angle, layer, restitution, friction, velX, velY, tilex, tiley;
+		float posx, posy, scalex, scaley, angle, layer, restitution, friction, velX, velY, tilex, tiley, cornerRadius;
 		bool runtimeDraw, isStatic, isTrigger;
 		glm::vec4 tint;
 		int phys_layer = 0;
@@ -819,6 +846,7 @@ int main()
 		tint.x = SavingSystem.getFloat("OBJ" + std::to_string(i) + "TINX", 0.0f);
 		tint.y = SavingSystem.getFloat("OBJ" + std::to_string(i) + "TINY", 0.0f);
 		tint.z = SavingSystem.getFloat("OBJ" + std::to_string(i) + "TINZ", 0.0f);
+		cornerRadius = SavingSystem.getFloat("OBJ" + std::to_string(i) + "CR", 0.0f);
 
 		Object obj = Object(verts, ind);
 		obj.name = name;
@@ -845,12 +873,16 @@ int main()
 		obj.TileX = tilex;
 		obj.TileY = tiley;
 		obj.tint = glm::vec4(tint.x, tint.y, tint.z, 1);
+		obj.cornerRadius = cornerRadius;
 
 		obj.tex = Texture((texture).c_str());
 		PresceneObjects.push_back(obj);
 	}
 
 	Object blackbox = Object(verts, ind);
+
+	Object scaleleft = Object(verts, ind);
+	Object scaleup = Object(verts, ind);
 	//Engine Assets
 
 	Texture EngineOVObjectIconGui("EngineAssets/ObjectIcon.png");
@@ -862,6 +894,8 @@ int main()
 	Texture EngineOVBuildIconGui("EngineAssets/OvBuildIcon.png");
 	Texture EngineOVMMSIconGui("EngineAssets/mmsicon.png");
 	Texture EngineCuserIconGui("EngineAssets/Curser.png");
+
+	Texture EngineWhiteIconGui("EngineAssets/white.png");
 
 	double prevTime = 0.0;
 	double crntTime = 0.0;
@@ -931,6 +965,10 @@ int main()
 	ImGuiStyle& style = ImGui::GetStyle();
 	float originalButtonPadding = style.FramePadding.y;
 	std::vector<Ov_Object> o;
+
+
+
+
 	while (!glfwWindowShouldClose(window))
 	{
 
@@ -1152,6 +1190,7 @@ int main()
 					SavingSystem.save("OBJ" + std::to_string(i) + "TINX", sceneObjects[i].tint.x);
 					SavingSystem.save("OBJ" + std::to_string(i) + "TINY", sceneObjects[i].tint.y);
 					SavingSystem.save("OBJ" + std::to_string(i) + "TINZ", sceneObjects[i].tint.z);
+					SavingSystem.save("OBJ" + std::to_string(i) + "CR", sceneObjects[i].cornerRadius);
 				}
 				SavingSystem.save("BG_COLOR", vec3(BackroundScreen[0], BackroundScreen[1], BackroundScreen[2]));
 				SavingSystem.saveToFile("SCENE.ov");
@@ -1248,6 +1287,8 @@ int main()
 					SavingSystem.save("OBJ" + std::to_string(i) + "TINX", sceneObjects[i].tint.x);
 					SavingSystem.save("OBJ" + std::to_string(i) + "TINY", sceneObjects[i].tint.y);
 					SavingSystem.save("OBJ" + std::to_string(i) + "TINZ", sceneObjects[i].tint.z);
+					SavingSystem.save("OBJ" + std::to_string(i) + "CR", sceneObjects[i].cornerRadius);
+
 				}
 				SavingSystem.save("BG_COLOR", vec3(BackroundScreen[0], BackroundScreen[1], BackroundScreen[2]));
 				SavingSystem.saveToFile("SCENE.ov");
@@ -1326,8 +1367,15 @@ int main()
 				mouseOverUI = true;
 			}
 			ImGui::End();
-
+			/*
+			if (strcmp(con.input_buf, "devmode") == 0 && glfwGetKey(window, GLFW_KEY_ENTER))
+			{
+				con.log("Entering Devloper mode...");
+			}
+			*/
 			con.Draw(no_resize, no_move);
+
+
 			if (con.isConsoleHove)
 			{
 				mouseOverUI = true;
@@ -1759,6 +1807,8 @@ int main()
 						beforeMouseYCam = ndcMouseY;
 						hoveredObject = selectedObject;
 						for (int i = 0; i < PresceneObjects.size(); i++) {
+
+							
 							if (MouseOverObject(PresceneObjects[i], camera, glm::vec3(0, 0, 1), CMX, CMY, ndcMouseX, ndcMouseY) && !mouseOverUI)
 								
 							{
@@ -1776,10 +1826,13 @@ int main()
 								}
 								
 							}
+
 							
 						}
 
 						for (int i = 0; i < PresceneObjects.size(); i++) {
+
+							
 							if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS && onpopupmenu == false &&
 								MouseOverObject(PresceneObjects[i], camera, glm::vec3(0, 0, 1), CMX, CMY, ndcMouseX, ndcMouseY) && !mouseOverUI)
 
@@ -1789,7 +1842,10 @@ int main()
 									maxZIndex = PresceneObjects[i].layer;
 								}
 							}
+
 						}
+
+						
 
 						if (topIndex != -1 && !mouseOverUI) {
 							if (!PresceneObjects[topIndex].selected) {
@@ -1801,9 +1857,10 @@ int main()
 
 								float dx = ndcMouseX - beforeMouseX;
 								float dy = ndcMouseY - beforeMouseY;
-
-								PresceneObjects[topIndex].position->x += dx;
-								PresceneObjects[topIndex].position->y += dy;
+								if (scaling == false) {
+									PresceneObjects[topIndex].position->x += dx;
+									PresceneObjects[topIndex].position->y += dy;
+								}
 
 								beforeMouseX = ndcMouseX;
 								beforeMouseY = ndcMouseY;
@@ -1818,20 +1875,75 @@ int main()
 						}
 
 
+
+						glUseProgram(unlitProgram);
+						glUniform4f(glGetUniformLocation(unlitProgram, "color"), 0, 0.90, 0, 1);
+						scaleleft.position->y = PresceneObjects[selectedObject].position->y;
+						scaleleft.position->x = PresceneObjects[selectedObject].position->x + PresceneObjects[selectedObject].scale->x / 2;
+						*scaleleft.scale = glm::vec2(0.5f, PresceneObjects[selectedObject].scale->y);
+						
+
+						scaleup.position->x = PresceneObjects[selectedObject].position->x;
+						scaleup.position->y = PresceneObjects[selectedObject].position->y + PresceneObjects[selectedObject].scale->y / 2;
+						*scaleup.scale = glm::vec2(PresceneObjects[selectedObject].scale->x, 0.5f);
+
+						if (MouseOverObject(scaleleft, camera, glm::vec3(0, 0, 1), CMX, CMY, ndcMouseX, ndcMouseY) && !mouseOverUI) {
+
+							scaleleft.Draw(window, unlitProgram, camera, glm::vec3(0, 0, 1), CMX, CMY, Nearest);
+							if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS && onpopupmenu == false) {
+								ScaleXBool = true;
+								scaling = true;
+								initialMouseX = ndcMouseX;
+								initialScaleX = PresceneObjects[selectedObject].scale->x;
+							} 
+						}
+
+						if (MouseOverObject(scaleup, camera, glm::vec3(0, 0, 1), CMX, CMY, ndcMouseX, ndcMouseY) && !mouseOverUI) {
+
+							scaleup.Draw(window, unlitProgram, camera, glm::vec3(0, 0, 1), CMX, CMY, Nearest);
+							if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS && onpopupmenu == false) {
+								ScaleXBool = false;
+								scaling = true;
+								initialMouseX = ndcMouseY;
+								initialScaleX = PresceneObjects[selectedObject].scale->y;
+							}
+						}
+
+						if (scaling == true) {
+
+							if (ScaleXBool) {
+								scaleleft.Draw(window, unlitProgram, camera, glm::vec3(0, 0, 1), CMX, CMY, Nearest);
+								float deltaX = ndcMouseX - initialMouseX;
+								PresceneObjects[selectedObject].scale->x = initialScaleX + deltaX;
+							}
+							else {
+								scaleup.Draw(window, unlitProgram, camera, glm::vec3(0, 0, 1), CMX, CMY, Nearest);
+								float deltaX = ndcMouseY - initialMouseX;
+								PresceneObjects[selectedObject].scale->y = initialScaleX + deltaX;
+							}
+						}
+
+						if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_RELEASE) {
+							
+							scaling = false;
+						}
 						glUseProgram(unlitProgram);
 						glUniform4f(glGetUniformLocation(unlitProgram, "color"), 1.00, 0.42, 0.24, 1);
 
 						glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 						glLineWidth(2.0f);
 						PresceneObjects[selectedObject].Draw(window, unlitProgram, camera, glm::vec3(0, 0, 1), CMX, CMY, Nearest);
-						glUniform4f(glGetUniformLocation(unlitProgram, "color"), 1.00, 0.42, 0.24, 1);
-						glLineWidth(1.5f);
-						
+
+						glUniform4f(glGetUniformLocation(unlitProgram, "color"), 0, 0.8039, 0.8314, 1);
+						glLineWidth(0.5f);
+						PresceneObjects[selectedObject].DrawTMP(window, unlitProgram, camera,
+							glm::vec2(PresceneObjects[selectedObject].position->x + CMX, PresceneObjects[selectedObject].position->y + CMY),
+							glm::vec2(PresceneObjects[selectedObject].scale->x, PresceneObjects[selectedObject].scale->y));
+
 						glLineWidth(0.0f);
 						glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
 						PresceneObjects[i].Draw(window, shaderProgram, camera, glm::vec3(0, 0, 1), CMX, CMY, Nearest);
-
 
 
 					}
@@ -1840,7 +1952,8 @@ int main()
 
 
 		}
-#pragma endregion Mouse-Detection
+
+		
 		if (DrawFramebuffer) {
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
@@ -1853,27 +1966,29 @@ int main()
 		Object RuntimeCam = *OV::SearchObjectByName("MainCameraOvSTD", PresceneObjects);
 
 		blackbox.tex = nulltex;
-		glm::vec4 pos = LineDraw(glm::vec2(0), glm::vec2(-2));
-		blackbox.DrawTMP(window, shaderProgram, camera, glm::vec2(pos.x, 0), glm::vec2(pos.y, 3));
-
 		blackbox.layer = 100;
 		float offsetX = 5;
 		float offsetY = 7;
 		blackbox.DrawTMP(window, shaderProgram, camera, glm::vec2(RuntimeCam.position->x + offsetX, ((-36 / 1.5) / 1.5) + RuntimeCam.position->y + offsetY), glm::vec2(59, 0.5));
 		blackbox.DrawTMP(window, shaderProgram, camera, glm::vec2(RuntimeCam.position->x + offsetX, ((36 / 1.5) / 1.5) + RuntimeCam.position->y + offsetY), glm::vec2(59, 0.5));
 
+
+
 		blackbox.DrawTMP(window, shaderProgram, camera, glm::vec2((61.7 / 1.445 / 1.5) + RuntimeCam.position->x + offsetX, RuntimeCam.position->y + offsetY), glm::vec2(0.5, 33.8));
 		blackbox.DrawTMP(window, shaderProgram, camera, glm::vec2((-61.7 / 1.445 / 1.5) + RuntimeCam.position->x + offsetX, RuntimeCam.position->y + offsetY), glm::vec2(0.5, 33.8));
 		
-		blackbox.tex = EngineCuserIconGui;
+		blackbox.tex = EngineWhiteIconGui;
 
-		
+		//blackbox.DrawTMP(window, shaderProgram, camera, glm::vec2(PresceneObjects[selectedObject].position->x + PresceneObjects[selectedObject].scale->x / 2 - CMX, PresceneObjects[selectedObject].scenePosition.y + CMY), glm::vec2(2.5, 2.5));
+
+
 		/*
 		if (!mouseOverUI) {
 			blackbox.DrawTMP(window, shaderProgram, camera, glm::vec2(ndcMouseX, ndcMouseY), glm::vec2(2.5, 2.5));
 		}
 		*/
 
+#pragma endregion Mouse-Detection
 
 		//blackbox.tex = CenterDot;
 		//blackbox.DrawTMP(window, shaderProgram, camera, glm::vec2(CMX,CMY), glm::vec2(5, 5));
@@ -2077,6 +2192,8 @@ int main()
 			SavingSystem.save("OBJ" + std::to_string(i) + "TINX", sceneObjects[i].tint.x);
 			SavingSystem.save("OBJ" + std::to_string(i) + "TINY", sceneObjects[i].tint.y);
 			SavingSystem.save("OBJ" + std::to_string(i) + "TINZ", sceneObjects[i].tint.z);
+			SavingSystem.save("OBJ" + std::to_string(i) + "CR", sceneObjects[i].cornerRadius);
+
 		}
 		SavingSystem.save("BG_COLOR", vec3(BackroundScreen[0], BackroundScreen[1], BackroundScreen[2]));
 		SavingSystem.saveToFile("SCENE.ov");
