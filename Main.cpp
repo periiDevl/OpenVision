@@ -23,7 +23,7 @@
 #include "Script.h"
 #include "SaveSystem.h"
 #include "OVLIB.h"
-#pragma comment(linker, "/SUBSYSTEM:windows /ENTRY:mainCRTStartup")
+//#pragma comment(linker, "/SUBSYSTEM:windows /ENTRY:mainCRTStartup")
 
 
 std::vector<Object> PresceneObjects;
@@ -1208,7 +1208,8 @@ int main()
 					batchFile << "mkdir DEBUG_BUILD 2>nul /Q" << std::endl;
 					batchFile << "echo D | xcopy /s /e /q /y Assets DEBUG_BUILD\\Assets 2>nul" << std::endl;
 					batchFile << "echo. > DEBUG_BUILD\\ov.ov" << std::endl;
-					batchFile << "copy /Y Vision_engine.exe DEBUG_BUILD\\Ovruntime.exe 2>nul" << std::endl;
+					batchFile << "copy /Y x64\\Release\\Vision_engine.exe DEBUG_BUILD\\Ovruntime.exe 2>nul" << std::endl;
+					batchFile << "copy /Y Hanken - Light.ttf BuildGL\\Hanken - Light.ttf 2>nul" << std::endl;
 					batchFile << "copy /Y OpenVisionIcon.png DEBUG_BUILD\\OpenVisionIcon.png 2>nul" << std::endl;
 					batchFile << "copy /Y Scene.ov DEBUG_BUILD\\Scene.ov 2>nul" << std::endl;
 					batchFile << "copy /Y runtimeconfig.ov DEBUG_BUILD\\runtimeconfig.ov 2>nul" << std::endl;
@@ -1302,11 +1303,13 @@ int main()
 
 				if (batchFile.is_open())
 				{
+					
 					batchFile << "@echo off" << std::endl;
 					batchFile << "mkdir BuildGL 2>nul /Q" << std::endl;
 					batchFile << "echo D | xcopy /s /e /q /y Assets BuildGL\\Assets 2>nul" << std::endl;
 					batchFile << "echo. > BuildGL\\ov.ov" << std::endl;
-					batchFile << "copy /Y Vision_engine.exe BuildGL\\Ovruntime.exe 2>nul" << std::endl;
+					batchFile << "copy /Y x64\\Release\\Vision_engine.exe BuildGL\\Ovruntime.exe 2>nul" << std::endl;
+					batchFile << "copy /Y Hanken - Light.ttf BuildGL\\Hanken - Light.ttf 2>nul" << std::endl;
 					batchFile << "copy /Y OpenVisionIcon.png BuildGL\\OpenVisionIcon.png 2>nul" << std::endl;
 					batchFile << "copy /Y Scene.ov BuildGL\\Scene.ov 2>nul" << std::endl;
 					batchFile << "copy /Y runtimeconfig.ov BuildGL\\runtimeconfig.ov 2>nul" << std::endl;
