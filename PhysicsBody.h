@@ -21,7 +21,7 @@ class PhysicsBody
 {
 public:
 	PhysicsBody();
-	PhysicsBody(glm::vec2* pos, float* rot, glm::vec2* sca, float mass, float density,float fric, float restitution,bool isTrigger, bool isStatic);
+	PhysicsBody(glm::vec2* pos, float* rot, glm::vec2* sca, float mass, float density, float sFric, float dFric, float restitution, bool isTrigger, bool isStatic);
 
 	void Values();
 
@@ -80,8 +80,7 @@ public:
 	float InvMass(const float value);
 
 
-	/// I will work on friction and restitution variables later now I dont care about it
-	float area, density, friction, restitution;
+	float area, density, staticFric, dynamicFric, restitution;
 
 
 	/// <summary>

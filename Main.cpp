@@ -21,6 +21,8 @@
 #include "OVscriptHandaling.h"
 #include "Presave.h"
 #include "Script.h"
+#include <chrono>
+#include <thread>
 #include "SaveSystem.h"
 #include "OVLIB.h"
 //#pragma comment(linker, "/SUBSYSTEM:windows /ENTRY:mainCRTStartup")
@@ -76,7 +78,8 @@ void clearSavingSystem(int I)
 	SavingSystem.remove("OBJ" + std::to_string(I) + "_TEXTURE");
 	SavingSystem.remove("OBJ" + std::to_string(I) + "_LAYER");
 	SavingSystem.remove("OBJ" + std::to_string(I) + "_RUNDRAW");
-	SavingSystem.remove("OBJ" + std::to_string(I) + "_FRIC");
+	SavingSystem.remove("OBJ" + std::to_string(I) + "_DFRIC");
+	SavingSystem.remove("OBJ" + std::to_string(I) + "_SFRIC");
 	SavingSystem.remove("OBJ" + std::to_string(I) + "_STATIC");
 	SavingSystem.remove("OBJ" + std::to_string(I) + "_TRIG");
 
@@ -444,8 +447,12 @@ void ObjectUI(GLFWwindow* window, int i)
 	// Im lazy to fix it now, will be fixed later now I want to check if this is even working 
 	if (ImGui::TreeNodeEx(("Rigidbody Properties ##" + std::to_string(i)).c_str(), ImGuiTreeNodeFlags_DefaultOpen)) {
 		InputIntWithEndFocus(("Physical Layer ##" + std::to_string(i)).c_str(), &PresceneObjects[i].Body->layer);
-	
-		InputFloatWithEndFocus(("Friction ##" + std::to_string(i)).c_str(), &PresceneObjects[i].Body->friction);
+
+		InputFloatWithEndFocus(("Dynamic Friction ##" + std::to_string(i)).c_str(), &PresceneObjects[i].Body->dynamicFric);
+
+		InputFloatWithEndFocus(("Static Friction ##" + std::to_string(i)).c_str(), &PresceneObjects[i].Body->staticFric);
+
+		InputFloatWithEndFocus(("Density ##" + std::to_string(i)).c_str(), &PresceneObjects[i].Body->density);
 	
 		InputFloatWithEndFocus(("Bounciness ##" + std::to_string(i)).c_str(), &PresceneObjects[i].Body->restitution);
 	
@@ -678,7 +685,7 @@ int main()
 	}
 	inputFile.close();
 
-	PhysicsWorld world(vec3(0, -55.0f, 0), 10);
+	PhysicsWorld world(vec3(0, -35.0f, 0), 10);
 
 
 	const std::filesystem::path directory_path = std::filesystem::current_path();
@@ -818,7 +825,7 @@ int main()
 
 	int amount = SavingSystem.getInt("OBJ_AMOUNT", 3);
 	for (int i = 0; i < amount; i++) {
-		float posx, posy, scalex, scaley, angle, layer, restitution, friction, velX, velY, tilex, tiley, cornerRadius;
+		float posx, posy, scalex, scaley, angle, layer, restitution, density, statFric, dynaFric, velX, velY, tilex, tiley, cornerRadius;
 		bool runtimeDraw, isStatic, isTrigger;
 		glm::vec4 tint;
 		int phys_layer = 0;
@@ -835,7 +842,9 @@ int main()
 		runtimeDraw = SavingSystem.getFloat("OBJ" + std::to_string(i) + "_RUNDRAW", 0.0f);
 
 		phys_layer = SavingSystem.getInt("OBJ" + std::to_string(i) + "_PHYSLAYER", 0);
-		friction = SavingSystem.getFloat("OBJ" + std::to_string(i) + "_FRIC", 0.5f);
+		statFric = SavingSystem.getFloat("OBJ" + std::to_string(i) + "_SFRIC", 0.6f);
+		dynaFric = SavingSystem.getFloat("OBJ" + std::to_string(i) + "_DFRIC", 0.4f);
+		density = SavingSystem.getFloat("OBJ" + std::to_string(i) + "_DENS", 0.5f);
 		restitution = SavingSystem.getFloat("OBJ" + std::to_string(i) + "_BOUNCE", 0.5f);
 		isStatic = SavingSystem.getFloat("OBJ" + std::to_string(i) + "_STATIC", 0.0f);
 		isTrigger = SavingSystem.getFloat("OBJ" + std::to_string(i) + "_TRIG", 0.0f);
@@ -865,7 +874,9 @@ int main()
 		obj.drawOnRuntime = runtimeDraw;
 
 		obj.Body->layer = phys_layer;
-		obj.Body->friction = friction;
+		obj.Body->staticFric = statFric;
+		obj.Body->dynamicFric = dynaFric;
+		obj.Body->density = density;
 		obj.Body->restitution = restitution;
 		obj.Body->IsStatic(isStatic);
 		obj.Body->IsTrigger(isTrigger);
@@ -971,7 +982,6 @@ int main()
 
 	while (!glfwWindowShouldClose(window))
 	{
-
 		build = file_exists("ov.ov");
 		glUniform1f(glGetUniformLocation(FramebufferProgram, "minEdgeContrast"), FXAA_REDUCE_MIN);
 		glUniform1f(glGetUniformLocation(FramebufferProgram, "subPixelAliasing"), FXAA_REDUCE_MUL);
@@ -1179,7 +1189,9 @@ int main()
 					SavingSystem.save("OBJ" + std::to_string(i) + "_LAYER", sceneObjects[i].layer);
 					SavingSystem.save("OBJ" + std::to_string(i) + "_RUNDRAW", sceneObjects[i].drawOnRuntime);
 					SavingSystem.save("OBJ" + std::to_string(i) + "_PHYSLAYER", sceneObjects[i].Body->layer);
-					SavingSystem.save("OBJ" + std::to_string(i) + "_FRIC", sceneObjects[i].Body->friction);
+					SavingSystem.save("OBJ" + std::to_string(i) + "_SFRIC", sceneObjects[i].Body->staticFric);
+					SavingSystem.save("OBJ" + std::to_string(i) + "_DFRIC", sceneObjects[i].Body->dynamicFric);
+					SavingSystem.save("OBJ" + std::to_string(i) + "_DENS", sceneObjects[i].Body->density);
 					SavingSystem.save("OBJ" + std::to_string(i) + "_BOUNCE", sceneObjects[i].Body->restitution);
 					SavingSystem.save("OBJ" + std::to_string(i) + "_STATIC", sceneObjects[i].Body->IsStatic());
 					SavingSystem.save("OBJ" + std::to_string(i) + "_TRIG", sceneObjects[i].Body->IsTrigger());
@@ -1277,7 +1289,9 @@ int main()
 					SavingSystem.save("OBJ" + std::to_string(i) + "_LAYER", sceneObjects[i].layer);
 					SavingSystem.save("OBJ" + std::to_string(i) + "_RUNDRAW", sceneObjects[i].drawOnRuntime);
 					SavingSystem.save("OBJ" + std::to_string(i) + "_PHYSLAYER", sceneObjects[i].Body->layer);
-					SavingSystem.save("OBJ" + std::to_string(i) + "_FRIC", sceneObjects[i].Body->friction);
+					SavingSystem.save("OBJ" + std::to_string(i) + "_SFRIC", sceneObjects[i].Body->staticFric);
+					SavingSystem.save("OBJ" + std::to_string(i) + "_DFRIC", sceneObjects[i].Body->dynamicFric);
+					SavingSystem.save("OBJ" + std::to_string(i) + "_DENS", sceneObjects[i].Body->density);
 					SavingSystem.save("OBJ" + std::to_string(i) + "_BOUNCE", sceneObjects[i].Body->restitution);
 					SavingSystem.save("OBJ" + std::to_string(i) + "_STATIC", sceneObjects[i].Body->IsStatic());
 					SavingSystem.save("OBJ" + std::to_string(i) + "_TRIG", sceneObjects[i].Body->IsTrigger());
@@ -1822,10 +1836,11 @@ int main()
 
 									glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 									glLineWidth(1.0f);
-									PresceneObjects[i].Draw(window, unlitProgram, camera, glm::vec3(0, 0, 1), CMX, CMY, Nearest);
+									if (timeDiff >= fixed_timestep) {
+										PresceneObjects[i].Draw(window, unlitProgram, camera, glm::vec3(0, 0, 1), CMX, CMY, Nearest);
+									}
 									glUniform4f(glGetUniformLocation(unlitProgram, "color"), 1.00, 0.48, 0.48, 1);
 									glLineWidth(1.0f);
-
 								}
 								
 							}
@@ -2184,7 +2199,9 @@ int main()
 			SavingSystem.save("OBJ" + std::to_string(i) + "_LAYER", sceneObjects[i].layer);
 			SavingSystem.save("OBJ" + std::to_string(i) + "_RUNDRAW", sceneObjects[i].drawOnRuntime);
 			SavingSystem.save("OBJ" + std::to_string(i) + "_PHYSLAYER", sceneObjects[i].Body->layer);
-			SavingSystem.save("OBJ" + std::to_string(i) + "_FRIC", sceneObjects[i].Body->friction);
+			SavingSystem.save("OBJ" + std::to_string(i) + "_DFRIC", sceneObjects[i].Body->dynamicFric);
+			SavingSystem.save("OBJ" + std::to_string(i) + "_SFRIC", sceneObjects[i].Body->staticFric);
+			SavingSystem.save("OBJ" + std::to_string(i) + "_DENS", sceneObjects[i].Body->density);
 			SavingSystem.save("OBJ" + std::to_string(i) + "_BOUNCE", sceneObjects[i].Body->restitution);
 			SavingSystem.save("OBJ" + std::to_string(i) + "_STATIC", sceneObjects[i].Body->IsStatic());
 			SavingSystem.save("OBJ" + std::to_string(i) + "_TRIG", sceneObjects[i].Body->IsTrigger());

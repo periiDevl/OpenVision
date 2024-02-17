@@ -59,7 +59,7 @@ bool CollisionManager::BoundingAABB(Collider& colA, Collider& colB, vec2& mtv)
     float overlapX = std::min(aMax.x, bMax.x) - std::max(aMin.x, bMin.x);
     float overlapY = std::min(aMax.y, bMax.y) - std::max(aMin.y, bMin.y);
 
-    if (overlapX < 0 || overlapY < 0) {
+    if (overlapX < -0.01f || overlapY < -0.01f) {
         // No collision occurred
         mtv = vec2(0, 0);
         return false;
@@ -94,7 +94,7 @@ bool CollisionManager::BoundingAABB(Collider& colA,Collider& colB)
     float overlapX = std::min(aMax.x, bMax.x) - std::max(aMin.x, bMin.x);
     float overlapY = std::min(aMax.y, bMax.y) - std::max(aMin.y, bMin.y);
 
-    if (overlapX < 0 || overlapY < 0) {
+    if (overlapX < 0.0005f || overlapY < 0.0005f) {
         return false;
     }
 
@@ -111,7 +111,8 @@ bool CollisionManager::BoundingCircle(Collider& colA, Collider& colB, vec2& mtv)
 
 bool CollisionManager::CheckCollision(Collider& colA, Collider& colB, Manifold& manifold)
 {
-    if (BoundingAABB(colA, colB)) {
+    if (BoundingAABB(colA, colB)) 
+    {
         if ((colA.type == ColliderType::Polygon || colA.type == ColliderType::Box) && (colB.type == ColliderType::Polygon || colB.type == ColliderType::Box)) {
             
             PolygonCollider& polyA = dynamic_cast<PolygonCollider&>(colA);
@@ -141,6 +142,7 @@ bool CollisionManager::CheckCollision(Collider& colA, Collider& colB, Manifold& 
             return CircleVCircle(circleA, circleB, manifold);
         }
     }
+    
     return false;
 }
 

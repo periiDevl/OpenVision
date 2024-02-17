@@ -1,7 +1,8 @@
 #include "PhysicsBody.h"
 
-PhysicsBody::PhysicsBody(glm::vec2* pos, float* rot, glm::vec2* sca, float mass, float density, float fric, float restitution, bool isTrigger, bool isStatic)
-	: position(pos), rotation(rot), scale(sca), linearVelocity(glm::vec2(0.0f)), force(glm::vec2(0.0f)), gravity(glm::vec2(0.0f)), mass(mass), density(density), restitution(restitution), friction(fric), isTrigger(isTrigger), isStatic(isStatic), collider(new PolygonCollider(pos, rot, sca)) {
+PhysicsBody::PhysicsBody(glm::vec2* pos, float* rot, glm::vec2* sca, float mass, float density, float sFric, float dFric, float restitution, bool isTrigger, bool isStatic) 
+	: position(pos), rotation(rot), scale(sca), linearVelocity(glm::vec2(0.0f)), force(glm::vec2(0.0f)), gravity(glm::vec2(0.0f)), mass(mass), density(density), restitution(restitution), staticFric(sFric), dynamicFric(dFric), isTrigger(isTrigger), isStatic(isStatic), collider(new PolygonCollider(pos, rot, sca))
+{
 	area = 0;
 	layer = 0;
 
@@ -24,7 +25,8 @@ void PhysicsBody::Values() {
 	cout << "mass:" << (mass) << endl;
 	cout << "area:" << (area) << endl;
 	cout << "density:" << (density) << endl;
-	cout << "friction:" << (friction) << endl;
+	cout << "static friction:" << (staticFric) << endl;
+	cout << "dynamic friction:" << (dynamicFric) << endl;
 	cout << "restitution:" << (restitution) << endl;
 
 	cout << "trigger:" << (isTrigger) << endl;
@@ -43,11 +45,14 @@ void PhysicsBody::Values() {
 void PhysicsBody::Step(float deltaTime){
 
 	*position += linearVelocity * deltaTime;
+
 	linearVelocity += gravity * deltaTime;
+	
 	linearVelocity += force / mass * deltaTime ;
+	
 	force = vec2(0.0f);
 
-	*rotation += angularVelocity * deltaTime;// *0.0174533f;
+	*rotation += angularVelocity * 57.295779513082320876798154814105 * deltaTime;// *0.0174533f;
 }
 
 Collider* PhysicsBody::GetCollider(){
@@ -121,6 +126,7 @@ float PhysicsBody::Mass(const float value)
 {
 	if (mass == value)
 		return mass;
+
 	mass = value;
 	inertia = (1.0f / 12.0f) * mass * (scale->x * scale->x + scale->y * scale->y);
 
@@ -143,32 +149,6 @@ float PhysicsBody::Inertia()
 	}
 	return inertia;
 
-	int a = 0;
-	int b = 2;
-	if (a > b) 
-	{
-		if (a - 1 > b) 
-		{
-			// תעשה 1
-		}
-		else 
-		{
-			// תעשה 2
-		}
-	}
-	else 
-	{
-		if (a +1 < b) 
-		{
-			// תעשה 3
-		}
-		else {
-			// תעשה 4
-		}
-	}
-
-
-
 }
 float PhysicsBody::Inertia(const float value)
 {
@@ -189,7 +169,7 @@ float PhysicsBody::InvInertia()
 	if (isStatic) {
 		return 0;
 	}
-	return inertia;
+	return 1.0 / inertia;
 }
 
 float PhysicsBody::InvMass()
@@ -235,8 +215,8 @@ bool PhysicsBody::IsStatic(bool value)
 	isStatic = value;
 
 	if (!isStatic) {
-		invMass = 1 / mass;
-		invInertia = 1 / inertia;
+		invMass = 1.0 / mass;
+		invInertia = 1.0 / inertia;
 	}
 	else {
 		invMass = 0;

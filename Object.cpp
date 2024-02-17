@@ -7,7 +7,7 @@ Object::Object(std::vector<Vertex>& vertices, std::vector<GLuint>& indices)
     selected = false;
     angle = new float(0);
    
-    Body = new PhysicsBody(position, angle, scale, 1, 1, 0.5f, 0.5f, false, false);
+    Body = new PhysicsBody(position, angle, scale, 1, 1, 0.6f, 0.4f, 0.5f, false, false);
 
 
     VAO.Bind();
