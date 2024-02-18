@@ -28,6 +28,7 @@
 //#pragma comment(linker, "/SUBSYSTEM:windows /ENTRY:mainCRTStartup")
 
 
+
 std::vector<Object> PresceneObjects;
 
 SaveSystem SavingSystem;
@@ -370,8 +371,12 @@ int PythonIndex = 0;
 bool scaling = false;
 float initialMouseX = 0.0f; // Initialize initialMouseX outside of your event loop
 float initialScaleX = 1.0f;
-void ObjectUI(GLFWwindow* window, int i)
+void ObjectUI(GLFWwindow* window, int i, Texture EngineLayerIconGui)
 {
+	ImTextureID Texture = reinterpret_cast<ImTextureID>(static_cast<intptr_t>(EngineLayerIconGui.ID));
+
+
+
 	if (PresceneObjects[i].name != "MainCameraOvSTD") {
 		if (ImGui::Button(("Delete Object##" + std::to_string(i)).c_str()))
 		{
@@ -400,6 +405,8 @@ void ObjectUI(GLFWwindow* window, int i)
 				sceneObjects[i].name = objName;
 			}
 		}
+
+		
 	}
 
 	if (ImGui::TreeNodeEx(("Visual ##" + std::to_string(i)).c_str(), ImGuiTreeNodeFlags_DefaultOpen))
@@ -420,7 +427,14 @@ void ObjectUI(GLFWwindow* window, int i)
 		ImGui::Columns(1, nullptr, true);
 		InputFloatWithEndFocus(("Angle ##" + std::to_string(i)).c_str(), PresceneObjects[i].angle, 0.3f, 1, 0);
 
+		if (ImGui::ImageButton(Texture, ImVec2(20, 20)))
+		{
+		}
+		ImGui::SameLine();
 		InputIntWithEndFocus(("Layer ##" + std::to_string(i)).c_str(), &PresceneObjects[i].layer, 1, 1);
+
+		ImGui::Separator();
+
 		ImGui::Columns(2, nullptr, true);
 		InputFloatWithEndFocus(("Tex X##" + std::to_string(i)).c_str(), &PresceneObjects[i].TileX, 0.3f, 1, 0);
 		ImGui::NextColumn();
@@ -685,7 +699,7 @@ int main()
 	}
 	inputFile.close();
 
-	PhysicsWorld world(vec3(0, -35.0f, 0), 10);
+	PhysicsWorld world(vec3(0, -35.0f, 0), 2);
 
 
 	const std::filesystem::path directory_path = std::filesystem::current_path();
@@ -895,7 +909,7 @@ int main()
 	Object scaleleft = Object(verts, ind);
 	Object scaleup = Object(verts, ind);
 	//Engine Assets
-
+	
 	Texture EngineOVObjectIconGui("EngineAssets/ObjectIcon.png");
 	Texture EngineOVCameraIconGui("EngineAssets/CameraIcon.png");
 	Texture EngineOVTrashIconGui("EngineAssets/OvTrashIcon.png");
@@ -905,8 +919,8 @@ int main()
 	Texture EngineOVBuildIconGui("EngineAssets/OvBuildIcon.png");
 	Texture EngineOVMMSIconGui("EngineAssets/mmsicon.png");
 	Texture EngineCuserIconGui("EngineAssets/Curser.png");
-
 	Texture EngineWhiteIconGui("EngineAssets/white.png");
+	Texture EngineLayerIconGui("EngineAssets/LayerIcon.png");
 
 	double prevTime = 0.0;
 	double crntTime = 0.0;
@@ -982,6 +996,7 @@ int main()
 
 	while (!glfwWindowShouldClose(window))
 	{
+		ImTextureID RebuildimguiTextureID = reinterpret_cast<ImTextureID>(static_cast<intptr_t>(EngineOVTrashIconGui.ID));
 		build = file_exists("ov.ov");
 		glUniform1f(glGetUniformLocation(FramebufferProgram, "minEdgeContrast"), FXAA_REDUCE_MIN);
 		glUniform1f(glGetUniformLocation(FramebufferProgram, "subPixelAliasing"), FXAA_REDUCE_MUL);
@@ -1033,7 +1048,7 @@ int main()
 		if (ImGui::BeginPopup("Selected Object Settings"))
 		{
 			onpopupmenu = true;
-			ObjectUI(window, hoveredObject);
+			ObjectUI(window, hoveredObject, EngineLayerIconGui);
 			/*
 			if (ImGui::CollapsingHeader(sceneObjects[selectedObject].name == "" ? std::to_string(selectedObject).c_str() : sceneObjects[selectedObject].name.c_str()))
 			{
@@ -1042,7 +1057,7 @@ int main()
 			*/
 			ImGui::EndPopup();
 		}
-
+		
 
 		if (ImGui::IsMouseReleased(GLFW_MOUSE_BUTTON_RIGHT))
 		{
@@ -1102,7 +1117,7 @@ int main()
 #pragma endregion Pre-Runtime
 
 #pragma region UI
-			ImTextureID RebuildimguiTextureID = reinterpret_cast<ImTextureID>(static_cast<intptr_t>(EngineOVTrashIconGui.ID));
+			
 			//Manifold manifold;
 			//CheckCollision(*OV::SearchObjectByName("obj2", sceneObjects)->Body->GetCollider(), *OV::SearchObjectByName("obj1", sceneObjects)->Body->GetCollider(), manifold);
 			ImGui::BeginMainMenuBar();
@@ -1408,7 +1423,7 @@ int main()
 			{
 				if (ImGui::BeginTabItem("Object Settings"))
 				{
-					ObjectUI(window, selectedObject);
+					ObjectUI(window, selectedObject, EngineLayerIconGui);
 
 					ImGui::EndTabItem();
 				}
@@ -1769,7 +1784,7 @@ int main()
 						if (ImGui::CollapsingHeader(PresceneObjects[i].name.c_str()))
 						{
 							style.FramePadding.y = originalButtonPadding;
-							ObjectUI(window, i);
+							ObjectUI(window, i, EngineLayerIconGui);
 						}
 						
 						style.FramePadding.y = originalButtonPadding;
@@ -2133,7 +2148,7 @@ int main()
 				camera.Position.y = RuntimeCam.position->y + offsetY;
 
 
-				world.Step(fixed_timestep);
+				world.Step(fixed_timestep / 2);
 			}
 			if (glfwWindowShouldClose(window))
 			{
