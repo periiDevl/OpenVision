@@ -33,7 +33,25 @@ std::vector<Object> PresceneObjects;
 
 SaveSystem SavingSystem;
 bool ScaleXBool = true;
+bool stopWarning = false;
+void popupforinstall() {
+	if (!stopWarning) {
+		ImGui::OpenPopup("Warning");
+	}
 
+
+	if (ImGui::BeginPopupModal("Warning")) {
+
+		ImGui::Text("The pakage manager of mods, is essentially a free wrokshop for anyone to use ");
+		ImGui::Text("and prone to viruses and malicious software if not used properly.");
+		ImGui::Text("We recommend to use this in moderation or by only using mods approved by our team. (Offical mods)");
+		if (ImGui::Button("Acknowledge")) {
+			stopWarning = true;
+			ImGui::CloseCurrentPopup();
+		}
+		ImGui::EndPopup();
+	}
+}
 void SaveObjectsToFile(const std::string& filename) {
 	std::ofstream outputFile(filename);
 	if (!outputFile.is_open()) {
@@ -1162,6 +1180,30 @@ int main()
 
 			ImGui::Separator();
 
+			if (ImGui::BeginMenu("Install"))
+			{
+				popupforinstall();
+				RebuildimguiTextureID = reinterpret_cast<ImTextureID>(static_cast<intptr_t>(EngineOVMMSIconGui.ID));
+				if (ImGui::ImageButton(RebuildimguiTextureID, ImVec2(30, 30)))
+				{
+				}
+				ImGui::SameLine();
+				ImGui::Text("Mono-MS");
+
+				ImGui::Separator();
+
+				if (ImGui::ImageButton(RebuildimguiTextureID, ImVec2(30, 30)))
+				{
+				}
+				ImGui::SameLine();
+				ImGui::Text("CUGNYSIS");
+
+
+
+				ImGui::EndMenu();
+			}
+
+			ImGui::Separator();
 
 			ImGui::EndMainMenuBar();
 
