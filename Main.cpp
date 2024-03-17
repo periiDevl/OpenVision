@@ -2190,7 +2190,8 @@ int main()
 				camera.Position.y = RuntimeCam.position->y + offsetY;
 
 
-				world.Step(fixed_timestep / 2);
+				world.Step(timeDiff / 2);
+
 			}
 			if (glfwWindowShouldClose(window))
 			{
