@@ -924,8 +924,10 @@ int main()
 
 	Object blackbox = Object(verts, ind);
 
-	Object scaleleft = Object(verts, ind);
-	Object scaleup = Object(verts, ind);
+	Object scaleRight = Object(verts, ind);
+	Object scaleUp = Object(verts, ind);
+	Object scaleLeft = Object(verts, ind);
+	Object scaleDown = Object(verts, ind);
 	//Engine Assets
 	
 	Texture EngineOVObjectIconGui("EngineAssets/ObjectIcon.png");
@@ -1953,18 +1955,20 @@ int main()
 
 						glUseProgram(unlitProgram);
 						glUniform4f(glGetUniformLocation(unlitProgram, "color"), 0, 0.90, 0, 1);
-						scaleleft.position->y = PresceneObjects[selectedObject].position->y;
-						scaleleft.position->x = PresceneObjects[selectedObject].position->x + PresceneObjects[selectedObject].scale->x / 2;
-						*scaleleft.scale = glm::vec2(0.5f, PresceneObjects[selectedObject].scale->y);
+						*scaleRight.angle = *PresceneObjects[selectedObject].angle;
+						scaleRight.position->x = PresceneObjects[selectedObject].position->x + cos(*scaleRight.angle / 57.295779513082320876798154814105) * (PresceneObjects[selectedObject].scale->x / 2.0);
+						scaleRight.position->y = PresceneObjects[selectedObject].position->y + sin(*scaleRight.angle / 57.295779513082320876798154814105) * (PresceneObjects[selectedObject].scale->x / 2.0);
+						*scaleRight.scale = glm::vec2(0.5f, PresceneObjects[selectedObject].scale->y);
 						
+						*scaleUp.angle = *scaleRight.angle + 90;
+						scaleUp.position->x = PresceneObjects[selectedObject].position->x + cos(*scaleUp.angle / 57.295779513082320876798154814105) * (PresceneObjects[selectedObject].scale->y / 2.0);
+						scaleUp.position->y = PresceneObjects[selectedObject].position->y + sin(*scaleUp.angle / 57.295779513082320876798154814105) * (PresceneObjects[selectedObject].scale->y / 2.0);
+						*scaleUp.angle = *scaleRight.angle ;
+						*scaleUp.scale = glm::vec2(PresceneObjects[selectedObject].scale->x, 0.5f);
 
-						scaleup.position->x = PresceneObjects[selectedObject].position->x;
-						scaleup.position->y = PresceneObjects[selectedObject].position->y + PresceneObjects[selectedObject].scale->y / 2;
-						*scaleup.scale = glm::vec2(PresceneObjects[selectedObject].scale->x, 0.5f);
+						if (MouseOverObject(scaleRight, camera, glm::vec3(0, 0, 1), CMX, CMY, ndcMouseX, ndcMouseY) && !mouseOverUI) {
 
-						if (MouseOverObject(scaleleft, camera, glm::vec3(0, 0, 1), CMX, CMY, ndcMouseX, ndcMouseY) && !mouseOverUI) {
-
-							scaleleft.Draw(window, unlitProgram, camera, glm::vec3(0, 0, 1), CMX, CMY, Nearest);
+							scaleRight.Draw(window, unlitProgram, camera, glm::vec3(0, 0, 1), CMX, CMY, Nearest);
 							if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS && onpopupmenu == false) {
 								ScaleXBool = true;
 								scaling = true;
@@ -1973,9 +1977,9 @@ int main()
 							} 
 						}
 
-						if (MouseOverObject(scaleup, camera, glm::vec3(0, 0, 1), CMX, CMY, ndcMouseX, ndcMouseY) && !mouseOverUI) {
+						if (MouseOverObject(scaleUp, camera, glm::vec3(0, 0, 1), CMX, CMY, ndcMouseX, ndcMouseY) && !mouseOverUI) {
 
-							scaleup.Draw(window, unlitProgram, camera, glm::vec3(0, 0, 1), CMX, CMY, Nearest);
+							scaleUp.Draw(window, unlitProgram, camera, glm::vec3(0, 0, 1), CMX, CMY, Nearest);
 							if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS && onpopupmenu == false) {
 								ScaleXBool = false;
 								scaling = true;
@@ -1984,15 +1988,16 @@ int main()
 							}
 						}
 
+
 						if (scaling == true) {
 
 							if (ScaleXBool) {
-								scaleleft.Draw(window, unlitProgram, camera, glm::vec3(0, 0, 1), CMX, CMY, Nearest);
+								scaleRight.Draw(window, unlitProgram, camera, glm::vec3(0, 0, 1), CMX, CMY, Nearest);
 								float deltaX = ndcMouseX - initialMouseX;
 								PresceneObjects[selectedObject].scale->x = initialScaleX + deltaX;
 							}
 							else {
-								scaleup.Draw(window, unlitProgram, camera, glm::vec3(0, 0, 1), CMX, CMY, Nearest);
+								scaleUp.Draw(window, unlitProgram, camera, glm::vec3(0, 0, 1), CMX, CMY, Nearest);
 								float deltaX = ndcMouseY - initialMouseX;
 								PresceneObjects[selectedObject].scale->y = initialScaleX + deltaX;
 							}
