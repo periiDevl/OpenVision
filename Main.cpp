@@ -2014,13 +2014,6 @@ int main()
 						glLineWidth(2.0f);
 						PresceneObjects[selectedObject].Draw(window, unlitProgram, camera, glm::vec3(0, 0, 1), CMX, CMY, Nearest);
 
-						glUniform4f(glGetUniformLocation(unlitProgram, "color"), 0, 0.8039, 0.8314, 1);
-						glLineWidth(0.5f);
-						PresceneObjects[selectedObject].DrawTMP(window, unlitProgram, camera,
-							glm::vec2(PresceneObjects[selectedObject].position->x + CMX, PresceneObjects[selectedObject].position->y + CMY),
-							glm::vec2(PresceneObjects[selectedObject].scale->x, PresceneObjects[selectedObject].scale->y));
-
-						glLineWidth(0.0f);
 						glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
 						PresceneObjects[i].Draw(window, shaderProgram, camera, glm::vec3(0, 0, 1), CMX, CMY, Nearest);

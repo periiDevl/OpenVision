@@ -112,13 +112,33 @@ void main()
 const char* UnlitFragment =
 R"(
 #version 330 core
+
 out vec4 FragColor;
-uniform vec4 color;
-void main()
-{
-   FragColor = color;
+
+vec3 fire(float value) {
+  float numRepeats = 2.0;
+  value = fract(value * numRepeats);
+
+  float half = 0.5;
+  if (value < half) {
+    return mix(vec3(1.0, 0.0, 0.0), vec3(1.0, 0.7, 0.0), value * 2.0);
+  } else {
+    return mix(vec3(1.0, 0.7, 0.0), vec3(1.0, 0.0, 0.0), (value - half) * 2.0);
+  }
 }
+
+void main() {
+  vec2 fragCoord = gl_FragCoord.xy / vec2(1920.0 * 4.0, 1080.0 * 4.0);
+
+  float scaledValue = fract(fragCoord.x * 5.0);
+
+  vec3 fireColor = fire(scaledValue);
+
+  FragColor = vec4(fireColor, 1.0);
+}
+
 )";
+
 
 
 
