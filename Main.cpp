@@ -1017,7 +1017,6 @@ int main()
 	scroll_offset = fov;
 	while (!glfwWindowShouldClose(window))
 	{
-		std::cout << camera.Position.z << std::endl;
 		fov = scroll_offset;
 		ImTextureID RebuildimguiTextureID = reinterpret_cast<ImTextureID>(static_cast<intptr_t>(EngineOVTrashIconGui.ID));
 		build = file_exists("ov.ov");
