@@ -955,6 +955,7 @@ int main()
 
 
 
+
 	const float fixed_timestep = 1.0f / 60.0;
 	DefaultTheme();
 	ImVec2 originalItemSpacing = ImGui::GetStyle().ItemSpacing;
@@ -1013,9 +1014,11 @@ int main()
 
 
 
-
+	scroll_offset = fov;
 	while (!glfwWindowShouldClose(window))
 	{
+		std::cout << camera.Position.z << std::endl;
+		fov = scroll_offset;
 		ImTextureID RebuildimguiTextureID = reinterpret_cast<ImTextureID>(static_cast<intptr_t>(EngineOVTrashIconGui.ID));
 		build = file_exists("ov.ov");
 		glUniform1f(glGetUniformLocation(FramebufferProgram, "minEdgeContrast"), FXAA_REDUCE_MIN);
@@ -1100,7 +1103,8 @@ int main()
 				camera.Position.y = 0;
 
 				//sf::Listener::setGlobalVolume(0);
-				fov = 45;
+				//fov = 45;
+				//fov = 32;
 				std::string title = "OpenVision *(Universal Editor) ~ *" + ProjectName.string();
 				glfwSetWindowTitle(window, title.c_str());
 				for (size_t i = 0; i < PresceneObjects.size(); i++)
@@ -1864,8 +1868,13 @@ int main()
 						//camera.Position.x = 0.001f;
 						ndcMouseX = (float)mouseX / (float)width * 2.0f - 1.0f;
 						ndcMouseY = (float)mouseY / (float)height * 2.0f - 1.0f;
-						ndcMouseX *= rattio.x * 3.65;
-						ndcMouseY *= -rattio.y * 3.65;
+						ndcMouseX *= rattio.x * 3.65 * (fov /45);
+						ndcMouseY *= -rattio.y * 3.65 * (fov / 45);
+						//float heightW = camera.Position.z * tan(radians(fov / 2)) * 2;
+						//float widthW = (height / rattio.y) * rattio.x;
+
+						//ndcMouseX *= widthW;
+						//ndcMouseY *= heightW;
 						int topIndex = -1;
 						int topIndex2 = -1;
 
