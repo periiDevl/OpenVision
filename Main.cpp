@@ -25,6 +25,8 @@
 #include <thread>
 #include "SaveSystem.h"
 #include "OVLIB.h"
+#include "steam_api.h"
+#include "isteamugc.h"
 //#pragma comment(linker, "/SUBSYSTEM:windows /ENTRY:mainCRTStartup")
 
 
@@ -663,7 +665,6 @@ void undoAction() {
 
 namespace fs = std::filesystem;
 
-
 int main()
 {
 	
@@ -674,9 +675,16 @@ int main()
 	
 
 	//std::cout << GetSharedVarX(0).x;
+	SteamAPI_Init();
+	//create workshop item
+	//SteamAPICall_t hSteamAPICall = SteamUGC()->CreateItem(SteamUtils()->GetAppID(), k_EWorkshopFileTypeCommunity);
 
-
-
+	/*
+	if (SteamAPI_RestartAppIfNecessary(2472350));
+	{
+		return 1;
+	}
+	*/
 
 
 	fs::path currentPath = fs::current_path();
