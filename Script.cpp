@@ -9,7 +9,7 @@ void Script::Start() {
 
 }   
 void Script::Update() {
-    OV::renderText("Hello itay!", "Hanken-Light.ttf", 0, 0, 50.0f, ImVec4(1.0f, 0.0f, 0.0f, 1.0f));
+    OV::renderText("Physics Demo - 01", "Hanken-Light.ttf", 0, 0, 50.0f, ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
     std::string str = typeid(*this).name();
     
     if (InputHandler.GetKeyDown(GLFW_KEY_SPACE))

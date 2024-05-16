@@ -386,7 +386,7 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 
 
 double scroll_offset = 45.0;
-
+int BindSelectedObject = -1;
 int PythonIndex = 0;
 bool scaling = false;
 float initialMouseX = 0.0f; // Initialize initialMouseX outside of your event loop
@@ -806,22 +806,22 @@ int main()
 	const char* modTitle = "My Awesome Mod";
 	const char* modDescription = "This mod enhances gameplay with new features.";
 
-	PublishedFileId_t publishedFileId = CreateAndUploadWorkshopItem(modFolder, modTitle, modDescription);
-	if (publishedFileId == k_PublishedFileIdInvalid) {
+	//PublishedFileId_t publishedFileId = CreateAndUploadWorkshopItem(modFolder, modTitle, modDescription);
+	//if (publishedFileId == k_PublishedFileIdInvalid) {
 		// Handle workshop item creation failure
-		SteamAPI_Shutdown();
-		return 1;
-	}
+		//SteamAPI_Shutdown();
+		//return 1;
+	//}
 
 	// Register the callback handler
 	SteamAPI_RunCallbacks();
-
+	
 	// Update the workshop item
-	UpdateWorkshopItem(modFolder, modTitle, modDescription, publishedFileId);
+	//UpdateWorkshopItem(modFolder, modTitle, modDescription, publishedFileId);
 
 	// Now change the name of the last workshop item
 	// Shutdown Steamworks API
-	SteamAPI_Shutdown();
+	//SteamAPI_Shutdown();
 
 
 	/*
@@ -1108,6 +1108,7 @@ int main()
 	Texture EngineCuserIconGui("EngineAssets/Curser.png");
 	Texture EngineWhiteIconGui("EngineAssets/white.png");
 	Texture EngineLayerIconGui("EngineAssets/LayerIcon.png");
+	Texture EngineBindIconGui("EngineAssets/Bind.png");
 
 	double prevTime = 0.0;
 	double crntTime = 0.0;
@@ -1184,7 +1185,10 @@ int main()
 	scroll_offset = fov;
 	while (!glfwWindowShouldClose(window))
 	{
-		fov = scroll_offset;
+		if (!run) {
+			fov = scroll_offset;
+		}
+		
 		ImTextureID RebuildimguiTextureID = reinterpret_cast<ImTextureID>(static_cast<intptr_t>(EngineOVTrashIconGui.ID));
 		build = file_exists("ov.ov");
 		glUniform1f(glGetUniformLocation(FramebufferProgram, "minEdgeContrast"), FXAA_REDUCE_MIN);
@@ -1252,7 +1256,7 @@ int main()
 		{
 			show_selected_pop = false;
 		}
-
+		
 
 #pragma region Pre-Runtime
 
@@ -1456,7 +1460,7 @@ int main()
 					batchFile << "copy /Y runtimeconfig.ov DEBUG_BUILD\\runtimeconfig.ov 2>nul" << std::endl;
 					batchFile << "copy /Y SETTINGS.ov DEBUG_BUILD\\SETTINGS.ov 2>nul" << std::endl;
 					batchFile << "copy /Y SCRIPTS.ov DEBUG_BUILD\\SCRIPTS.ov 2>nul" << std::endl;
-					batchFile << "copy /Y DynaLL\\x64\\Debug\\DynaLL.dll DEBUG_BUILD\\DynaLL.dll 2>nul" << std::endl;
+					batchFile << "copy /Y DynaLL\\x64\\Release\\DynaLL.dll DEBUG_BUILD\\DynaLL.dll 2>nul" << std::endl;
 					batchFile << "cd /D DEBUG_BUILD" << std::endl;
 					batchFile << "start /B Ovruntime.exe" << std::endl;
 					batchFile << "exit" << std::endl;
@@ -1558,7 +1562,7 @@ int main()
 					batchFile << "copy /Y runtimeconfig.ov BuildGL\\runtimeconfig.ov 2>nul" << std::endl;
 					batchFile << "copy /Y SETTINGS.ov BuildGL\\SETTINGS.ov 2>nul" << std::endl;
 					batchFile << "copy /Y SCRIPTS.ov BuildGL\\SCRIPTS.ov 2>nul" << std::endl;
-					batchFile << "copy /Y DynaLL\\x64\\Debug\\DynaLL.dll BuildGL\\DynaLL.dll 2>nul" << std::endl;
+					batchFile << "copy /Y DynaLL\\x64\\Release\\DynaLL.dll BuildGL\\DynaLL.dll 2>nul" << std::endl;
 					batchFile << "cd /D BuildGL" << std::endl;
 					batchFile << "exit" << std::endl;
 
@@ -1964,12 +1968,26 @@ int main()
 						style.ItemSpacing.x = 4.0f;
 
 						ImVec2 imageSize(32, 32);
-						if (ImGui::ImageButton(imguiTextureID, imageSize))
-						{
-						}
+					
+						ImGui::Image(imguiTextureID, imageSize);
+						
+						
 
 						if (ImGui::IsItemHovered())
 						{
+							if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS && BindSelectedObject < 0)
+							{
+								BindSelectedObject = i;
+								con.log(BindSelectedObject);
+								con.log("Binded");
+							}
+							if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_RELEASE && BindSelectedObject > 0)
+							{
+								con.log("Recived");
+								con.log(BindSelectedObject);
+								BindSelectedObject = -1;
+
+							}
 							ImGui::BeginTooltip();
 							if (PresceneObjects[i].name != "MainCameraOvSTD") {
 								ImGui::Text("An OpenVision regular object.");
@@ -1979,7 +1997,7 @@ int main()
 							}
 							ImGui::EndTooltip();
 						}
-
+						
 						style.ButtonTextAlign = originalButtonTextAlign;
 						style.FramePadding = originalFramePadding;
 
@@ -2269,7 +2287,7 @@ int main()
 				//OVObjects = sceneObjects;?
 				//std::cout << ObjectsSize() + "Objects size" << std::endl;
 				//std::cout << sceneObjects.size() << std::endl;
-
+				
 				for (size_t i = 0; i < ObjectsSize(); i++)
 				{
 					sceneObjects[i].position->x = GetSharedVarX(i).x;
@@ -2277,7 +2295,7 @@ int main()
 					sceneObjects[i].scale->x = GetSharedVarX(i).scale_x;
 					sceneObjects[i].scale->y = GetSharedVarX(i).scale_y;
 				}
-
+				
 
 				/*
 				for (size_t i = 0; i < ObjectsSize(); i++)
@@ -2309,8 +2327,7 @@ int main()
 				fov = 22.45;
 				script.Start();
 				//sharedVar = 15;
-				int sharedVar = GetSharedVar();
-				sharedVar = 89;
+				
 
 
 				//(sharedObject.x, sharedObject.y)
@@ -2404,7 +2421,10 @@ int main()
 		ImGui::End();
 		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-
+		if (BindSelectedObject > 0) {
+			blackbox.tex = EngineBindIconGui;
+			blackbox.DrawTMP(window, shaderProgram, camera, glm::vec2(ndcMouseX, ndcMouseY), glm::vec2(4, 4));
+		}
 
 
 		glfwSwapBuffers(window);
