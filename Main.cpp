@@ -877,8 +877,6 @@ int main()
 	float CMX = Data.data[13];
 	float CMY = Data.data[14];
 
-	CMX = 0;
-	CMY = 0;
 	bool Nearest = Data.data[15];
 	bool build;
 
