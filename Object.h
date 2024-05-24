@@ -33,6 +33,8 @@ public:
 	std::vector <Vertex> vertices;
 	std::vector <GLuint> indices;
 	std::vector <Texture> textures;
+	int parent = -1;
+	glm::vec2* parent_position = new glm::vec2(0,0);
 	VAO VAO;
 
 	/// <summary>

@@ -394,7 +394,17 @@ float initialScaleX = 1.0f;
 void ObjectUI(GLFWwindow* window, int i, Texture EngineLayerIconGui)
 {
 	ImTextureID Texture = reinterpret_cast<ImTextureID>(static_cast<intptr_t>(EngineLayerIconGui.ID));
-
+	if (PresceneObjects[i].parent != -1)
+	{
+		PresceneObjects[i].parent_position = PresceneObjects[PresceneObjects[i].parent].position;
+		if (ImGui::Button(("Remove from parent##" + std::to_string(i)).c_str()))
+		{
+			PresceneObjects[i].parent = -1;
+		}
+	}
+	else {
+		PresceneObjects[i].parent_position = new glm::vec2(0, 0);
+	}
 
 
 	if (PresceneObjects[i].name != "MainCameraOvSTD") {
@@ -866,6 +876,9 @@ int main()
 	float FXAA_REDUCE_MUL = Data.data[12];
 	float CMX = Data.data[13];
 	float CMY = Data.data[14];
+
+	CMX = 0;
+	CMY = 0;
 	bool Nearest = Data.data[15];
 	bool build;
 
@@ -1056,6 +1069,7 @@ int main()
 		tint.z = SavingSystem.getFloat("OBJ" + std::to_string(i) + "TINZ", 0.0f);
 		cornerRadius = SavingSystem.getFloat("OBJ" + std::to_string(i) + "CR", 0.0f);
 
+		int parent = SavingSystem.getInt("OBJ" + std::to_string(i) + "_PAREN", 0);
 		Object obj = Object(verts, ind);
 		obj.name = name;
 		obj.position->x = posx;
@@ -1086,6 +1100,7 @@ int main()
 		obj.cornerRadius = cornerRadius;
 
 		obj.tex = Texture((texture).c_str());
+		obj.parent = parent;
 		PresceneObjects.push_back(obj);
 	}
 
@@ -1436,6 +1451,7 @@ int main()
 					SavingSystem.save("OBJ" + std::to_string(i) + "TINY", sceneObjects[i].tint.y);
 					SavingSystem.save("OBJ" + std::to_string(i) + "TINZ", sceneObjects[i].tint.z);
 					SavingSystem.save("OBJ" + std::to_string(i) + "CR", sceneObjects[i].cornerRadius);
+					SavingSystem.save("OBJ" + std::to_string(i) + "_PAREN", sceneObjects[i].parent);
 				}
 				SavingSystem.save("BG_COLOR", vec3(BackroundScreen[0], BackroundScreen[1], BackroundScreen[2]));
 				SavingSystem.saveToFile("SCENE.ov");
@@ -1536,6 +1552,7 @@ int main()
 					SavingSystem.save("OBJ" + std::to_string(i) + "TINY", sceneObjects[i].tint.y);
 					SavingSystem.save("OBJ" + std::to_string(i) + "TINZ", sceneObjects[i].tint.z);
 					SavingSystem.save("OBJ" + std::to_string(i) + "CR", sceneObjects[i].cornerRadius);
+					SavingSystem.save("OBJ" + std::to_string(i) + "_PAREN", sceneObjects[i].parent);
 
 				}
 				SavingSystem.save("BG_COLOR", vec3(BackroundScreen[0], BackroundScreen[1], BackroundScreen[2]));
@@ -1968,8 +1985,9 @@ int main()
 						style.ItemSpacing.x = 4.0f;
 
 						ImVec2 imageSize(32, 32);
-					
-						ImGui::Image(imguiTextureID, imageSize);
+						if (PresceneObjects[i].parent == -1) {
+							ImGui::Image(imguiTextureID, imageSize);
+						}
 						
 						
 
@@ -1978,13 +1996,12 @@ int main()
 							if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS && BindSelectedObject < 0)
 							{
 								BindSelectedObject = i;
-								con.log(BindSelectedObject);
-								con.log("Binded");
 							}
 							if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_RELEASE && BindSelectedObject > 0)
 							{
-								con.log("Recived");
-								con.log(BindSelectedObject);
+								if (i != BindSelectedObject) {
+									PresceneObjects[BindSelectedObject].parent = i;
+								}
 								BindSelectedObject = -1;
 
 							}
@@ -1998,8 +2015,6 @@ int main()
 							ImGui::EndTooltip();
 						}
 						
-						style.ButtonTextAlign = originalButtonTextAlign;
-						style.FramePadding = originalFramePadding;
 
 						ImGui::SameLine();
 
@@ -2012,12 +2027,27 @@ int main()
 						ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 0.0f);
 						ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 0.0f);
 
+						if (PresceneObjects[i].parent == -1) {
+							if (ImGui::CollapsingHeader(PresceneObjects[i].name.c_str()))
+							{
+								style.FramePadding.y = originalButtonPadding;
+								ObjectUI(window, i, EngineLayerIconGui);
+								//Improve performence
+								for (size_t j = 0; j < PresceneObjects.size(); j++) {
+									if (PresceneObjects[j].parent == i)
+									{
+										ImGui::Separator();
+										ObjectUI(window, j, EngineLayerIconGui);
+										ImGui::Separator();
+										
 
-						if (ImGui::CollapsingHeader(PresceneObjects[i].name.c_str()))
-						{
-							style.FramePadding.y = originalButtonPadding;
-							ObjectUI(window, i, EngineLayerIconGui);
+										
+									}
+								}
+							}
 						}
+						style.ButtonTextAlign = originalButtonTextAlign;
+						style.FramePadding = originalFramePadding;
 						
 						style.FramePadding.y = originalButtonPadding;
 
@@ -2130,6 +2160,8 @@ int main()
 								if (scaling == false) {
 									PresceneObjects[topIndex].position->x += dx;
 									PresceneObjects[topIndex].position->y += dy;
+
+
 								}
 
 								beforeMouseX = ndcMouseX;
@@ -2464,6 +2496,7 @@ int main()
 			SavingSystem.save("OBJ" + std::to_string(i) + "TINY", sceneObjects[i].tint.y);
 			SavingSystem.save("OBJ" + std::to_string(i) + "TINZ", sceneObjects[i].tint.z);
 			SavingSystem.save("OBJ" + std::to_string(i) + "CR", sceneObjects[i].cornerRadius);
+			SavingSystem.save("OBJ" + std::to_string(i) + "_PAREN", sceneObjects[i].parent);
 
 		}
 		SavingSystem.save("BG_COLOR", vec3(BackroundScreen[0], BackroundScreen[1], BackroundScreen[2]));

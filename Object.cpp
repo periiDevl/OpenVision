@@ -103,7 +103,7 @@ void Object::Draw(GLFWwindow* window, GLuint shader, Camera& camera, glm::vec3 a
 
     unsigned int numDiffuse = 0;
     glm::mat4 model = glm::mat4(1.0f);
-    model = glm::translate(model, glm::vec3(position->x + cameraX, position->y + cameraY, layer / 100.0));
+    model = glm::translate(model, glm::vec3(position->x + parent_position->x + cameraX, position->y + parent_position->y + cameraY, layer / 100.0));
 
     model = glm::rotate(model, Deg(*angle), axis);
     model = glm::scale(model, glm::vec3(*scale, 1.0f));
@@ -117,7 +117,7 @@ void Object::Draw(GLFWwindow* window, GLuint shader, Camera& camera, glm::vec3 a
 }
 vector<vec2> Object::GetVertices(Camera& camera, glm::vec3 axis, float cameraX, float cameraY) {
     glm::mat4 model = glm::mat4(1.0f);
-    model = glm::translate(model, glm::vec3(position->x + cameraX, position->y + cameraY, layer / 100.0));
+    model = glm::translate(model, glm::vec3(position->x + parent_position->x + cameraX, position->y + parent_position->y + cameraY, layer / 100.0));
 
     model = glm::rotate(model, Deg(*angle), axis);
     model = glm::scale(model, glm::vec3(*scale, 1.0f));
