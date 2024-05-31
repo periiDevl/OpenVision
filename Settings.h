@@ -141,6 +141,23 @@ void main() {
 
 
 
+const char* ObjectIDUnlitFragment =
+R"(
+#version 330 core
+
+out vec4 FragColor;
+
+uniform vec3 color; // The color of the object
+
+void main()
+{
+    FragColor = vec4(color, 1.0); // Set the fragment color to the object color
+}
+
+)";
+
+
+
 
 const char* FrameBufferFrag = R"(
 #version 330 core

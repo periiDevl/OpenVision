@@ -25,17 +25,20 @@
 #include <thread>
 #include "SaveSystem.h"
 #include "OVLIB.h"
+
 #include "steam_api.h"
 #include "isteamugc.h"
+#include "MenuItems.h"
 //#pragma comment(linker, "/SUBSYSTEM:windows /ENTRY:mainCRTStartup")
 
-
+bool build;
 
 std::vector<Object> PresceneObjects;
 
 SaveSystem SavingSystem;
 bool ScaleXBool = true;
 bool stopWarning = false;
+
 void popupforinstall() {
 	if (!stopWarning) {
 		ImGui::OpenPopup("Warning");
@@ -394,6 +397,7 @@ float initialScaleX = 1.0f;
 void ObjectUI(GLFWwindow* window, int i, Texture EngineLayerIconGui)
 {
 	ImTextureID Texture = reinterpret_cast<ImTextureID>(static_cast<intptr_t>(EngineLayerIconGui.ID));
+	
 	if (PresceneObjects[i].parent != -1)
 	{
 		PresceneObjects[i].parent_position = PresceneObjects[PresceneObjects[i].parent].position;
@@ -402,10 +406,6 @@ void ObjectUI(GLFWwindow* window, int i, Texture EngineLayerIconGui)
 			PresceneObjects[i].parent = -1;
 		}
 	}
-	else {
-		PresceneObjects[i].parent_position = new glm::vec2(0, 0);
-	}
-
 
 	if (PresceneObjects[i].name != "MainCameraOvSTD") {
 		if (ImGui::Button(("Delete Object##" + std::to_string(i)).c_str()))
@@ -804,7 +804,7 @@ int main()
 	
 	
 	//std::vector<Ov_Object> OVOb;
-
+	build = file_exists("ov.ov");
 	
 	if (!SteamAPI_Init()) {
 		// Handle initialization failure
@@ -878,7 +878,7 @@ int main()
 	float CMY = Data.data[14];
 
 	bool Nearest = Data.data[15];
-	bool build;
+
 
 
 
@@ -978,6 +978,16 @@ int main()
 	glLinkProgram(FramebufferProgram);
 
 
+
+	GLuint fragmentShaderMouseDetecting = glCreateShader(GL_FRAGMENT_SHADER);
+	glShaderSource(fragmentShaderMouseDetecting, 1, &ObjectIDUnlitFragment, NULL);
+	glCompileShader(fragmentShaderMouseDetecting);
+
+	GLuint MouseDetectionProgram = glCreateProgram();
+	glAttachShader(MouseDetectionProgram, vertexShader);
+	glAttachShader(MouseDetectionProgram, fragmentShaderMouseDetecting);
+	glLinkProgram(MouseDetectionProgram);
+
 	glUseProgram(FramebufferProgram);
 	glUniform1i(glGetUniformLocation(FramebufferProgram, "screenTexture"), 0);
 	glUniform1f(glGetUniformLocation(FramebufferProgram, "radius"), VigRadius);
@@ -987,7 +997,7 @@ int main()
 	glUniform1f(glGetUniformLocation(FramebufferProgram, "maximumEdgeDetection"), FXAA_SPAN_MAX);
 	glUniform2f(glGetUniformLocation(FramebufferProgram, "resolution"), width, height);
 
-
+	int FrameBufferMouseDetectedObject = -1;
 	float ndcMouseX;
 	float ndcMouseY;
 	double mouseX;
@@ -1188,6 +1198,22 @@ int main()
 	if (fboStatus != GL_FRAMEBUFFER_COMPLETE)
 		std::cout << "Framebuffer error: " << fboStatus << std::endl;
 
+
+
+	GLuint fboMouse;
+	glGenFramebuffers(1, &fboMouse);
+	glBindFramebuffer(GL_FRAMEBUFFER, fboMouse);
+
+	GLuint textureColorBuffer;
+	glGenTextures(1, &textureColorBuffer);
+	glBindTexture(GL_TEXTURE_2D, textureColorBuffer);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glBindTexture(GL_TEXTURE_2D, 0);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textureColorBuffer, 0);
+
+
 	bool firsttime = true;
 	ImGuiStyle& style = ImGui::GetStyle();
 	float originalButtonPadding = style.FramePadding.y;
@@ -1203,7 +1229,7 @@ int main()
 		}
 		
 		ImTextureID RebuildimguiTextureID = reinterpret_cast<ImTextureID>(static_cast<intptr_t>(EngineOVTrashIconGui.ID));
-		build = file_exists("ov.ov");
+		
 		glUniform1f(glGetUniformLocation(FramebufferProgram, "minEdgeContrast"), FXAA_REDUCE_MIN);
 		glUniform1f(glGetUniformLocation(FramebufferProgram, "subPixelAliasing"), FXAA_REDUCE_MUL);
 		glUniform1f(glGetUniformLocation(FramebufferProgram, "maximumEdgeDetection"), FXAA_SPAN_MAX);
@@ -1342,9 +1368,27 @@ int main()
 				}
 				ImGui::EndMenu();
 			}
-
 			ImGui::Separator();
+			if (ImGui::BeginMenu("Build"))
+			{
+				
+				if (ImGui::MenuItem("Settings"))
+				{
+					OpenProjectSettings = true;
+				}
 
+				
+				if (ImGui::MenuItem("Launch"))
+				{
+					//save
+				}
+				ImGui::EndMenu();
+			}
+			if (OpenProjectSettings) {
+				popupProjectSettings();
+			}
+			
+			ImGui::Separator();
 			if (ImGui::BeginMenu("Debug"))
 			{
 				RebuildimguiTextureID = reinterpret_cast<ImTextureID>(static_cast<intptr_t>(EngineOVMMSIconGui.ID));
@@ -1474,6 +1518,7 @@ int main()
 					batchFile << "copy /Y runtimeconfig.ov DEBUG_BUILD\\runtimeconfig.ov 2>nul" << std::endl;
 					batchFile << "copy /Y SETTINGS.ov DEBUG_BUILD\\SETTINGS.ov 2>nul" << std::endl;
 					batchFile << "copy /Y SCRIPTS.ov DEBUG_BUILD\\SCRIPTS.ov 2>nul" << std::endl;
+					batchFile << "copy /Y steam_api64.dll DEBUG_BUILD\\steam_api64.dll 2>nul" << std::endl;
 					batchFile << "copy /Y DynaLL\\x64\\Release\\DynaLL.dll DEBUG_BUILD\\DynaLL.dll 2>nul" << std::endl;
 					batchFile << "cd /D DEBUG_BUILD" << std::endl;
 					batchFile << "start /B Ovruntime.exe" << std::endl;
@@ -1577,6 +1622,7 @@ int main()
 					batchFile << "copy /Y runtimeconfig.ov BuildGL\\runtimeconfig.ov 2>nul" << std::endl;
 					batchFile << "copy /Y SETTINGS.ov BuildGL\\SETTINGS.ov 2>nul" << std::endl;
 					batchFile << "copy /Y SCRIPTS.ov BuildGL\\SCRIPTS.ov 2>nul" << std::endl;
+					batchFile << "copy /Y steam_api64.dll DEBUG_BUILD\\steam_api64.dll 2>nul" << std::endl;
 					batchFile << "copy /Y DynaLL\\x64\\Release\\DynaLL.dll BuildGL\\DynaLL.dll 2>nul" << std::endl;
 					batchFile << "cd /D BuildGL" << std::endl;
 					batchFile << "exit" << std::endl;
@@ -1942,7 +1988,14 @@ int main()
 			{
 				for (size_t i = 0; i < PresceneObjects.size(); i++)
 				{
+					if (PresceneObjects[i].parent != -1)
+					{
+						PresceneObjects[i].parent_position = PresceneObjects[PresceneObjects[i].parent].position;
 
+					}
+					else {
+						PresceneObjects[i].parent_position = new glm::vec2(0, 0);
+					}
 					bool foundLastSelected = false;
 
 					for (int i = PresceneObjects.size() - 1; i >= 0; i--) {
@@ -2106,7 +2159,7 @@ int main()
 						for (int i = 0; i < PresceneObjects.size(); i++) {
 
 							
-							if (MouseOverObject(PresceneObjects[i], camera, glm::vec3(0, 0, 1), CMX, CMY, ndcMouseX, ndcMouseY) && !mouseOverUI)
+							if (i == FrameBufferMouseDetectedObject && !mouseOverUI)
 								
 							{
 								hoveredObject = i;
@@ -2132,7 +2185,7 @@ int main()
 
 							
 							if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS && onpopupmenu == false &&
-								MouseOverObject(PresceneObjects[i], camera, glm::vec3(0, 0, 1), CMX, CMY, ndcMouseX, ndcMouseY) && !mouseOverUI)
+								FrameBufferMouseDetectedObject == i && !mouseOverUI)
 
 							{
 								if (PresceneObjects[i].layer > maxZIndex) {
@@ -2235,13 +2288,19 @@ int main()
 
 						glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 						glLineWidth(2.0f);
+
 						PresceneObjects[selectedObject].Draw(window, unlitProgram, camera, glm::vec3(0, 0, 1), CMX, CMY, Nearest);
 
 						glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
+
+
+						//Drawing
 						PresceneObjects[i].Draw(window, shaderProgram, camera, glm::vec3(0, 0, 1), CMX, CMY, Nearest);
 
 
+
+						
 					}
 				}
 			}
@@ -2259,12 +2318,53 @@ int main()
 			glBindTexture(GL_TEXTURE_2D, framebufferTexture);
 			glDrawArrays(GL_TRIANGLES, 0, 6);
 		}
+
+		glBindFramebuffer(GL_FRAMEBUFFER, fboMouse);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		//Mouse Detecting
+		glUseProgram(MouseDetectionProgram);
+		for (int i = 0; i < PresceneObjects.size(); i++) {
+			
+			float redValue = float((i / (256 * 256)) % 256) / 255.0f; // High byte
+			float greenValue = float((i / 256) % 256) / 255.0f; // Mid byte
+			float blueValue = float(i % 256) / 255.0f; // Low byte
+
+			glUniform3f(glGetUniformLocation(MouseDetectionProgram, "color"), redValue, greenValue, blueValue);
+			PresceneObjects[i].Draw(window, MouseDetectionProgram, camera, glm::vec3(0, 0, 1), CMX, CMY, Nearest);
+		}
+
+		double xpos, ypos;
+		glfwGetCursorPos(window, &xpos, &ypos);
+
+		
+		int windowWidth, windowHeight;
+		glfwGetWindowSize(window, &windowWidth, &windowHeight);
+
+		
+		glReadBuffer(GL_FRONT); 
+		unsigned char pixel[3];
+		glReadPixels((int)xpos, windowHeight - (int)ypos, 1, 1, GL_RGB, GL_UNSIGNED_BYTE, pixel);
+
+
+		FrameBufferMouseDetectedObject = pixel[0] * 256 * 256 + pixel[1] * 256 + pixel[2];
+
+		std::cout << "Object index under mouse: " << FrameBufferMouseDetectedObject << std::endl;
+		/*
+		std::cout << "Color under mouse: R=" << (int)pixel[0]
+			<< " G=" << (int)pixel[1]
+			<< " B=" << (int)pixel[2] << std::endl;
+		*/
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+
+
 		Object RuntimeCam = *OV::SearchObjectByName("MainCameraOvSTD", PresceneObjects);
 
 		blackbox.tex = nulltex;
 		blackbox.layer = 100;
-		float offsetX = 5;
-		float offsetY = 7;
+		float offsetX = CMX;
+		float offsetY = CMY;
 		blackbox.DrawTMP(window, shaderProgram, camera, glm::vec2(RuntimeCam.position->x + offsetX, ((-36 / 1.5) / 1.5) + RuntimeCam.position->y + offsetY), glm::vec2(59, 0.5));
 		blackbox.DrawTMP(window, shaderProgram, camera, glm::vec2(RuntimeCam.position->x + offsetX, ((36 / 1.5) / 1.5) + RuntimeCam.position->y + offsetY), glm::vec2(59, 0.5));
 

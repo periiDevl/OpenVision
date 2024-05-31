@@ -246,6 +246,7 @@
     <ClInclude Include="isteamvideo.h" />
     <ClInclude Include="matchmakingtypes.h" />
     <ClInclude Include="Math.h" />
+    <ClInclude Include="MenuItems.h" />
     <ClInclude Include="Object.h" />
     <ClInclude Include="OV.h" />
     <ClInclude Include="OVscriptHandaling.h" />
