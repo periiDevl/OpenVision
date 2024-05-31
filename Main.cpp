@@ -2349,7 +2349,7 @@ int main()
 
 		FrameBufferMouseDetectedObject = pixel[0] * 256 * 256 + pixel[1] * 256 + pixel[2];
 
-		std::cout << "Object index under mouse: " << FrameBufferMouseDetectedObject << std::endl;
+		//std::cout << "Object index under mouse: " << FrameBufferMouseDetectedObject << std::endl;
 		/*
 		std::cout << "Color under mouse: R=" << (int)pixel[0]
 			<< " G=" << (int)pixel[1]
