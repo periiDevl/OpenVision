@@ -1,4 +1,4 @@
-
+#pragma once
 //Global settings
 float GlobalWorldScale = 0.5f;
 
@@ -242,3 +242,12 @@ void main()
 }  
 )";
 
+float rectangleVertices[] =
+{
+     1.0f, -1.0f,  1.0f, 0.0f,
+    -1.0f, -1.0f,  0.0f, 0.0f,
+    -1.0f,  1.0f,  0.0f, 1.0f,
+     1.0f,  1.0f,  1.0f, 1.0f,
+     1.0f, -1.0f,  1.0f, 0.0f,
+    -1.0f,  1.0f,  0.0f, 1.0f
+};

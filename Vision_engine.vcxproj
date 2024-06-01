@@ -204,6 +204,7 @@
     <ClInclude Include="CollisionManager.h" />
     <ClInclude Include="Console.h" />
     <ClInclude Include="EBO.h" />
+    <ClInclude Include="FileFunctions.h" />
     <ClInclude Include="IMGUITheme.h" />
     <ClInclude Include="imgui\imconfig.h" />
     <ClInclude Include="imgui\imgui.h" />
@@ -263,6 +264,7 @@
     <ClInclude Include="steamhttpenums.h" />
     <ClInclude Include="steamnetworkingfakeip.h" />
     <ClInclude Include="steamnetworkingtypes.h" />
+    <ClInclude Include="SteamOVIMP.h" />
     <ClInclude Include="steamps3params.h" />
     <ClInclude Include="steamtypes.h" />
     <ClInclude Include="steamuniverse.h" />

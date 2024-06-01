@@ -1,7 +1,10 @@
 ﻿#pragma once
+#include"OV.h"
+#include "Settings.h"
+#include "FileFunctions.h"
+#include "SteamOVIMP.h"
 #include "Object.h"
 #include "Math.h"
-#include "Settings.h"
 #include "IMGUITheme.h"
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
@@ -22,23 +25,19 @@
 #include "Presave.h"
 #include "Script.h"
 #include <chrono>
-#include <thread>
 #include "SaveSystem.h"
 #include "OVLIB.h"
-
-#include "steam_api.h"
-#include "isteamugc.h"
+#include "Settings.h"
 #include "MenuItems.h"
-//#pragma comment(linker, "/SUBSYSTEM:windows /ENTRY:mainCRTStartup")
-
-bool build;
-
-std::vector<Object> PresceneObjects;
-
 SaveSystem SavingSystem;
+//find an apropriate space
+//----------------
 bool ScaleXBool = true;
 bool stopWarning = false;
+//----------------
+ 
 
+//Move to seprate calss---
 void popupforinstall() {
 	if (!stopWarning) {
 		ImGui::OpenPopup("Warning");
@@ -57,6 +56,7 @@ void popupforinstall() {
 		ImGui::EndPopup();
 	}
 }
+//----
 void SaveObjectsToFile(const std::string& filename) {
 	std::ofstream outputFile(filename);
 	if (!outputFile.is_open()) {
@@ -64,7 +64,7 @@ void SaveObjectsToFile(const std::string& filename) {
 		return;
 	}
 
-	for (const Object& object : PresceneObjects) {
+	for (const Object& object : sceneObjects) {
 		glm::vec2* pos = object.position;
 		float posx = pos->x;
 		float posy = pos->y;
@@ -185,6 +185,8 @@ void playSound(const std::string& filePath)
 }
 */
 
+//Move to serpate calss 
+//----
 
 bool InputBoolWithEndFocus(const char* label, bool* value)
 {
@@ -299,18 +301,20 @@ bool InputFloatSliderWithEndFocus(const char* label, float* value, float min = 0
 
 	return valueChanged;
 }
+//-----
+
 
 void ObjectCreator(GLFWwindow* window, Object obj) {
 	static bool hasExecuted = false;
 
 	if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) && glfwGetKey(window, GLFW_KEY_D) && !hasExecuted) {
-		PresceneObjects.push_back(Object(verts, ind));
-		PresceneObjects[PresceneObjects.size() - 1].name = "obj Copyof (" + obj.name + ") id (" + to_string(PresceneObjects.size()) + ")";
-		//PresceneObjects[PresceneObjects.size() - 1].position = obj.position;
-		PresceneObjects[PresceneObjects.size() - 1].tex = obj.tex;
-		PresceneObjects[PresceneObjects.size() - 1].texChar = obj.texChar;
-		PresceneObjects[PresceneObjects.size() - 1].scale = obj.scale;
-		PresceneObjects[PresceneObjects.size() - 1].angle = obj.angle;
+		sceneObjects.push_back(Object(verts, ind));
+		sceneObjects[sceneObjects.size() - 1].name = "obj Copyof (" + obj.name + ") id (" + to_string(sceneObjects.size()) + ")";
+		//sceneObjects[sceneObjects.size() - 1].position = obj.position;
+		sceneObjects[sceneObjects.size() - 1].tex = obj.tex;
+		sceneObjects[sceneObjects.size() - 1].texChar = obj.texChar;
+		sceneObjects[sceneObjects.size() - 1].scale = obj.scale;
+		sceneObjects[sceneObjects.size() - 1].angle = obj.angle;
 		hasExecuted = true;
 	}
 
@@ -320,63 +324,9 @@ void ObjectCreator(GLFWwindow* window, Object obj) {
 }
 
 
-void createFile(const char* filename) {
-	std::ofstream file(filename);
-
-	if (!file) {
-		std::cerr << "Error creating file: " << filename << std::endl;
-		return;
-	}
-
-	file.close();
-}
-void copyFile(string sourcePath, string destinationPath) {
-	if (filesystem::exists(sourcePath)) {
-		if (filesystem::exists(filesystem::path(destinationPath).parent_path())) {
-			fstream source(sourcePath, ios::in | ios::binary);
-
-			fstream destination(destinationPath, ios::out | ios::binary);
-
-			char buffer[1024];
-			while (source.read(buffer, sizeof(buffer))) {
-				destination.write(buffer, source.gcount());
-			}
-
-			source.close();
-			destination.close();
-		}
-		else {
-			cout << "Destination directory does not exist!" << endl;
-		}
-	}
-	else {
-		cout << "Source file does not exist!" << endl;
-	}
-}
-
-void createFolder(string folderName) {
-	if (filesystem::exists(folderName)) {
-
-		std::filesystem::remove_all("BuildGL");
-	}
-
-	filesystem::create_directory(folderName);
-
-}
-
 Script script;
 
-/// <summary>
-/// Checks if the mouse touches the object in any way using the SAT Algorithm for collision-detection
-/// </summary>
-/// <param name="obj">The object who is checked</param>
-/// <param name="camera">Camera</param>
-/// <param name="axis">Draw Axis</param>
-/// <param name="cmx"></param>
-/// <param name="cmy"></param>
-/// <param name="mx">The x position of the mouse</param>
-/// <param name="my">The y position of the mouse</param>
-/// <returns>A boolean which value's is equal to their collision state</returns>
+//(delete later)
 bool MouseOverObject(Object obj, Camera& camera, glm::vec3 axis, float cmx, float cmy, float mx, float my) {
 	// Using SAT to check if the mouse is over the object "a"
 	vector<vec2> vertices = obj.GetVertices(camera, axis, cmx, cmy);
@@ -384,54 +334,53 @@ bool MouseOverObject(Object obj, Camera& camera, glm::vec3 axis, float cmx, floa
 	return CollisionManager::PolyVPoint(vertices, vec2(mx, my));
 }
 
-int main();
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 
-
-double scroll_offset = 45.0;
+//Find a more apropriate sapce
+//-----------------
+double scroll_offset = 45.0f;
 int BindSelectedObject = -1;
-int PythonIndex = 0;
 bool scaling = false;
-float initialMouseX = 0.0f; // Initialize initialMouseX outside of your event loop
+float initialMouseX = 0.0f;
 float initialScaleX = 1.0f;
+//-------------------
+
 void ObjectUI(GLFWwindow* window, int i, Texture EngineLayerIconGui)
 {
 	ImTextureID Texture = reinterpret_cast<ImTextureID>(static_cast<intptr_t>(EngineLayerIconGui.ID));
 	
-	if (PresceneObjects[i].parent != -1)
+	if (sceneObjects[i].parent != -1)
 	{
-		PresceneObjects[i].parent_position = PresceneObjects[PresceneObjects[i].parent].position;
+		sceneObjects[i].parent_position = sceneObjects[sceneObjects[i].parent].position;
 		if (ImGui::Button(("Remove from parent##" + std::to_string(i)).c_str()))
 		{
-			PresceneObjects[i].parent = -1;
+			sceneObjects[i].parent = -1;
 		}
 	}
 
-	if (PresceneObjects[i].name != "MainCameraOvSTD") {
+	if (sceneObjects[i].name != "MainCameraOvSTD") {
 		if (ImGui::Button(("Delete Object##" + std::to_string(i)).c_str()))
 		{
-			DeleteObject action(PresceneObjects[i]);
+			DeleteObject action(sceneObjects[i]);
 			undoStack.push(action);
 
-			PresceneObjects[i].deleted = true;
+			sceneObjects[i].deleted = true;
 			clearSavingSystem(i);
-			PresceneObjects.erase(PresceneObjects.begin() + i);
 			sceneObjects.erase(sceneObjects.begin() + i);
 		}
 		char objName[128];
-		strcpy_s(objName, sizeof(objName), PresceneObjects[i].name.c_str());
+		strcpy_s(objName, sizeof(objName), sceneObjects[i].name.c_str());
 		ImGui::InputText(("Obj Name##" + std::to_string(i)).c_str(), objName, ImGuiInputTextFlags_EnterReturnsTrue);
 		if (glfwGetKey(window, GLFW_KEY_ENTER) && strlen(objName) > 0) {
 			bool nameexists = false;
-			for (size_t i = 0; i < PresceneObjects.size(); i++)
+			for (size_t i = 0; i < sceneObjects.size(); i++)
 			{
-				if (objName == PresceneObjects[i].name)
+				if (objName == sceneObjects[i].name)
 				{
 					nameexists = true;
 				}
 			}
 			if (!nameexists) {
-				PresceneObjects[i].name = objName;
 				sceneObjects[i].name = objName;
 			}
 		}
@@ -441,76 +390,76 @@ void ObjectUI(GLFWwindow* window, int i, Texture EngineLayerIconGui)
 
 	if (ImGui::TreeNodeEx(("Visual ##" + std::to_string(i)).c_str(), ImGuiTreeNodeFlags_DefaultOpen))
 	{
-		InputBoolWithEndFocus(("Draw (On runtime) ##" + std::to_string(i)).c_str(), &PresceneObjects[i].drawOnRuntime);
+		InputBoolWithEndFocus(("Draw (On runtime) ##" + std::to_string(i)).c_str(), &sceneObjects[i].drawOnRuntime);
 		ImGui::Columns(2, nullptr, true);
-		InputFloatWithEndFocus(("Pos X##" + std::to_string(i)).c_str(), &PresceneObjects[i].position->x, 0.3f, 1, 0);
+		InputFloatWithEndFocus(("Pos X##" + std::to_string(i)).c_str(), &sceneObjects[i].position->x, 0.3f, 1, 0);
 		ImGui::NextColumn();
-		InputFloatWithEndFocus(("Pos Y##" + std::to_string(i)).c_str(), &PresceneObjects[i].position->y, 0.3f, 1, 0);
+		InputFloatWithEndFocus(("Pos Y##" + std::to_string(i)).c_str(), &sceneObjects[i].position->y, 0.3f, 1, 0);
 
 		ImGui::Columns(1, nullptr, true);
 		ImGui::Columns(2, nullptr, true);
-		InputFloatWithEndFocus(("Scale X##" + std::to_string(i)).c_str(), &PresceneObjects[i].scale->x, 0.3f, 1, 0);
+		InputFloatWithEndFocus(("Scale X##" + std::to_string(i)).c_str(), &sceneObjects[i].scale->x, 0.3f, 1, 0);
 		ImGui::NextColumn();
 
-		InputFloatWithEndFocus(("Scale Y##" + std::to_string(i)).c_str(), &PresceneObjects[i].scale->y, 0.3f, 1, 0);
+		InputFloatWithEndFocus(("Scale Y##" + std::to_string(i)).c_str(), &sceneObjects[i].scale->y, 0.3f, 1, 0);
 
 		ImGui::Columns(1, nullptr, true);
-		InputFloatWithEndFocus(("Angle ##" + std::to_string(i)).c_str(), PresceneObjects[i].angle, 0.3f, 1, 0);
+		InputFloatWithEndFocus(("Angle ##" + std::to_string(i)).c_str(), sceneObjects[i].angle, 0.3f, 1, 0);
 
 		if (ImGui::ImageButton(Texture, ImVec2(20, 20)))
 		{
 		}
 		ImGui::SameLine();
-		InputIntWithEndFocus(("Layer ##" + std::to_string(i)).c_str(), &PresceneObjects[i].layer, 1, 1);
+		InputIntWithEndFocus(("Layer ##" + std::to_string(i)).c_str(), &sceneObjects[i].layer, 1, 1);
 
 		ImGui::Separator();
 
 		ImGui::Columns(2, nullptr, true);
-		InputFloatWithEndFocus(("Tex X##" + std::to_string(i)).c_str(), &PresceneObjects[i].TileX, 0.3f, 1, 0);
+		InputFloatWithEndFocus(("Tex X##" + std::to_string(i)).c_str(), &sceneObjects[i].TileX, 0.3f, 1, 0);
 		ImGui::NextColumn();
-		InputFloatWithEndFocus(("Tex Y##" + std::to_string(i)).c_str(), &PresceneObjects[i].TileY, 0.3f, 1, 0);
+		InputFloatWithEndFocus(("Tex Y##" + std::to_string(i)).c_str(), &sceneObjects[i].TileY, 0.3f, 1, 0);
 
 		ImGui::Columns(1, nullptr, true);
 
 		float tint[3];
 
 
-		tint[0] = PresceneObjects[i].tint.x;
-		tint[1] = PresceneObjects[i].tint.y;
-		tint[2] = PresceneObjects[i].tint.z;
+		tint[0] = sceneObjects[i].tint.x;
+		tint[1] = sceneObjects[i].tint.y;
+		tint[2] = sceneObjects[i].tint.z;
 
 		ImGui::ColorEdit3(("Tint ##" + std::to_string(i)).c_str(), tint);
 
-		PresceneObjects[i].tint.x = tint[0];
-		PresceneObjects[i].tint.y = tint[1];
-		PresceneObjects[i].tint.z = tint[2];
+		sceneObjects[i].tint.x = tint[0];
+		sceneObjects[i].tint.y = tint[1];
+		sceneObjects[i].tint.z = tint[2];
 
 		ImGui::TreePop();
 	}
 
 	// Im lazy to fix it now, will be fixed later now I want to check if this is even working 
 	if (ImGui::TreeNodeEx(("Rigidbody Properties ##" + std::to_string(i)).c_str(), ImGuiTreeNodeFlags_DefaultOpen)) {
-		InputIntWithEndFocus(("Physical Layer ##" + std::to_string(i)).c_str(), &PresceneObjects[i].Body->layer);
+		InputIntWithEndFocus(("Physical Layer ##" + std::to_string(i)).c_str(), &sceneObjects[i].Body->layer);
 
-		InputFloatWithEndFocus(("Dynamic Friction ##" + std::to_string(i)).c_str(), &PresceneObjects[i].Body->dynamicFric);
+		InputFloatWithEndFocus(("Dynamic Friction ##" + std::to_string(i)).c_str(), &sceneObjects[i].Body->dynamicFric);
 
-		InputFloatWithEndFocus(("Static Friction ##" + std::to_string(i)).c_str(), &PresceneObjects[i].Body->staticFric);
+		InputFloatWithEndFocus(("Static Friction ##" + std::to_string(i)).c_str(), &sceneObjects[i].Body->staticFric);
 
-		InputFloatWithEndFocus(("Density ##" + std::to_string(i)).c_str(), &PresceneObjects[i].Body->density);
+		InputFloatWithEndFocus(("Density ##" + std::to_string(i)).c_str(), &sceneObjects[i].Body->density);
 	
-		InputFloatWithEndFocus(("Bounciness ##" + std::to_string(i)).c_str(), &PresceneObjects[i].Body->restitution);
+		InputFloatWithEndFocus(("Bounciness ##" + std::to_string(i)).c_str(), &sceneObjects[i].Body->restitution);
 	
 		ImGui::Columns(1, nullptr, true);
 		ImGui::Columns(2, nullptr, true);
 	
-		bool triggerValue = PresceneObjects[i].Body->IsTrigger();
+		bool triggerValue = sceneObjects[i].Body->IsTrigger();
 		InputBoolWithEndFocus(("Trigger ##" + std::to_string(i)).c_str(), &triggerValue);
-		PresceneObjects[i].Body->IsTrigger(triggerValue);
+		sceneObjects[i].Body->IsTrigger(triggerValue);
 
 		ImGui::NextColumn();
-		bool staticValue = PresceneObjects[i].Body->IsStatic();
+		bool staticValue = sceneObjects[i].Body->IsStatic();
 		InputBoolWithEndFocus(("Static ##" + std::to_string(i)).c_str(), &staticValue);
-		PresceneObjects[i].Body->IsStatic(staticValue);
+		sceneObjects[i].Body->IsStatic(staticValue);
 		ImGui::Columns(1, nullptr, true);
 	
 		ImGui::TreePop();
@@ -519,7 +468,7 @@ void ObjectUI(GLFWwindow* window, int i, Texture EngineLayerIconGui)
 
 	if (ImGui::TreeNodeEx(("Rigidbody Properties ##" + std::to_string(i)).c_str(), ImGuiTreeNodeFlags_DefaultOpen)) {
 
-		InputFloatSliderWithEndFocus(("cornerRadius ##" + std::to_string(i)).c_str(), &PresceneObjects[i].cornerRadius, 0.01, 0.5);
+		InputFloatSliderWithEndFocus(("cornerRadius ##" + std::to_string(i)).c_str(), &sceneObjects[i].cornerRadius, 0.01, 0.5);
 
 
 		ImGui::TreePop();
@@ -528,88 +477,6 @@ void ObjectUI(GLFWwindow* window, int i, Texture EngineLayerIconGui)
 
 
 }
-
-float rectangleVertices[] =
-{
-	 1.0f, -1.0f,  1.0f, 0.0f,
-	-1.0f, -1.0f,  0.0f, 0.0f,
-	-1.0f,  1.0f,  0.0f, 1.0f,
-
-	 1.0f,  1.0f,  1.0f, 1.0f,
-	 1.0f, -1.0f,  1.0f, 0.0f,
-	-1.0f,  1.0f,  0.0f, 1.0f
-};
-
-std::string executeCommandAndGetOutput(const char* command) {
-	std::string outputFileName = "command_output.txt";
-	std::string commandWithOutputRedirect = std::string(command) + " > \"" + outputFileName + "\"";
-
-	std::system(commandWithOutputRedirect.c_str());
-
-	std::ifstream outputFile(outputFileName);
-	if (!outputFile.is_open()) {
-		std::cerr << "Failed to open output file." << std::endl;
-		return "";
-	}
-
-	std::stringstream output;
-	output << outputFile.rdbuf();
-	outputFile.close();
-
-	std::remove(outputFileName.c_str());
-
-	return output.str();
-}
-
-std::string getPythonLocationByLine(int line) {
-	std::string whereCommand = "where python";
-	std::string pythonLocations = executeCommandAndGetOutput(whereCommand.c_str());
-
-	std::stringstream ss(pythonLocations);
-	std::string location;
-	std::vector<std::string> locations;
-
-	while (std::getline(ss, location, '\n')) {
-		locations.push_back(location);
-	}
-
-	if (line < 0)
-		line = 0;
-	if (line >= locations.size()) {
-		line = locations.size() - 1;
-	}
-
-	return locations[line];
-}
-
-
-void rebuild(GLFWwindow* window, bool localPython) {
-
-	std::cout << "python locations " << endl << executeCommandAndGetOutput("where python") << endl;
-	std::cout << getPythonLocationByLine(PythonIndex) << endl;
-	std::string command = std::string("start /B python builder.py");
-
-	if (!localPython) {
-		std::filesystem::path pythonPath = getPythonLocationByLine(PythonIndex);
-		std::string pythonPathStr = pythonPath.string();
-
-		for (size_t i = 0; i < pythonPathStr.size(); i++) {
-			if (pythonPathStr[i] == '\\') {
-				pythonPathStr.insert(i, 1, '\\');
-				i++;
-			}
-		}
-
-		command = std::string("start /B python.exe") + " builder.py";
-	}
-
-	std::cout << "command: " << command << std::endl;
-
-
-	std::system(command.c_str());
-
-}
-
 
 
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
@@ -629,10 +496,6 @@ static int InputTextCallback(ImGuiInputTextCallbackData* data)
 	return 1;
 }
 
-bool file_exists(const std::string& filename) {
-	std::ifstream file(filename);
-	return file.good();
-}
 
 void undoAction() {
 	if (!undoStack.empty()) {
@@ -641,14 +504,14 @@ void undoAction() {
 
 		if (const AddObject* addObjectAction = std::get_if<AddObject>(&previousAction)) {
 
-			for (size_t i = 0; i < PresceneObjects.size(); i++)
+			for (size_t i = 0; i < sceneObjects.size(); i++)
 			{
-				if (PresceneObjects[i].name == addObjectAction->name) {
+				if (sceneObjects[i].name == addObjectAction->name) {
 
-					PresceneObjects[i].deleted = true;
+					sceneObjects[i].deleted = true;
 					clearSavingSystem(i);
 
-					PresceneObjects.erase(PresceneObjects.begin() + i);
+					sceneObjects.erase(sceneObjects.begin() + i);
 					sceneObjects.erase(sceneObjects.begin() + i);
 					return;
 				}
@@ -656,7 +519,7 @@ void undoAction() {
 		}
 		else if (const DeleteObject* deleteObjectAction = std::get_if<DeleteObject>(&previousAction)) {
 
-			PresceneObjects.push_back(deleteObjectAction->object);
+			sceneObjects.push_back(deleteObjectAction->object);
 		}
 		else if (const ModifyGuiInt* modifyIntAction = std::get_if<ModifyGuiInt>(&previousAction)) {
 			*modifyIntAction->valueInMemory = modifyIntAction->wasValue;
@@ -673,192 +536,26 @@ void undoAction() {
 	}
 }
 
-namespace fs = std::filesystem;
 
-class MyClass {
-public:
-	// Callback for submit item update result
-	static void OnSubmitItemUpdateResult(SubmitItemUpdateResult_t* pCallback, bool bIOFailure)
-	{
-		if (pCallback->m_eResult == k_EResultOK)
-		{
-			// Mod upload successful
-		}
-		else
-		{
-			// Mod upload failed, handle error
-			// Add error handling code here
-		}
-	}
-};
-PublishedFileId_t CreateAndUploadWorkshopItem(const char* modFolder, const char* modTitle, const char* modDescription)
-{
-	// Initialize Steamworks API
-	if (!SteamAPI_Init())
-	{
-		// Handle initialization failure
-		std::cerr << "SteamAPI_Init() failed" << std::endl;
-		//return;
-	}
 
-	// Create a workshop item
-	PublishedFileId_t publishedFileId = SteamUGC()->CreateItem(SteamUtils()->GetAppID(), k_EWorkshopFileTypeCommunity);
-	if (publishedFileId == k_PublishedFileIdInvalid)
-	{
-		// Handle item creation failure
-		std::cerr << "Failed to create workshop item" << std::endl;
-		//return;
-	}
-
-	// Start updating the workshop item
-	UGCUpdateHandle_t updateHandle = SteamUGC()->StartItemUpdate(SteamUtils()->GetAppID(), publishedFileId);
-	if (updateHandle == k_UGCUpdateHandleInvalid)
-	{
-		// Handle update handle creation failure
-		std::cerr << "Failed to start item update" << std::endl;
-		//return;
-	}
-
-	// Create a workshop item
-
-	// Start updating the workshop item
-
-	// **Uncomment these lines to set the workshop item details**
-	SteamUGC()->SetItemTitle(updateHandle, modTitle);
-	//SteamUGC()->SetItemDescription(updateHandle, modDescription);
-
-	// Set mod visibility
-	//SteamUGC()->SetItemVisibility(updateHandle, k_ERemoteStoragePublishedFileVisibilityPublic);
-
-	// Set mod content (folder containing mod files)
-	//SteamUGC()->SetItemContent(updateHandle, modFolder);
-
-	// Submit the item update (upload the mod to workshop)
-	SteamAPICall_t submitCall = SteamUGC()->SubmitItemUpdate(updateHandle, "Uploaded my mod!");
-	if (submitCall == k_uAPICallInvalid)
-	{
-		// Handle submission failure
-		std::cerr << "Failed to submit item update" << std::endl;
-		//return;
-	}
-	return publishedFileId;
-	// Ensure callback gets called
-	// Add your callback handling here if needed
-}
-
-void UpdateWorkshopItem(const char* modFolder, const char* modTitle, const char* modDescription, PublishedFileId_t publishedFileId) {
-	// Start updating the workshop item
-	UGCUpdateHandle_t updateHandle = SteamUGC()->StartItemUpdate(SteamUtils()->GetAppID(), publishedFileId);
-	if (updateHandle == k_UGCUpdateHandleInvalid) {
-		// Handle update handle creation failure
-		std::cerr << "Failed to start item update" << std::endl;
-		return;
-	}
-
-	// Set the mod title and description
-	SteamUGC()->SetItemTitle(updateHandle, "Hello");
-	//SteamUGC()->SetItemDescription(updateHandle, modDescription);
-
-	// Set mod visibility
-	//SteamUGC()->SetItemVisibility(updateHandle, k_ERemoteStoragePublishedFileVisibilityPublic);
-
-	// Set mod content (folder containing mod files)
-	//SteamUGC()->SetItemContent(updateHandle, modFolder);
-
-	// Submit the item update (upload the mod to workshop)
-	SteamAPICall_t submitCall = SteamUGC()->SubmitItemUpdate(updateHandle, "Uploaded my mod!");
-	if (submitCall == k_uAPICallInvalid) {
-		// Handle submission failure
-		std::cerr << "Failed to submit item update" << std::endl;
-		return;
-	}
-
-	// Wait until the update is completed
-	while (true) {
-		// Poll for callback
-		SteamAPI_RunCallbacks();
-
-		// Check if the item update is completed
-		EItemUpdateStatus updateStatus = SteamUGC()->GetItemUpdateProgress(updateHandle, nullptr, nullptr);
-
-		if (updateStatus == k_EItemUpdateStatusCommittingChanges) {
-			std::cout << "Updating workshop item..." << std::endl;
-			// You can add more code here if you want to do something while the update is in progress
-		}
-		else if (updateStatus == k_EItemUpdateStatusCommittingChanges) {
-			std::cout << "Workshop item updated successfully!" << std::endl;
-			break;
-		}
-		else if (updateStatus == k_EItemUpdateStatusInvalid) {
-			std::cerr << "Failed to update workshop item" << std::endl;
-			break;
-		}
-
-		// Sleep for a short duration to avoid busy waiting
-		std::this_thread::sleep_for(std::chrono::milliseconds(100));
-	}
-}
 
 int main()
 {
+
+
+	//Determind if the program is in runtime or editor.
+	bool build = false;
 	
-	
-	//std::vector<Ov_Object> OVOb;
-	build = file_exists("ov.ov");
-	
-	if (!SteamAPI_Init()) {
-		// Handle initialization failure
-		std::cerr << "SteamAPI_Init() failed" << std::endl;
-		return 1;
-	}
+	//Use Steam api?
+	Steam(false, false);
 
-	const char* modFolder = "F:/Development/C++/OpenVision/OpenVision(Engine)/Mods/Bullet";
-	const char* modTitle = "My Awesome Mod";
-	const char* modDescription = "This mod enhances gameplay with new features.";
-
-	//PublishedFileId_t publishedFileId = CreateAndUploadWorkshopItem(modFolder, modTitle, modDescription);
-	//if (publishedFileId == k_PublishedFileIdInvalid) {
-		// Handle workshop item creation failure
-		//SteamAPI_Shutdown();
-		//return 1;
-	//}
-
-	// Register the callback handler
-	SteamAPI_RunCallbacks();
-	
-	// Update the workshop item
-	//UpdateWorkshopItem(modFolder, modTitle, modDescription, publishedFileId);
-
-	// Now change the name of the last workshop item
-	// Shutdown Steamworks API
-	//SteamAPI_Shutdown();
-
-
-	/*
-	// Create a workshop item
-	PublishedFileId_t publishedFileId = SteamUGC()->CreateItem(2472350, k_EWorkshopFileTypeCommunity);
-
-	// Handle created item (get PublishedFileId from createResult)
-	UGCUpdateHandle_t updateHandle = SteamUGC()->StartItemUpdate(2472350,publishedFileId);
-
-	SteamUGC()->SetItemTitle(updateHandle,"My Awesome Cat Spray");
-
-	*/
-	//SteamAPI_Init();
-	//create workshop item
-	//SteamAPICall_t hSteamAPICall = SteamUGC()->CreateItem(SteamUtils()->GetAppID(), k_EWorkshopFileTypeCommunity);
-	
-	/*
-	if (SteamAPI_RestartAppIfNecessary(2472350));
-	{
-		return 1;
-	}
-	*/
-
-
+	//Find the path and choose a name for the project by the folder.
 	fs::path currentPath = fs::current_path();
 	fs::path ProjectName = currentPath.filename().string();
 
+	//Get the data from the save file
+	//Improve system
+	//----------------------
 	Presave<float> Data;
 
 	Data = Presave < float >();
@@ -866,22 +563,21 @@ int main()
 
 	bool vsync = Data.data[0];
 	int msaa = Data.data[1];
-	bool LocalPy = Data.data[5];
-	PythonIndex = Data.data[6];
-	bool DrawFramebuffer = Data.data[7];
-	float VigRadius = Data.data[8];
-	float VigSoftness = Data.data[9];
-	float FXAA_SPAN_MAX = Data.data[10];
-	float FXAA_REDUCE_MIN = Data.data[11];
-	float FXAA_REDUCE_MUL = Data.data[12];
-	float CMX = Data.data[13];
-	float CMY = Data.data[14];
+	bool DrawFramebuffer = Data.data[5];
+	float VigRadius = Data.data[6];
+	float VigSoftness = Data.data[7];
+	float FXAA_SPAN_MAX = Data.data[8];
+	float FXAA_REDUCE_MIN = Data.data[9];
+	float FXAA_REDUCE_MUL = Data.data[10];
+	float CMX = Data.data[11];
+	float CMY = Data.data[12];
 
-	bool Nearest = Data.data[15];
+	bool Nearest = Data.data[13];
+	//------------------------
 
-
-
-
+	//Get the list of scripts included in the editor.
+	//find a better way to do this
+	//--------------------------
 	std::vector<std::string> lines;
 
 	std::ifstream inputFile("SCRIPTS.ov");
@@ -894,14 +590,9 @@ int main()
 		lines.emplace_back(line);
 	}
 	inputFile.close();
+	//--------------------------
 
-	PhysicsWorld world(vec3(0, -35.0f, 0), 2);
-
-
-	const std::filesystem::path directory_path = std::filesystem::current_path();
-
-
-
+	//Initilize glfw
 	glfwInit();
 
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -920,7 +611,7 @@ int main()
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 	glfwSetScrollCallback(window, scroll_callback);
 
-	//load Icon
+	//Load the OpenVision Icon.
 	int wid, hei;
 	int channels;
 	unsigned char* pixels = stbi_load("OpenVisionIcon.png", &wid, &hei, &channels, 4);
@@ -939,8 +630,12 @@ int main()
 	ImGui::StyleColorsDark();
 	ImGui_ImplGlfw_InitForOpenGL(window, true);
 	ImGui_ImplOpenGL3_Init("#version 330");
+	DefaultTheme();
+	ImGuiStyle& style = ImGui::GetStyle();
+	ImVec2 originalItemSpacing = ImGui::GetStyle().ItemSpacing;
+	float originalButtonPadding = style.FramePadding.y;
 
-
+	//Create the shaders for OpenVision.
 	GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
 	glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
 	glCompileShader(vertexShader);
@@ -977,8 +672,6 @@ int main()
 	glAttachShader(FramebufferProgram, fragmentFrame);
 	glLinkProgram(FramebufferProgram);
 
-
-
 	GLuint fragmentShaderMouseDetecting = glCreateShader(GL_FRAGMENT_SHADER);
 	glShaderSource(fragmentShaderMouseDetecting, 1, &ObjectIDUnlitFragment, NULL);
 	glCompileShader(fragmentShaderMouseDetecting);
@@ -997,24 +690,12 @@ int main()
 	glUniform1f(glGetUniformLocation(FramebufferProgram, "maximumEdgeDetection"), FXAA_SPAN_MAX);
 	glUniform2f(glGetUniformLocation(FramebufferProgram, "resolution"), width, height);
 
-	int FrameBufferMouseDetectedObject = -1;
-	float ndcMouseX;
-	float ndcMouseY;
-	double mouseX;
-	double mouseY;
-	double beforeMouseX;
-	double beforeMouseY;
 
-	double beforeMouseXCam;
-	double beforeMouseYCam;
-	bool run = false;
-	bool StartPhase = false;
-	bool no_resize = true;
-	bool no_move = true;
-	bool mouseOverUI = false;
-	Texture nulltex = Texture("");
-	//Texture CenterDot = Texture("EngineAssets/CenterDot.png");
 
+
+	//Get the textures in the Assets folder
+	//Move to function : getTextures
+	//-----------------
 	std::vector<Texture> textures;
 	std::filesystem::path dir_path = "Assets/";
 
@@ -1028,7 +709,7 @@ int main()
 			textures.push_back(tex);
 		}
 	}
-
+	//------------------
 
 	SaveSystem SavingSystem;
 	InputSystem InputHandler;
@@ -1042,7 +723,8 @@ int main()
 	BackroundScreen[1] = bg_rgb.g;
 	BackroundScreen[2] = bg_rgb.b;
 
-
+	//function : retirive data
+	//-------------
 	int amount = SavingSystem.getInt("OBJ_AMOUNT", 3);
 	for (int i = 0; i < amount; i++) {
 		float posx, posy, scalex, scaley, angle, layer, restitution, density, statFric, dynaFric, velX, velY, tilex, tiley, cornerRadius;
@@ -1109,55 +791,16 @@ int main()
 
 		obj.tex = Texture((texture).c_str());
 		obj.parent = parent;
-		PresceneObjects.push_back(obj);
+		sceneObjects.push_back(obj);
 	}
 
-	Object blackbox = Object(verts, ind);
-
-	Object scaleRight = Object(verts, ind);
-	Object scaleUp = Object(verts, ind);
-	Object scaleLeft = Object(verts, ind);
-	Object scaleDown = Object(verts, ind);
-	//Engine Assets
-	
-	Texture EngineOVObjectIconGui("EngineAssets/ObjectIcon.png");
-	Texture EngineOVCameraIconGui("EngineAssets/CameraIcon.png");
-	Texture EngineOVTrashIconGui("EngineAssets/OvTrashIcon.png");
-	Texture EngineOVScriptIconGui("EngineAssets/OvScriptIcon.png");
-	Texture EngineOVRebuildIconGui("EngineAssets/OvRebuildIcon.png");
-	Texture EngineOVRunIconGui("EngineAssets/OvRunIcon.png");
-	Texture EngineOVBuildIconGui("EngineAssets/OvBuildIcon.png");
-	Texture EngineOVMMSIconGui("EngineAssets/mmsicon.png");
-	Texture EngineCuserIconGui("EngineAssets/Curser.png");
-	Texture EngineWhiteIconGui("EngineAssets/white.png");
-	Texture EngineLayerIconGui("EngineAssets/LayerIcon.png");
-	Texture EngineBindIconGui("EngineAssets/Bind.png");
-
-	double prevTime = 0.0;
-	double crntTime = 0.0;
-	double timeDiff;
-	unsigned int counter = 0;
-	int selectedObject = 0;
-	int hoveredObject = 0;
-	float fov = 45;
-	bool onpopupmenu = false;
-
-	bool releasedUndo = true;
 
 
 
 
-	const float fixed_timestep = 1.0f / 60.0;
-	DefaultTheme();
-	ImVec2 originalItemSpacing = ImGui::GetStyle().ItemSpacing;
+	//Declare the FrameBuffers.
 	glEnable(GL_MULTISAMPLE);
 
-	sceneObjects = PresceneObjects;
-	for (size_t i = 0; i < sceneObjects.size(); i++) {
-		sceneObjects[i].scenePosition = *PresceneObjects[i].position;
-		sceneObjects[i].sceneScale = *PresceneObjects[i].scale;
-		sceneObjects[i].sceneAngle = *PresceneObjects[i].angle;
-	}
 
 	glEnable(GL_DEPTH_TEST);
 
@@ -1213,32 +856,108 @@ int main()
 	glBindTexture(GL_TEXTURE_2D, 0);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textureColorBuffer, 0);
 
+	
+	
+	//Engine Settings
+	int FrameBufferMouseDetectedObject = -1;
+	float ndcMouseX;
+	float ndcMouseY;
+	double mouseX;
+	double mouseY;
+	double beforeMouseX;
+	double beforeMouseY;
+	double beforeMouseXCam;
+	double beforeMouseYCam;
+	bool StartPhase = false;
+	bool no_resize = true;
+	bool no_move = true;
+	bool mouseOverUI = false;
+	Object blackbox = Object(verts, ind);
+	Object scaleRight = Object(verts, ind);
+	Object scaleUp = Object(verts, ind);
+	Object scaleLeft = Object(verts, ind);
+	Object scaleDown = Object(verts, ind);
+	Texture EngineOVObjectIconGui("EngineAssets/ObjectIcon.png");
+	Texture EngineOVCameraIconGui("EngineAssets/CameraIcon.png");
+	Texture EngineOVTrashIconGui("EngineAssets/OvTrashIcon.png");
+	Texture EngineOVScriptIconGui("EngineAssets/OvScriptIcon.png");
+	Texture EngineOVRebuildIconGui("EngineAssets/OvRebuildIcon.png");
+	Texture EngineOVRunIconGui("EngineAssets/OvRunIcon.png");
+	Texture EngineOVBuildIconGui("EngineAssets/OvBuildIcon.png");
+	Texture EngineOVMMSIconGui("EngineAssets/mmsicon.png");
+	Texture EngineCuserIconGui("EngineAssets/Curser.png");
+	Texture EngineWhiteIconGui("EngineAssets/white.png");
+	Texture EngineLayerIconGui("EngineAssets/LayerIcon.png");
+	Texture EngineBindIconGui("EngineAssets/Bind.png");
+	Texture nulltex = Texture("");
+	double prevTime = 0.0;
+	double crntTime = 0.0;
+	double timeDiff;
+	unsigned int counter = 0;
+	int selectedObject = 0;
+	int HighlightedObject = 0;
+	float fov = 45;
+	bool b_onpopupmenu = false;
+	bool b_releasedUndo = true;
+	const float fixed_timestep = 1.0f / 60.0f;
+	FileFunction fileFunction;
+	PhysicsWorld world(vec3(0, -35.0f, 0), 2);
 
-	bool firsttime = true;
-	ImGuiStyle& style = ImGui::GetStyle();
-	float originalButtonPadding = style.FramePadding.y;
-	std::vector<Ov_Object> o;
+	//Save function
+	auto Save = [&]() {
+		SavingSystem.save("OBJ_AMOUNT", (int)sceneObjects.size());
+
+		for (int i = 0; i < sceneObjects.size(); ++i) {
+			SavingSystem.save("OBJ" + std::to_string(i) + "_NAME", sceneObjects[i].name);
+			SavingSystem.save("OBJ" + std::to_string(i) + "_POS_X", sceneObjects[i].position->x);
+			SavingSystem.save("OBJ" + std::to_string(i) + "_POS_Y", sceneObjects[i].position->y);
+			SavingSystem.save("OBJ" + std::to_string(i) + "_SCA_X", sceneObjects[i].scale->x);
+			SavingSystem.save("OBJ" + std::to_string(i) + "_SCA_Y", sceneObjects[i].scale->y);
+			SavingSystem.save("OBJ" + std::to_string(i) + "_ANGLE", *sceneObjects[i].angle);
+			SavingSystem.save("OBJ" + std::to_string(i) + "_TEXTURE", sceneObjects[i].texChar);
+			SavingSystem.save("OBJ" + std::to_string(i) + "_LAYER", sceneObjects[i].layer);
+			SavingSystem.save("OBJ" + std::to_string(i) + "_RUNDRAW", sceneObjects[i].drawOnRuntime);
+
+			SavingSystem.save("OBJ" + std::to_string(i) + "_PHYSLAYER", sceneObjects[i].Body->layer);
+			SavingSystem.save("OBJ" + std::to_string(i) + "_SFRIC", sceneObjects[i].Body->staticFric);
+			SavingSystem.save("OBJ" + std::to_string(i) + "_DFRIC", sceneObjects[i].Body->dynamicFric);
+			SavingSystem.save("OBJ" + std::to_string(i) + "_DENS", sceneObjects[i].Body->density);
+			SavingSystem.save("OBJ" + std::to_string(i) + "_BOUNCE", sceneObjects[i].Body->restitution);
+			SavingSystem.save("OBJ" + std::to_string(i) + "_STATIC", sceneObjects[i].Body->IsStatic());
+			SavingSystem.save("OBJ" + std::to_string(i) + "_TRIG", sceneObjects[i].Body->IsTrigger());
+
+			SavingSystem.save("OBJ" + std::to_string(i) + "_TTX", sceneObjects[i].TileX);
+			SavingSystem.save("OBJ" + std::to_string(i) + "_TTY", sceneObjects[i].TileY);
+
+			SavingSystem.save("OBJ" + std::to_string(i) + "TINX", sceneObjects[i].tint.x);
+			SavingSystem.save("OBJ" + std::to_string(i) + "TINY", sceneObjects[i].tint.y);
+			SavingSystem.save("OBJ" + std::to_string(i) + "TINZ", sceneObjects[i].tint.z);
+			SavingSystem.save("OBJ" + std::to_string(i) + "CR", sceneObjects[i].cornerRadius);
+			SavingSystem.save("OBJ" + std::to_string(i) + "_PAREN", sceneObjects[i].parent);
+		}
 
 
+		SavingSystem.save("BG_COLOR", vec3(BackroundScreen[0], BackroundScreen[1], BackroundScreen[2]));
+		SavingSystem.saveToFile("SCENE.ov");
 
-	scroll_offset = fov;
+		Data.data = { float(vsync), float(msaa), BackroundScreen[0], BackroundScreen[1], BackroundScreen[2],
+					   float(DrawFramebuffer), VigRadius, VigSoftness, FXAA_SPAN_MAX, FXAA_REDUCE_MIN, FXAA_REDUCE_MUL, CMX, CMY, float(Nearest) };
+
+		Data.saveData();
+	};
+
 	while (!glfwWindowShouldClose(window))
 	{
-		if (!run) {
-			fov = scroll_offset;
-		}
+
 		
 		ImTextureID RebuildimguiTextureID = reinterpret_cast<ImTextureID>(static_cast<intptr_t>(EngineOVTrashIconGui.ID));
-		
+		//Update definition shader values.
 		glUniform1f(glGetUniformLocation(FramebufferProgram, "minEdgeContrast"), FXAA_REDUCE_MIN);
 		glUniform1f(glGetUniformLocation(FramebufferProgram, "subPixelAliasing"), FXAA_REDUCE_MUL);
 		glUniform1f(glGetUniformLocation(FramebufferProgram, "maximumEdgeDetection"), FXAA_SPAN_MAX);
 		glUniform1f(glGetUniformLocation(FramebufferProgram, "radius"), VigRadius);
 		glUniform1f(glGetUniformLocation(FramebufferProgram, "softness"), VigSoftness);
-		if (glfwGetKey(window, GLFW_KEY_ESCAPE) && !build)
-		{
-			run = false;
-		}
+
 
 		if (DrawFramebuffer) {
 			glBindFramebuffer(GL_FRAMEBUFFER, FBO);
@@ -1262,8 +981,8 @@ int main()
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
-		if (PresceneObjects.size() > 1 && selectedObject != -1) {
-			ObjectCreator(window, PresceneObjects[selectedObject]);
+		if (sceneObjects.size() > 1 && selectedObject != -1) {
+			ObjectCreator(window, sceneObjects[selectedObject]);
 		}
 		static bool show_selected_pop = false;
 		if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
@@ -1276,11 +995,11 @@ int main()
 			}
 			show_selected_pop = true;
 		}
-		onpopupmenu = false;
+		b_onpopupmenu = false;
 		if (ImGui::BeginPopup("Selected Object Settings"))
 		{
-			onpopupmenu = true;
-			ObjectUI(window, hoveredObject, EngineLayerIconGui);
+			b_onpopupmenu = true;
+			ObjectUI(window, HighlightedObject, EngineLayerIconGui);
 			/*
 			if (ImGui::CollapsingHeader(sceneObjects[selectedObject].name == "" ? std::to_string(selectedObject).c_str() : sceneObjects[selectedObject].name.c_str()))
 			{
@@ -1298,34 +1017,37 @@ int main()
 		
 
 #pragma region Pre-Runtime
+		//Engine
+		//----------------------------------------------------------
+		if (!build) {
+			
 
-		if (!run) {
+			fov = scroll_offset;
+
 			style.ItemSpacing.x = originalItemSpacing.x;
 			style.ItemSpacing.y = originalItemSpacing.y;
 			if (!StartPhase) {
-				if (!firsttime) {
-					script.Exit();
-				}
-				firsttime = false;
 
+
+				//dont need
+				//------------
 				camera.Position.x = 0;
 				camera.Position.y = 0;
-
+				//------------
+				
 				//sf::Listener::setGlobalVolume(0);
 				//fov = 45;
 				//fov = 32;
 				std::string title = "OpenVision *(Universal Editor) ~ *" + ProjectName.string();
 				glfwSetWindowTitle(window, title.c_str());
-				for (size_t i = 0; i < PresceneObjects.size(); i++)
+				for (size_t i = 0; i < sceneObjects.size(); i++)
 				{
-					*sceneObjects[i].position = PresceneObjects[i].scenePosition;
-					*sceneObjects[i].scale = PresceneObjects[i].sceneScale;
-					*sceneObjects[i].angle = PresceneObjects[i].sceneAngle;
+
 					sceneObjects[i].Body->LinearVelocity(glm::vec2(0, 0));
 					sceneObjects[i].Body->AngularVelocity(0);
 
-					if (PresceneObjects[i].name == "MainCameraOvSTD") {
-						PresceneObjects[i].tex = EngineOVCameraIconGui;
+					if (sceneObjects[i].name == "MainCameraOvSTD") {
+						sceneObjects[i].tex = EngineOVCameraIconGui;
 					}
 
 				}
@@ -1336,15 +1058,14 @@ int main()
 				StartPhase = true;
 			}
 			mouseOverUI = false;
-			sceneObjects = PresceneObjects;
 
 			if (!InputHandler.GetKey(GLFW_KEY_LEFT_CONTROL) || !InputHandler.GetKey(GLFW_KEY_Z)) {
-				releasedUndo = true;
+				b_releasedUndo = true;
 			}
 
-			if (InputHandler.GetKey(GLFW_KEY_LEFT_CONTROL) && InputHandler.GetKey(GLFW_KEY_Z) && releasedUndo) {
+			if (InputHandler.GetKey(GLFW_KEY_LEFT_CONTROL) && InputHandler.GetKey(GLFW_KEY_Z) && b_releasedUndo) {
 				undoAction();
-				releasedUndo = false;
+				b_releasedUndo = false;
 			}
 
 #pragma endregion Pre-Runtime
@@ -1466,42 +1187,7 @@ int main()
 			{
 				std::system("taskkill /F /IM Ovruntime.exe");
 
-				SavingSystem.save("OBJ_AMOUNT", (int)sceneObjects.size());
-				for (int i = 0; i < sceneObjects.size(); i++) {
-
-					SavingSystem.save("OBJ" + std::to_string(i) + "_NAME", sceneObjects[i].name);
-					SavingSystem.save("OBJ" + std::to_string(i) + "_POS_X", sceneObjects[i].position->x);
-					SavingSystem.save("OBJ" + std::to_string(i) + "_POS_Y", sceneObjects[i].position->y);
-					SavingSystem.save("OBJ" + std::to_string(i) + "_SCA_X", sceneObjects[i].scale->x);
-					SavingSystem.save("OBJ" + std::to_string(i) + "_SCA_Y", sceneObjects[i].scale->y);
-					SavingSystem.save("OBJ" + std::to_string(i) + "_ANGLE", *PresceneObjects[i].angle);
-					SavingSystem.save("OBJ" + std::to_string(i) + "_TEXTURE", sceneObjects[i].texChar);
-					SavingSystem.save("OBJ" + std::to_string(i) + "_LAYER", sceneObjects[i].layer);
-					SavingSystem.save("OBJ" + std::to_string(i) + "_RUNDRAW", sceneObjects[i].drawOnRuntime);
-					SavingSystem.save("OBJ" + std::to_string(i) + "_PHYSLAYER", sceneObjects[i].Body->layer);
-					SavingSystem.save("OBJ" + std::to_string(i) + "_SFRIC", sceneObjects[i].Body->staticFric);
-					SavingSystem.save("OBJ" + std::to_string(i) + "_DFRIC", sceneObjects[i].Body->dynamicFric);
-					SavingSystem.save("OBJ" + std::to_string(i) + "_DENS", sceneObjects[i].Body->density);
-					SavingSystem.save("OBJ" + std::to_string(i) + "_BOUNCE", sceneObjects[i].Body->restitution);
-					SavingSystem.save("OBJ" + std::to_string(i) + "_STATIC", sceneObjects[i].Body->IsStatic());
-					SavingSystem.save("OBJ" + std::to_string(i) + "_TRIG", sceneObjects[i].Body->IsTrigger());
-
-					SavingSystem.save("OBJ" + std::to_string(i) + "_TTX", sceneObjects[i].TileX);
-					SavingSystem.save("OBJ" + std::to_string(i) + "_TTY", sceneObjects[i].TileY);
-
-					SavingSystem.save("OBJ" + std::to_string(i) + "TINX", sceneObjects[i].tint.x);
-					SavingSystem.save("OBJ" + std::to_string(i) + "TINY", sceneObjects[i].tint.y);
-					SavingSystem.save("OBJ" + std::to_string(i) + "TINZ", sceneObjects[i].tint.z);
-					SavingSystem.save("OBJ" + std::to_string(i) + "CR", sceneObjects[i].cornerRadius);
-					SavingSystem.save("OBJ" + std::to_string(i) + "_PAREN", sceneObjects[i].parent);
-				}
-				SavingSystem.save("BG_COLOR", vec3(BackroundScreen[0], BackroundScreen[1], BackroundScreen[2]));
-				SavingSystem.saveToFile("SCENE.ov");
-
-				Data.data = { float(vsync), float(msaa), BackroundScreen[0], BackroundScreen[1], BackroundScreen[2], float(LocalPy),
-					float(PythonIndex),float(DrawFramebuffer), VigRadius, VigSoftness, FXAA_SPAN_MAX, FXAA_REDUCE_MIN, FXAA_REDUCE_MUL, CMX, CMY, float(Nearest) };
-
-				Data.saveData();
+				Save();
 
 				std::ofstream batchFile("temp.bat");
 
@@ -1548,7 +1234,6 @@ int main()
 			{
 				
 				glfwSetWindowShouldClose(window,GLFW_TRUE);
-				//rebuild(window, LocalPy);
 			}
 			if (ImGui::IsItemHovered())
 			{
@@ -1568,43 +1253,7 @@ int main()
 			{
 				std::system("taskkill /F /IM Ovruntime.exe");
 
-				SavingSystem.save("OBJ_AMOUNT", (int)sceneObjects.size());
-				for (int i = 0; i < sceneObjects.size(); i++) {
-
-					SavingSystem.save("OBJ" + std::to_string(i) + "_NAME", sceneObjects[i].name);
-					SavingSystem.save("OBJ" + std::to_string(i) + "_POS_X", sceneObjects[i].position->x);
-					SavingSystem.save("OBJ" + std::to_string(i) + "_POS_Y", sceneObjects[i].position->y);
-					SavingSystem.save("OBJ" + std::to_string(i) + "_SCA_X", sceneObjects[i].scale->x);
-					SavingSystem.save("OBJ" + std::to_string(i) + "_SCA_Y", sceneObjects[i].scale->y);
-					SavingSystem.save("OBJ" + std::to_string(i) + "_ANGLE", *PresceneObjects[i].angle);
-					SavingSystem.save("OBJ" + std::to_string(i) + "_TEXTURE", sceneObjects[i].texChar);
-					SavingSystem.save("OBJ" + std::to_string(i) + "_LAYER", sceneObjects[i].layer);
-					SavingSystem.save("OBJ" + std::to_string(i) + "_RUNDRAW", sceneObjects[i].drawOnRuntime);
-					SavingSystem.save("OBJ" + std::to_string(i) + "_PHYSLAYER", sceneObjects[i].Body->layer);
-					SavingSystem.save("OBJ" + std::to_string(i) + "_SFRIC", sceneObjects[i].Body->staticFric);
-					SavingSystem.save("OBJ" + std::to_string(i) + "_DFRIC", sceneObjects[i].Body->dynamicFric);
-					SavingSystem.save("OBJ" + std::to_string(i) + "_DENS", sceneObjects[i].Body->density);
-					SavingSystem.save("OBJ" + std::to_string(i) + "_BOUNCE", sceneObjects[i].Body->restitution);
-					SavingSystem.save("OBJ" + std::to_string(i) + "_STATIC", sceneObjects[i].Body->IsStatic());
-					SavingSystem.save("OBJ" + std::to_string(i) + "_TRIG", sceneObjects[i].Body->IsTrigger());
-
-					SavingSystem.save("OBJ" + std::to_string(i) + "_TTX", sceneObjects[i].TileX);
-					SavingSystem.save("OBJ" + std::to_string(i) + "_TTY", sceneObjects[i].TileY);
-
-					SavingSystem.save("OBJ" + std::to_string(i) + "TINX", sceneObjects[i].tint.x);
-					SavingSystem.save("OBJ" + std::to_string(i) + "TINY", sceneObjects[i].tint.y);
-					SavingSystem.save("OBJ" + std::to_string(i) + "TINZ", sceneObjects[i].tint.z);
-					SavingSystem.save("OBJ" + std::to_string(i) + "CR", sceneObjects[i].cornerRadius);
-					SavingSystem.save("OBJ" + std::to_string(i) + "_PAREN", sceneObjects[i].parent);
-
-				}
-				SavingSystem.save("BG_COLOR", vec3(BackroundScreen[0], BackroundScreen[1], BackroundScreen[2]));
-				SavingSystem.saveToFile("SCENE.ov");
-
-				Data.data = { float(vsync), float(msaa), BackroundScreen[0], BackroundScreen[1], BackroundScreen[2], float(LocalPy),
-					float(PythonIndex),float(DrawFramebuffer), VigRadius, VigSoftness, FXAA_SPAN_MAX, FXAA_REDUCE_MIN, FXAA_REDUCE_MUL, CMX, CMY, float(Nearest) };
-
-				Data.saveData();
+				Save();
 
 				std::ofstream batchFile("temp.bat");
 
@@ -1668,9 +1317,6 @@ int main()
 			style.ButtonTextAlign = originalButtonTextAlign;
 			style.FramePadding = originalFramePadding;
 
-			//move later
-			//ImGui::InputInt("PyIndex", &PythonIndex);
-			//ImGui::Checkbox("Local-Python (not recommended)", &LocalPy);
 
 
 			if (ImGui::IsWindowHovered())
@@ -1730,8 +1376,8 @@ int main()
 
 						if (ImGui::Selectable(("Bind : " + std::string(textures[k].ImageFile)).c_str()))
 						{
-							PresceneObjects[selectedObject].tex = textures[k];
-							PresceneObjects[selectedObject].texChar = textures[k].FullImageFile;
+							sceneObjects[selectedObject].tex = textures[k];
+							sceneObjects[selectedObject].texChar = textures[k].FullImageFile;
 						}
 
 						ImGui::Separator();
@@ -1823,7 +1469,6 @@ int main()
 				outputFile.close();
 				addOVscript(scriptName);
 				memset(scriptName, 0, sizeof(scriptName));
-				//rebuild(window, LocalPy);
 			}
 
 			if (ImGui::Button("Remove Script"))
@@ -1866,7 +1511,6 @@ int main()
 
 					removeOVscript(scriptName);
 					memset(scriptName, 0, sizeof(scriptName));
-					//rebuild(window, LocalPy);
 				}
 			}
 
@@ -1979,42 +1623,42 @@ int main()
 			if (ImGui::Button("Add object"))
 			{
 
-				PresceneObjects.push_back(Object(verts, ind));
-				PresceneObjects[PresceneObjects.size() - 1].name = "obj" + to_string(PresceneObjects.size());
-				AddObject action("obj" + to_string(PresceneObjects.size()));
+				sceneObjects.push_back(Object(verts, ind));
+				sceneObjects[sceneObjects.size() - 1].name = "obj" + to_string(sceneObjects.size());
+				AddObject action("obj" + to_string(sceneObjects.size()));
 				undoStack.push(action);
 
 			}
 			{
-				for (size_t i = 0; i < PresceneObjects.size(); i++)
+				for (size_t i = 0; i < sceneObjects.size(); i++)
 				{
-					if (PresceneObjects[i].parent != -1)
+					if (sceneObjects[i].parent != -1)
 					{
-						PresceneObjects[i].parent_position = PresceneObjects[PresceneObjects[i].parent].position;
+						sceneObjects[i].parent_position = sceneObjects[sceneObjects[i].parent].position;
 
 					}
 					else {
-						PresceneObjects[i].parent_position = new glm::vec2(0, 0);
+						sceneObjects[i].parent_position = new glm::vec2(0, 0);
 					}
 					bool foundLastSelected = false;
 
-					for (int i = PresceneObjects.size() - 1; i >= 0; i--) {
+					for (int i = sceneObjects.size() - 1; i >= 0; i--) {
 
-						if (PresceneObjects[i].selected) {
+						if (sceneObjects[i].selected) {
 
 							if (!foundLastSelected) {
-								PresceneObjects[i].selected = true;
+								sceneObjects[i].selected = true;
 								selectedObject = i;
 								foundLastSelected = true;
 							}
 							else {
-								PresceneObjects[i].selected = false;
+								sceneObjects[i].selected = false;
 							}
 						}
 					}
 
 
-					if (PresceneObjects[i].deleted == false) {
+					if (sceneObjects[i].deleted == false) {
 						if (i == selectedObject) {
 							ImGui::SetNextItemOpen(true);
 						}
@@ -2022,10 +1666,10 @@ int main()
 						//ImGui::Separator();
 
 						ImTextureID imguiTextureID = reinterpret_cast<ImTextureID>(static_cast<intptr_t>(EngineOVObjectIconGui.ID));
-						if (PresceneObjects[i].name != "MainCameraOvSTD") {
+						if (sceneObjects[i].name != "MainCameraOvSTD") {
 							imguiTextureID = reinterpret_cast<ImTextureID>(static_cast<intptr_t>(EngineOVObjectIconGui.ID));
 						}
-						else if (PresceneObjects[i].name == "MainCameraOvSTD") {
+						else if (sceneObjects[i].name == "MainCameraOvSTD") {
 							imguiTextureID = reinterpret_cast<ImTextureID>(static_cast<intptr_t>(EngineOVCameraIconGui.ID));
 						}
 
@@ -2036,7 +1680,7 @@ int main()
 						style.ItemSpacing.x = 4.0f;
 
 						ImVec2 imageSize(32, 32);
-						if (PresceneObjects[i].parent == -1) {
+						if (sceneObjects[i].parent == -1) {
 							ImGui::Image(imguiTextureID, imageSize);
 						}
 						
@@ -2051,16 +1695,16 @@ int main()
 							if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_RELEASE && BindSelectedObject > 0)
 							{
 								if (i != BindSelectedObject) {
-									PresceneObjects[BindSelectedObject].parent = i;
+									sceneObjects[BindSelectedObject].parent = i;
 								}
 								BindSelectedObject = -1;
 
 							}
 							ImGui::BeginTooltip();
-							if (PresceneObjects[i].name != "MainCameraOvSTD") {
+							if (sceneObjects[i].name != "MainCameraOvSTD") {
 								ImGui::Text("An OpenVision regular object.");
 							}
-							else if (PresceneObjects[i].name == "MainCameraOvSTD") {
+							else if (sceneObjects[i].name == "MainCameraOvSTD") {
 								ImGui::Text("OpenVision's camera object (displayes the object's to the screen)");
 							}
 							ImGui::EndTooltip();
@@ -2078,14 +1722,14 @@ int main()
 						ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 0.0f);
 						ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 0.0f);
 
-						if (PresceneObjects[i].parent == -1) {
-							if (ImGui::CollapsingHeader(PresceneObjects[i].name.c_str()))
+						if (sceneObjects[i].parent == -1) {
+							if (ImGui::CollapsingHeader(sceneObjects[i].name.c_str()))
 							{
 								style.FramePadding.y = originalButtonPadding;
 								ObjectUI(window, i, EngineLayerIconGui);
 								//Improve performence
-								for (size_t j = 0; j < PresceneObjects.size(); j++) {
-									if (PresceneObjects[j].parent == i)
+								for (size_t j = 0; j < sceneObjects.size(); j++) {
+									if (sceneObjects[j].parent == i)
 									{
 										ImGui::Separator();
 										ObjectUI(window, j, EngineLayerIconGui);
@@ -2106,7 +1750,7 @@ int main()
 
 						//ImGui::Separator();
 
-						if (!onpopupmenu) {
+						if (!b_onpopupmenu) {
 							glfwGetCursorPos(window, &mouseX, &mouseY);
 						}
 						ImGui::PopStyleVar();
@@ -2155,14 +1799,14 @@ int main()
 
 						beforeMouseXCam = ndcMouseX;
 						beforeMouseYCam = ndcMouseY;
-						hoveredObject = selectedObject;
-						for (int i = 0; i < PresceneObjects.size(); i++) {
+						HighlightedObject = selectedObject;
+						for (int i = 0; i < sceneObjects.size(); i++) {
 
 							
 							if (i == FrameBufferMouseDetectedObject && !mouseOverUI)
 								
 							{
-								hoveredObject = i;
+								HighlightedObject = i;
 								if (i != selectedObject) {
 									glUseProgram(unlitProgram);
 									glUniform4f(glGetUniformLocation(unlitProgram, "color"), 1.00, 0.48, 0.48, 1);
@@ -2170,7 +1814,7 @@ int main()
 									glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 									glLineWidth(1.0f);
 									if (timeDiff >= fixed_timestep) {
-										PresceneObjects[i].Draw(window, unlitProgram, camera, glm::vec3(0, 0, 1), CMX, CMY, Nearest);
+										sceneObjects[i].Draw(window, unlitProgram, camera, glm::vec3(0, 0, 1), CMX, CMY, Nearest);
 									}
 									glUniform4f(glGetUniformLocation(unlitProgram, "color"), 1.00, 0.48, 0.48, 1);
 									glLineWidth(1.0f);
@@ -2181,16 +1825,16 @@ int main()
 							
 						}
 
-						for (int i = 0; i < PresceneObjects.size(); i++) {
+						for (int i = 0; i < sceneObjects.size(); i++) {
 
 							
-							if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS && onpopupmenu == false &&
+							if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS && b_onpopupmenu == false &&
 								FrameBufferMouseDetectedObject == i && !mouseOverUI)
 
 							{
-								if (PresceneObjects[i].layer > maxZIndex) {
+								if (sceneObjects[i].layer > maxZIndex) {
 									topIndex = i;
-									maxZIndex = PresceneObjects[i].layer;
+									maxZIndex = sceneObjects[i].layer;
 								}
 							}
 
@@ -2199,7 +1843,7 @@ int main()
 						
 
 						if (topIndex != -1 && !mouseOverUI) {
-							if (!PresceneObjects[topIndex].selected) {
+							if (!sceneObjects[topIndex].selected) {
 								beforeMouseX = ndcMouseX;
 								beforeMouseY = ndcMouseY;
 							}
@@ -2209,8 +1853,8 @@ int main()
 								float dx = ndcMouseX - beforeMouseX;
 								float dy = ndcMouseY - beforeMouseY;
 								if (scaling == false) {
-									PresceneObjects[topIndex].position->x += dx;
-									PresceneObjects[topIndex].position->y += dy;
+									sceneObjects[topIndex].position->x += dx;
+									sceneObjects[topIndex].position->y += dy;
 
 
 								}
@@ -2219,11 +1863,11 @@ int main()
 								beforeMouseY = ndcMouseY;
 							}
 
-							PresceneObjects[topIndex].selected = true;
+							sceneObjects[topIndex].selected = true;
 						}
 						else {
-							for (int i = 0; i < PresceneObjects.size(); i++) {
-								PresceneObjects[i].selected = false;
+							for (int i = 0; i < sceneObjects.size(); i++) {
+								sceneObjects[i].selected = false;
 							}
 						}
 
@@ -2231,36 +1875,36 @@ int main()
 
 						glUseProgram(unlitProgram);
 						glUniform4f(glGetUniformLocation(unlitProgram, "color"), 0, 0.90, 0, 1);
-						*scaleRight.angle = *PresceneObjects[selectedObject].angle;
-						scaleRight.position->x = PresceneObjects[selectedObject].position->x + cos(*scaleRight.angle / 57.295779513082320876798154814105) * (PresceneObjects[selectedObject].scale->x / 2.0);
-						scaleRight.position->y = PresceneObjects[selectedObject].position->y + sin(*scaleRight.angle / 57.295779513082320876798154814105) * (PresceneObjects[selectedObject].scale->x / 2.0);
-						*scaleRight.scale = glm::vec2(0.5f, PresceneObjects[selectedObject].scale->y);
+						*scaleRight.angle = *sceneObjects[selectedObject].angle;
+						scaleRight.position->x = sceneObjects[selectedObject].position->x + cos(*scaleRight.angle / 57.295779513082320876798154814105) * (sceneObjects[selectedObject].scale->x / 2.0);
+						scaleRight.position->y = sceneObjects[selectedObject].position->y + sin(*scaleRight.angle / 57.295779513082320876798154814105) * (sceneObjects[selectedObject].scale->x / 2.0);
+						*scaleRight.scale = glm::vec2(0.5f, sceneObjects[selectedObject].scale->y);
 						
 						*scaleUp.angle = *scaleRight.angle + 90;
-						scaleUp.position->x = PresceneObjects[selectedObject].position->x + cos(*scaleUp.angle / 57.295779513082320876798154814105) * (PresceneObjects[selectedObject].scale->y / 2.0);
-						scaleUp.position->y = PresceneObjects[selectedObject].position->y + sin(*scaleUp.angle / 57.295779513082320876798154814105) * (PresceneObjects[selectedObject].scale->y / 2.0);
+						scaleUp.position->x = sceneObjects[selectedObject].position->x + cos(*scaleUp.angle / 57.295779513082320876798154814105) * (sceneObjects[selectedObject].scale->y / 2.0);
+						scaleUp.position->y = sceneObjects[selectedObject].position->y + sin(*scaleUp.angle / 57.295779513082320876798154814105) * (sceneObjects[selectedObject].scale->y / 2.0);
 						*scaleUp.angle = *scaleRight.angle ;
-						*scaleUp.scale = glm::vec2(PresceneObjects[selectedObject].scale->x, 0.5f);
+						*scaleUp.scale = glm::vec2(sceneObjects[selectedObject].scale->x, 0.5f);
 
 						if (MouseOverObject(scaleRight, camera, glm::vec3(0, 0, 1), CMX, CMY, ndcMouseX, ndcMouseY) && !mouseOverUI) {
 
 							scaleRight.Draw(window, unlitProgram, camera, glm::vec3(0, 0, 1), CMX, CMY, Nearest);
-							if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS && onpopupmenu == false) {
+							if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS && b_onpopupmenu == false) {
 								ScaleXBool = true;
 								scaling = true;
 								initialMouseX = ndcMouseX;
-								initialScaleX = PresceneObjects[selectedObject].scale->x;
+								initialScaleX = sceneObjects[selectedObject].scale->x;
 							} 
 						}
 
 						if (MouseOverObject(scaleUp, camera, glm::vec3(0, 0, 1), CMX, CMY, ndcMouseX, ndcMouseY) && !mouseOverUI) {
 
 							scaleUp.Draw(window, unlitProgram, camera, glm::vec3(0, 0, 1), CMX, CMY, Nearest);
-							if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS && onpopupmenu == false) {
+							if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS && b_onpopupmenu == false) {
 								ScaleXBool = false;
 								scaling = true;
 								initialMouseX = ndcMouseY;
-								initialScaleX = PresceneObjects[selectedObject].scale->y;
+								initialScaleX = sceneObjects[selectedObject].scale->y;
 							}
 						}
 
@@ -2270,12 +1914,12 @@ int main()
 							if (ScaleXBool) {
 								scaleRight.Draw(window, unlitProgram, camera, glm::vec3(0, 0, 1), CMX, CMY, Nearest);
 								float deltaX = ndcMouseX - initialMouseX;
-								PresceneObjects[selectedObject].scale->x = initialScaleX + deltaX;
+								sceneObjects[selectedObject].scale->x = initialScaleX + deltaX;
 							}
 							else {
 								scaleUp.Draw(window, unlitProgram, camera, glm::vec3(0, 0, 1), CMX, CMY, Nearest);
 								float deltaX = ndcMouseY - initialMouseX;
-								PresceneObjects[selectedObject].scale->y = initialScaleX + deltaX;
+								sceneObjects[selectedObject].scale->y = initialScaleX + deltaX;
 							}
 						}
 
@@ -2289,14 +1933,14 @@ int main()
 						glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 						glLineWidth(2.0f);
 
-						PresceneObjects[selectedObject].Draw(window, unlitProgram, camera, glm::vec3(0, 0, 1), CMX, CMY, Nearest);
+						sceneObjects[selectedObject].Draw(window, unlitProgram, camera, glm::vec3(0, 0, 1), CMX, CMY, Nearest);
 
 						glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
 
 
 						//Drawing
-						PresceneObjects[i].Draw(window, shaderProgram, camera, glm::vec3(0, 0, 1), CMX, CMY, Nearest);
+						sceneObjects[i].Draw(window, shaderProgram, camera, glm::vec3(0, 0, 1), CMX, CMY, Nearest);
 
 
 
@@ -2306,9 +1950,29 @@ int main()
 			}
 
 
-		}
+		} //---------------------------------------------------
 
 		
+		Object RuntimeCam = *OV::SearchObjectByName("MainCameraOvSTD", sceneObjects);
+		//blackbox.tex = nulltex;
+		blackbox.layer = 100;
+		blackbox.tint = glm::vec4(0, 0, 0, 1);
+		float offsetX = CMX;
+		float offsetY = CMY;
+		blackbox.DrawTMP(window, shaderProgram, camera, glm::vec2(RuntimeCam.position->x + offsetX, ((-36 / 1.5) / 1.5) + RuntimeCam.position->y + offsetY), glm::vec2(59, 0.5));
+		blackbox.DrawTMP(window, shaderProgram, camera, glm::vec2(RuntimeCam.position->x + offsetX, ((36 / 1.5) / 1.5) + RuntimeCam.position->y + offsetY), glm::vec2(59, 0.5));
+
+
+
+		blackbox.DrawTMP(window, shaderProgram, camera, glm::vec2((61.7 / 1.445 / 1.5) + RuntimeCam.position->x + offsetX, RuntimeCam.position->y + offsetY), glm::vec2(0.5, 33.8));
+		blackbox.DrawTMP(window, shaderProgram, camera, glm::vec2((-61.7 / 1.445 / 1.5) + RuntimeCam.position->x + offsetX, RuntimeCam.position->y + offsetY), glm::vec2(0.5, 33.8));
+
+		blackbox.tex = EngineWhiteIconGui;
+
+		camera.Position.x = RuntimeCam.position->x + offsetX;
+		camera.Position.y = RuntimeCam.position->y + offsetY;
+
+
 		if (DrawFramebuffer) {
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
@@ -2324,14 +1988,14 @@ int main()
 
 		//Mouse Detecting
 		glUseProgram(MouseDetectionProgram);
-		for (int i = 0; i < PresceneObjects.size(); i++) {
+		for (int i = 0; i < sceneObjects.size(); i++) {
 			
 			float redValue = float((i / (256 * 256)) % 256) / 255.0f; // High byte
 			float greenValue = float((i / 256) % 256) / 255.0f; // Mid byte
 			float blueValue = float(i % 256) / 255.0f; // Low byte
 
 			glUniform3f(glGetUniformLocation(MouseDetectionProgram, "color"), redValue, greenValue, blueValue);
-			PresceneObjects[i].Draw(window, MouseDetectionProgram, camera, glm::vec3(0, 0, 1), CMX, CMY, Nearest);
+			sceneObjects[i].Draw(window, MouseDetectionProgram, camera, glm::vec3(0, 0, 1), CMX, CMY, Nearest);
 		}
 
 		double xpos, ypos;
@@ -2359,22 +2023,6 @@ int main()
 
 
 
-		Object RuntimeCam = *OV::SearchObjectByName("MainCameraOvSTD", PresceneObjects);
-
-		blackbox.tex = nulltex;
-		blackbox.layer = 100;
-		float offsetX = CMX;
-		float offsetY = CMY;
-		blackbox.DrawTMP(window, shaderProgram, camera, glm::vec2(RuntimeCam.position->x + offsetX, ((-36 / 1.5) / 1.5) + RuntimeCam.position->y + offsetY), glm::vec2(59, 0.5));
-		blackbox.DrawTMP(window, shaderProgram, camera, glm::vec2(RuntimeCam.position->x + offsetX, ((36 / 1.5) / 1.5) + RuntimeCam.position->y + offsetY), glm::vec2(59, 0.5));
-
-
-
-		blackbox.DrawTMP(window, shaderProgram, camera, glm::vec2((61.7 / 1.445 / 1.5) + RuntimeCam.position->x + offsetX, RuntimeCam.position->y + offsetY), glm::vec2(0.5, 33.8));
-		blackbox.DrawTMP(window, shaderProgram, camera, glm::vec2((-61.7 / 1.445 / 1.5) + RuntimeCam.position->x + offsetX, RuntimeCam.position->y + offsetY), glm::vec2(0.5, 33.8));
-		
-		blackbox.tex = EngineWhiteIconGui;
-
 		//blackbox.DrawTMP(window, shaderProgram, camera, glm::vec2(PresceneObjects[selectedObject].position->x + PresceneObjects[selectedObject].scale->x / 2 - CMX, PresceneObjects[selectedObject].scenePosition.y + CMY), glm::vec2(2.5, 2.5));
 
 
@@ -2389,19 +2037,16 @@ int main()
 		//blackbox.tex = CenterDot;
 		//blackbox.DrawTMP(window, shaderProgram, camera, glm::vec2(CMX,CMY), glm::vec2(5, 5));
 #pragma region Runtime
-		if (run) {
+		//Runtime class
+		//-------------------------------
+		if (build) {
 			if (StartPhase)
 			{
 				SaveObjectsToFile("runtimeconfig.ov");
 				ScriptStart();
 				//sf::Listener::setGlobalVolume(100);
 
-				for (size_t i = 0; i < PresceneObjects.size(); i++) {
-					PresceneObjects[i].scenePosition = *sceneObjects[i].position;
-					PresceneObjects[i].sceneScale = *sceneObjects[i].scale;
-					PresceneObjects[i].sceneAngle = *sceneObjects[i].angle;
 
-				}
 				for (int i = 0; i < sceneObjects.size(); i++) {
 					world.AddBody(sceneObjects[i].Body);
 				}
@@ -2505,9 +2150,7 @@ int main()
 				counter = 0;
 
 				ScriptUpdate();
-
-				camera.Position.x = RuntimeCam.position->x + offsetX;
-				camera.Position.y = RuntimeCam.position->y + offsetY;
+				
 
 
 				world.Step(timeDiff / 2);
@@ -2544,9 +2187,11 @@ int main()
 			}
 
 		}
+		//-------------------------------------------
 
 #pragma endregion Runtime
-
+	//Escape Class
+	//---------------------------
 
 		ImGui::End();
 		ImGui::Render();
@@ -2560,50 +2205,16 @@ int main()
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 		InputHandler.Update(window);
-		//enable when final build
-		if (build) {
-			run = true;
-		}
+
+
+		//find better way to detect build
+		//------------------
+		build = fileFunction.fileExists("ov.ov");
+		//------------------
 
 	}
 	if (!build) {
-		SavingSystem.save("OBJ_AMOUNT", (int)sceneObjects.size());
-		for (int i = 0; i < sceneObjects.size(); i++) {
-
-			SavingSystem.save("OBJ" + std::to_string(i) + "_NAME", sceneObjects[i].name);
-			SavingSystem.save("OBJ" + std::to_string(i) + "_POS_X", sceneObjects[i].position->x);
-			SavingSystem.save("OBJ" + std::to_string(i) + "_POS_Y", sceneObjects[i].position->y);
-			SavingSystem.save("OBJ" + std::to_string(i) + "_SCA_X", sceneObjects[i].scale->x);
-			SavingSystem.save("OBJ" + std::to_string(i) + "_SCA_Y", sceneObjects[i].scale->y);
-			SavingSystem.save("OBJ" + std::to_string(i) + "_ANGLE", *PresceneObjects[i].angle);
-			SavingSystem.save("OBJ" + std::to_string(i) + "_TEXTURE", sceneObjects[i].texChar);
-			SavingSystem.save("OBJ" + std::to_string(i) + "_LAYER", sceneObjects[i].layer);
-			SavingSystem.save("OBJ" + std::to_string(i) + "_RUNDRAW", sceneObjects[i].drawOnRuntime);
-			SavingSystem.save("OBJ" + std::to_string(i) + "_PHYSLAYER", sceneObjects[i].Body->layer);
-			SavingSystem.save("OBJ" + std::to_string(i) + "_DFRIC", sceneObjects[i].Body->dynamicFric);
-			SavingSystem.save("OBJ" + std::to_string(i) + "_SFRIC", sceneObjects[i].Body->staticFric);
-			SavingSystem.save("OBJ" + std::to_string(i) + "_DENS", sceneObjects[i].Body->density);
-			SavingSystem.save("OBJ" + std::to_string(i) + "_BOUNCE", sceneObjects[i].Body->restitution);
-			SavingSystem.save("OBJ" + std::to_string(i) + "_STATIC", sceneObjects[i].Body->IsStatic());
-			SavingSystem.save("OBJ" + std::to_string(i) + "_TRIG", sceneObjects[i].Body->IsTrigger());
-
-			SavingSystem.save("OBJ" + std::to_string(i) + "_TTX", sceneObjects[i].TileX);
-			SavingSystem.save("OBJ" + std::to_string(i) + "_TTY", sceneObjects[i].TileY);
-
-			SavingSystem.save("OBJ" + std::to_string(i) + "TINX", sceneObjects[i].tint.x);
-			SavingSystem.save("OBJ" + std::to_string(i) + "TINY", sceneObjects[i].tint.y);
-			SavingSystem.save("OBJ" + std::to_string(i) + "TINZ", sceneObjects[i].tint.z);
-			SavingSystem.save("OBJ" + std::to_string(i) + "CR", sceneObjects[i].cornerRadius);
-			SavingSystem.save("OBJ" + std::to_string(i) + "_PAREN", sceneObjects[i].parent);
-
-		}
-		SavingSystem.save("BG_COLOR", vec3(BackroundScreen[0], BackroundScreen[1], BackroundScreen[2]));
-		SavingSystem.saveToFile("SCENE.ov");
-
-		Data.data = { float(vsync), float(msaa), BackroundScreen[0], BackroundScreen[1], BackroundScreen[2], float(LocalPy),
-			float(PythonIndex),float(DrawFramebuffer), VigRadius, VigSoftness, FXAA_SPAN_MAX, FXAA_REDUCE_MIN, FXAA_REDUCE_MUL, CMX, CMY, float(Nearest) };
-
-		Data.saveData();
+		Save();
 	}
 
 	glDeleteShader(vertexShader);
@@ -2612,6 +2223,7 @@ int main()
 	glfwDestroyWindow(window);
 	glfwTerminate();
 
+	//-----------------------------
 
 	//std::system("taskkill /f /im python.exe");
 	//system("Vision_engine.exe");
