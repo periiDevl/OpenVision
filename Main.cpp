@@ -1886,7 +1886,7 @@ int main()
 						*scaleUp.angle = *scaleRight.angle ;
 						*scaleUp.scale = glm::vec2(sceneObjects[selectedObject].scale->x, 0.5f);
 
-						if (MouseOverObject(scaleRight, camera, glm::vec3(0, 0, 1), CMX, CMY, ndcMouseX, ndcMouseY) && !mouseOverUI) {
+						if (FrameBufferMouseDetectedObject == 255 * 256 * 256 + 255 * 256 + 255 && !mouseOverUI) {
 
 							scaleRight.Draw(window, unlitProgram, camera, glm::vec3(0, 0, 1), CMX, CMY, Nearest);
 							if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS && b_onpopupmenu == false) {
@@ -1897,7 +1897,7 @@ int main()
 							} 
 						}
 
-						if (MouseOverObject(scaleUp, camera, glm::vec3(0, 0, 1), CMX, CMY, ndcMouseX, ndcMouseY) && !mouseOverUI) {
+						if (FrameBufferMouseDetectedObject == 254 * 256 * 256 + 254 * 256 + 254 && !mouseOverUI) {
 
 							scaleUp.Draw(window, unlitProgram, camera, glm::vec3(0, 0, 1), CMX, CMY, Nearest);
 							if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS && b_onpopupmenu == false) {
@@ -1914,12 +1914,12 @@ int main()
 							if (ScaleXBool) {
 								scaleRight.Draw(window, unlitProgram, camera, glm::vec3(0, 0, 1), CMX, CMY, Nearest);
 								float deltaX = ndcMouseX - initialMouseX;
-								sceneObjects[selectedObject].scale->x = initialScaleX + deltaX;
+								sceneObjects[selectedObject].scale->x = initialScaleX - deltaX;
 							}
 							else {
 								scaleUp.Draw(window, unlitProgram, camera, glm::vec3(0, 0, 1), CMX, CMY, Nearest);
 								float deltaX = ndcMouseY - initialMouseX;
-								sceneObjects[selectedObject].scale->y = initialScaleX + deltaX;
+								sceneObjects[selectedObject].scale->y = initialScaleX - deltaX;
 							}
 						}
 
@@ -1989,14 +1989,21 @@ int main()
 		//Mouse Detecting
 		glUseProgram(MouseDetectionProgram);
 		for (int i = 0; i < sceneObjects.size(); i++) {
-			
-			float redValue = float((i / (256 * 256)) % 256) / 255.0f; // High byte
-			float greenValue = float((i / 256) % 256) / 255.0f; // Mid byte
-			float blueValue = float(i % 256) / 255.0f; // Low byte
+			if (i != 255 || i != 254) {
+				float redValue = float((i / (256 * 256)) % 256) / 255.0f; // High byte
+				float greenValue = float((i / 256) % 256) / 255.0f; // Mid byte
+				float blueValue = float(i % 256) / 255.0f; // Low byte
 
-			glUniform3f(glGetUniformLocation(MouseDetectionProgram, "color"), redValue, greenValue, blueValue);
-			sceneObjects[i].Draw(window, MouseDetectionProgram, camera, glm::vec3(0, 0, 1), CMX, CMY, Nearest);
+				glUniform3f(glGetUniformLocation(MouseDetectionProgram, "color"), redValue, greenValue, blueValue);
+				sceneObjects[i].Draw(window, MouseDetectionProgram, camera, glm::vec3(0, 0, 1), CMX, CMY, Nearest);
+			}
 		}
+
+		glUniform3f(glGetUniformLocation(MouseDetectionProgram, "color"), 1, 1, 1);
+		scaleRight.Draw(window, MouseDetectionProgram, camera, glm::vec3(0, 0, 1), CMX, CMY, Nearest);
+		glUniform3f(glGetUniformLocation(MouseDetectionProgram, "color"), float(254) / 255, float(254) / 255, float(254) / 255);
+
+		scaleUp.Draw(window, MouseDetectionProgram, camera, glm::vec3(0, 0, 1), CMX, CMY, Nearest);
 
 		double xpos, ypos;
 		glfwGetCursorPos(window, &xpos, &ypos);
@@ -2010,7 +2017,7 @@ int main()
 		unsigned char pixel[3];
 		glReadPixels((int)xpos, windowHeight - (int)ypos, 1, 1, GL_RGB, GL_UNSIGNED_BYTE, pixel);
 
-
+		//DETECT COLORMOUSE
 		FrameBufferMouseDetectedObject = pixel[0] * 256 * 256 + pixel[1] * 256 + pixel[2];
 
 		//std::cout << "Object index under mouse: " << FrameBufferMouseDetectedObject << std::endl;
