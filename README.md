@@ -1,6 +1,6 @@
 # Open Vision
 ![Screenshot (271)](https://user-images.githubusercontent.com/97846999/235356345-1e1fdd27-d261-4980-a372-eaab2aa4040d.png)
->OpenVision is a 2D game engine developed by jonathan perii and itay nathan, it contains features like 2d physics, C++ scripting, OpenGL rendering and overall a game engine whice is completly open for the user and delivers a nice balance between high level programming and low level programming.
+>OpenVision is a 2D game engine developed by Jonathan Perii and Itay Nathan, it contains features like 2d physics, C++ scripting, OpenGL rendering and overall a game engine whice is completly open for the user and delivers a nice balance between high level programming and low level programming.
 
 ## Q&A
 
