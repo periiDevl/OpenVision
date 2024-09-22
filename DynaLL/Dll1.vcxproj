@@ -158,6 +158,7 @@
     <ClInclude Include="OVLIB.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Script.h" />
+	<ClInclude Include="TestScript.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp" />

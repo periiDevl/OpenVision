@@ -36,7 +36,8 @@ public:
 	int parent = -1;
 	glm::vec2* parent_position = new glm::vec2(0,0);
 	VAO VAO;
-
+	//1 = x, 2 = y, 3 = time
+	vector<glm::vec3> animationKeyFrames {};
 	/// <summary>
 	/// Degrees To Radians
 	/// </summary>

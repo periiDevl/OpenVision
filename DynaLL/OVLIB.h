@@ -9,7 +9,7 @@
 
 struct Ov_Object
 {
-	float x, y, scale_x, scale_y;
+	float x, y, scale_x, scale_y, index;
 };
 extern "C" OVLIB_API void ScriptStart();
 extern "C" OVLIB_API void ScriptUpdate();
@@ -29,6 +29,12 @@ extern "C" OVLIB_API std::string GetSharedString();
 extern "C" OVLIB_API Ov_Object GetSharedVarX(int i);
 extern "C" OVLIB_API int ObjectsSize();
 
+void AddToPool(Ov_Object& object) {
+	
+	OVObjects.push_back(object);
+	object.index = ObjectsSize() - 1;
+
+}
 //extern "C" OVLIB_API std::vector<int> GetShared();
 /*
 extern "C" OVLIB_API void GetSharedObject(std::vector<Ov_Object>&OVObjectss);

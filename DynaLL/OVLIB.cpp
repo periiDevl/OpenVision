@@ -3,6 +3,7 @@
 #include <limits.h>
 #include "OVLIB.h"
 #include"Script.h"
+#include"TestScript.h"
 #include <fstream>
 #include <sstream>
 int sharedVar = 17;
@@ -11,6 +12,7 @@ std::string sharedString = "";
 
 std::vector<Ov_Object> OVObjects = { Ov_Object{90, 90,90,90} };
 Script script;
+TestScript TestScriptscr;
 
 void ScriptStart()
 {
@@ -51,6 +53,7 @@ void ScriptStart()
     inputFile.close();
 
     script.Start();
+    TestScriptscr.Start();
     std::cout << "Hello";
 
 }
@@ -58,11 +61,13 @@ void ScriptUpdate()
 {
     
     script.Update();
+    TestScriptscr.Update();
 
 }
 void ScriptExit()
 {
     script.Exit();
+    TestScriptscr.Exit();
 
 }
 

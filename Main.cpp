@@ -34,6 +34,7 @@ SaveSystem SavingSystem;
 //----------------
 bool ScaleXBool = true;
 bool stopWarning = false;
+int animationKey = 0;
 //----------------
  
 
@@ -90,6 +91,18 @@ std::vector<float> splitStringToFloats(const std::string& input) {
 	return floatArray;
 }
 
+glm::vec3 lerp(const glm::vec3& start, const glm::vec3& end, float t) {
+	return start + t * (end - start);
+}
+
+glm::vec3 interpolateKeyframes(const glm::vec3& start, const glm::vec3& end, int startKeyframe, int endKeyframe, int currentKeyframe) {
+	if (currentKeyframe < startKeyframe) return start;
+	if (currentKeyframe > endKeyframe) return end;
+
+	float t = (currentKeyframe - startKeyframe) / static_cast<float>(endKeyframe - startKeyframe);
+
+	return lerp(start, end, t);
+}
 
 void clearSavingSystem(int I)
 {
@@ -1459,145 +1472,183 @@ int main()
 
 			ImGui::End();
 			ImGui::Begin("Scripts", 0, (no_resize ? ImGuiWindowFlags_NoResize : 0) | (no_move ? ImGuiWindowFlags_NoMove : 0) | ImGuiWindowFlags_NoTitleBar);
-
-			ImGui::InputText("Script Name", scriptName, IM_ARRAYSIZE(scriptName));
-
-			if (ImGui::Button("Add Script"))
+			if (ImGui::BeginTabBar("MainBar"))
 			{
-				std::ofstream outputFile("scripts.ov", std::ios::app);
-				outputFile << scriptName << std::endl;
-				outputFile.close();
-				addOVscript(scriptName);
-				memset(scriptName, 0, sizeof(scriptName));
-			}
+				if (ImGui::BeginTabItem("Scripts"))
+				{
+					ImGui::InputText("Script Name", scriptName, IM_ARRAYSIZE(scriptName));
 
-			if (ImGui::Button("Remove Script"))
-			{
-				if (scriptName != "Script" &&
-					scriptName != "Camera" &&
-					scriptName != "CircleCollider" &&
-					scriptName != "CollisionManager" &&
-					scriptName != "Console" &&
-					scriptName != "EBO" &&
-					scriptName != "IMGUITheme" &&
-					scriptName != "Math" &&
-					scriptName != "Object" &&
-					scriptName != "OVscriptHandaling" &&
-					scriptName != "PhysicsBody" &&
-					scriptName != "PhysicsWorld" &&
-					scriptName != "PolygonCollider" &&
-					scriptName != "Settings" &&
-					scriptName != "Tex" &&
-					scriptName != "VAO" &&
-					scriptName != "Presave" &&
-					scriptName != "VBO"
-					) {
-					std::string scriptname_str = scriptName;
-					std::ifstream inputFile("SCRIPTS.ov");
-					std::ofstream tempFile("temp.txt");
-					std::string line;
-
-					while (std::getline(inputFile, line)) {
-						if (line.find(scriptname_str) != std::string::npos) {
-							continue;
-						}
-						tempFile << line << std::endl;
+					if (ImGui::Button("Add Script"))
+					{
+						std::ofstream outputFile("scripts.ov", std::ios::app);
+						outputFile << scriptName << std::endl;
+						outputFile.close();
+						addOVscript(scriptName);
+						memset(scriptName, 0, sizeof(scriptName));
 					}
 
-					inputFile.close();
-					tempFile.close();
-					std::remove("SCRIPTS.ov");
-					std::rename("temp.txt", "SCRIPTS.ov");
-
-					removeOVscript(scriptName);
-					memset(scriptName, 0, sizeof(scriptName));
-				}
-			}
-
-			if (ImGui::Button("Open Script"))
-			{
-				std::string command = "start DynaLL/" + std::string(scriptName) + ".h";
-				system(command.c_str());
-				memset(scriptName, 0, sizeof(scriptName));
-			}
-
-
-
-
-
-			if (ImGui::IsWindowHovered())
-			{
-				mouseOverUI = true;
-			}
-			ImGui::End();
-
-			ImGui::End();
-			ImGui::Begin("Scripts Select", 0, (no_resize ? ImGuiWindowFlags_NoResize : 0) | (no_move ? ImGuiWindowFlags_NoMove : 0) | ImGuiWindowFlags_NoTitleBar);
-			if (ImGui::IsWindowHovered())
-			{
-				mouseOverUI = true;
-			}
-			if (ImGui::Button("Script (gloabl ov script)")) {
-				std::string command = "start DynaLL/Script.h";
-				system(command.c_str());
-			}
-			ImTextureID imguiTextureID = reinterpret_cast<ImTextureID>(static_cast<intptr_t>(EngineOVScriptIconGui.ID));
-			int itemsPerRow = 3;
-			int rowCount = (lines.size() + itemsPerRow - 1) / itemsPerRow;
-
-
-
-			float gridWidth = itemsPerRow * (500 + ImGui::GetStyle().ItemSpacing.x);
-
-
-			ImGui::BeginChild("GridChild", ImVec2(gridWidth, 0), false);
-			if (ImGui::IsWindowHovered())
-			{
-				mouseOverUI = true;
-			}
-			for (int row = 0; row < rowCount; ++row) {
-				for (int col = 0; col < itemsPerRow; ++col) {
-					int index = row * itemsPerRow + col;
-
-					if (index < lines.size()) {
-						const auto& line = lines[index];
-
-						ImGui::PushID(index);
-						ImGui::BeginGroup();
-
-						if (ImGui::ImageButton((ImTextureID)imguiTextureID, ImVec2(50, 50))) {
-							std::string command = "start DynaLL/" + line + ".h";
-							system(command.c_str());
-						}
-						if (ImGui::IsItemHovered())
+					if (ImGui::Button("Remove Script"))
+					{
+						if (scriptName != "Script" &&
+							scriptName != "Camera" &&
+							scriptName != "CircleCollider" &&
+							scriptName != "CollisionManager" &&
+							scriptName != "Console" &&
+							scriptName != "EBO" &&
+							scriptName != "IMGUITheme" &&
+							scriptName != "Math" &&
+							scriptName != "Object" &&
+							scriptName != "OVscriptHandaling" &&
+							scriptName != "PhysicsBody" &&
+							scriptName != "PhysicsWorld" &&
+							scriptName != "PolygonCollider" &&
+							scriptName != "Settings" &&
+							scriptName != "Tex" &&
+							scriptName != "VAO" &&
+							scriptName != "Presave" &&
+							scriptName != "VBO")
 						{
-							ImGui::BeginTooltip();
+							std::string scriptname_str = scriptName;
+							std::ifstream inputFile("SCRIPTS.ov");
+							std::ofstream tempFile("temp.txt");
+							std::string line;
 
-							ImGui::Text(("Edit \"" + line + "\" Script.").c_str());
+							while (std::getline(inputFile, line))
+							{
+								if (line.find(scriptname_str) != std::string::npos)
+								{
+									continue;
+								}
+								tempFile << line << std::endl;
+							}
 
-							ImGui::EndTooltip();
+							inputFile.close();
+							tempFile.close();
+							std::remove("SCRIPTS.ov");
+							std::rename("temp.txt", "SCRIPTS.ov");
+
+							removeOVscript(scriptName);
+							memset(scriptName, 0, sizeof(scriptName));
 						}
-
-						ImVec2 textPosition = ImGui::GetItemRectMin();
-						textPosition.y += 50;
-						textPosition.x += (50 - ImGui::CalcTextSize(line.c_str()).x) * 0.5f + 10;
-						ImGui::SetCursorScreenPos(textPosition);
-						ImGui::Text("%s", line.c_str());
-
-						ImGui::EndGroup();
-						ImGui::PopID();
 					}
 
-					ImGui::SameLine();
+					if (ImGui::Button("Open Script"))
+					{
+						std::string command = "start DynaLL/" + std::string(scriptName) + ".h";
+						system(command.c_str());
+						memset(scriptName, 0, sizeof(scriptName));
+					}
+
+					if (ImGui::IsWindowHovered())
+					{
+						mouseOverUI = true;
+					}
+
+					// Ensure this End matches the BeginTabItem for "Scripts"
+					ImGui::EndTabItem();
+
+					ImGui::Begin("Scripts Select", 0, (no_resize ? ImGuiWindowFlags_NoResize : 0) | (no_move ? ImGuiWindowFlags_NoMove : 0) | ImGuiWindowFlags_NoTitleBar);
+					if (ImGui::IsWindowHovered())
+					{
+						mouseOverUI = true;
+					}
+					if (ImGui::Button("Script (gloabl ov script)"))
+					{
+						std::string command = "start DynaLL/Script.h";
+						system(command.c_str());
+					}
+					ImTextureID imguiTextureID = reinterpret_cast<ImTextureID>(static_cast<intptr_t>(EngineOVScriptIconGui.ID));
+					int itemsPerRow = 3;
+					int rowCount = (lines.size() + itemsPerRow - 1) / itemsPerRow;
+
+					float gridWidth = itemsPerRow * (500 + ImGui::GetStyle().ItemSpacing.x);
+
+					ImGui::BeginChild("GridChild", ImVec2(gridWidth, 0), false);
+					if (ImGui::IsWindowHovered())
+					{
+						mouseOverUI = true;
+					}
+					for (int row = 0; row < rowCount; ++row)
+					{
+						for (int col = 0; col < itemsPerRow; ++col)
+						{
+							int index = row * itemsPerRow + col;
+
+							if (index < lines.size())
+							{
+								const auto& line = lines[index];
+
+								ImGui::PushID(index);
+								ImGui::BeginGroup();
+
+								if (ImGui::ImageButton((ImTextureID)imguiTextureID, ImVec2(50, 50)))
+								{
+									std::string command = "start DynaLL/" + line + ".h";
+									system(command.c_str());
+								}
+								if (ImGui::IsItemHovered())
+								{
+									ImGui::BeginTooltip();
+									ImGui::Text(("Edit \"" + line + "\" Script.").c_str());
+									ImGui::EndTooltip();
+								}
+
+								ImVec2 textPosition = ImGui::GetItemRectMin();
+								textPosition.y += 50;
+								textPosition.x += (50 - ImGui::CalcTextSize(line.c_str()).x) * 0.5f + 10;
+								ImGui::SetCursorScreenPos(textPosition);
+								ImGui::Text("%s", line.c_str());
+
+								ImGui::EndGroup();
+								ImGui::PopID();
+							}
+
+							ImGui::SameLine();
+						}
+						ImGui::NewLine();
+					}
+					ImGui::EndChild();
+
+					// Ensure this End matches the Begin for "Scripts Select"
+					ImGui::End();
 				}
-				ImGui::NewLine();
+				if (timeDiff >= fixed_timestep) {
+					if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
+					{
+						animationKey++;
+					}
+				}
+				if (ImGui::BeginTabItem("Animation"))
+				{
+					ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 5)); // (horizontal, vertical) spacing
+					// Ensure this End matches the BeginTabItem for "Animation"
+					for (size_t i = 0; i < 1000; i++)
+					{
+						if (i == animationKey)
+						{
+							ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.15f, 0.15f, 0.7f, 1.0f));
+
+						}
+						else if (i % 2 == 0) {
+							ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.15f, 0.15f, 0.15f, 1.0f));
+						}
+						else {
+							ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.13f, 0.13f, 0.13f, 1.0f));
+
+						}
+						ImGui::Button(("K" + std::to_string(i)).c_str(), ImVec2(2.0f, 200.0f));
+						ImGui::SameLine();
+						
+						ImGui::PopStyleColor();
+					}
+					ImGui::PopStyleVar();
+					ImGui::EndTabItem();
+				}
+
+				// Ensure this End matches the BeginTabBar
+				ImGui::EndTabBar();
 			}
-			ImGui::EndChild();
 
-
-
-			ImGui::End();
-			ImGui::End();
 			ImGui::Begin("Window Control", 0, (no_resize ? ImGuiWindowFlags_NoResize : 0) | (no_move ? ImGuiWindowFlags_NoMove : 0) | ImGuiWindowFlags_NoTitleBar);
 
 			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 0.0f, 0.0f, 1.0f));
@@ -2059,6 +2110,17 @@ int main()
 				}
 
 
+
+				std::cout << ObjectsSize() - sceneObjects.size();
+				for (size_t i = 0; i < (ObjectsSize() - sceneObjects.size()) + 2; i++)
+				{
+					sceneObjects.push_back(Object(verts, ind));
+					std::cout << "YES!";
+				}
+				
+				
+				
+				
 				//std::cout << OVObjects.size();
 				/*
 				for (size_t i = 0; i < OVObjects.size(); i++)
@@ -2069,14 +2131,7 @@ int main()
 				//OVObjects = sceneObjects;?
 				//std::cout << ObjectsSize() + "Objects size" << std::endl;
 				//std::cout << sceneObjects.size() << std::endl;
-				
-				for (size_t i = 0; i < ObjectsSize(); i++)
-				{
-					sceneObjects[i].position->x = GetSharedVarX(i).x;
-					sceneObjects[i].position->y = GetSharedVarX(i).y;
-					sceneObjects[i].scale->x = GetSharedVarX(i).scale_x;
-					sceneObjects[i].scale->y = GetSharedVarX(i).scale_y;
-				}
+
 				
 
 				/*
@@ -2113,16 +2168,23 @@ int main()
 
 
 				//(sharedObject.x, sharedObject.y)
-				//std::vector<int> sharedArray = GetShared();
+				//std::vector<int> sharedArray = GetShared(); 
 				//.log(sharedArray[0]);
 
-
+				
 
 				//std::cout << sharedVar;
 				StartPhase = false;
 			}
 
 
+			for (size_t i = 0; i < sceneObjects.size(); i++)
+			{
+				sceneObjects[i].position->x = GetSharedVarX(i).x;
+				sceneObjects[i].position->y = GetSharedVarX(i).y;
+				sceneObjects[i].scale->x = GetSharedVarX(i).scale_x;
+				sceneObjects[i].scale->y = GetSharedVarX(i).scale_y;
+			}
 			/*
 			std::vector<Ov_Object> obj = { Ov_Object{10,10,10,10, 10} };
 			GetSharedObject(obj);
@@ -2147,7 +2209,14 @@ int main()
 			sceneObjects[0].DrawCustomVertices(window, shaderProgram, camera, vertices3);
 			*/
 			script.Update();
+			for (size_t i = 0; i < sceneObjects.size(); i++)
+			{
 
+				sceneObjects[i].position->x = GetSharedVarX(i).x;
+				sceneObjects[i].position->y = GetSharedVarX(i).y;
+				sceneObjects[i].scale->x = GetSharedVarX(i).scale_x;
+				sceneObjects[i].scale->y = GetSharedVarX(i).scale_y;
+			}
 
 			if (timeDiff >= fixed_timestep) {
 				std::string FPS = std::to_string((1.0 / timeDiff) * counter);

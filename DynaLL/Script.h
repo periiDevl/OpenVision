@@ -1,6 +1,6 @@
 
 
-#include<bullet/btBulletDynamicsCommon.h>
+
 
 #include <iostream>
 #include"pch.h"
@@ -9,53 +9,39 @@
 class Script {
 
 public:
-
-	btDefaultCollisionConfiguration* collisionConfiguration = new btDefaultCollisionConfiguration();
-
-	// Create the dispatcher
-	btCollisionDispatcher* dispatcher = new btCollisionDispatcher(collisionConfiguration);
-
-	// Create the broadphase
-	btBroadphaseInterface* broadphase = new btDbvtBroadphase();
-
-	// Create the constraint solver
-	btSequentialImpulseConstraintSolver* solver = new btSequentialImpulseConstraintSolver;
-
-	// Create the world
-	btDiscreteDynamicsWorld* world = new btDiscreteDynamicsWorld(dispatcher, broadphase, solver, collisionConfiguration);
-	btRigidBody* boxBody;
+	Ov_Object nig1;
+	Ov_Object nig2;
+	bool start = false;
 	void Start() {
-		world->setGravity(btVector3(0, -10, 0)); // Set gravity
+		
+		std::cout << "Hello!" << std::endl;
+		nig1.x = 1;
+		nig1.y = 0;
+		nig1.scale_x = 5;
+		nig1.scale_y = 5;
 
-		// Create a ground plane
-		btCollisionShape* groundShape = new btBoxShape(btVector3(5, 1, 5));
-		btDefaultMotionState* groundMotionState = new btDefaultMotionState(btTransform::getIdentity());
-		btRigidBody::btRigidBodyConstructionInfo groundRigidBodyCI(0, groundMotionState, groundShape, btVector3(0, 0, 0));
-		btRigidBody* groundBody = new btRigidBody(groundRigidBodyCI);
-		world->addRigidBody(groundBody);
+		nig2.x = 8;
+		nig2.y = 0;
+		nig2.scale_x = 5;
+		nig2.scale_y = 5;
+		AddToPool(nig1);
+		AddToPool(nig2);
 
-		// Create a dynamic object (replace with your desired shape and properties)
-		btCollisionShape* boxShape = new btBoxShape(btVector3(1, 1, 1));
-		btDefaultMotionState* boxMotionState = new btDefaultMotionState(btTransform(btQuaternion::getIdentity(), btVector3(0, 5, 0)));
-		btScalar mass = 1.0f;
-		btVector3 inertia(0, 0, 0);
-		boxShape->calculateLocalInertia(mass, inertia);
-		btRigidBody::btRigidBodyConstructionInfo boxRigidBodyCI(mass, boxMotionState, boxShape, inertia);
-		boxBody = new btRigidBody(boxRigidBodyCI);
-		world->addRigidBody(boxBody);
-
-		std::cout << "HI!" << std::endl;
 	}
 	void Update() {
 
 		// Main simulation loop
 				// Create the collision configuration
-
-		world->stepSimulation(1.0f / 60.0f, 10); // Simulate for 1/60th of a second, 10 iterations
-		// Print the Y position of the dynamic object
-		btTransform transform = boxBody->getWorldTransform();
-		btVector3 position = transform.getOrigin();
-		std::cout << "Dynamic object Y position: " << position.getY() << std::endl;
+		OVObjects[nig1.index].x += 0.1;
+		OVObjects[nig1.index].y = 0;
+		OVObjects[nig1.index].scale_x = 10;
+		OVObjects[nig1.index].scale_y = 10;
+		
+		OVObjects[nig2.index].x = 8;
+		OVObjects[nig2.index].y = 0;
+		OVObjects[nig2.index].scale_x = 0;
+		OVObjects[nig2.index].scale_y = 0;
+		
 		
 	}
 	void Exit() {
