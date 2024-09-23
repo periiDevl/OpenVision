@@ -9,7 +9,9 @@
 
 struct Ov_Object
 {
+	std::string name;
 	float x, y, scale_x, scale_y, index;
+	bool acc = false;
 };
 extern "C" OVLIB_API void ScriptStart();
 extern "C" OVLIB_API void ScriptUpdate();
@@ -28,13 +30,39 @@ extern "C" OVLIB_API std::string GetSharedString();
 
 extern "C" OVLIB_API Ov_Object GetSharedVarX(int i);
 extern "C" OVLIB_API int ObjectsSize();
-
+Ov_Object GetOV(std::string Oname)
+{
+	for (size_t i = 0; i < ObjectsSize(); i++)
+	{
+		if (OVObjects[i].name == Oname) {
+			return OVObjects[i];
+		}
+	}
+}
+Ov_Object GetOV(int index)
+{
+	return OVObjects[index];
+}
+// Adds the object to the pool and assigns its index
 void AddToPool(Ov_Object& object) {
-	
-	OVObjects.push_back(object);
-	object.index = ObjectsSize() - 1;
+	OVObjects.push_back(object);          // Add object to the vector
+	object.index = OVObjects.size() - 1;  // Set index to the current size (new index)
+}
+
+
+// Modifies the object from the pool
+void UseFromPool(Ov_Object& object) {
+	OVObjects[object.index] = object;
+	object.acc = true;
 
 }
+
+// Modifies the pointer to refer to the object in the pool
+void CreateObject(Ov_Object& object) {
+	AddToPool(object);  // Add the object by reference
+	 // Update the object from the pool
+}
+
 //extern "C" OVLIB_API std::vector<int> GetShared();
 /*
 extern "C" OVLIB_API void GetSharedObject(std::vector<Ov_Object>&OVObjectss);

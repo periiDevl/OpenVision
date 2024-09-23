@@ -2112,7 +2112,7 @@ int main()
 
 
 				std::cout << ObjectsSize() - sceneObjects.size();
-				for (size_t i = 0; i < (ObjectsSize() - sceneObjects.size()) + 2; i++)
+				for (size_t i = 0; i < (ObjectsSize() - sceneObjects.size()) + 1; i++)
 				{
 					sceneObjects.push_back(Object(verts, ind));
 					std::cout << "YES!";
@@ -2178,13 +2178,8 @@ int main()
 			}
 
 
-			for (size_t i = 0; i < sceneObjects.size(); i++)
-			{
-				sceneObjects[i].position->x = GetSharedVarX(i).x;
-				sceneObjects[i].position->y = GetSharedVarX(i).y;
-				sceneObjects[i].scale->x = GetSharedVarX(i).scale_x;
-				sceneObjects[i].scale->y = GetSharedVarX(i).scale_y;
-			}
+			script.Update();
+
 			/*
 			std::vector<Ov_Object> obj = { Ov_Object{10,10,10,10, 10} };
 			GetSharedObject(obj);
@@ -2208,15 +2203,6 @@ int main()
 			}
 			sceneObjects[0].DrawCustomVertices(window, shaderProgram, camera, vertices3);
 			*/
-			script.Update();
-			for (size_t i = 0; i < sceneObjects.size(); i++)
-			{
-
-				sceneObjects[i].position->x = GetSharedVarX(i).x;
-				sceneObjects[i].position->y = GetSharedVarX(i).y;
-				sceneObjects[i].scale->x = GetSharedVarX(i).scale_x;
-				sceneObjects[i].scale->y = GetSharedVarX(i).scale_y;
-			}
 
 			if (timeDiff >= fixed_timestep) {
 				std::string FPS = std::to_string((1.0 / timeDiff) * counter);
@@ -2224,7 +2210,17 @@ int main()
 				glfwSetWindowTitle(window, newTitle.c_str());
 				prevTime = crntTime;
 				counter = 0;
-
+				
+				for (size_t i = 0; i < sceneObjects.size(); i++)
+				{
+					if (GetSharedVarX(i).acc == true) {
+						sceneObjects[i].position->x = GetSharedVarX(i).x;
+						sceneObjects[i].position->y = GetSharedVarX(i).y;
+						sceneObjects[i].scale->x = GetSharedVarX(i).scale_x;
+						sceneObjects[i].scale->y = GetSharedVarX(i).scale_y;
+					}
+				}
+				
 				ScriptUpdate();
 				
 

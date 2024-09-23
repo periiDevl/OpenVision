@@ -10,7 +10,7 @@ int sharedVar = 17;
 std::vector<int> sharedArray;
 std::string sharedString = "";
 
-std::vector<Ov_Object> OVObjects = { Ov_Object{90, 90,90,90} };
+std::vector<Ov_Object> OVObjects = { };
 Script script;
 TestScript TestScriptscr;
 
