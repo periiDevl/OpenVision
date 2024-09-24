@@ -76,9 +76,9 @@
     <LibraryPath>C:\Users\User\Documents\Programing\OpenVision\Libraries\lib;Libraries\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>C:\Users\User\Documents\Programing\OpenVision\Libraries\include;Libraries\include;C:\Users\User\Documents\Programing\OpenVision\Libraries\include\GLFW;$(IncludePath)</IncludePath>
+    <IncludePath>Libraries\include;Libraries\include\GLFW;$(IncludePath)</IncludePath>
     <ExternalIncludePath>$(ExternalIncludePath)</ExternalIncludePath>
-    <LibraryPath>C:\Users\User\Documents\Programing\OpenVision\Libraries\lib;Libraries\lib;$(LibraryPath)</LibraryPath>
+    <LibraryPath>Libraries\lib;Libraries\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <IncludePath>C:\Users\User\Documents\Programing\OpenVision\Libraries\include;Libraries\include;C:\Users\User\Documents\Programing\OpenVision\Libraries\include\GLFW;$(IncludePath)</IncludePath>
@@ -154,7 +154,7 @@
       <SDLCheck>false</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>DynaLL;imgui;C:\Users\User\Documents\Programing\OpenVision\Libraries\include\GLFW</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>DynaLL;imgui;Libraries\include\GLFW</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalUsingDirectories>
       </AdditionalUsingDirectories>
@@ -165,7 +165,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>opengl32.lib;DynaLL.lib;Winmm.lib;glfw3.lib;glfw3_mt.lib;glfw3dll.lib;gdi32.lib;user32.lib;kernel32.lib;advapi32.lib;shell32.lib;steam_api64.lib</AdditionalDependencies>
-      <AdditionalLibraryDirectories>C:\Users\User\Documents\Programing\OpenVision\Libraries\lib;Libraries\lib;$(LibraryPath)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>Libraries\lib;Libraries\lib;$(LibraryPath)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>

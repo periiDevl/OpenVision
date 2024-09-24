@@ -2210,7 +2210,19 @@ int main()
 				glfwSetWindowTitle(window, newTitle.c_str());
 				prevTime = crntTime;
 				counter = 0;
-				
+				OVObjects[1].acc = true;
+				if (glfwGetKey(window, GLFW_KEY_W)) {
+					OVObjects[1].y += 0.4f;
+				}
+				if (glfwGetKey(window, GLFW_KEY_S)) {
+					OVObjects[1].y -= 0.4f;
+				}
+				if (glfwGetKey(window, GLFW_KEY_D)) {
+					OVObjects[1].x += 0.4f;
+				}
+				if (glfwGetKey(window, GLFW_KEY_A)) {
+					OVObjects[1].x -= 0.4f;
+				}
 				for (size_t i = 0; i < sceneObjects.size(); i++)
 				{
 					if (GetSharedVarX(i).acc == true) {
