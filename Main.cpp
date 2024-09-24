@@ -2112,10 +2112,10 @@ int main()
 
 
 				std::cout << ObjectsSize() - sceneObjects.size();
-				for (size_t i = 0; i < (ObjectsSize() - sceneObjects.size()) + 1; i++)
+				for (size_t i = 0; i < (ObjectsSize() - (sceneObjects.size() - i)); i++)
 				{
 					sceneObjects.push_back(Object(verts, ind));
-					std::cout << "YES!";
+					std::cout << i;
 				}
 				
 				
