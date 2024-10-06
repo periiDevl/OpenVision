@@ -1,0 +1,27 @@
+﻿  pch.cpp
+  dllmain.cpp
+  OVLIB.cpp
+C:\Users\User\Documents\Programing\OpenVision\DynaLL\OVLIB.h(27,51): warning C4190: 'GetSharedString' has C-linkage specified, but returns UDT 'std::basic_string<char,std::char_traits<char>,std::allocator<char>>' which is incompatible with C
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.37.32822\include\xstring(5119,29): message : see declaration of 'std::basic_string<char,std::char_traits<char>,std::allocator<char>>'
+C:\Users\User\Documents\Programing\OpenVision\DynaLL\OVLIB.cpp(12,24): warning C4273: 'OVObjects': inconsistent dll linkage
+C:\Users\User\Documents\Programing\OpenVision\DynaLL\OVLIB.h(17,45): message : see previous definition of 'OVObjects'
+C:\Users\User\Documents\Programing\OpenVision\DynaLL\OVLIB.cpp(15,6): warning C4273: 'ScriptStart': inconsistent dll linkage
+C:\Users\User\Documents\Programing\OpenVision\DynaLL\OVLIB.h(14,27): message : see previous definition of 'ScriptStart'
+C:\Users\User\Documents\Programing\OpenVision\DynaLL\OVLIB.cpp(57,6): warning C4273: 'ScriptUpdate': inconsistent dll linkage
+C:\Users\User\Documents\Programing\OpenVision\DynaLL\OVLIB.h(15,27): message : see previous definition of 'ScriptUpdate'
+C:\Users\User\Documents\Programing\OpenVision\DynaLL\OVLIB.cpp(63,6): warning C4273: 'ScriptExit': inconsistent dll linkage
+C:\Users\User\Documents\Programing\OpenVision\DynaLL\OVLIB.h(16,27): message : see previous definition of 'ScriptExit'
+C:\Users\User\Documents\Programing\OpenVision\DynaLL\OVLIB.cpp(70,5): warning C4273: 'GetSharedVar': inconsistent dll linkage
+C:\Users\User\Documents\Programing\OpenVision\DynaLL\OVLIB.h(26,26): message : see previous definition of 'GetSharedVar'
+C:\Users\User\Documents\Programing\OpenVision\DynaLL\OVLIB.cpp(74,5): warning C4273: 'ObjectsSize': inconsistent dll linkage
+C:\Users\User\Documents\Programing\OpenVision\DynaLL\OVLIB.h(30,26): message : see previous definition of 'ObjectsSize'
+C:\Users\User\Documents\Programing\OpenVision\DynaLL\OVLIB.cpp(76,26): warning C4267: 'return': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\User\Documents\Programing\OpenVision\DynaLL\OVLIB.cpp(78,13): warning C4273: 'GetSharedString': inconsistent dll linkage
+C:\Users\User\Documents\Programing\OpenVision\DynaLL\OVLIB.h(27,34): message : see previous definition of 'GetSharedString'
+C:\Users\User\Documents\Programing\OpenVision\DynaLL\OVLIB.cpp(87,11): warning C4273: 'GetSharedVarX': inconsistent dll linkage
+C:\Users\User\Documents\Programing\OpenVision\DynaLL\OVLIB.h(29,32): message : see previous definition of 'GetSharedVarX'
+  Script.cpp
+  PW.cpp
+  Generating Code...
+     Creating library C:\Users\User\Documents\Programing\OpenVision\DynaLL\x64\Debug\DynaLL.lib and object C:\Users\User\Documents\Programing\OpenVision\DynaLL\x64\Debug\DynaLL.exp
+  Dll1.vcxproj -> C:\Users\User\Documents\Programing\OpenVision\DynaLL\x64\Debug\DynaLL.dll
