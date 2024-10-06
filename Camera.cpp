@@ -24,6 +24,15 @@ void Camera::Matrix(GLuint shader, const char* uniform)
 {
 	glUniformMatrix4fv(glGetUniformLocation(shader, uniform), 1, GL_FALSE, glm::value_ptr(cameraMatrix));
 }
+glm::mat4 Camera::getViewMatrix()
+{
+	return glm::lookAt(Position, Position + glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+}
+
+glm::mat4 Camera::getProjectionMatrix(float FOVdeg, float nearPlane, float farPlane)
+{
+	return glm::perspective(glm::radians(FOVdeg), (float)width / height, nearPlane, farPlane);
+}
 
 
 

@@ -958,7 +958,7 @@ int main()
 
 		Data.saveData();
 	};
-
+	glm::vec3 beforeMouseWorldPos;
 	while (!glfwWindowShouldClose(window))
 	{
 
@@ -1826,12 +1826,39 @@ int main()
 						}
 						*/
 						//camera.Position.x = 0.001f;
-						ndcMouseX = (float)mouseX / (float)width * 2.0f - 1.0f;
-						ndcMouseY = (float)mouseY / (float)height * 2.0f - 1.0f;
-						ndcMouseX *= rattio.x * 3.65 * (fov /45);
-						ndcMouseY *= -rattio.y * 3.65 * (fov / 45);
-						//float heightW = camera.Position.z * tan(radians(fov / 2)) * 2;
-						//float widthW = (height / rattio.y) * rattio.x;
+						float ndcMouseX = (2.0f * mouseX) / width - 1.0f;
+						float ndcMouseY = 1.0f - (2.0f * mouseY) / height;  // Flip Y-axis for NDC
+						glm::vec2 ndcMousePos(ndcMouseX, ndcMouseY);
+
+						glm::vec4 viewport = glm::vec4(0, 0, width, height);
+
+						glm::vec3 nearPoint = glm::unProject(glm::vec3(mouseX, height - mouseY, 0.0f),
+							camera.getViewMatrix(),
+							camera.getProjectionMatrix(fov, 0.1f, 100.0f),
+							viewport);
+
+						glm::vec3 farPoint = glm::unProject(glm::vec3(mouseX, height - mouseY, 1.0f),
+							camera.getViewMatrix(),
+							camera.getProjectionMatrix(fov, 0.1f, 100.0f),
+							viewport);
+
+						glm::vec3 rayDirection = glm::normalize(farPoint - nearPoint);
+
+						float t = -nearPoint.z / rayDirection.z;
+						glm::vec3 intersectionPoint = nearPoint + t * rayDirection;
+
+						glm::vec3 mouseWorldDelta = intersectionPoint - beforeMouseWorldPos;
+
+						float sensitivityFactor = 1.0f; 
+
+						mouseWorldDelta *= sensitivityFactor;
+
+						if (!scaling && glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_1) == GLFW_PRESS) {
+							sceneObjects[selectedObject].position->x += mouseWorldDelta.x;
+							sceneObjects[selectedObject].position->y += mouseWorldDelta.y;
+						}
+
+						beforeMouseWorldPos = intersectionPoint;
 
 						//ndcMouseX *= widthW;
 						//ndcMouseY *= heightW;

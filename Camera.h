@@ -21,7 +21,8 @@ public:
 
 
 	Camera(int width, int height, glm::vec3 position);
-
+	glm::mat4 getViewMatrix();
+	glm::mat4 getProjectionMatrix(float FOVdeg, float nearPlane, float farPlane);
 	void updateMatrix(float FOVdeg, float nearPlane, float farPlane);
 	void Matrix(GLuint shader, const char* uniform);
 };
