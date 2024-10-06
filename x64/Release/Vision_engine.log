@@ -1,0 +1,53 @@
+﻿  Main.cpp
+C:\Users\User\Documents\Programing\OpenVision\Math.h(8,30): warning C4244: 'return': conversion from 'double' to 'float', possible loss of data
+C:\Users\User\Documents\Programing\OpenVision\DynaLL\OVLIB.h(27,51): warning C4190: 'GetSharedString' has C-linkage specified, but returns UDT 'std::basic_string<char,std::char_traits<char>,std::allocator<char>>' which is incompatible with C
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.37.32822\include\xstring(5119,29): message : see declaration of 'std::basic_string<char,std::char_traits<char>,std::allocator<char>>'
+C:\Users\User\Documents\Programing\OpenVision\Main.cpp(478,115): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\User\Documents\Programing\OpenVision\Main.cpp(535,27): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\User\Documents\Programing\OpenVision\Main.cpp(605,24): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\User\Documents\Programing\OpenVision\Main.cpp(659,11): warning C4244: 'initializing': conversion from '_Ty' to 'int', possible loss of data
+          with
+          [
+              _Ty=float
+          ]
+C:\Users\User\Documents\Programing\OpenVision\Main.cpp(661,27): warning C4244: '=': conversion from '_Ty' to 'int', possible loss of data
+          with
+          [
+              _Ty=float
+          ]
+C:\Users\User\Documents\Programing\OpenVision\Main.cpp(778,77): warning C4244: 'argument': conversion from 'const unsigned int' to 'GLfloat', possible loss of data
+C:\Users\User\Documents\Programing\OpenVision\Main.cpp(778,70): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\User\Documents\Programing\OpenVision\Main.cpp(873,15): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+C:\Users\User\Documents\Programing\OpenVision\Main.cpp(924,36): warning C4305: 'initializing': truncation from 'double' to 'float'
+C:\Users\User\Documents\Programing\OpenVision\Main.cpp(1608,17): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\User\Documents\Programing\OpenVision\Main.cpp(1700,17): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\User\Documents\Programing\OpenVision\Main.cpp(1772,25): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\User\Documents\Programing\OpenVision\Main.cpp(1808,29): warning C4244: '*=': conversion from 'double' to 'float', possible loss of data
+C:\Users\User\Documents\Programing\OpenVision\Main.cpp(1809,30): warning C4244: '*=': conversion from 'double' to 'float', possible loss of data
+C:\Users\User\Documents\Programing\OpenVision\Main.cpp(1817,26): warning C4244: '+=': conversion from 'double' to 'float', possible loss of data
+C:\Users\User\Documents\Programing\OpenVision\Main.cpp(1818,26): warning C4244: '+=': conversion from 'double' to 'float', possible loss of data
+C:\Users\User\Documents\Programing\OpenVision\Main.cpp(1835,79): warning C4305: 'argument': truncation from 'double' to 'GLfloat'
+C:\Users\User\Documents\Programing\OpenVision\Main.cpp(1835,73): warning C4305: 'argument': truncation from 'double' to 'GLfloat'
+C:\Users\User\Documents\Programing\OpenVision\Main.cpp(1842,79): warning C4305: 'argument': truncation from 'double' to 'GLfloat'
+C:\Users\User\Documents\Programing\OpenVision\Main.cpp(1842,73): warning C4305: 'argument': truncation from 'double' to 'GLfloat'
+C:\Users\User\Documents\Programing\OpenVision\Main.cpp(1860,40): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\User\Documents\Programing\OpenVision\Main.cpp(1876,18): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\User\Documents\Programing\OpenVision\Main.cpp(1877,18): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\User\Documents\Programing\OpenVision\Main.cpp(1898,67): warning C4305: 'argument': truncation from 'double' to 'GLfloat'
+C:\Users\User\Documents\Programing\OpenVision\Main.cpp(1949,76): warning C4305: 'argument': truncation from 'double' to 'GLfloat'
+C:\Users\User\Documents\Programing\OpenVision\Main.cpp(1949,70): warning C4305: 'argument': truncation from 'double' to 'GLfloat'
+C:\Users\User\Documents\Programing\OpenVision\Main.cpp(1955,75): warning C4305: 'argument': truncation from 'double' to 'GLfloat'
+C:\Users\User\Documents\Programing\OpenVision\Main.cpp(1955,67): warning C4305: 'argument': truncation from 'double' to 'GLfloat'
+C:\Users\User\Documents\Programing\OpenVision\Main.cpp(2045,50): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\User\Documents\Programing\OpenVision\Main.cpp(2046,50): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\User\Documents\Programing\OpenVision\Main.cpp(2047,47): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\User\Documents\Programing\OpenVision\Main.cpp(2048,47): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\User\Documents\Programing\OpenVision\Main.cpp(2079,11): warning C4305: '=': truncation from 'double' to 'float'
+C:\Users\User\Documents\Programing\OpenVision\Main.cpp(828,99): warning C4101: 'velY': unreferenced local variable
+C:\Users\User\Documents\Programing\OpenVision\Main.cpp(828,93): warning C4101: 'velX': unreferenced local variable
+  Generating code
+  1 of 4462 functions (<0.1%) were compiled, the rest were copied from previous compilation.
+    0 functions were new in current compilation
+    96 functions had inline decision re-evaluated but remain unchanged
+  Finished generating code
+  Vision_engine.vcxproj -> C:\Users\User\Documents\Programing\OpenVision\x64\Release\Vision_engine.exe
