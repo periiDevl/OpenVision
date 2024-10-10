@@ -1,8 +1,9 @@
 #ifndef OV_WINDOW_CLASS_H
 #define OV_WINDOW_CLASS_H
 #include <iostream>
+#include "Camera.h"
 #include "glfw3.h"
-#include"glad/glad.h"
+#include "glad/glad.h"
 #include <stb/stb_image.h>
 class OvWindow
 {

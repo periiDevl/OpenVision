@@ -8,6 +8,11 @@ class SceneData
 {
 public:
 
+	SceneData(std::string xmlPath)
+	{
+
+	}
+
 	// a list of copies of game objects (will be copied when init scene)
 	std::vector<GameObject> sceneObjects;
 
@@ -19,8 +24,23 @@ public:
 
 class Scene
 {
+
 public:
 
+	void load()
+	{
+
+	}
+
+	void unload()
+	{
+
+	}
+
+	void reset()
+	{
+		sceneObjects.clear();
+	}
 
 
 private:

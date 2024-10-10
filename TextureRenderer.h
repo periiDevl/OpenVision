@@ -3,14 +3,22 @@
 
 #include "GameObject.h"
 #include "Component.h"
+#include "ResourceManager.h"
 #include "glfw3.h"
-#include "Camera.h"
+
 class TextureRenderer : public Component
 {
 public:
-	void draw()
+	using Component::Component;
+
+	void init()
 	{
 
+	}
+
+	void draw()
+	{
+		
 	}
 	void setTexture(std::string path)
 	{
@@ -33,7 +41,6 @@ private:
 	std::string texturePath;
 	GLFWwindow* window;
 	GLuint shader;
-	Camera& camera;
 };
 
 #endif

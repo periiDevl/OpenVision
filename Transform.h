@@ -6,7 +6,7 @@
 
 class GameObject;
 
-class Transform : public Component
+class Transform : public Component, public std::enable_shared_from_this<Transform>
 {
 public:
 
@@ -21,8 +21,7 @@ public:
 		localRotation(other.localRotation), localScale(other.localScale)
 	{ }
 
-	Transform(GameObject& owner, glm::vec2 position, float rotation, glm::vec2 scale,
-		glm::vec2 localPosition, float localRotation, glm::vec2 localScale) :
+	Transform(GameObject& owner, glm::vec2 position, float rotation, glm::vec2 scale, Transform&) :
 		Component(owner), position(position), rotation(rotation), scale(scale),
 		localPosition(localPosition), localRotation(localRotation), localScale(localScale)
 	{ }
@@ -35,84 +34,67 @@ public:
 
 	void setParent(Transform& newParent)
 	{
-		// Can't set a parent to itself
-		if (&newParent == this)
-		{
-			return;
+		// Prevent self parent or redundant func
+		if (&newParent == this || parent.lock().get() == &newParent) return;
+
+		parent = newParent.shared_from_this();
+		localPosition = position - newParent.position;
+		localRotation = rotation - newParent.rotation;
+	}
+	void addChild(Transform& child) {
+		// Prevent self-parenting or redundant setting
+		if (&child == this || &child.getParent() == this) return;
+
+		children.push_back(child.shared_from_this()); // Add the child
+	}
+
+	Transform& getParent() const {
+		auto parentPtr = parent.lock();
+
+		if (!parentPtr) {
+			throw std::runtime_error("Parent transform is not set or has expired.");
 		}
 
-		parent = &newParent;
-		
-		localPosition = parent->position - position;
-		localRotation = parent->rotation - rotation;
-		parent->addChild(this);
+		return *parentPtr;
 	}
-	void setParent(Transform* newParent)
+
+	// Get a specific child transform by index
+	Transform& getChild(int index) const {
+		if (index < 0 || index >= children.size()) {
+			throw std::runtime_error("Invalid child index.");
+		}
+
+		auto childPtr = children[index].get();
+		if (!childPtr) {
+			throw std::runtime_error("Child transform has expired.");
+		}
+		return *childPtr;
+	}
+
+	void move(const glm::vec2& deltaPosition)
 	{
-		// Can't set a parent to itself
-		if (newParent == this)
-		{
-			return;
-		}
-
-		parent = newParent;
-
-		if (parent)
-		{ 
-			localPosition = parent->position - position;
-			localRotation = parent->rotation - rotation;
-			parent->addChild(this);
-		}
+		position += deltaPosition;
+		localPosition += deltaPosition;
 	}
-
-	void addChild(Transform& child)
+	void rotate(const float& angle)
 	{
-		if (&child != this)
-		{
-			children.push_back(&child);
-			child.setParent(this);
-
-			child.localPosition = position - child.position;
-			child.localRotation = rotation - child.rotation;
-		}
-	}
-	void addChild(Transform* child)
-	{
-		if (child && child != this)
-		{
-			children.push_back(child);
-			child->setParent(this);
-
-			child->localPosition = position - child->position;
-			child->localRotation = rotation - child->rotation;
-		}
+		rotation += angle;
+		localRotation += angle;
 	}
 
-	Transform* getParent()
-	{
-		return parent;
-	}
 
-	Transform* getChild(int index)
-	{
-		if (index < children.size())
-		{
-			return children[index];
-		}
-		return nullptr;
-	}
-
+public:
 	glm::vec2 position;
 	float rotation;
 	glm::vec2 scale;
 
 	glm::vec2 localPosition;
 	float localRotation;
-	glm::vec2 localScale; 
+	glm::vec2 localScale;
 
 private:
-	Transform* parent;
-	std::vector<Transform*> children;
+	std::weak_ptr<Transform> parent;
+	std::vector<std::shared_ptr<Transform>> children;
 
 };
 

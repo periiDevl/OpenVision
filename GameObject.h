@@ -8,54 +8,70 @@
 #include <unordered_map>
 #include "Component.h"
 #include "Transform.h"
-#include <typeindex>
 
 class GameObject
 {
 public:
 
-	GameObject() : 
-		isActive(true), transform(addComponent<Transform>())
-	{ }
-	GameObject(bool isActive) : 
-		isActive(isActive), transform(addComponent<Transform>())
-	{ }
-	GameObject(std::string name) : 
-		name(name), isActive(true), transform(addComponent<Transform>())
-	{ }
-	GameObject(std::string name, bool isActive) : 
-		name(name), isActive(isActive), transform(addComponent<Transform>())
-	{ }
+	GameObject() : isActive(true)
+	{
+		transform = addComponent<Transform>();
+	}
+	GameObject(bool isActive) : isActive(isActive)
+	{
+		transform = addComponent<Transform>();
+	}
+	GameObject(std::string name) :
+		name(name), isActive(true)
+	{
+		transform = addComponent<Transform>();
+	}
+	GameObject(std::string name, bool isActive) :
+		name(name), isActive(isActive)
+	{
+		transform = addComponent<Transform>();
+	}
 
 	GameObject(GameObject&& value) noexcept = default;
 
 	GameObject(const GameObject& value) = default;
-	
+
 	template<typename T, typename... Args>
-	T& addComponent(Args&&... args)
+	T* addComponent(Args&&... args)
 	{
-		auto component = std::make_unique<T>(std::forward<Args>(args)...);
+		static_assert(std::is_base_of<Component, T>::value, "T must inherit from Component");
 
-		components[std::type_index(typeid(T))] = std::move(component);
+		std::unique_ptr<T> component = std::make_unique<T>(*this, std::forward<Args>(args)...);
 
-		return *component;
+		std::type_index type = std::type_index(typeid(T));
+		components[type] = std::move(component);
+
+		return static_cast<T*>(components[type].get());
 	}
+
 	template<typename T>
-	T& addComponent(T& component) {
-		
+	T* addComponent(T& component) {
+
 		auto uniquePtrComponent = std::make_unique<T>(component);
-		
+
 		components[std::type_index(typeid(T))] = std::move(uniquePtrComponent);
-		
-		return *uniquePtrComponent;
+
+		return uniquePtrComponent;
 	}
 
 	template<typename T>
 	T& getComponent()
 	{
-		if (components.find(typeindex(typeid(T))) != components.end())
+		if (components.find(std::type_index(typeid(T))) != components.end())
 		{
-			return static_cast<T*>(components[typeindex(typeid(T))].get());
+			T* ptr = dynamic_cast<T*>(components[std::type_index(typeid(T))].get());
+			
+			if (!ptr)
+			{
+				throw std::runtime_error("Component was found null.");
+			}
+		
+			return *ptr;
 		}
 
 		throw std::runtime_error("Component was not found.");
@@ -81,7 +97,8 @@ public:
 	void setActive(bool active) { isActive = active; }
 	const bool& getActive() { return isActive; }
 
-	Transform& transform;
+public:
+	Transform* transform;
 
 private:
 	bool isActive;
@@ -89,7 +106,7 @@ private:
 	std::string tag;
 
 	std::string name;
-	
+
 	std::unordered_map<std::type_index, std::unique_ptr<Component>> components;
 };
 
