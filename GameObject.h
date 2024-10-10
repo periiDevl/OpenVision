@@ -8,6 +8,7 @@
 #include <unordered_map>
 #include "Component.h"
 #include "Transform.h"
+#include <typeindex>
 
 class GameObject
 {
@@ -52,9 +53,9 @@ public:
 	template<typename T>
 	T& getComponent()
 	{
-		if (components.find(std::typeindex(typeid(T))) != components.end())
+		if (components.find(typeindex(typeid(T))) != components.end())
 		{
-			return static_cast<T*>(components[std::typeindex(typeid(T))].get());
+			return static_cast<T*>(components[typeindex(typeid(T))].get());
 		}
 
 		throw std::runtime_error("Component was not found.");

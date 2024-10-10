@@ -184,6 +184,7 @@
     <ClCompile Include="imgui\imgui_widgets.cpp" />
     <ClCompile Include="InputSystem.cpp" />
     <ClCompile Include="Main.cpp" />
+    <ClCompile Include="MyMain.cpp" />
     <ClCompile Include="Object.cpp" />
     <ClCompile Include="OV.cpp" />
     <ClCompile Include="PhysicsBody.cpp" />
@@ -192,6 +193,7 @@
     <ClCompile Include="SaveSystem.cpp" />
     <ClCompile Include="Script.cpp" />
     <ClCompile Include="ScriptTwo.cpp" />
+    <ClCompile Include="Source.cpp" />
     <ClCompile Include="stb.cpp" />
     <ClCompile Include="Tex.cpp" />
     <ClCompile Include="VAO.cpp" />
@@ -202,9 +204,11 @@
     <ClInclude Include="CircleCollider.h" />
     <ClInclude Include="Collider.h" />
     <ClInclude Include="CollisionManager.h" />
+    <ClInclude Include="Component.h" />
     <ClInclude Include="Console.h" />
     <ClInclude Include="EBO.h" />
     <ClInclude Include="FileFunctions.h" />
+    <ClInclude Include="GameObject.h" />
     <ClInclude Include="IMGUITheme.h" />
     <ClInclude Include="imgui\imconfig.h" />
     <ClInclude Include="imgui\imgui.h" />
@@ -251,11 +255,13 @@
     <ClInclude Include="Object.h" />
     <ClInclude Include="OV.h" />
     <ClInclude Include="OVscriptHandaling.h" />
+    <ClInclude Include="OvWindow.h" />
     <ClInclude Include="PhysicsBody.h" />
     <ClInclude Include="PhysicsWorld.h" />
     <ClInclude Include="PolygonCollider.h" />
     <ClInclude Include="Presave.h" />
     <ClInclude Include="SaveSystem.h" />
+    <ClInclude Include="SceneLoader.h" />
     <ClInclude Include="Script.h" />
     <ClInclude Include="ScriptTwo.h" />
     <ClInclude Include="Settings.h" />
@@ -274,6 +280,8 @@
     <ClInclude Include="steam_api_internal.h" />
     <ClInclude Include="steam_gameserver.h" />
     <ClInclude Include="Tex.h" />
+    <ClInclude Include="TextureRenderer.h" />
+    <ClInclude Include="Transform.h" />
     <ClInclude Include="VAO.h" />
     <ClInclude Include="VBO.h" />
   </ItemGroup>

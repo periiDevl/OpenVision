@@ -552,7 +552,7 @@ void undoAction() {
 
 
 
-int main()
+int main2()
 {
 
 
