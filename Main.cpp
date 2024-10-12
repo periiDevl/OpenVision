@@ -560,7 +560,7 @@ int main2()
 	bool build = false;
 	
 	//Use Steam api?
-	Steam(false, false);
+	//Steam(false, false);
 
 	//Find the path and choose a name for the project by the folder.
 	fs::path currentPath = fs::current_path();
@@ -725,8 +725,7 @@ int main2()
 	//------------------
 
 	SaveSystem SavingSystem;
-	InputSystem InputHandler;
-
+	
 	SavingSystem.load("SCENE.ov");
 
 
@@ -873,8 +872,8 @@ int main2()
 	
 	//Engine Settings
 	int FrameBufferMouseDetectedObject = -1;
-	float ndcMouseX;
-	float ndcMouseY;
+	float ndcMouseX = 0;
+	float ndcMouseY = 0;
 	double mouseX;
 	double mouseY;
 	double beforeMouseX;
@@ -1072,11 +1071,11 @@ int main2()
 			}
 			mouseOverUI = false;
 
-			if (!InputHandler.GetKey(GLFW_KEY_LEFT_CONTROL) || !InputHandler.GetKey(GLFW_KEY_Z)) {
+			if (!InputHandler.getHold( Inputs::KeyLeftControl ) || !InputHandler.getHold(Inputs::KeyZ)) {
 				b_releasedUndo = true;
 			}
 
-			if (InputHandler.GetKey(GLFW_KEY_LEFT_CONTROL) && InputHandler.GetKey(GLFW_KEY_Z) && b_releasedUndo) {
+			if (InputHandler.getHold(Inputs::KeyLeftControl) && InputHandler.getHold(Inputs::KeyZ) && b_releasedUndo) {
 				undoAction();
 				b_releasedUndo = false;
 			}
@@ -2315,7 +2314,6 @@ int main2()
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
-		InputHandler.Update(window);
 
 
 		//find better way to detect build

@@ -21,10 +21,12 @@ public:
 		localRotation(other.localRotation), localScale(other.localScale)
 	{ }
 
-	Transform(GameObject& owner, glm::vec2 position, float rotation, glm::vec2 scale, Transform&) :
+	Transform(GameObject& owner, glm::vec2 position, float rotation, glm::vec2 scale, std::weak_ptr<Transform> defaultParent) :
 		Component(owner), position(position), rotation(rotation), scale(scale),
 		localPosition(localPosition), localRotation(localRotation), localScale(localScale)
-	{ }
+	{ 
+		setParent(*defaultParent.lock());
+	}
 
 	Transform(GameObject& owner, glm::vec2 position, float rotation, glm::vec2 scale)
 		: Component(owner), position(position), rotation(rotation), scale(scale),
@@ -81,7 +83,6 @@ public:
 		rotation += angle;
 		localRotation += angle;
 	}
-
 
 public:
 	glm::vec2 position;

@@ -2,15 +2,17 @@
 #define OV_WINDOW_CLASS_H
 #include <iostream>
 #include "Camera.h"
+#include <stb/stb_image.h>
 #include "glfw3.h"
 #include "glad/glad.h"
-#include <stb/stb_image.h>
+#include "InputSystem.h"
+
 class OvWindow
 {
 public:
 	int width = 800;
 	int height = 800;
-	void init()
+	OvWindow()
 	{
 		glfwInit();
 
@@ -18,49 +20,74 @@ public:
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 		//glfwWindowHint(GLFW_SAMPLES, msaa);
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+		
 		window = glfwCreateWindow(width, height, "Loading...", NULL, NULL);
+		
 		if (window == NULL)
 		{
 			std::cout << "Failed to create GLFW window" << std::endl;
 			glfwTerminate();
-			
 		}
+		
 		glfwMakeContextCurrent(window);
 		glfwSetWindowAttrib(window, GLFW_RESIZABLE, GLFW_FALSE);
 		//glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 		//glfwSetScrollCallback(window, scroll_callback);
+
+		// disable VSync
+		glfwSwapInterval(0);
 
 		//Load the OpenVision Icon.
 		int wid, hei;
 		int channels;
 		unsigned char* pixels = stbi_load("OpenVisionIcon.png", &wid, &hei, &channels, 4);
 
-		GLFWimage images[1];
-		images[0].width = wid;
-		images[0].height = hei;
-		images[0].pixels = pixels;
-		glfwSetWindowIcon(window, 1, images);
+		GLFWimage image;
+		image.width = wid;
+		image.height = hei;
+		image.pixels = pixels;
+		glfwSetWindowIcon(window, 1, &image);
 
 		gladLoadGL();
 		glViewport(0, 0, width, height);
+
+		inputSystem = std::make_unique<InputSystem>(window); 
 	}
 
-	void update() {
+	void setTitle(const std::string& title)
+	{
+		glfwSetWindowTitle(window, title.c_str());
+	}
+
+	void update() 
+	{
 		glfwSwapBuffers(window);
+
+		inputSystem->update();
+
 		glfwPollEvents();
 	}
 
-	bool windowRunning() {
+	bool windowRunning() 
+	{
 		return !glfwWindowShouldClose(window);
 	}
 
-	void close() {
+	~OvWindow() 
+	{
 		glfwDestroyWindow(window);
 		glfwTerminate();
 	}
 
+	GLFWwindow* getWindow()
+	{
+		return window;
+	}
+
 private:
 	GLFWwindow* window;
+	std::unique_ptr<InputSystem> inputSystem;
+
 };
 
 #endif

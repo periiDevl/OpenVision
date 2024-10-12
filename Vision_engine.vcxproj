@@ -85,7 +85,7 @@
     <LibraryPath>C:\Users\User\Documents\Programing\OpenVision\Libraries\lib;Libraries\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>C:\Users\User\Documents\Programing\OpenVision\Libraries\include;Libraries\include;C:\Users\User\Documents\Programing\OpenVision\Libraries\include\GLFW;$(IncludePath)</IncludePath>
+    <IncludePath>Libraries\include;C:\Users\User\Documents\Programing\OpenVision\Libraries\include\GLFW;$(IncludePath)</IncludePath>
     <LibraryPath>C:\Users\User\Documents\Programing\OpenVision\Libraries\lib;Libraries\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -219,37 +219,6 @@
     <ClInclude Include="imgui\imstb_textedit.h" />
     <ClInclude Include="imgui\imstb_truetype.h" />
     <ClInclude Include="InputSystem.h" />
-    <ClInclude Include="isteamapps.h" />
-    <ClInclude Include="isteamappticket.h" />
-    <ClInclude Include="isteamclient.h" />
-    <ClInclude Include="isteamcontroller.h" />
-    <ClInclude Include="isteamdualsense.h" />
-    <ClInclude Include="isteamfriends.h" />
-    <ClInclude Include="isteamgamecoordinator.h" />
-    <ClInclude Include="isteamgameserver.h" />
-    <ClInclude Include="isteamgameserverstats.h" />
-    <ClInclude Include="isteamhtmlsurface.h" />
-    <ClInclude Include="isteamhttp.h" />
-    <ClInclude Include="isteaminput.h" />
-    <ClInclude Include="isteaminventory.h" />
-    <ClInclude Include="isteammatchmaking.h" />
-    <ClInclude Include="isteammusic.h" />
-    <ClInclude Include="isteammusicremote.h" />
-    <ClInclude Include="isteamnetworking.h" />
-    <ClInclude Include="isteamnetworkingmessages.h" />
-    <ClInclude Include="isteamnetworkingsockets.h" />
-    <ClInclude Include="isteamnetworkingutils.h" />
-    <ClInclude Include="isteamparentalsettings.h" />
-    <ClInclude Include="isteamps3overlayrenderer.h" />
-    <ClInclude Include="isteamremoteplay.h" />
-    <ClInclude Include="isteamremotestorage.h" />
-    <ClInclude Include="isteamscreenshots.h" />
-    <ClInclude Include="isteamugc.h" />
-    <ClInclude Include="isteamuser.h" />
-    <ClInclude Include="isteamuserstats.h" />
-    <ClInclude Include="isteamutils.h" />
-    <ClInclude Include="isteamvideo.h" />
-    <ClInclude Include="matchmakingtypes.h" />
     <ClInclude Include="Math.h" />
     <ClInclude Include="MenuItems.h" />
     <ClInclude Include="Object.h" />
@@ -265,28 +234,11 @@
     <ClInclude Include="Script.h" />
     <ClInclude Include="ScriptTwo.h" />
     <ClInclude Include="Settings.h" />
-    <ClInclude Include="steamclientpublic.h" />
-    <ClInclude Include="steamencryptedappticket.h" />
-    <ClInclude Include="steamhttpenums.h" />
-    <ClInclude Include="steamnetworkingfakeip.h" />
-    <ClInclude Include="steamnetworkingtypes.h" />
-    <ClInclude Include="SteamOVIMP.h" />
-    <ClInclude Include="steamps3params.h" />
-    <ClInclude Include="steamtypes.h" />
-    <ClInclude Include="steamuniverse.h" />
-    <ClInclude Include="steam_api.h" />
-    <ClInclude Include="steam_api_common.h" />
-    <ClInclude Include="steam_api_flat.h" />
-    <ClInclude Include="steam_api_internal.h" />
-    <ClInclude Include="steam_gameserver.h" />
     <ClInclude Include="Tex.h" />
     <ClInclude Include="TextureRenderer.h" />
     <ClInclude Include="Transform.h" />
     <ClInclude Include="VAO.h" />
     <ClInclude Include="VBO.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="steam_api.json" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

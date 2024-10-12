@@ -1,5 +1,5 @@
 #pragma once
-
+/*
 #include "steam_api.h"
 #include "isteamugc.h"
 #include <iostream>
@@ -148,4 +148,4 @@ void Steam(bool b_RSteam, bool b_Workshop)
 
 	}
 
-}
+}*/

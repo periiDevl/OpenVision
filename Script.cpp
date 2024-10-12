@@ -12,11 +12,11 @@ void Script::Update() {
     OV::renderText("Physics Demo - 01", "Hanken-Light.ttf", 0, 0, 50.0f, ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
     std::string str = typeid(*this).name();
     
-    if (InputHandler.GetKeyDown(GLFW_KEY_SPACE))
-    {
-        *m->angle = *m->angle + 5;
-        //OV::PlaySound("Overspeed Warning.wav");
-    }
+    //if (InputHandler.getDown(InputKey::KEY_SPACE))
+    //{
+    //    *m->angle = *m->angle + 5;
+    //    //OV::PlaySound("Overspeed Warning.wav");
+    //}
 
 }
 

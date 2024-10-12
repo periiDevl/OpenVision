@@ -3,7 +3,7 @@
 
 class GameObject;
 
-class Component
+class Component 
 {
 public:
 	virtual ~Component() = default;
