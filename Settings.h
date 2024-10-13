@@ -1,8 +1,9 @@
-#pragma once
+#ifndef SETTINGS_H
+#define SETTINGS_H
+
+
 //Global settings
 float GlobalWorldScale = 0.5f;
-
-
 
 //const unsigned int width = 1920;
 //const unsigned int height = 1080;
@@ -242,6 +243,8 @@ void main()
 }  
 )";
 
+
+
 float rectangleVertices[] =
 {
      1.0f, -1.0f,  1.0f, 0.0f,
@@ -251,3 +254,4 @@ float rectangleVertices[] =
      1.0f, -1.0f,  1.0f, 0.0f,
     -1.0f,  1.0f,  0.0f, 1.0f
 };
+#endif // !SETTINGS_H

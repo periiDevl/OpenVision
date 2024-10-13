@@ -1,4 +1,5 @@
-﻿#pragma once
+﻿/*
+#pragma once
 #include"OV.h"
 #include "Settings.h"
 #include "FileFunctions.h"
@@ -196,7 +197,7 @@ void playSound(const std::string& filePath)
 	std::thread soundThread(playSoundThread, filePath);
 	soundThread.detach();
 }
-*/
+
 
 //Move to serpate calss 
 //----
@@ -1017,7 +1018,7 @@ int main2()
 			{
 				ObjectUI(window, hoveredObject);
 			}
-			*/
+			
 			ImGui::EndPopup();
 		}
 		
@@ -1255,7 +1256,7 @@ int main2()
 
 				ImGui::EndTooltip();
 			}
-			*/
+			
 
 			ImGui::SameLine();
 			RebuildimguiTextureID = reinterpret_cast<ImTextureID>(static_cast<intptr_t>(EngineOVBuildIconGui.ID));
@@ -1341,7 +1342,7 @@ int main2()
 			{
 				con.log("Entering Devloper mode...");
 			}
-			*/
+			
 			con.Draw(no_resize, no_move);
 
 
@@ -1404,7 +1405,7 @@ int main2()
 					ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 0.0f, 0.0f, 1.0f));
 					ImGui::Text("MSAA does not work with the current framebuffer.");
 					ImGui::PopStyleColor();
-					*/
+					
 					ImGui::Checkbox("Vertical-Synchronization", &vsync);
 					ImGui::Checkbox("External-Framebuffer", &DrawFramebuffer);
 					ImGui::Separator();
@@ -1823,7 +1824,7 @@ int main2()
 							glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 
 						}
-						*/
+						
 						//camera.Position.x = 0.001f;
 						float ndcMouseX = (2.0f * mouseX) / width - 1.0f;
 						float ndcMouseY = 1.0f - (2.0f * mouseY) / height;  // Flip Y-axis for NDC
@@ -2102,7 +2103,7 @@ int main2()
 		std::cout << "Color under mouse: R=" << (int)pixel[0]
 			<< " G=" << (int)pixel[1]
 			<< " B=" << (int)pixel[2] << std::endl;
-		*/
+		
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 
@@ -2114,7 +2115,7 @@ int main2()
 		if (!mouseOverUI) {
 			blackbox.DrawTMP(window, shaderProgram, camera, glm::vec2(ndcMouseX, ndcMouseY), glm::vec2(2.5, 2.5));
 		}
-		*/
+		
 
 #pragma endregion Mouse-Detection
 
@@ -2173,7 +2174,7 @@ int main2()
 					//sceneObjects[i].scale->y = GetSharedVarX(i).scale_y;
 					//sceneObjects[i].scale->x = GetSharedVarX(i).scale_x;
 				}
-				*/
+				
 				/*
 				std::string input = "90, 9, 12, 67";
 				std::vector<float> result = splitStringToFloats(input);
@@ -2184,7 +2185,7 @@ int main2()
 
 				}
 
-				*/
+				
 
 				con.CLEAR_CONSOLE();
 				fov = 22.45;
@@ -2228,7 +2229,7 @@ int main2()
 				cout << "vertex:" << glm::to_string(vertices3[i]) << endl;
 			}
 			sceneObjects[0].DrawCustomVertices(window, shaderProgram, camera, vertices3);
-			*/
+			
 
 			if (timeDiff >= fixed_timestep) {
 				std::string FPS = std::to_string((1.0 / timeDiff) * counter);
@@ -2344,3 +2345,4 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
 	glViewport(0, 0, width, height);
 }
+*/

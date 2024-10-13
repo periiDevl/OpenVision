@@ -7,12 +7,12 @@
 #include "glad/glad.h"
 #include "InputSystem.h"
 
-class OvWindow
+class Window
 {
 public:
 	int width = 800;
 	int height = 800;
-	OvWindow()
+	Window()
 	{
 		glfwInit();
 
@@ -73,7 +73,7 @@ public:
 		return !glfwWindowShouldClose(window);
 	}
 
-	~OvWindow() 
+	~Window() 
 	{
 		glfwDestroyWindow(window);
 		glfwTerminate();

@@ -224,7 +224,8 @@
     <ClInclude Include="Object.h" />
     <ClInclude Include="OV.h" />
     <ClInclude Include="OVscriptHandaling.h" />
-    <ClInclude Include="OvWindow.h" />
+    <ClInclude Include="Shader.h" />
+    <ClInclude Include="Window.h" />
     <ClInclude Include="PhysicsBody.h" />
     <ClInclude Include="PhysicsWorld.h" />
     <ClInclude Include="PolygonCollider.h" />

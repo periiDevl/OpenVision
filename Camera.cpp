@@ -1,38 +1,38 @@
-#include"Camera.h"
-
-
+#include "Camera.h"
 
 Camera::Camera(int width, int height, glm::vec3 position)
 {
-	Camera::width = width;
-	Camera::height = height;
-	Position = position;
+    Camera::width = width;
+    Camera::height = height;
+    Position = position;
 }
 
-void Camera::updateMatrix(float FOVdeg, float nearPlane, float farPlane)
+void Camera::updateMatrix(float nearPlane, float farPlane)
 {
-	glm::mat4 view = glm::mat4(1.0f);
-	glm::mat4 projection = glm::mat4(1.0f);
+    glm::mat4 view = glm::mat4(1.0f);
+    glm::mat4 projection = glm::mat4(1.0f);
 
-	view = glm::lookAt(Position, Position + glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-	projection = glm::perspective(glm::radians(FOVdeg), (float)width / height, nearPlane, farPlane);
+    view = glm::lookAt(Position, Position + glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 
-	cameraMatrix = projection * view;
+    // Create an orthographic projection matrix
+    float aspectRatio = (float)width / (float)height;
+    float orthoLeft = -aspectRatio;
+    float orthoRight = aspectRatio;
+    float orthoBottom = -1.0f;
+    float orthoTop = 1.0f;
+
+    projection = glm::ortho(orthoLeft, orthoRight, orthoBottom, orthoTop, nearPlane, farPlane);
+
+    cameraMatrix = projection * view;
 }
 
 void Camera::Matrix(GLuint shader, const char* uniform)
 {
-	glUniformMatrix4fv(glGetUniformLocation(shader, uniform), 1, GL_FALSE, glm::value_ptr(cameraMatrix));
+    glUniformMatrix4fv(glGetUniformLocation(shader, uniform), 1, GL_FALSE, glm::value_ptr(cameraMatrix));
 }
+
 glm::mat4 Camera::getViewMatrix()
 {
-	return glm::lookAt(Position, Position + glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+    return glm::lookAt(Position, Position + glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 }
-
-glm::mat4 Camera::getProjectionMatrix(float FOVdeg, float nearPlane, float farPlane)
-{
-	return glm::perspective(glm::radians(FOVdeg), (float)width / height, nearPlane, farPlane);
-}
-
-
 
