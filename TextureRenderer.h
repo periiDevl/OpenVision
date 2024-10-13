@@ -9,7 +9,6 @@
 #include"EBO.h"
 #include"Camera.h"
 #include"Tex.h"
-#include"PhysicsWorld.h"
 #include "Object.h"
 #include "Shader.h"
 class TextureRenderer : public Component
@@ -17,7 +16,7 @@ class TextureRenderer : public Component
 public:
 	using Component::Component;
 	
-	Texture tex = Texture("");
+	Texture texture = Texture("");
 	void init()
 	{
 		Vertex vert[] =
@@ -64,7 +63,7 @@ public:
 			tex.SetFilteringMode(GL_NEAREST, GL_NEAREST);
 		}
 		*/
-		tex.Bind();
+		texture.Bind();
 
 		
 		glUniform4f(glGetUniformLocation(shader, "tint"), tint.x, tint.y, tint.z, tint.w);
@@ -82,8 +81,8 @@ public:
 
 		unsigned int numDiffuse = 0;
 		glm::mat4 model = glm::mat4(1.0f);
-		model = glm::translate(model, glm::vec3(gameObject.transform->position, 0) / glm::vec3(4));
 
+		model = glm::translate(model, glm::vec3(gameObject.transform->position, 0));
 		model = glm::rotate(model, Deg(gameObject.transform->rotation), axis);
 		model = glm::scale(model, glm::vec3(gameObject.transform->scale, 1.0f));
 
@@ -130,16 +129,18 @@ public:
 
 
 		// Scale the normalized coordinates dynamically
-		float scaledMouseX = normalizedMouseX * scaleFactorX; // Dynamically adjust based on window width
-		float scaledMouseY = normalizedMouseY * scaleFactorY; // Dynamically adjust based on window height
+		float scaledMouseX = normalizedMouseX;// *scaleFactorX; // Dynamically adjust based on window width
+		float scaledMouseY = normalizedMouseY;// *scaleFactorY; // Dynamically adjust based on window height
+		
+		std::cout << "scaled mouse pos: " << scaledMouseX << ", " << scaledMouseY << " - " << wid << "/" << hei << '\n';
 
 		// Update the gameObjectect's position to center it at the mouse position
 		//gameObject.transform->position.x = scaledMouseX;  // Adjust x position
 		//gameObject.transform->position.y = scaledMouseY; // Adjust y position
-		if (scaledMouseX < gameObject.transform->position.x + gameObject.transform->scale.x * 2
-			&& scaledMouseX > gameObject.transform->position.x - gameObject.transform->scale.x * 2
-			&& scaledMouseY < gameObject.transform->position.y + gameObject.transform->scale.y * 2
-			&& scaledMouseY > gameObject.transform->position.y - gameObject.transform->scale.y * 2)
+		if (scaledMouseX < gameObject.transform->position.x + gameObject.transform->scale.x * 0.5
+			&& scaledMouseX > gameObject.transform->position.x - gameObject.transform->scale.x * 0.5
+			&& scaledMouseY < gameObject.transform->position.y + gameObject.transform->scale.y * 0.5
+			&& scaledMouseY > gameObject.transform->position.y - gameObject.transform->scale.y * 0.5)
 		{
 			return true;
 		}
@@ -155,13 +156,9 @@ public:
 		float normalizedMouseX = (value.x / wid) * 2 - 1; // Convert to NDC (-1 to 1)
 		float normalizedMouseY = -((value.y / hei) * 2 - 1); // Invert y for NDC
 
-		// Define scale factors based on the window size
-		float scaleFactorX = wid / 200.0f;
-		float scaleFactorY = hei / 200.0f;
-
 		// Scale the mouse coordinates
-		float scaledMouseX = normalizedMouseX * scaleFactorX;
-		float scaledMouseY = normalizedMouseY * scaleFactorY;
+		float scaledMouseX = normalizedMouseX;
+		float scaledMouseY = normalizedMouseY;
 
 		// Calculate the offset only if it's the first call during this drag
 		if (offset == glm::vec2(0.0f, 0.0f)) {

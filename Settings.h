@@ -55,7 +55,7 @@ void main()
     Normal = aNormal;
     color = aColor;
     texCoord = aTex;
-    gl_Position = camMatrix * vec4(crntPos, 1.0);
+    gl_Position = camMatrix * vec4(crntPos, 1.0) * 4;
 }
 )";
 const char* fragmentShaderSource = R"(
@@ -87,8 +87,6 @@ vec4 roundedRectangle(vec2 p, vec2 size, float radius)
 void main()
 {
     
-    
-
     vec2 tiledTexCoord = fract(texCoord * vec2(tileX, tileY));
     vec4 texColor = texture(diffuse0, tiledTexCoord);
 
