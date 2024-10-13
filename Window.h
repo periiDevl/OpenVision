@@ -6,11 +6,11 @@
 #include "glfw3.h"
 #include "glad/glad.h"
 #include "InputSystem.h"
-
+void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 class Window
 {
 public:
-	int width = 800;
+	int width = 1200;
 	int height = 800;
 	Window()
 	{
@@ -30,7 +30,8 @@ public:
 		}
 		
 		glfwMakeContextCurrent(window);
-		glfwSetWindowAttrib(window, GLFW_RESIZABLE, GLFW_FALSE);
+		//glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+		//glfwSetWindowAttrib(window, GLFW_RESIZABLE, GLFW_FALSE);
 		//glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 		//glfwSetScrollCallback(window, scroll_callback);
 
@@ -53,7 +54,13 @@ public:
 
 		inputSystem = std::make_unique<InputSystem>(window); 
 	}
+	void clear()
+	{
 
+		glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glEnable(GL_DEPTH_TEST);
+	}
 	void setTitle(const std::string& title)
 	{
 		glfwSetWindowTitle(window, title.c_str());
@@ -85,9 +92,15 @@ public:
 	}
 
 private:
+
+	
 	GLFWwindow* window;
 	std::unique_ptr<InputSystem> inputSystem;
 
 };
+void framebuffer_size_callback(GLFWwindow* window, int width, int height)
+{
+	glViewport(0, 0, width, height);
+}
 
 #endif

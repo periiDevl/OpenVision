@@ -97,6 +97,7 @@ public:
 
 	
 private:
+	
 	float Deg(float radians)
 	{
 

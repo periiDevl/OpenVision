@@ -17,7 +17,8 @@ extern "C" OVLIB_API void ScriptStart();
 extern "C" OVLIB_API void ScriptUpdate();
 extern "C" OVLIB_API void ScriptExit();
 extern "C" OVLIB_API std::vector<Ov_Object> OVObjects;
-extern int sharedVar;
+
+__declspec(dllimport) int global_var;
 
 extern std::vector<int> sharedArray;
 
