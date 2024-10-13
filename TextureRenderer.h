@@ -16,11 +16,28 @@ class TextureRenderer : public Component
 {
 public:
 	using Component::Component;
-	std::vector <Vertex> vertices;
-	std::vector <GLuint> indices;
+	
 	Texture tex = Texture("");
 	void init()
 	{
+		Vertex vert[] =
+		{
+			Vertex{glm::vec3(-0.5f,  0.5f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec2(0.0f, 0.0f)},
+			Vertex{glm::vec3(-0.5f, -0.5f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec2(0.0f, -1.0f)},
+			Vertex{glm::vec3(0.5f, -0.5f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec2(1.0f, -1.0f)},
+			Vertex{glm::vec3(0.5f,  0.5f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec2(1.0f, 0.0f)}
+		};
+
+		GLuint indi[] =
+		{
+			0, 1, 2,
+			0, 2, 3
+		};
+
+		vertices = std::vector <Vertex>(vert, vert + sizeof(vert) / sizeof(Vertex));
+		indices = std::vector <GLuint>(indi, indi + sizeof(indi) / sizeof(GLuint));
+		
+
 		VAO.Bind();
 		VBO VBO(vertices);
 		EBO EBO(indices);
@@ -95,9 +112,79 @@ public:
 
 	}
 
+	bool checkMouseBoundry(glm::vec2 value, int wid, int hei)
+	{
+		// Normalize mouse position to [-1, 1]int width, height;
 	
+		
+
+		float normalizedMouseX = (value.x / wid) * 2 - 1; // Convert to NDC (-1 to 1)
+		float normalizedMouseY = -((value.y / hei) * 2 - 1); // Invert y for NDC
+
+		// Dynamic scaling based on window size
+		float scaleFactorX = wid / 200.0f;  // Base scaling factor for a width of 800
+		float scaleFactorY = hei / 200.0f; // Base scaling factor for a height of 800
+
+
+
+
+
+		// Scale the normalized coordinates dynamically
+		float scaledMouseX = normalizedMouseX * scaleFactorX; // Dynamically adjust based on window width
+		float scaledMouseY = normalizedMouseY * scaleFactorY; // Dynamically adjust based on window height
+
+		// Update the gameObjectect's position to center it at the mouse position
+		//gameObject.transform->position.x = scaledMouseX;  // Adjust x position
+		//gameObject.transform->position.y = scaledMouseY; // Adjust y position
+		if (scaledMouseX < gameObject.transform->position.x + gameObject.transform->scale.x * 2
+			&& scaledMouseX > gameObject.transform->position.x - gameObject.transform->scale.x * 2
+			&& scaledMouseY < gameObject.transform->position.y + gameObject.transform->scale.y * 2
+			&& scaledMouseY > gameObject.transform->position.y - gameObject.transform->scale.y * 2)
+		{
+			return true;
+		}
+		return false;
+
+	}
+	// Store the offset from the initial click
+
+	// Call this function when the left mouse button is held down
+	void snapToMouse(glm::vec2 value, int wid, int hei)
+	{
+		// Convert mouse coordinates to Normalized Device Coordinates (NDC)
+		float normalizedMouseX = (value.x / wid) * 2 - 1; // Convert to NDC (-1 to 1)
+		float normalizedMouseY = -((value.y / hei) * 2 - 1); // Invert y for NDC
+
+		// Define scale factors based on the window size
+		float scaleFactorX = wid / 200.0f;
+		float scaleFactorY = hei / 200.0f;
+
+		// Scale the mouse coordinates
+		float scaledMouseX = normalizedMouseX * scaleFactorX;
+		float scaledMouseY = normalizedMouseY * scaleFactorY;
+
+		// Calculate the offset only if it's the first call during this drag
+		if (offset == glm::vec2(0.0f, 0.0f)) {
+			// Store the offset based on the initial click
+			offset = glm::vec2(scaledMouseX, scaledMouseY) - glm::vec2(gameObject.transform->position.x, gameObject.transform->position.y);
+		}
+
+		// Update the object's position to follow the mouse with the initial offset
+		gameObject.transform->position.x = scaledMouseX - offset.x;
+		gameObject.transform->position.y = scaledMouseY - offset.y;
+	}
+
+	// Call this function when the mouse button is released to reset the offset
+	void releaseMouse()
+	{
+		offset = glm::vec2(0.0f, 0.0f); // Reset offset when the mouse button is released
+	}
+
+
 private:
-	
+	glm::vec2 offset = glm::vec2(0.0f, 0.0f);
+	std::vector <Vertex> vertices;
+	std::vector <GLuint> indices;
 	float Deg(float radians)
 	{
 
