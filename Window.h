@@ -16,7 +16,7 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 class Window
 {
 public:
-	int width = 1900;
+	int width = 1280;
 	int height = 800;
 	
 	Window()

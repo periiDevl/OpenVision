@@ -82,10 +82,10 @@ public:
 
 		unsigned int numDiffuse = 0;
 		glm::mat4 model = glm::mat4(1.0f);
-		model = glm::translate(model, glm::vec3(gameObject.transform->position, 0) / glm::vec3(4));
 
-		model = glm::rotate(model, Deg(gameObject.transform->rotation), axis);
 		model = glm::scale(model, glm::vec3(gameObject.transform->scale, 1.0f));
+		model = glm::rotate(model, Deg(gameObject.transform->rotation), axis);
+		model = glm::translate(model, glm::vec3(gameObject.transform->position, 0));
 
 		glUniformMatrix4fv(glGetUniformLocation(shader, "model"), 1, GL_FALSE, glm::value_ptr(model));
 
@@ -112,34 +112,13 @@ public:
 
 	}
 
-	bool checkMouseBoundry(glm::vec2 value, int wid, int hei)
+	bool checkMouseBoundry(glm::vec2 mousePos, int wid, int hei)
 	{
-		// Normalize mouse position to [-1, 1]int width, height;
-	
-		
-
-		float normalizedMouseX = (value.x / wid) * 2 - 1; // Convert to NDC (-1 to 1)
-		float normalizedMouseY = -((value.y / hei) * 2 - 1); // Invert y for NDC
-
-		// Dynamic scaling based on window size
-		float scaleFactorX = wid / 200.0f;  // Base scaling factor for a width of 800
-		float scaleFactorY = hei / 200.0f; // Base scaling factor for a height of 800
-
-
-
-
-
-		// Scale the normalized coordinates dynamically
-		float scaledMouseX = normalizedMouseX * scaleFactorX; // Dynamically adjust based on window width
-		float scaledMouseY = normalizedMouseY * scaleFactorY; // Dynamically adjust based on window height
-
 		// Update the gameObjectect's position to center it at the mouse position
-		//gameObject.transform->position.x = scaledMouseX;  // Adjust x position
-		//gameObject.transform->position.y = scaledMouseY; // Adjust y position
-		if (scaledMouseX < gameObject.transform->position.x + gameObject.transform->scale.x * 2
-			&& scaledMouseX > gameObject.transform->position.x - gameObject.transform->scale.x * 2
-			&& scaledMouseY < gameObject.transform->position.y + gameObject.transform->scale.y * 2
-			&& scaledMouseY > gameObject.transform->position.y - gameObject.transform->scale.y * 2)
+		if (mousePos.x < gameObject.transform->position.x + gameObject.transform->scale.x * 0.5
+			&& mousePos.x > gameObject.transform->position.x - gameObject.transform->scale.x * 0.5
+			&& mousePos.y < gameObject.transform->position.y + gameObject.transform->scale.y * 0.5
+			&& mousePos.y > gameObject.transform->position.y - gameObject.transform->scale.y * 0.5)
 		{
 			return true;
 		}
@@ -149,29 +128,17 @@ public:
 	// Store the offset from the initial click
 
 	// Call this function when the left mouse button is held down
-	void snapToMouse(glm::vec2 value, int wid, int hei)
+	void snapToMouse(glm::vec2 mousePos, int wid, int hei)
 	{
-		// Convert mouse coordinates to Normalized Device Coordinates (NDC)
-		float normalizedMouseX = (value.x / wid) * 2 - 1; // Convert to NDC (-1 to 1)
-		float normalizedMouseY = -((value.y / hei) * 2 - 1); // Invert y for NDC
-
-		// Define scale factors based on the window size
-		float scaleFactorX = wid / 200.0f;
-		float scaleFactorY = hei / 200.0f;
-
-		// Scale the mouse coordinates
-		float scaledMouseX = normalizedMouseX * scaleFactorX;
-		float scaledMouseY = normalizedMouseY * scaleFactorY;
-
 		// Calculate the offset only if it's the first call during this drag
 		if (offset == glm::vec2(0.0f, 0.0f)) {
 			// Store the offset based on the initial click
-			offset = glm::vec2(scaledMouseX, scaledMouseY) - glm::vec2(gameObject.transform->position.x, gameObject.transform->position.y);
+			offset = glm::vec2(mousePos.x, mousePos.y) - glm::vec2(gameObject.transform->position.x, gameObject.transform->position.y);
 		}
 
 		// Update the object's position to follow the mouse with the initial offset
-		gameObject.transform->position.x = scaledMouseX - offset.x;
-		gameObject.transform->position.y = scaledMouseY - offset.y;
+		gameObject.transform->position.x = mousePos.x - offset.x;
+		gameObject.transform->position.y = mousePos.y - offset.y;
 	}
 
 	// Call this function when the mouse button is released to reset the offset

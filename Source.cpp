@@ -41,6 +41,10 @@ int main()
     Shader classic_shader(vertexShaderSource, fragmentShaderSource);
 
     Camera camera1(window.width, window.height, glm::vec3(0.0f, 0.0f, 0.2f));
+
+    glm::vec2 mousePre = window.mouseAsWorldPosition(camera1);
+    glm::vec2 mouseCur = window.mouseAsWorldPosition(camera1);
+
     while (window.windowRunning())
     {
         fpsTimer.start();
@@ -51,18 +55,15 @@ int main()
         classic_shader.Activate();
         renderer.draw(window.getWindow(), classic_shader.ID, camera1, glm::vec3(0, 0, 1));
 
+        mousePre = mouseCur;
+        mouseCur = window.mouseAsWorldPosition(camera1);
 
-        glm::vec2 value = InputSystem::getMousePosition();
-
-        if (renderer.checkMouseBoundry(value, window.width, window.height) == true) {
-            std::cout << "Inside";
-            if (InputSystem::getHold(Inputs::MouseLeft)) {
-                renderer.snapToMouse(value, window.width, window.height);
-            }
-        }
-        if (InputSystem::getUp(Inputs::MouseLeft))
+        if (renderer.checkMouseBoundry(mouseCur, window.width, window.height))
         {
-            renderer.releaseMouse();
+            if (InputSystem::getHold(Inputs::MouseRight))
+            {
+                obj.transform->position += (mouseCur - mousePre);
+            }
         }
         window.update();
 
