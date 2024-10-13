@@ -26,6 +26,7 @@ extern const unsigned int height;
 extern std::vector<Object> sceneObjects;
 extern Console con;
 extern InputSystem InputHandler;
+extern PhysicsWorld world;
 extern Camera camera;
 
 class OV {

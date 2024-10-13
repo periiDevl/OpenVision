@@ -60,12 +60,6 @@ public:
 	}
 
 	template<typename T>
-	bool hasComponent()
-	{
-		return components.find(std::type_index(typeid(T))) != components.end();
-	}
-
-	template<typename T>
 	T& getComponent()
 	{
 		if (components.find(std::type_index(typeid(T))) != components.end())

@@ -7,5 +7,7 @@
 #include"OV.h"
 class ScriptTwo {
 public:
+    void Start(Console& ovcon, InputSystem Input, PhysicsWorld& world, std::vector<Object>& sceneObjects);
+    void Update(Console& ovcon, InputSystem Input, PhysicsWorld& world, std::vector<Object>& sceneObjects);
 };
     

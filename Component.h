@@ -13,12 +13,6 @@ public:
 	Component(GameObject& owner) : gameObject(owner), isActive(true)
 	{ }
 
-/*	virtual void init();
-	
-	virtual void tick(double deltaTime);
-
-	virtual void fixedTick();
-*/
 	void setActive(bool state)
 	{
 		isActive = state;

@@ -8,17 +8,9 @@ class SceneData
 {
 public:
 
-	SceneData(const std::string& sceneName) : sceneName(sceneName)
-	{ }
-
-	void addObject(const GameObject& value)
+	SceneData(std::string xmlPath)
 	{
-		sceneObjects.emplace_back(value);
-	}
 
-	void addObject(GameObject&& value)
-	{
-		sceneObjects.emplace_back(std::move(value));
 	}
 
 	// a list of copies of game objects (will be copied when init scene)
@@ -35,43 +27,14 @@ class Scene
 
 public:
 
-	void init()
-	{
-
-	}
-
-	void tick()
-	{
-
-	}
-
-	void fixedTick()
-	{
-
-	}
-
-	void draw()
-	{
-		for (auto& obj : sceneObjects)
-		{
-			if (obj->hasComponent<TextureRenderer>())
-			{
-				//obj->getComponent<TextureRenderer>().draw();
-			}
-		}
-	}
-
 	void load()
 	{
-		for (auto& obj : data.sceneObjects)
-		{
-			sceneObjects.emplace_back(obj);
-		}
+
 	}
 
 	void unload()
 	{
-		sceneObjects.clear();
+
 	}
 
 	void reset()
@@ -79,15 +42,9 @@ public:
 		sceneObjects.clear();
 	}
 
-	int getBuildIndex()
-	{
-		return buildIndex;
-	}
 
 private:
 	std::vector<std::unique_ptr<GameObject>> sceneObjects;
-
-	int buildIndex;
 
 	SceneData data;
 

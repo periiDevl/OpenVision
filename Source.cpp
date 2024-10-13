@@ -28,7 +28,8 @@ int main()
     //itay make the component work
     renderer.init();
 
-    renderer.texture = Texture("Assets/background.png");
+    Texture EngineOVObjectIconGui("Assets/background.png");
+    renderer.tex = EngineOVObjectIconGui;
 
     updateFPSTimer.start();
     int frames = 0;

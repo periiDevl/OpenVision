@@ -7,6 +7,8 @@ Object::Object(std::vector<Vertex>& vertices, std::vector<GLuint>& indices)
     selected = false;
     angle = new float(0);
    
+    Body = new PhysicsBody(position, angle, scale, 1, 1, 0.6f, 0.4f, 0.5f, false, false);
+
 
     VAO.Bind();
     VBO VBO(vertices);
@@ -112,6 +114,22 @@ void Object::Draw(GLFWwindow* window, GLuint shader, Camera& camera, glm::vec3 a
     camera.Matrix(shader, "camMatrix");
     //Used
     glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
+}
+vector<vec2> Object::GetVertices(Camera& camera, glm::vec3 axis, float cameraX, float cameraY) {
+    glm::mat4 model = glm::mat4(1.0f);
+    model = glm::translate(model, glm::vec3(position->x + parent_position->x + cameraX, position->y + parent_position->y + cameraY, layer / 100.0));
+
+    model = glm::rotate(model, Deg(*angle), axis);
+    model = glm::scale(model, glm::vec3(*scale, 1.0f));
+
+    vector<glm::vec2> transformedVertices;
+
+    for (const auto& vertex : vertices) {
+        glm::vec4 transformedVertex = model * glm::vec4(glm::vec3(vertex.position), 1.0f);
+        transformedVertices.push_back(vec2(transformedVertex.x, transformedVertex.y));
+    }
+
+    return transformedVertices;
 }
 void Object::DrawTMP(GLFWwindow* window, GLuint shader, Camera& camera, glm::vec2 pos, glm::vec2 scale)
 {
