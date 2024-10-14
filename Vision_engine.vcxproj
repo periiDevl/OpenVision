@@ -170,9 +170,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Camera.cpp" />
-    <ClCompile Include="CircleCollider.cpp" />
-    <ClCompile Include="Collider.cpp" />
-    <ClCompile Include="CollisionManager.cpp" />
     <ClCompile Include="EBO.cpp" />
     <ClCompile Include="glad.c" />
     <ClCompile Include="imgui\imgui.cpp" />
@@ -187,9 +184,6 @@
     <ClCompile Include="MyMain.cpp" />
     <ClCompile Include="Object.cpp" />
     <ClCompile Include="OV.cpp" />
-    <ClCompile Include="PhysicsBody.cpp" />
-    <ClCompile Include="PhysicsWorld.cpp" />
-    <ClCompile Include="PolygonCollider.cpp" />
     <ClCompile Include="SaveSystem.cpp" />
     <ClCompile Include="Script.cpp" />
     <ClCompile Include="ScriptTwo.cpp" />
@@ -200,15 +194,16 @@
     <ClCompile Include="VBO.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="BaseCollider.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="CircleCollider.h" />
     <ClInclude Include="Collider.h" />
-    <ClInclude Include="CollisionManager.h" />
     <ClInclude Include="Component.h" />
     <ClInclude Include="Console.h" />
     <ClInclude Include="EBO.h" />
     <ClInclude Include="FileFunctions.h" />
     <ClInclude Include="GameObject.h" />
+    <ClInclude Include="GJK.h" />
     <ClInclude Include="IMGUITheme.h" />
     <ClInclude Include="imgui\imconfig.h" />
     <ClInclude Include="imgui\imgui.h" />
@@ -225,10 +220,8 @@
     <ClInclude Include="OV.h" />
     <ClInclude Include="OVscriptHandaling.h" />
     <ClInclude Include="Shader.h" />
+    <ClInclude Include="Simplex.h" />
     <ClInclude Include="Window.h" />
-    <ClInclude Include="PhysicsBody.h" />
-    <ClInclude Include="PhysicsWorld.h" />
-    <ClInclude Include="PolygonCollider.h" />
     <ClInclude Include="Presave.h" />
     <ClInclude Include="SaveSystem.h" />
     <ClInclude Include="SceneLoader.h" />

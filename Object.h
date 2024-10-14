@@ -8,7 +8,6 @@
 #include"EBO.h"
 #include"Camera.h"
 #include"Tex.h"
-#include"PhysicsWorld.h"
 class Object
 {
 public:
@@ -37,7 +36,6 @@ public:
 	glm::vec2* parent_position = new glm::vec2(0,0);
 	VAO VAO;
 	//1 = x, 2 = y, 3 = time
-	vector<glm::vec3> animationKeyFrames {};
 	/// <summary>
 	/// Degrees To Radians
 	/// </summary>
@@ -54,11 +52,9 @@ public:
 
 	Object(std::vector <Vertex>& vertices, std::vector <GLuint>& indices);
 	void Draw(GLFWwindow* window, GLuint shader, Camera& camera, glm::vec3 axis, float cameraX, float cameraY, bool TextureNearest);
-	vector<vec2> GetVertices(Camera& camera, glm::vec3 axis, float cameraX, float cameraY);
 	void Draw(GLFWwindow* window, GLuint shader, Camera& camera,glm::vec3 axis, bool TextureNearest);
 	void DrawTMP(GLFWwindow* window, GLuint shader, Camera& camera, glm::vec2 pos, glm::vec2 scale);
 	void DrawCustomVertices(GLFWwindow* window, GLuint shader, Camera& camera, const std::vector<glm::vec3>& vertices);
-	PhysicsBody* Body;
 private :
 	GLuint shader;
 };

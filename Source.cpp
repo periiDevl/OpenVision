@@ -10,6 +10,8 @@
 #include "Object.h"
 #include "Shader.h"
 #include "OVLIB.h"
+#include "CircleCollider.h"
+#include "GJK.h"
 // Function declarations
 
 int main()
@@ -17,19 +19,24 @@ int main()
     Timer fpsTimer;
     Timer updateFPSTimer;
     Window window;
-    GameObject obj;
 
-    obj.transform->position.x = 1;
-    obj.transform->position.y = 0;
-    obj.transform->scale.x = 1;
-    obj.transform->scale.y = 1;
+    GameObject obj;
+    GameObject obj2;
+
+    obj.transform->position = { -1, 0 };
+    obj.transform->scale = { 1, 1 };
+    obj2.transform->position = { 1, 0 };
+    obj2.transform->scale = { 1, 1 };
 
     TextureRenderer& renderer = *obj.addComponent<TextureRenderer>();
-    //itay make the component work
-    renderer.init();
+    CircleCollider coll(obj.transform->position, 0.5f);
+
+    TextureRenderer& renderer2 = *obj2.addComponent<TextureRenderer>();
+    CircleCollider coll2(obj2.transform->position, 0.5f);
 
     Texture EngineOVObjectIconGui("Assets/background.png");
     renderer.tex = EngineOVObjectIconGui;
+    renderer2.tex = EngineOVObjectIconGui;
 
     updateFPSTimer.start();
     int frames = 0;
@@ -53,7 +60,10 @@ int main()
         window.clear();
         camera1.updateMatrix(0.1f, 100.0f);
         classic_shader.Activate();
+        
+        std::cout << "Is touching: " << GJK::isTouching(coll, coll2) << '\n';
         renderer.draw(window.getWindow(), classic_shader.ID, camera1, glm::vec3(0, 0, 1));
+        renderer2.draw(window.getWindow(), classic_shader.ID, camera1, glm::vec3(0, 0, 1));
 
         mousePre = mouseCur;
         mouseCur = window.mouseAsWorldPosition(camera1);
@@ -63,6 +73,7 @@ int main()
             if (InputSystem::getHold(Inputs::MouseRight))
             {
                 obj.transform->position += (mouseCur - mousePre);
+                coll.position = obj.transform->position;
             }
         }
         window.update();

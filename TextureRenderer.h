@@ -9,7 +9,6 @@
 #include"EBO.h"
 #include"Camera.h"
 #include"Tex.h"
-#include"PhysicsWorld.h"
 #include "Object.h"
 #include "Shader.h"
 class TextureRenderer : public Component
@@ -17,8 +16,8 @@ class TextureRenderer : public Component
 public:
 	using Component::Component;
 	
-	Texture tex = Texture("");
-	void init()
+	TextureRenderer(GameObject& owner) 
+		: Component(owner)
 	{
 		Vertex vert[] =
 		{
@@ -36,7 +35,7 @@ public:
 
 		vertices = std::vector <Vertex>(vert, vert + sizeof(vert) / sizeof(Vertex));
 		indices = std::vector <GLuint>(indi, indi + sizeof(indi) / sizeof(GLuint));
-		
+
 
 		VAO.Bind();
 		VBO VBO(vertices);
@@ -50,6 +49,8 @@ public:
 		VBO.Unbind();
 		EBO.Unbind();
 	}
+
+	Texture tex = Texture("");
 
 	void draw(GLFWwindow* window, GLuint shader, Camera& camera, glm::vec3 axis)
 	{
