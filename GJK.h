@@ -12,17 +12,24 @@ class GJK
 public:
 	static bool isTouching(const BaseCollider& collA, const BaseCollider& collB)
 	{
+		Simplex simplex;
+
+		return isTouching(collA, collB, simplex);
+	}
+
+	static bool isTouching(const BaseCollider& collA, const BaseCollider& collB, Simplex& simplex)
+	{
 		// direction will be used for the entire of this function
 		glm::vec2 direction = glm::normalize(collB.position - collA.position);
 
-		Simplex simplex(support(collA, collB, direction));
+		simplex.add(PhysHelper::support(collA, collB, direction));
 
-		// same as vec2(0) - simplex.simplex[0]
-		direction = -simplex.simplex[0];
+		// same as vec2(0) - simplex[0]
+		direction = -simplex[0];
 
 		while (true)
 		{
-			glm::vec2 newPoint = support(collA, collB, direction);
+			glm::vec2 newPoint = PhysHelper::support(collA, collB, direction);
 
 			// new point is in the opposite of the origin
 			if (glm::dot(newPoint, direction) < 0)
@@ -45,8 +52,8 @@ public:
 		{
 			case Simplex::SimplexState::Line:
 			{
-				glm::vec2 ab = simplex.simplex[0] - simplex.simplex[1];
-				glm::vec2 ao = - simplex.simplex[1];
+				glm::vec2 ab = simplex[0] - simplex[1];
+				glm::vec2 ao = - simplex[1];
 
 				// check if directions of ao and ab are the same, I.E origin is on the line
 				float dotProduct = glm::dot(ao, ab);
@@ -59,21 +66,21 @@ public:
 				}
 
 				// set the next direction based on ab and ao
-				direction = glm::normalize(tripleProduct(ab, ao, ab));
+				direction = glm::normalize(PhysHelper::tripleProduct(ab, ao, ab));
 
 				return false;
 			}
 			case Simplex::SimplexState::Triangle:
 			{
-				glm::vec2& c = simplex.simplex[0];
-				glm::vec2& b = simplex.simplex[1];
-				glm::vec2& a = simplex.simplex[2];
+				glm::vec2& c = simplex[0];
+				glm::vec2& b = simplex[1];
+				glm::vec2& a = simplex[2];
 
 				glm::vec2 ab = b - a;
 				glm::vec2 ao =   - a;
 				glm::vec2 ac = c - a;
 
-				glm::vec2 abPerp = tripleProduct(ac, ab, ab);
+				glm::vec2 abPerp = PhysHelper::tripleProduct(ac, ab, ab);
 
 				if (glm::dot(abPerp, ao) > 0)
 				{
@@ -84,7 +91,7 @@ public:
 					return false;
 				}
 
-				glm::vec2 acPerp = tripleProduct(ab, ac, ac);
+				glm::vec2 acPerp = PhysHelper::tripleProduct(ab, ac, ac);
 
 				if (glm::dot(acPerp, ao) > 0)
 				{

@@ -212,5 +212,17 @@
     <ClInclude Include="Simplex.h">
       <Filter>Header Files\physics</Filter>
     </ClInclude>
+    <ClInclude Include="EPA.h">
+      <Filter>Header Files\physics</Filter>
+    </ClInclude>
+    <ClInclude Include="PhysHelper.h">
+      <Filter>Header Files\physics</Filter>
+    </ClInclude>
+    <ClInclude Include="Manifold.h">
+      <Filter>Header Files\physics</Filter>
+    </ClInclude>
+    <ClInclude Include="Polytope.h">
+      <Filter>Header Files\physics</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

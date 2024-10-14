@@ -16,6 +16,11 @@ public:
 		Triangle = 3,
 	};
 
+	Simplex()
+	{
+		length = 0;
+	}
+
 	Simplex(const glm::vec2& point) : length(1)
 	{
 		simplex[0] = point;
@@ -27,18 +32,6 @@ public:
 		{
 			simplex[length++] = point;
 		}
-	}
-
-	void removeAt(int index)
-	{
-		for (int i = index; i < length - 1; i++)
-		{
-			simplex[i] = simplex[i + 1];
-		}
-	
-		length--;
-
-		// there will be empty data at the last point
 	}
 
 	void setLine(int indexA, int indexB)
@@ -53,6 +46,22 @@ public:
 		return (SimplexState)length;
 	}
 
+	glm::vec2& operator[](int index)
+	{
+		return simplex[index];
+	}
+
+	const std::array<glm::vec2, SIMPLEX_SIZE>::const_iterator& begin() const
+	{
+		return simplex.begin();
+	}
+
+	const std::array<glm::vec2, SIMPLEX_SIZE>::const_iterator& end() const
+	{
+		return simplex.begin() + length;
+	}
+
+private:
 	int length;
 	std::array<glm::vec2, SIMPLEX_SIZE> simplex;
 };

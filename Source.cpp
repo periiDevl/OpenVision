@@ -12,6 +12,7 @@
 #include "OVLIB.h"
 #include "CircleCollider.h"
 #include "GJK.h"
+#include "EPA.h"
 // Function declarations
 
 int main()
@@ -61,7 +62,12 @@ int main()
         camera1.updateMatrix(0.1f, 100.0f);
         classic_shader.Activate();
         
-        std::cout << "Is touching: " << GJK::isTouching(coll, coll2) << '\n';
+        Simplex simplex;
+        if (GJK::isTouching(coll, coll2, simplex))
+        {
+            auto result =  EPA::getResolution(coll, coll2, simplex);
+            std::cout << "depth: " << result.depth << '\n';
+        }
         renderer.draw(window.getWindow(), classic_shader.ID, camera1, glm::vec3(0, 0, 1));
         renderer2.draw(window.getWindow(), classic_shader.ID, camera1, glm::vec3(0, 0, 1));
 
