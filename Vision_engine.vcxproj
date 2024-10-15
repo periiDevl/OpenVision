@@ -215,7 +215,7 @@
     <ClInclude Include="imgui\imstb_textedit.h" />
     <ClInclude Include="imgui\imstb_truetype.h" />
     <ClInclude Include="InputSystem.h" />
-    <ClInclude Include="LineRenderer.h" />
+    <ClInclude Include="OverDepth.h" />
     <ClInclude Include="Manifold.h" />
     <ClInclude Include="Math.h" />
     <ClInclude Include="MenuItems.h" />

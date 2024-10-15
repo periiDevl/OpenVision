@@ -110,7 +110,7 @@ void main()
 )";
 
 
-const char* UnlitFragment =
+const char* UnlitFragmentFire =
 R"(
 #version 330 core
 
@@ -142,7 +142,7 @@ void main() {
 
 
 
-const char* ObjectIDUnlitFragment =
+const char* unlitFrag =
 R"(
 #version 330 core
 

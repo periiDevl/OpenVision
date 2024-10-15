@@ -61,7 +61,14 @@ public:
 
 		inputSystem = std::make_unique<InputSystem>(window); 
 	}
-	
+	// Delete copy constructor and copy assignment operator
+	Window(const Window&) = delete;
+	Window& operator=(const Window&) = delete;
+
+	// Implement move constructor and move assignment operator (if needed)
+	Window(Window&&) = default;
+	Window& operator=(Window&&) = default;
+
 	void clear()
 	{
 

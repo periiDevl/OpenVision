@@ -224,5 +224,8 @@
     <ClInclude Include="Polytope.h">
       <Filter>Header Files\physics</Filter>
     </ClInclude>
+    <ClInclude Include="OverDepth.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
