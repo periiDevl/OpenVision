@@ -49,22 +49,28 @@ public:
 
     void drawLine(GLFWwindow* window, GLuint shader, Camera& camera, glm::vec3 axis, glm::vec2 start, glm::vec2 end)
     {
+        // Disable depth testing to draw over everything
+        glDisable(GL_DEPTH_TEST);
+
+        // Optionally, clear depth buffer to ensure no other object interferes
+        glClear(GL_DEPTH_BUFFER_BIT);
+
         glUseProgram(shader);
         VAO.Bind();
 
-        // Set the line's start and end positions
+        // Update line start and end positions
         vertices[0].position = glm::vec3(start, 0.0f);
         vertices[1].position = glm::vec3(end, 0.0f);
 
-        // Bind the VBO and update the buffer with new vertex data
+        // Update the VBO with new vertex data
         VBO->Bind();
         glBufferSubData(GL_ARRAY_BUFFER, 0, vertices.size() * sizeof(Vertex), &vertices[0]);
-        VBO->Unbind();  // Unbind VBO after updating
+        VBO->Unbind();
 
-        // Create model matrix for transformation (scale, rotate, translate)
+        // Create model matrix (optional if you want to apply transformations)
         glm::mat4 model = glm::mat4(1.0f);
-        model = glm::rotate(model, Deg(0.0f), axis);  // No rotation for the line
-        model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f)); // No translation for now
+        model = glm::rotate(model, Deg(0.0f), axis);  // No rotation
+        model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f)); // No translation
 
         // Send uniforms to the shader
         glUniformMatrix4fv(glGetUniformLocation(shader, "model"), 1, GL_FALSE, glm::value_ptr(model));
@@ -74,8 +80,12 @@ public:
         // Draw the line
         glDrawElements(GL_LINES, indices.size(), GL_UNSIGNED_INT, 0);
 
-        VAO.Unbind();  // Unbind VAO after drawing
+        // Re-enable depth testing
+        glEnable(GL_DEPTH_TEST);
+
+        VAO.Unbind();
     }
+
 
 private:
     std::vector<Vertex> vertices;
