@@ -13,6 +13,8 @@
 #include "CircleCollider.h"
 #include "GJK.h"
 #include "EPA.h"
+
+#include "LineRenderer.h"
 // Function declarations
 
 int main()
@@ -52,7 +54,7 @@ int main()
 
     glm::vec2 mousePre = window.mouseAsWorldPosition(camera1);
     glm::vec2 mouseCur = window.mouseAsWorldPosition(camera1);
-
+    LineRenderer lnre;
     while (window.windowRunning())
     {
         fpsTimer.start();
@@ -70,10 +72,10 @@ int main()
         }
         renderer.draw(window.getWindow(), classic_shader.ID, camera1, glm::vec3(0, 0, 1));
         renderer2.draw(window.getWindow(), classic_shader.ID, camera1, glm::vec3(0, 0, 1));
-
+        lnre.drawLine(window.getWindow(), classic_shader.ID, camera1, glm::vec3(0, 0, 1), obj.transform->position, obj2.transform->position);
         mousePre = mouseCur;
         mouseCur = window.mouseAsWorldPosition(camera1);
-
+        
         if (renderer.checkMouseBoundry(mouseCur, window.width, window.height))
         {
             if (InputSystem::getHold(Inputs::MouseRight))
