@@ -12,7 +12,7 @@
 class Camera
 {
 public:
-	glm::vec3 Position;
+	glm::vec3 position;
 	glm::mat4 cameraMatrix = glm::mat4(1.0f);
 
 
@@ -20,8 +20,9 @@ public:
 	int height;
 
 
-	Camera(int width, int height, glm::vec3 position);
+	Camera(glm::vec3 position, int width, int height);
 	glm::mat4 getViewMatrix();
+	void setAspectRatio(int newWidth, int newHeight);
 	glm::mat4 getProjectionMatrix(float FOVdeg, float nearPlane, float farPlane);
 	void updateMatrix(float nearPlane, float farPlane);
 	void Matrix(GLuint shader, const char* uniform);

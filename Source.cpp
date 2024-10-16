@@ -21,7 +21,8 @@ int main()
 {
     Timer fpsTimer;
     Timer updateFPSTimer;
-    Window window;
+    Camera camera1(glm::vec3(0.0f, 0.0f, 0.2f), 1280, 800);
+    Window window(camera1);
 
     GameObject obj;
     GameObject obj2;
@@ -50,7 +51,6 @@ int main()
     Timer inputTimer;
     Shader classic_shader(vertexShaderSource, fragmentShaderSource);
 
-    Camera camera1(window.width, window.height, glm::vec3(0.0f, 0.0f, 0.2f));
 
     glm::vec2 mousePre = window.mouseAsWorldPosition(camera1);
     glm::vec2 mouseCur = window.mouseAsWorldPosition(camera1);
@@ -72,7 +72,6 @@ int main()
         }
         renderer.draw(window.getWindow(), classic_shader.ID, camera1, glm::vec3(0, 0, 1));
         renderer2.draw(window.getWindow(), classic_shader.ID, camera1, glm::vec3(0, 0, 1));
-        lnre.drawLine(window.getWindow(), classic_shader.ID, camera1, glm::vec3(0, 0, 1), obj.transform->position, obj2.transform->position);
         mousePre = mouseCur;
         mouseCur = window.mouseAsWorldPosition(camera1);
         

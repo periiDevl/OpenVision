@@ -1,18 +1,14 @@
 #include "Camera.h"
 
-Camera::Camera(int width, int height, glm::vec3 position)
+
+Camera::Camera(glm::vec3 position, int width = 800, int height = 800) : position(position), width(width), height(height)
 {
-    Camera::width = width;
-    Camera::height = height;
-    Position = position;
+    updateMatrix(0.1, 1000);
 }
 
 void Camera::updateMatrix(float nearPlane, float farPlane)
 {
-    glm::mat4 view = glm::mat4(1.0f);
-    glm::mat4 projection = glm::mat4(1.0f);
-
-    view = glm::lookAt(Position, Position + glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+    glm::mat4 view = glm::lookAt(position, position + glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 
     // Create an orthographic projection matrix
     float aspectRatio = (float)width / (float)height;
@@ -21,9 +17,16 @@ void Camera::updateMatrix(float nearPlane, float farPlane)
     float orthoBottom = -1.0f;
     float orthoTop = 1.0f;
 
-    projection = glm::ortho(orthoLeft, orthoRight, orthoBottom, orthoTop, nearPlane, farPlane);
+    glm::mat4 projection = glm::ortho(orthoLeft, orthoRight, orthoBottom, orthoTop, nearPlane, farPlane);
 
     cameraMatrix = projection * view;
+}
+
+void Camera::setAspectRatio(int newWidth, int newHeight)
+{
+    width = newWidth;
+    height = newHeight;
+    updateMatrix(0.1, 100); // Recalculate the camera matrix with the new aspect ratio
 }
 
 void Camera::Matrix(GLuint shader, const char* uniform)
@@ -33,6 +36,6 @@ void Camera::Matrix(GLuint shader, const char* uniform)
 
 glm::mat4 Camera::getViewMatrix()
 {
-    return glm::lookAt(Position, Position + glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+    return glm::lookAt(position, position + glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 }
 

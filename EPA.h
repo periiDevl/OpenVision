@@ -8,8 +8,8 @@
 #include "Polytope.h"
 #include "BaseCollider.h"
 
-#define EPA_TOLERANCE 0.1
-#define EPA_MAX_ITERATIONS 250
+#define EPA_TOLERANCE 0.2
+#define EPA_MAX_ITERATIONS 2250
 
 class EPA
 {

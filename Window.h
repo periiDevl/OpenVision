@@ -7,11 +7,12 @@
 #include "glfw3.h"
 #include "glad/glad.h"
 #include "InputSystem.h"
-
+/*
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
 	glViewport(0, 0, width, height);
-}
+}*/
+
 
 class Window
 {
@@ -19,7 +20,7 @@ public:
 	int width = 1280;
 	int height = 800;
 	
-	Window()
+	Window(Camera& camera)
 	{
 		glfwInit();
 
@@ -41,6 +42,14 @@ public:
 		//glfwSetWindowAttrib(window, GLFW_RESIZABLE, GLFW_FALSE);
 		//glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 		//glfwSetScrollCallback(window, scroll_callback);
+		Window::s_camera = &camera;
+		
+		glfwSetWindowSizeCallback(window, 
+			[](GLFWwindow* window, int width, int height)
+			{
+				Window::s_camera->setAspectRatio(width, height);
+				glViewport(0, 0, width, height);
+			});
 
 		// disable VSync
 		glfwSwapInterval(0);
@@ -93,6 +102,8 @@ public:
 	{
 		glm::vec2 mousePos = InputSystem::getMousePosition();
 
+		cam.updateMatrix(0.1, 100);
+
 		float ndcX = (2.0f * mousePos.x) / width - 1.0f;
 		float ndcY = 1.0f - (2.0f * mousePos.y) / height; // Y is inverted in GLFW
 
@@ -123,6 +134,8 @@ public:
 		return window;
 	}
 
+	static Camera* s_camera;
+	
 private:
 	
 	GLFWwindow* window;

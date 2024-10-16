@@ -55,7 +55,7 @@ void Object::Draw(GLFWwindow* window, GLuint shader, Camera& camera, glm::vec3 a
 
     glUniformMatrix4fv(glGetUniformLocation(shader, "model"), 1, GL_FALSE, glm::value_ptr(model));
 
-    glUniform3f(glGetUniformLocation(shader, "camPos"), camera.Position.x, camera.Position.y, camera.Position.z);
+    glUniform3f(glGetUniformLocation(shader, "camPos"), camera.position.x, camera.position.y, camera.position.z);
     camera.Matrix(shader, "camMatrix");
     //Used
     glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
@@ -108,7 +108,7 @@ void Object::Draw(GLFWwindow* window, GLuint shader, Camera& camera, glm::vec3 a
 
     glUniformMatrix4fv(glGetUniformLocation(shader, "model"), 1, GL_FALSE, glm::value_ptr(model));
 
-    glUniform3f(glGetUniformLocation(shader, "camPos"), camera.Position.x, camera.Position.y, camera.Position.z);
+    glUniform3f(glGetUniformLocation(shader, "camPos"), camera.position.x, camera.position.y, camera.position.z);
     camera.Matrix(shader, "camMatrix");
     //Used
     glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
@@ -129,7 +129,7 @@ void Object::DrawTMP(GLFWwindow* window, GLuint shader, Camera& camera, glm::vec
     glUniformMatrix4fv(glGetUniformLocation(shader, "model"), 1, GL_FALSE, glm::value_ptr(model));
     glUniform4f(glGetUniformLocation(shader, "tint"), tint.x, tint.y, tint.z, tint.w);
 
-    glUniform3f(glGetUniformLocation(shader, "camPos"), camera.Position.x, camera.Position.y, camera.Position.z);
+    glUniform3f(glGetUniformLocation(shader, "camPos"), camera.position.x, camera.position.y, camera.position.z);
     camera.Matrix(shader, "camMatrix");
     if (cornerRadius != 0) {
         glUniform1f(glGetUniformLocation(shader, "cornerRadius"), cornerRadius);
@@ -163,7 +163,7 @@ void Object::DrawCustomVertices(GLFWwindow* window, GLuint shader, Camera& camer
 
     glBindVertexArray(0);
 
-    glUniform3f(glGetUniformLocation(shader, "camPos"), camera.Position.x, camera.Position.y, camera.Position.z);
+    glUniform3f(glGetUniformLocation(shader, "camPos"), camera.position.x, camera.position.y, camera.position.z);
     camera.Matrix(shader, "camMatrix");
 
     glBindVertexArray(VAO);

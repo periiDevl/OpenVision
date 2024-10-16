@@ -62,19 +62,22 @@ public:
 	template<typename T>
 	T& getComponent()
 	{
-		if (components.find(std::type_index(typeid(T))) != components.end())
-		{
-			T* ptr = dynamic_cast<T*>(components[std::type_index(typeid(T))].get());
+		T* ptr = dynamic_cast<T*>(components[std::type_index(typeid(T))].get());
 			
-			if (!ptr)
-			{
-				throw std::runtime_error("Component was found null.");
-			}
-		
-			return *ptr;
+		if (!ptr)
+		{
+			throw std::runtime_error("Component was found null.");
 		}
+		
+		return *ptr;
 
 		throw std::runtime_error("Component was not found.");
+	}
+
+	template<typename T>
+	bool hasComponent()
+	{
+		return components.find(std::type_index(typeid(T))) != components.end();
 	}
 
 	template<typename T>
@@ -96,6 +99,10 @@ public:
 
 	void setActive(bool active) { isActive = active; }
 	const bool& getActive() { return isActive; }
+
+	void draw()
+	{
+	}
 
 public:
 	Transform* transform;

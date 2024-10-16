@@ -74,7 +74,7 @@ public:
 
         // Send uniforms to the shader
         glUniformMatrix4fv(glGetUniformLocation(shader, "model"), 1, GL_FALSE, glm::value_ptr(model));
-        glUniform3f(glGetUniformLocation(shader, "camPos"), camera.Position.x, camera.Position.y, camera.Position.z);
+        glUniform3f(glGetUniformLocation(shader, "camPos"), camera.position.x, camera.position.y, camera.position.z);
         camera.Matrix(shader, "camMatrix");
 
         // Draw the line
