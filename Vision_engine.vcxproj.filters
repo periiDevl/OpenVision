@@ -227,7 +227,11 @@
     <ClInclude Include="Polytope.h">
       <Filter>Header Files\physics</Filter>
     </ClInclude>
+<<<<<<< HEAD
     <ClInclude Include="LineRenderer.h">
+=======
+    <ClInclude Include="OverDepth.h">
+>>>>>>> 72062ac4fcd1d4b315202b60ad428edb10b96377
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

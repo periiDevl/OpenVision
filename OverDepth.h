@@ -1,5 +1,5 @@
-#ifndef LINE_RENDERER_CLASS_H
-#define LINE_RENDERER_CLASS_H
+#ifndef OVERDEPTH_RENDERER_CLASS_H
+#define OVERDEPTH_RENDERER_CLASS_H
 
 #include "GameObject.h"
 #include "Component.h"
@@ -11,10 +11,12 @@
 #include "Shader.h"
 #include <vector>
 
-class LineRenderer
+class OverDepth
 {
 public:
-    LineRenderer()
+    GLFWwindow* window;
+
+    OverDepth()
     {
         // Define two vertices for a line
         Vertex vert[] =
@@ -47,8 +49,9 @@ public:
         EBO.Unbind();
     }
 
-    void drawLine(GLFWwindow* window, GLuint shader, Camera& camera, glm::vec3 axis, glm::vec2 start, glm::vec2 end)
+    void line(GLuint shader, Camera& camera, glm::vec2 start, glm::vec2 end, float thickness, glm::vec3 color)
     {
+        glLineWidth(thickness);
         // Disable depth testing to draw over everything
         glDisable(GL_DEPTH_TEST);
 
@@ -69,13 +72,14 @@ public:
 
         // Create model matrix (optional if you want to apply transformations)
         glm::mat4 model = glm::mat4(1.0f);
-        model = glm::rotate(model, Deg(0.0f), axis);  // No rotation
+        model = glm::rotate(model, Deg(0.0f), glm::vec3(0,0,1));  // No rotation
         model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f)); // No translation
 
         // Send uniforms to the shader
         glUniformMatrix4fv(glGetUniformLocation(shader, "model"), 1, GL_FALSE, glm::value_ptr(model));
         glUniform3f(glGetUniformLocation(shader, "camPos"), camera.position.x, camera.position.y, camera.position.z);
         camera.Matrix(shader, "camMatrix");
+        glUniform3f(glGetUniformLocation(shader, "color"), color.x, color.y, color.z);
 
         // Draw the line
         glDrawElements(GL_LINES, indices.size(), GL_UNSIGNED_INT, 0);

@@ -14,7 +14,7 @@
 #include "GJK.h"
 #include "EPA.h"
 
-#include "LineRenderer.h"
+#include "OverDepth.h"
 // Function declarations
 
 int main()
@@ -50,11 +50,14 @@ int main()
 
     Timer inputTimer;
     Shader classic_shader(vertexShaderSource, fragmentShaderSource);
+    Shader unlit_shader(vertexShaderSource, unlitFrag);
 
 
     glm::vec2 mousePre = window.mouseAsWorldPosition(camera1);
     glm::vec2 mouseCur = window.mouseAsWorldPosition(camera1);
-    LineRenderer lnre;
+
+    OverDepth gizmos;
+    //gizmos.setShader(unlit_shader);
     while (window.windowRunning())
     {
         fpsTimer.start();
@@ -72,6 +75,10 @@ int main()
         }
         renderer.draw(window.getWindow(), classic_shader.ID, camera1, glm::vec3(0, 0, 1));
         renderer2.draw(window.getWindow(), classic_shader.ID, camera1, glm::vec3(0, 0, 1));
+<<<<<<< HEAD
+=======
+        gizmos.line(unlit_shader.ID, camera1, obj.transform->position, obj2.transform->position, 5, glm::vec3(1, 0, 0));
+>>>>>>> 72062ac4fcd1d4b315202b60ad428edb10b96377
         mousePre = mouseCur;
         mouseCur = window.mouseAsWorldPosition(camera1);
         
