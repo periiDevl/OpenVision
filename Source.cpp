@@ -50,13 +50,15 @@ int main()
 
     Timer inputTimer;
     Shader classic_shader(vertexShaderSource, fragmentShaderSource);
-    Shader unlit_shader(vertexShaderSource, unlitFrag);
+    
 
 
     glm::vec2 mousePre = window.mouseAsWorldPosition(camera1);
     glm::vec2 mouseCur = window.mouseAsWorldPosition(camera1);
 
     OverDepth gizmos;
+    gizmos.setCamera(camera1);
+    window.setCursor(Window::Cursors::ArrowCursor);
     //gizmos.setShader(unlit_shader);
     while (window.windowRunning())
     {
@@ -73,23 +75,19 @@ int main()
             auto result =  EPA::getResolution(coll, coll2, simplex);
             std::cout << "depth: " << result.depth << '\n';
         }
-        renderer.draw(window.getWindow(), classic_shader.ID, camera1, glm::vec3(0, 0, 1));
-        renderer2.draw(window.getWindow(), classic_shader.ID, camera1, glm::vec3(0, 0, 1));
-<<<<<<< HEAD
-=======
-        gizmos.line(unlit_shader.ID, camera1, obj.transform->position, obj2.transform->position, 5, glm::vec3(1, 0, 0));
->>>>>>> 72062ac4fcd1d4b315202b60ad428edb10b96377
+
         mousePre = mouseCur;
         mouseCur = window.mouseAsWorldPosition(camera1);
         
-        if (renderer.checkMouseBoundry(mouseCur, window.width, window.height))
-        {
-            if (InputSystem::getHold(Inputs::MouseRight))
-            {
-                obj.transform->position += (mouseCur - mousePre);
-                coll.position = obj.transform->position;
-            }
-        }
+        renderer.setShader(classic_shader);
+        renderer2.setShader(classic_shader);
+        renderer.draw(camera1);
+        renderer2.draw(camera1);
+
+        gizmos.scaleTextureGizmos(obj, mousePre, window);
+        gizmos.worldGimzo(obj, mousePre, window);
+
+
         window.update();
 
         // Limit FPS

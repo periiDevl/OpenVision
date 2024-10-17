@@ -43,13 +43,20 @@ public:
 		//glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 		//glfwSetScrollCallback(window, scroll_callback);
 		Window::s_camera = &camera;
-		
-		glfwSetWindowSizeCallback(window, 
-			[](GLFWwindow* window, int width, int height)
+		glfwSetWindowUserPointer(window, this);
+
+		glfwSetWindowSizeCallback(window,
+			[](GLFWwindow* window, int newWidth, int newHeight)
 			{
-				Window::s_camera->setAspectRatio(width, height);
-				glViewport(0, 0, width, height);
+				// Update width and height in the Window class
+				Window::s_camera->setAspectRatio(newWidth, newHeight);
+				Window* win = static_cast<Window*>(glfwGetWindowUserPointer(window));
+				win->width = newWidth;
+				win->height = newHeight;
+
+				glViewport(0, 0, newWidth, newHeight);
 			});
+
 
 		// disable VSync
 		glfwSwapInterval(0);
@@ -143,8 +150,25 @@ public:
 
 	static Camera* s_camera;
 	
+	enum class Cursors
+	{
+		ArrowCursor = GLFW_ARROW_CURSOR,       // Standard arrow cursor
+		IBeamCursor = GLFW_IBEAM_CURSOR,       // Text input (I-beam) cursor
+		CrosshairCursor = GLFW_CROSSHAIR_CURSOR,   // Crosshair cursor
+		HandCursor = GLFW_HAND_CURSOR,        // Hand cursor for clickable elements
+		HResizeCursor = GLFW_HRESIZE_CURSOR,     // Horizontal resize cursor
+		VResizeCursor = GLFW_VRESIZE_CURSOR      // Vertical resize cursor
+	};
+	void setCursor(Cursors cursorType) {
+		// Create the cursor from the enum type
+		GLFWcursor* cursor = glfwCreateStandardCursor(static_cast<int>(cursorType));
+
+		// Set the cursor for the window
+		glfwSetCursor(window, cursor);
+	}
 private:
-	
+
+
 	GLFWwindow* window;
 	std::unique_ptr<InputSystem> inputSystem;
 

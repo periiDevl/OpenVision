@@ -1,3 +1,4 @@
+
 #ifndef TEXTURE_RENDERER_CLASS_H
 #define TEXTURE_RENDERER_CLASS_H
 
@@ -15,6 +16,7 @@ class TextureRenderer : public Component
 {
 public:
 	using Component::Component;
+	GLuint shader;
 	
 	TextureRenderer(GameObject& owner) 
 		: Component(owner)
@@ -51,8 +53,11 @@ public:
 	}
 
 	Texture tex = Texture("");
-
-	void draw(GLFWwindow* window, GLuint shader, Camera& camera, glm::vec3 axis)
+	void setShader(Shader shader)
+	{
+		this->shader = shader.ID;
+	}
+	void draw(Camera camera)
 	{
 		shader = shader;
 		glUseProgram(shader);
@@ -84,20 +89,57 @@ public:
 		unsigned int numDiffuse = 0;
 		glm::mat4 model = glm::mat4(1.0f);
 
-		model = glm::scale(model, glm::vec3(gameObject.transform->scale, 1.0f));
-		model = glm::rotate(model, Deg(gameObject.transform->rotation), axis);
 		model = glm::translate(model, glm::vec3(gameObject.transform->position, 0));
+		model = glm::rotate(model, Deg(gameObject.transform->rotation), glm::vec3(0, 0, 1));
+		model = glm::scale(model, glm::vec3(gameObject.transform->scale, 1.0f));
+
 
 		glUniformMatrix4fv(glGetUniformLocation(shader, "model"), 1, GL_FALSE, glm::value_ptr(model));
 
-<<<<<<< HEAD
-		glUniform3f(glGetUniformLocation(shader, "camPos"), camera.position.x, camera.position.y, camera.position.z);
-=======
-		glUniform3f(glGetUniformLocation(shader, "camPos"), camera.Position.x, camera.Position.y, camera.Position.z);
 
->>>>>>> 72062ac4fcd1d4b315202b60ad428edb10b96377
+		glUniform3f(glGetUniformLocation(shader, "camPos"), camera.position.x, camera.position.y, camera.position.z);
+
 		camera.Matrix(shader, "camMatrix");
 		//Used
+		glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
+	}
+	void draw(Camera camera, glm::vec3 position, glm::vec3 scale, Shader shade)
+	{
+		// Use the shader program
+		glUseProgram(shade.ID);
+
+		// Bind the Vertex Array Object
+		VAO.Bind();
+
+		// Bind the texture
+		tex.Bind();
+
+		// Set the tint color uniform
+		glUniform4f(glGetUniformLocation(shade.ID, "tint"), tint.x, tint.y, tint.z, tint.w);
+
+		// Set the tiling parameters
+		glUniform1f(glGetUniformLocation(shade.ID, "tileX"), TileX);
+		glUniform1f(glGetUniformLocation(shade.ID, "tileY"), TileY);
+
+		// Set the corner radius uniform, using a default if not set
+		glUniform1f(glGetUniformLocation(shade.ID, "cornerRadius"), (cornerRadius != 0) ? cornerRadius : 0.01f);
+
+		// Set up the model matrix
+		glm::mat4 model = glm::mat4(1.0f);
+		model = glm::translate(model, position); // Use input position
+		model = glm::rotate(model, Deg(0), glm::vec3(0, 0, 1));
+		model = glm::scale(model, scale); // Use input scale
+
+		// Pass the model matrix to the shader
+		glUniformMatrix4fv(glGetUniformLocation(shade.ID, "model"), 1, GL_FALSE, glm::value_ptr(model));
+
+		// Set the camera position uniform
+		glUniform3f(glGetUniformLocation(shade.ID, "camPos"), camera.position.x, camera.position.y, camera.position.z);
+
+		// Set the camera matrix for the shader
+		camera.Matrix(shade.ID, "camMatrix");
+
+		// Draw the elements using the specified mode and count
 		glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
 	}
 
@@ -134,7 +176,7 @@ public:
 	// Store the offset from the initial click
 
 	// Call this function when the left mouse button is held down
-	void snapToMouse(glm::vec2 mousePos, int wid, int hei)
+	void snapToMouse(glm::vec2 mousePos)
 	{
 		// Calculate the offset only if it's the first call during this drag
 		if (offset == glm::vec2(0.0f, 0.0f)) {
@@ -146,6 +188,97 @@ public:
 		gameObject.transform->position.x = mousePos.x - offset.x;
 		gameObject.transform->position.y = mousePos.y - offset.y;
 	}
+	void snapToMouseX(glm::vec2 mousePos)
+	{
+		// Calculate the offset only if it's the first call during this drag
+		if (offset == glm::vec2(0.0f, 0.0f)) {
+			// Store the offset based on the initial click
+			offset = glm::vec2(mousePos.x, mousePos.y) - glm::vec2(gameObject.transform->position.x, gameObject.transform->position.y);
+		}
+
+		// Update the object's position to follow the mouse with the initial offset
+		gameObject.transform->position.x = mousePos.x - offset.x;
+	}
+	void snapToMouseY(glm::vec2 mousePos)
+	{
+		// Calculate the offset only if it's the first call during this drag
+		if (offset == glm::vec2(0.0f, 0.0f)) {
+			// Store the offset based on the initial click
+			offset = glm::vec2(mousePos.x, mousePos.y) - glm::vec2(gameObject.transform->position.x, gameObject.transform->position.y);
+		}
+
+		// Update the object's position to follow the mouse with the initial offset
+		gameObject.transform->position.y = mousePos.y - offset.y;
+	}
+
+	void snapScaleToMouse(glm::vec2 mousePos)
+	{
+		// Calculate the offset only if it's the first call during this drag
+		if (offset == glm::vec2(0.0f, 0.0f)) {
+			// Store the initial scale value to calculate the new scale based on mouse position
+			offset = glm::vec2(gameObject.transform->scale.x, gameObject.transform->scale.y);
+		}
+
+		// Calculate the center of the game object's position
+		glm::vec2 center = gameObject.transform->position; // Assuming position holds the center point
+
+		// Calculate the new scale based on the distance from the object's position to the mouse position
+		float newScaleX = std::abs(mousePos.x - center.x);
+		float newScaleY = std::abs(mousePos.y - center.y);
+
+		// Set the new scale based on mouse position
+		gameObject.transform->scale.x = newScaleX * 2; // Scale based on the distance from the center to the mouse position
+		gameObject.transform->scale.y = newScaleY * 2; // Scale separately for the Y axis
+
+		// Print the position and scale for debugging
+		std::cout << "Position: (" << gameObject.transform->position.x << ", "
+			<< gameObject.transform->position.y << "), Scale: ("
+			<< gameObject.transform->scale.x << ", " << gameObject.transform->scale.y << ")" << std::endl;
+	}
+
+	void snapScaleToMouseX(glm::vec2 mousePos) {
+		// Calculate the offset only if it's the first call during this drag
+		if (offset.x == 0.0f) {
+			// Store the initial scale value to calculate the new scale based on mouse position
+			offset.x = gameObject.transform->scale.x;
+		}
+
+		// Calculate the center of the game object's position
+		glm::vec2 center = gameObject.transform->position; // Assuming position holds the center point
+
+		// Calculate the new scale based on the distance from the object's position to the mouse position
+		float newScaleX = std::abs(mousePos.x - center.x);
+
+		// Set the new scale based on mouse position for X axis
+		gameObject.transform->scale.x = newScaleX * 2; // Scale based on the distance from the center to the mouse position
+
+		// Print the position and scale for debugging
+		std::cout << "Position: (" << gameObject.transform->position.x << ", "
+			<< gameObject.transform->position.y << "), Scale: ("
+			<< gameObject.transform->scale.x << ", " << gameObject.transform->scale.y << ")" << std::endl;
+	}
+
+	void snapScaleToMouseY(glm::vec2 mousePos) {
+		// Calculate the offset only if it's the first call during this drag
+		if (offset.y == 0.0f) {
+			// Store the initial scale value to calculate the new scale based on mouse position
+			offset.y = gameObject.transform->scale.y;
+		}
+
+		// Calculate the center of the game object's position
+		glm::vec2 center = gameObject.transform->position; // Assuming position holds the center point
+
+		// Calculate the new scale based on the distance from the object's position to the mouse position
+		float newScaleY = std::abs(mousePos.y - center.y);
+
+		// Set the new scale based on mouse position for Y axis
+		gameObject.transform->scale.y = newScaleY * 2; // Scale based on the distance from the center to the mouse position
+
+		// Print the position and scale for debugging
+		std::cout << "Position: (" << gameObject.transform->position.x << ", "
+			<< gameObject.transform->position.y << "), Scale: ("
+			<< gameObject.transform->scale.x << ", " << gameObject.transform->scale.y << ")" << std::endl;
+	}
 
 	// Call this function when the mouse button is released to reset the offset
 	void releaseMouse()
@@ -155,6 +288,9 @@ public:
 
 
 private:
+	float lerp(float start, float end, float t) {
+		return start + t * (end - start);
+	}
 	glm::vec2 offset = glm::vec2(0.0f, 0.0f);
 	std::vector <Vertex> vertices;
 	std::vector <GLuint> indices;
@@ -164,7 +300,6 @@ private:
 		return radians * 3.14159f / 180;
 	}
 	GLFWwindow* window;
-	GLuint shader;
 
 	glm::vec4 tint = glm::vec4(1);
 	float cornerRadius = 0.001f;

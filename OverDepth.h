@@ -15,10 +15,12 @@ class OverDepth
 {
 public:
     GLFWwindow* window;
+    Camera camera;
 
     OverDepth()
+        : unlit_shader(vertexShaderSource, unlitFrag), camera(glm::vec3(0.0f, 0.0f, 0.2f), 1280, 800)
+
     {
-        // Define two vertices for a line
         Vertex vert[] =
         {
             Vertex{glm::vec3(-0.5f, 0.0f, 0.0f), glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec2(0.0f, 0.0f)},
@@ -48,8 +50,10 @@ public:
         VBO->Unbind();
         EBO.Unbind();
     }
-
-    void line(GLuint shader, Camera& camera, glm::vec2 start, glm::vec2 end, float thickness, glm::vec3 color)
+    void setCamera(Camera cam) {
+        camera = cam;
+    }
+    void line(glm::vec2 start, glm::vec2 end, float thickness, glm::vec3 color)
     {
         glLineWidth(thickness);
         // Disable depth testing to draw over everything
@@ -58,7 +62,7 @@ public:
         // Optionally, clear depth buffer to ensure no other object interferes
         glClear(GL_DEPTH_BUFFER_BIT);
 
-        glUseProgram(shader);
+        glUseProgram(unlit_shader.ID);
         VAO.Bind();
 
         // Update line start and end positions
@@ -72,14 +76,14 @@ public:
 
         // Create model matrix (optional if you want to apply transformations)
         glm::mat4 model = glm::mat4(1.0f);
-        model = glm::rotate(model, Deg(0.0f), glm::vec3(0,0,1));  // No rotation
+        model = glm::rotate(model, Deg(0.0f), glm::vec3(0, 0, 1));  // No rotation
         model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f)); // No translation
 
         // Send uniforms to the shader
-        glUniformMatrix4fv(glGetUniformLocation(shader, "model"), 1, GL_FALSE, glm::value_ptr(model));
-        glUniform3f(glGetUniformLocation(shader, "camPos"), camera.position.x, camera.position.y, camera.position.z);
-        camera.Matrix(shader, "camMatrix");
-        glUniform3f(glGetUniformLocation(shader, "color"), color.x, color.y, color.z);
+        glUniformMatrix4fv(glGetUniformLocation(unlit_shader.ID, "model"), 1, GL_FALSE, glm::value_ptr(model));
+        glUniform3f(glGetUniformLocation(unlit_shader.ID, "camPos"), camera.position.x, camera.position.y, camera.position.z);
+        camera.Matrix(unlit_shader.ID, "camMatrix");
+        glUniform3f(glGetUniformLocation(unlit_shader.ID, "color"), color.x, color.y, color.z);
 
         // Draw the line
         glDrawElements(GL_LINES, indices.size(), GL_UNSIGNED_INT, 0);
@@ -90,8 +94,142 @@ public:
         VAO.Unbind();
     }
 
+    bool checkMouseBoundary(glm::vec2 start, glm::vec2 end, float thickness__line, glm::vec2 mousePos)
+    {
+        // Convert the thickness to screen space using the window dimensions
+        float thickness = thickness__line / 100;
+        float halfThickness = thickness / 2.0f;
 
+        // Vector from start to end of the line
+        glm::vec2 lineVec = end - start;
+
+        // Vector from start to the mouse position
+        glm::vec2 mouseVec = mousePos - start;
+
+        // Calculate the projection of mouseVec onto lineVec
+        float lineLengthSquared = glm::dot(lineVec, lineVec);
+
+        // Avoid division by zero (in case start and end are the same)
+        if (lineLengthSquared == 0.0f) {
+            return glm::distance(start, mousePos) <= halfThickness;
+        }
+
+        // Projection scalar (how far along the line the projection is)
+        float t = glm::dot(mouseVec, lineVec) / lineLengthSquared;
+
+        // Clamp t to be between 0 and 1 to get the closest point on the line segment
+        t = glm::clamp(t, 0.0f, 1.0f);
+
+        // Find the closest point on the line segment
+        glm::vec2 closestPoint = start + t * lineVec;
+
+        // Distance from the mouse position to the closest point on the line
+        float distance = glm::distance(mousePos, closestPoint);
+
+        // Check if the distance is within the line's thickness
+        return distance <= halfThickness;
+    }
+
+    void scaleTextureGizmos(GameObject& object, glm::vec2 mousePos, Window& window) {
+        glm::vec2 pivotLeftBottom = glm::vec2(object.transform->position.x - object.transform->scale.x / 2, object.transform->position.y - object.transform->scale.y / 2);
+        glm::vec2 pivotLeftUp = glm::vec2(object.transform->position.x - object.transform->scale.x / 2, object.transform->position.y + object.transform->scale.y / 2);
+        glm::vec2 pivotRightUp = glm::vec2(object.transform->position.x + object.transform->scale.x / 2, object.transform->position.y + object.transform->scale.y / 2);
+        glm::vec2 pivotRightBottom = glm::vec2(object.transform->position.x + object.transform->scale.x / 2, object.transform->position.y - object.transform->scale.y / 2);
+        //glm::vec2 pivotLeftUp(object.transform->position.x - object.transform->scale.x / 2, object.transform->position.y + object.transform->scale.y / 2);
+        line(pivotLeftBottom, pivotLeftUp, 6, glm::vec3(0, 0, 0));
+        line(pivotLeftBottom, pivotLeftUp, 3.5, glm::vec3(1));
+
+
+
+        line(pivotLeftUp, pivotRightUp, 6, glm::vec3(0, 0, 0));
+        line(pivotLeftUp, pivotRightUp, 3.5, glm::vec3(1));
+
+        line(pivotRightUp, pivotRightBottom, 6, glm::vec3(0, 0, 0));
+        line(pivotRightUp, pivotRightBottom, 3.5, glm::vec3(1));
+
+        line(pivotRightBottom, pivotLeftBottom, 6, glm::vec3(0, 0, 0));
+        line(pivotRightBottom, pivotLeftBottom, 3.5, glm::vec3(1));
+        if (InputSystem::getUp(Inputs::MouseLeft))
+        {
+            Dragging = "";
+            object.getComponent<TextureRenderer>().releaseMouse();
+            window.setCursor(Window::Cursors::ArrowCursor);
+
+
+        }
+        if (Dragging != "MD" && Dragging != "ML" && Dragging != "MU") {
+            
+            if (checkMouseBoundary(pivotLeftBottom, pivotLeftUp, 5, mousePos) || checkMouseBoundary(pivotRightUp, pivotRightBottom, 5, mousePos) || Dragging == "SX") {
+                window.setCursor(Window::Cursors::HResizeCursor);
+                if (InputSystem::getHold(Inputs::MouseLeft) || Dragging == "SX")
+                {
+                    object.getComponent<TextureRenderer>().snapScaleToMouseX(mousePos);
+                    Dragging = "SX";
+                }
+            }
+            else if (checkMouseBoundary(pivotLeftUp, pivotRightUp, 5, mousePos) || checkMouseBoundary(pivotRightBottom, pivotLeftBottom, 5, mousePos) || Dragging == "SY")
+            {
+                window.setCursor(Window::Cursors::VResizeCursor);
+                if (InputSystem::getHold(Inputs::MouseLeft) || Dragging == "SY")
+                {
+                    object.getComponent<TextureRenderer>().snapScaleToMouseY(mousePos);
+                    Dragging = "SY";
+                }
+            }
+            else { window.setCursor(Window::Cursors::ArrowCursor); }
+        }
+        
+
+    }
+    void worldGimzo(GameObject& object, glm::vec2 mousePos, Window& window)
+    {
+
+        line(object.transform->position, glm::vec2(object.transform->position.x + 0.3, object.transform->position.y), 8, glm::vec3(1, 0, 0));
+        line(object.transform->position, glm::vec2(object.transform->position.x, object.transform->position.y + 0.3), 8, glm::vec3(0, 1, 0));
+        glUniform3f(glGetUniformLocation(unlit_shader.ID, "color"), 0.4, 0.4, 0.4);
+        GameObject middle;
+        TextureRenderer renderer(middle);
+        renderer.draw(camera, glm::vec3(object.transform->position, 0), glm::vec3(0.1, 0.1, 0), unlit_shader);
+        middle.transform->position = object.transform->position;
+        middle.transform->scale = glm::vec2(0.1f, 0.1f);
+        if (InputSystem::getUp(Inputs::MouseLeft))
+        {
+            Dragging = "";
+            object.getComponent<TextureRenderer>().releaseMouse();
+            window.setCursor(Window::Cursors::ArrowCursor);
+
+
+        }
+        if (Dragging != "SX" && Dragging != "SY") {
+            if (renderer.checkMouseBoundry(mousePos, window.width, window.height) || Dragging == "MD")
+            {
+                if (InputSystem::getHold(Inputs::MouseLeft) || Dragging == "MD")
+                {
+                    object.getComponent<TextureRenderer>().snapToMouse(mousePos);
+                    Dragging = "MD";
+                }
+            }
+            else if (checkMouseBoundary(object.transform->position, glm::vec2(object.transform->position.x + 0.3, object.transform->position.y), 10, mousePos) || Dragging == "ML")
+            {
+                if (InputSystem::getHold(Inputs::MouseLeft) || Dragging == "ML")
+                {
+                    object.getComponent<TextureRenderer>().snapToMouseX(mousePos);
+                    Dragging = "ML";
+                }
+            }
+            else if (checkMouseBoundary(object.transform->position, glm::vec2(object.transform->position.x, object.transform->position.y + 0.3), 10, mousePos) || Dragging == "MU")
+            {
+                if (InputSystem::getHold(Inputs::MouseLeft))
+                {
+                    object.getComponent<TextureRenderer>().snapToMouseY(mousePos);
+                    Dragging = "MU";
+                }
+            }
+
+        }
+    }
 private:
+    Shader unlit_shader;
     std::vector<Vertex> vertices;
     std::vector<GLuint> indices;
     VAO VAO;
@@ -102,6 +240,7 @@ private:
     {
         return radians * 3.14159f / 180;
     }
+    std::string Dragging = "";
 };
 
 #endif
