@@ -8,13 +8,28 @@
 #include "Polytope.h"
 #include "BaseCollider.h"
 
-#define EPA_TOLERANCE 0.2
-#define EPA_MAX_ITERATIONS 2250
+#include "OverDepth.h"
+
+#define EPA_TOLERANCE 0.00001
+#define EPA_MAX_ITERATIONS 250
+
+static void drawPolytope(const Polytope& polytope, OverDepth& gizmos)
+{
+	for (int i = 0; i < polytope.getLength(); i++)
+	{
+		gizmos.line(polytope[i], polytope[(i + 1) % polytope.getLength()], 3, glm::vec3(1, 0, 0));
+	}
+}
+static void drawEdge(const Polytope& polytope, const Edge& edge, OverDepth& gizmos)
+{
+	gizmos.line(polytope[edge.index], polytope[edge.index - 1 < 0 ?  polytope.getLength() - 1: edge.index-1], 3, glm::vec3(1, 1, 0));
+}
 
 class EPA
 {
 public:
-	static Manifold getResolution(const BaseCollider& collA, const BaseCollider& collB, const Simplex& simplex)
+	static Manifold getResolution(const BaseCollider& collA, const BaseCollider& collB, const Simplex& simplex
+	,OverDepth& gizmos)
 	{
 		Manifold result;
 
@@ -22,13 +37,14 @@ public:
 
 		int iterations = 0;
 
+
 		if (polytope.getLength() == 2)
 		{
-			const glm::vec2& a = polytope[0];
-			const glm::vec2& b = polytope[1];
-			glm::vec2 ab = b - a;
+			const glm::vec2 a = polytope[0];
+			const glm::vec2 b = polytope[1];
 
-			glm::vec2 perpendicularDir = glm::normalize(glm::vec2(-ab.y, ab.x));
+			glm::vec2 ab = b - a;
+			glm::vec2 perpendicularDir = glm::normalize(glm::vec2(-ab.y, ab.x));  
 
 			glm::vec2 thirdPoint = PhysHelper::support(collA, collB, perpendicularDir);
 
@@ -49,6 +65,8 @@ public:
 			{
 				result.normal = edge.normal;
 				result.depth = dis;
+				drawPolytope(polytope, gizmos);
+				drawEdge(polytope, edge, gizmos);
 				return result;
 			}
 			else

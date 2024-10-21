@@ -34,9 +34,9 @@ int main() {
 
     GameObject& obj = *objects[0];
     GameObject& obj2 = *objects[1];
-    obj.transform->position = { -1, 0 };
+    obj.transform->position = { 1.2, 0 };
     obj.transform->scale = { 1, 1 };
-    obj2.transform->position = { 1, 0 };
+    obj2.transform->position = { 0, 0 };
     obj2.transform->scale = { 1, 1 };
 
 
@@ -93,13 +93,6 @@ int main() {
 
         camera1.updateMatrix(0.1f, 100.0f);
 
-        // GJK collision check
-        Simplex simplex;
-        if (GJK::isTouching(coll, coll2, simplex)) {
-            auto result = EPA::getResolution(coll, coll2, simplex);
-            std::cout << "Collision depth: " << result.depth << std::endl;
-        }
-
         // Render objects
         glm::vec2 mousePos = window.mouseAsWorldPosition(camera1);
         renderer.setShader(classicShader);
@@ -118,6 +111,25 @@ int main() {
 
         // Detect which object is under the mouse
         std::cout << selectedObj << std::endl;
+
+
+        // GJK collision check
+        coll.position = obj.transform->position;
+        coll2.position = obj2.transform->position;
+        Simplex simplex;
+        if (GJK::isTouching(coll, coll2, simplex, &gizmos)) {
+            auto result = EPA::getResolution(coll, coll2, simplex, gizmos);
+        
+            if (InputSystem::getDown(Inputs::KeySpace))
+            {
+                obj.transform->position -= (float)result.depth * result.normal * 0.5f;
+                obj2.transform->position += (float)result.depth * result.normal * 0.5f;
+            }
+        }
+
+        gizmos.line(glm::vec2(0, .01), glm::vec2(0, -.01), 12, glm::vec3(0));
+        gizmos.line(glm::vec2(.01, 0), glm::vec2(-.01, 0), 12, glm::vec3(0));
+
         mainFramebuffer.DRAW_SCENE_AS_MAIN_FRAMEBUFFER(frameBufferShader);
         window.update();
 

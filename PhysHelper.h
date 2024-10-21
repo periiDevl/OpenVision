@@ -13,19 +13,27 @@ public:
 		return collA.findFurthestPoint(direction) - collB.findFurthestPoint(-direction);
 	}
 
+	static glm::vec2 getPerpendicular(const glm::vec2& realVec, const glm::vec2& dirVec)
+	{
+		glm::vec2 result = { -realVec.y, realVec.x };
+
+		if (glm::dot(result, dirVec) < 0)
+		{
+			result = -result;
+		}
+
+		return result;
+	}
 	static glm::vec2 tripleProduct(const glm::vec2& a, const glm::vec2& b, const glm::vec2& c)
 	{
 		glm::vec3 a3D = { a.x, a.y, 0.0f };
 		glm::vec3 b3D = { b.x, b.y, 0.0f };
 		glm::vec3 c3D = { c.x, c.y, 0.0f };
 
-		// Perform the first cross product: b3D x c3D
-		glm::vec3 cross1 = glm::cross(b3D, c3D);
+		glm::vec3 cross1 = glm::cross(a3D, b3D);
 
-		// Perform the second cross product: cross1 x a3D
-		glm::vec3 cross2 = glm::cross(cross1, a3D);
+		glm::vec3 cross2 = glm::cross(cross1, c3D);
 
-		// Project the result back to 2D (x and y components only)
 		return glm::vec2(cross2.x, cross2.y);
 	}
 };
