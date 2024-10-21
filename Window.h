@@ -19,7 +19,7 @@ class Window
 public:
 	int width = 1280;
 	int height = 800;
-	
+
 	Window(Camera& camera)
 	{
 		glfwInit();
@@ -55,6 +55,8 @@ public:
 				win->height = newHeight;
 
 				glViewport(0, 0, newWidth, newHeight);
+
+				
 			});
 
 
@@ -84,7 +86,25 @@ public:
 	// Implement move constructor and move assignment operator (if needed)
 	Window(Window&&) = default;
 	Window& operator=(Window&&) = default;
+	void resizeFramebuffer(unsigned int framebufferTexture, unsigned int RBO, int newWidth, int newHeight) {
+		glBindTexture(GL_TEXTURE_2D, framebufferTexture);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, newWidth, newHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
 
+		glBindRenderbuffer(GL_RENDERBUFFER, RBO);
+		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, newWidth, newHeight);
+	}
+	static void resizeFramebufferUint(GLuint& gluint, GLuint& textureColorBuffer, int newWidth, int newHeight) {
+		glBindFramebuffer(GL_FRAMEBUFFER, gluint);
+
+		glBindTexture(GL_TEXTURE_2D, textureColorBuffer);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, newWidth, newHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+		glBindTexture(GL_TEXTURE_2D, 0);
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	}
 	void clear()
 	{
 

@@ -167,7 +167,7 @@ out vec4 FragColor;
 in vec2 texCoords;
 
 uniform sampler2D screenTexture;
-uniform float radius= 0.2;
+uniform float radius= 0.8;
 uniform float softness= 0.2;
 
 uniform float minEdgeContrast;

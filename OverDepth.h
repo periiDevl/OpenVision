@@ -15,7 +15,6 @@ class OverDepth
 {
 public:
     GLFWwindow* window;
-    Camera camera;
 
     OverDepth()
         : unlit_shader(vertexShaderSource, unlitFrag), camera(glm::vec3(0.0f, 0.0f, 0.2f), 1280, 800)
@@ -50,9 +49,10 @@ public:
         VBO->Unbind();
         EBO.Unbind();
     }
-    void setCamera(Camera cam) {
+    void Overlap(Camera cam) {
         camera = cam;
     }
+
     void line(glm::vec2 start, glm::vec2 end, float thickness, glm::vec3 color)
     {
         glLineWidth(thickness);
@@ -136,19 +136,21 @@ public:
         glm::vec2 pivotRightUp = glm::vec2(object.transform->position.x + object.transform->scale.x / 2, object.transform->position.y + object.transform->scale.y / 2);
         glm::vec2 pivotRightBottom = glm::vec2(object.transform->position.x + object.transform->scale.x / 2, object.transform->position.y - object.transform->scale.y / 2);
         //glm::vec2 pivotLeftUp(object.transform->position.x - object.transform->scale.x / 2, object.transform->position.y + object.transform->scale.y / 2);
-        line(pivotLeftBottom, pivotLeftUp, 6, glm::vec3(0, 0, 0));
-        line(pivotLeftBottom, pivotLeftUp, 3.5, glm::vec3(1));
+        float blackThickness = 7.0f;
+        float whiteThickness = 3.0f;
+        line(pivotLeftBottom, pivotLeftUp, blackThickness, glm::vec3(0, 0, 0));
+        line(pivotLeftBottom, pivotLeftUp, whiteThickness, glm::vec3(1));
 
 
 
-        line(pivotLeftUp, pivotRightUp, 6, glm::vec3(0, 0, 0));
-        line(pivotLeftUp, pivotRightUp, 3.5, glm::vec3(1));
+        line(pivotLeftUp, pivotRightUp, blackThickness, glm::vec3(0, 0, 0));
+        line(pivotLeftUp, pivotRightUp, whiteThickness, glm::vec3(1));
 
-        line(pivotRightUp, pivotRightBottom, 6, glm::vec3(0, 0, 0));
-        line(pivotRightUp, pivotRightBottom, 3.5, glm::vec3(1));
+        line(pivotRightUp, pivotRightBottom, blackThickness, glm::vec3(0, 0, 0));
+        line(pivotRightUp, pivotRightBottom, whiteThickness, glm::vec3(1));
 
-        line(pivotRightBottom, pivotLeftBottom, 6, glm::vec3(0, 0, 0));
-        line(pivotRightBottom, pivotLeftBottom, 3.5, glm::vec3(1));
+        line(pivotRightBottom, pivotLeftBottom, blackThickness, glm::vec3(0, 0, 0));
+        line(pivotRightBottom, pivotLeftBottom, whiteThickness, glm::vec3(1));
         if (InputSystem::getUp(Inputs::MouseLeft))
         {
             Dragging = "";
@@ -228,7 +230,11 @@ public:
 
         }
     }
+    bool isDragging() {
+        return Dragging != "";
+    }
 private:
+    Camera camera;
     Shader unlit_shader;
     std::vector<Vertex> vertices;
     std::vector<GLuint> indices;

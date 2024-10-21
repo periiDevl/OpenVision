@@ -204,6 +204,7 @@
     <ClInclude Include="EBO.h" />
     <ClInclude Include="EPA.h" />
     <ClInclude Include="FileFunctions.h" />
+    <ClInclude Include="FrameBuffer.h" />
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="GJK.h" />
     <ClInclude Include="IMGUITheme.h" />
@@ -216,6 +217,7 @@
     <ClInclude Include="imgui\imstb_textedit.h" />
     <ClInclude Include="imgui\imstb_truetype.h" />
     <ClInclude Include="InputSystem.h" />
+    <ClInclude Include="MouseDetection.h" />
     <ClInclude Include="OverDepth.h" />
     <ClInclude Include="Manifold.h" />
     <ClInclude Include="Math.h" />
