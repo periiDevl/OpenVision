@@ -17,7 +17,7 @@ void Camera::updateMatrix(float nearPlane, float farPlane)
     float orthoBottom = -1.0f;
     float orthoTop = 1.0f;
 
-    glm::mat4 projection = glm::ortho(orthoLeft, orthoRight, orthoBottom, orthoTop, nearPlane, farPlane);
+    glm::mat4 projection = glm::ortho(orthoLeft / zoom, orthoRight / zoom, orthoBottom / zoom, orthoTop / zoom, nearPlane, farPlane);
 
     cameraMatrix = projection * view;
 }

@@ -15,7 +15,7 @@ public:
 	glm::vec3 position;
 	glm::mat4 cameraMatrix = glm::mat4(1.0f);
 
-
+	float zoom = 1;
 	int width;
 	int height;
 

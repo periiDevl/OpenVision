@@ -85,12 +85,17 @@ int main() {
         fpsTimer.start();
         mouseDetectionFramebuffer.resize(window.width, window.height);
         mainFramebuffer.resize(window.width, window.height);
-
+        
         mainFramebuffer.bind();
         window.clear();
         glEnable(GL_DEPTH_TEST);
         glUniform2f(glGetUniformLocation(frameBufferShader.ID, "resolution"), window.width, window.height);
-
+        if (InputHandler.getHold(Inputs::KeyDown)) {
+            camera1.zoom -= 0.01;
+        }
+        if (InputHandler.getHold(Inputs::KeyUp)) {
+            camera1.zoom += 0.01;
+        }
         camera1.updateMatrix(0.1f, 100.0f);
 
         // Render objects
