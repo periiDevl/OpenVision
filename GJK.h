@@ -7,15 +7,6 @@
 
 #include "OverDepth.h"
 
-
-void drawSimplex(Simplex& simplex, OverDepth& gizmos)
-{
-	for (int i = 0; i < (int)simplex.getState(); i++)
-	{
-		gizmos.line(simplex[i], simplex[(i + 1) % (int)simplex.getState()], 3, glm::vec3(0, 1, 0));
-	}
-}
-
 class GJK
 {
 
@@ -24,14 +15,13 @@ public:
 	{
 		Simplex simplex;
 
-		return isTouching(collA, collB, simplex, nullptr);
+		return isTouching(collA, collB, simplex);
 	}
 
-	static bool isTouching(const BaseCollider& collA, const BaseCollider& collB, Simplex& simplex, OverDepth* gizmos)
+	static bool isTouching(const BaseCollider& collA, const BaseCollider& collB, Simplex& simplex)
 	{
 		// direction will be used for the entire of this function
-		//glm::vec2 direction = glm::normalize(collB.position - collA.position);
-		glm::vec2 direction = glm::vec2(1, 0);//glm::normalize(collB.position - collA.position);
+		glm::vec2 direction = glm::normalize(collB.position - collA.position);
 
 		simplex.add(PhysHelper::support(collA, collB, direction));
 
@@ -52,12 +42,12 @@ public:
 
 			if (originInSimplex(simplex, direction))
 			{
-				drawSimplex(simplex, *gizmos);
 				return true;
 			}
 		}
 	}
 
+private:
 	static bool originInSimplex(Simplex& simplex, glm::vec2& direction)
 	{
 		switch (simplex.getState())

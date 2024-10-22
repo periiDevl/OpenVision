@@ -28,8 +28,7 @@ static void drawEdge(const Polytope& polytope, const Edge& edge, OverDepth& gizm
 class EPA
 {
 public:
-	static Manifold getResolution(const BaseCollider& collA, const BaseCollider& collB, const Simplex& simplex
-	,OverDepth& gizmos)
+	static Manifold getResolution(const BaseCollider& collA, const BaseCollider& collB, const Simplex& simplex)
 	{
 		Manifold result;
 
@@ -65,8 +64,6 @@ public:
 			{
 				result.normal = edge.normal;
 				result.depth = dis;
-				drawPolytope(polytope, gizmos);
-				drawEdge(polytope, edge, gizmos);
 				return result;
 			}
 			else

@@ -116,9 +116,11 @@ int main() {
         // GJK collision check
         coll.position = obj.transform->position;
         coll2.position = obj2.transform->position;
+        
         Simplex simplex;
-        if (GJK::isTouching(coll, coll2, simplex, &gizmos)) {
-            auto result = EPA::getResolution(coll, coll2, simplex, gizmos);
+        if (GJK::isTouching(coll, coll2, simplex)) 
+        {
+            auto result = EPA::getResolution(coll, coll2, simplex);
         
             if (InputSystem::getDown(Inputs::KeySpace))
             {
