@@ -8,9 +8,8 @@
 #include "glfw3.h"
 #include"VAO.h"
 #include"EBO.h"
-#include"Camera.h"
+#include"Camera2D.h"
 #include"Tex.h"
-#include "Object.h"
 #include "Shader.h"
 class TextureRenderer : public Component
 {
@@ -57,7 +56,7 @@ public:
 	{
 		this->shader = shader.ID;
 	}
-	void draw(Camera camera)
+	void draw(Camera2D camera)
 	{
 		shader = shader;
 		glUseProgram(shader);
@@ -103,7 +102,7 @@ public:
 		//Used
 		glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
 	}
-	void draw(Camera camera, glm::vec3 position, glm::vec3 scale, Shader shade)
+	void draw(Camera2D camera, glm::vec3 position, glm::vec3 scale, Shader shade)
 	{
 		// Use the shader program
 		glUseProgram(shade.ID);

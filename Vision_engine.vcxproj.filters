@@ -14,17 +14,16 @@
     <ClCompile Include="InputSystem.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="MyMain.cpp" />
-    <ClCompile Include="Object.cpp" />
-    <ClCompile Include="OV.cpp" />
     <ClCompile Include="SaveSystem.cpp" />
-    <ClCompile Include="Script.cpp" />
-    <ClCompile Include="ScriptTwo.cpp" />
     <ClCompile Include="Source.cpp" />
     <ClCompile Include="stb.cpp" />
     <ClCompile Include="Tex.cpp" />
     <ClCompile Include="VAO.cpp" />
     <ClCompile Include="VBO.cpp" />
     <ClCompile Include="Window.cpp" />
+    <ClCompile Include="Model.cpp" />
+    <ClCompile Include="Mesh.cpp" />
+    <ClCompile Include="Camera2D.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BaseCollider.h" />
@@ -52,7 +51,6 @@
     <ClInclude Include="Manifold.h" />
     <ClInclude Include="Math.h" />
     <ClInclude Include="MenuItems.h" />
-    <ClInclude Include="Object.h" />
     <ClInclude Include="OV.h" />
     <ClInclude Include="OVscriptHandaling.h" />
     <ClInclude Include="PhysHelper.h" />
@@ -63,8 +61,6 @@
     <ClInclude Include="Presave.h" />
     <ClInclude Include="SaveSystem.h" />
     <ClInclude Include="SceneLoader.h" />
-    <ClInclude Include="Script.h" />
-    <ClInclude Include="ScriptTwo.h" />
     <ClInclude Include="Settings.h" />
     <ClInclude Include="Tex.h" />
     <ClInclude Include="TextureRenderer.h" />
@@ -73,5 +69,11 @@
     <ClInclude Include="VBO.h" />
     <ClInclude Include="FrameBuffer.h" />
     <ClInclude Include="MouseDetection.h" />
+    <ClInclude Include="Mesh.h" />
+    <ClInclude Include="Model.h" />
+    <ClInclude Include="Functions.h" />
+    <ClInclude Include="CSF.h" />
+    <ClInclude Include="CSV.h" />
+    <ClInclude Include="Camera2D.h" />
   </ItemGroup>
 </Project>

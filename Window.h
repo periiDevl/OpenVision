@@ -2,7 +2,7 @@
 #define OV_WINDOW_CLASS_H
 
 #include <iostream>
-#include "Camera.h"
+#include "Camera2D.h"
 #include <stb/stb_image.h>
 #include "glfw3.h"
 #include "glad/glad.h"
@@ -20,7 +20,7 @@ public:
 	int width = 1280;
 	int height = 800;
 
-	Window(Camera& camera)
+	Window(Camera2D& camera)
 	{
 		glfwInit();
 
@@ -28,15 +28,15 @@ public:
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 		//glfwWindowHint(GLFW_SAMPLES, msaa);
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-		
+
 		window = glfwCreateWindow(width, height, "Loading...", NULL, NULL);
-		
+
 		if (window == NULL)
 		{
 			std::cout << "Failed to create GLFW window" << std::endl;
 			glfwTerminate();
 		}
-		
+
 		glfwMakeContextCurrent(window);
 		//glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 		//glfwSetWindowAttrib(window, GLFW_RESIZABLE, GLFW_FALSE);
@@ -56,7 +56,7 @@ public:
 
 				glViewport(0, 0, newWidth, newHeight);
 
-				
+
 			});
 
 
@@ -77,7 +77,7 @@ public:
 		gladLoadGL();
 		glViewport(0, 0, width, height);
 
-		inputSystem = std::make_unique<InputSystem>(window); 
+		inputSystem = std::make_unique<InputSystem>(window);
 	}
 	// Delete copy constructor and copy assignment operator
 	Window(const Window&) = delete;
@@ -112,13 +112,13 @@ public:
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glEnable(GL_DEPTH_TEST);
 	}
-	
+
 	void setTitle(const std::string& title)
 	{
 		glfwSetWindowTitle(window, title.c_str());
 	}
 
-	void update() 
+	void update()
 	{
 		glfwSwapBuffers(window);
 
@@ -127,12 +127,12 @@ public:
 		glfwPollEvents();
 	}
 
-	bool windowRunning() 
+	bool windowRunning()
 	{
 		return !glfwWindowShouldClose(window);
 	}
 
-	glm::vec2 mouseAsWorldPosition(Camera& cam)
+	glm::vec2 mouseAsWorldPosition(Camera2D& cam)
 	{
 		glm::vec2 mousePos = InputSystem::getMousePosition();
 
@@ -157,7 +157,7 @@ public:
 		return worldCoords;
 	}
 
-	~Window() 
+	~Window()
 	{
 		glfwDestroyWindow(window);
 		glfwTerminate();
@@ -168,8 +168,8 @@ public:
 		return window;
 	}
 
-	static Camera* s_camera;
-	
+	static Camera2D* s_camera;
+
 	enum class Cursors
 	{
 		ArrowCursor = GLFW_ARROW_CURSOR,       // Standard arrow cursor

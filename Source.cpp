@@ -7,24 +7,31 @@
 #include "Timer.h"
 #include "OV.h"
 #include "Settings.h"
-#include "Object.h"
 #include "Shader.h"
 #include "OVLIB.h"
 #include "CircleCollider.h"
+#include "GJK.h"
 #include "GJK.h"
 #include "EPA.h"
 #include "OverDepth.h"
 #include"FrameBuffer.h"
 #include "MouseDetection.h"
+#include "Model.h"
+#include "CSV.h"
+#include "CSF.h"
 // Function declarations
-
+CSV vert;
+CSF frag;
+float far = 400.0f;
+glm::vec3 lightPos = glm::vec3(0.5f, 1.0f, -1.0f);
 int main() {
     // Timers
     Timer fpsTimer, updateFPSTimer;
     updateFPSTimer.start();
 
     // Camera and window setup
-    Camera camera1(glm::vec3(0.0f, 0.0f, 0.2f), 1280, 800);
+    Camera camera3D(1280, 800, glm::vec3(0.0f, 0.0f, 0.2f));
+    Camera2D camera1(glm::vec3(0.0f, 0.0f, 0.2f), 1280, 800);
     Window window(camera1);
     // Game objects
 
@@ -55,7 +62,8 @@ int main() {
     Shader classicShader(vertexShaderSource, fragmentShaderSource);
     Shader frameBufferShader(FrameBufferVert, FrameBufferFrag);
     Shader unlitShader(vertexShaderSource, unlitFrag);
-
+    Shader shaderProgram(vert.Default, frag.Default);
+    Shader shadowMapProgram(vert.ShadowMap, frag.NONE);
     // Framebuffer settings
     frameBufferShader.Activate();
     glUniform1i(glGetUniformLocation(frameBufferShader.ID, "screenTexture"), 0);
@@ -64,10 +72,58 @@ int main() {
     glUniform1f(glGetUniformLocation(frameBufferShader.ID, "minEdgeContrast"), 128);
     glUniform1f(glGetUniformLocation(frameBufferShader.ID, "subPixelAliasing"), 8);
     glUniform1f(glGetUniformLocation(frameBufferShader.ID, "maximumEdgeDetection"), 128);
+    shaderProgram.Activate();
 
+    glUniform1f(glGetUniformLocation(shaderProgram.ID, "avgShadow"), 1.0f);
+    glUniform4f(glGetUniformLocation(shaderProgram.ID, "lightColor"), 1, 1, 1, 1);
+    glUniform3f(glGetUniformLocation(shaderProgram.ID, "lightPos"), 0.5f, 0.5f, 0.5f);
+    glUniform1f(glGetUniformLocation(shaderProgram.ID, "near"), 0.1f);
+    glUniform1f(glGetUniformLocation(shaderProgram.ID, "far"), 100);
+
+    glUniform1i(glGetUniformLocation(shaderProgram.ID, "BPL_Lighting"), true);
+
+
+    glUniform1f(glGetUniformLocation(shaderProgram.ID, "worldRadius"), 500);
+
+    glUniform1f(glGetUniformLocation(shaderProgram.ID, "bias1"), 0.01f);
+    glUniform1f(glGetUniformLocation(shaderProgram.ID, "bias2"), 0.01f);
+
+
+    glUniform1i(glGetUniformLocation(shaderProgram.ID, "sampleRadius"), 1);
     // Framebuffer instances
     Framebuffer mainFramebuffer(window.width, window.height);
     Framebuffer mouseDetectionFramebuffer(window.width, window.height);
+    //Shadow framebuffer
+
+
+    unsigned int shadowMapFBO;
+    glGenFramebuffers(1, &shadowMapFBO);
+
+    unsigned int shadowMap;
+    glGenTextures(1, &shadowMap);
+    glBindTexture(GL_TEXTURE_2D, shadowMap);
+    int shadowMapWidth = 2000;
+    int	shadowMapHeight = 2000;
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, shadowMapWidth, shadowMapHeight, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+    float clampColor[] = { 1.0f, 1.0f, 1.0f, 1.0f };
+    glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, clampColor);
+
+    glBindFramebuffer(GL_FRAMEBUFFER, shadowMapFBO);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, shadowMap, 0);
+    glDrawBuffer(GL_NONE);
+    glReadBuffer(GL_NONE);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    glm::mat4 orthgonalProjection = glm::ortho(-500.0f, 500.0f, -500.0f, 500.0f, 0.01f, far);
+    glm::mat4 lightView = glm::lookAt(20.0f * lightPos, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+    glm::mat4 lightProjection = orthgonalProjection * lightView;
+
+
+
 
     glm::vec2 mousePos = window.mouseAsWorldPosition(camera1);
 
@@ -81,22 +137,33 @@ int main() {
     MouseDetection mouseDetect;
     std::vector<TextureRenderer> detectableObjects = { renderer, renderer2 };
     int selectedObj = -1;
+
+    Model gird("models/mapone/scene.gltf");
     while (window.windowRunning()) {
+        mainFramebuffer.bind();
+        window.clear();
         fpsTimer.start();
         mouseDetectionFramebuffer.resize(window.width, window.height);
         mainFramebuffer.resize(window.width, window.height);
         
-        mainFramebuffer.bind();
-        window.clear();
         glEnable(GL_DEPTH_TEST);
         glUniform2f(glGetUniformLocation(frameBufferShader.ID, "resolution"), window.width, window.height);
-        if (InputHandler.getHold(Inputs::KeyDown)) {
-            camera1.zoom -= 0.01;
-        }
-        if (InputHandler.getHold(Inputs::KeyUp)) {
-            camera1.zoom += 0.01;
-        }
-        camera1.updateMatrix(0.1f, 100.0f);
+
+
+
+        camera1.updateMatrix(0.1f, far);
+        camera3D.updateMatrix3D(60, 0.1f, 1000.0f);
+        glEnable(GL_DEPTH_TEST);
+        gird.Draw(shaderProgram, camera3D, 1, glm::vec3(0,0,0), glm::vec3(0,0,0), glm::vec3(10.0f));
+
+
+
+
+
+        camera3D.Inputs(window.getWindow(), 1, 2);
+        camera3D.Mouse(window.getWindow());
+
+
 
         // Render objects
         glm::vec2 mousePos = window.mouseAsWorldPosition(camera1);
@@ -104,7 +171,11 @@ int main() {
         renderer.draw(camera1);
         renderer2.setShader(classicShader);
         renderer2.draw(camera1);
-        if (InputHandler.getDown(Inputs::MouseLeft) && !gizmos.isDragging()) {
+        gird.scale = glm::vec3(0.5f);
+        gird.rotation.x = 30;
+        gird.rotation.y = 30;
+        gird.rotation.z = 30;
+        if (InputSystem::getDown(Inputs::MouseLeft) && !gizmos.isDragging()) {
             selectedObj = mouseDetect.ID_OVER_OBJECT(window, mouseDetectionFramebuffer, unlitShader, camera1, objects);
         }
         if (selectedObj != -1) {
@@ -131,6 +202,7 @@ int main() {
             {
                 obj.transform->position -= (float)result.depth * result.normal * 0.5f;
                 obj2.transform->position += (float)result.depth * result.normal * 0.5f;
+
             }
         }
 

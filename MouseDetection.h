@@ -11,7 +11,7 @@ class MouseDetection {
 public:
     
 
-    int ID_OVER_OBJECT(Window& window, Framebuffer& detectionFramebuffer, Shader& colorIdShader, Camera& camera, std::vector<std::unique_ptr<GameObject>>& detectableObjects) {
+    int ID_OVER_OBJECT(Window& window, Framebuffer& detectionFramebuffer, Shader& colorIdShader, Camera2D& camera, std::vector<std::unique_ptr<GameObject>>& detectableObjects) {
         // No copy happens, objects are passed by reference.
 
         // Bind framebuffer and clear it

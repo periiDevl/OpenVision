@@ -1,6 +1,10 @@
 #ifndef SHADER_CLASS_H
 #define SHADER_CLASS_H
 #include "glad/glad.h"
+#include<iostream>
+#include <fstream>  // For std::ifstream
+#include <sstream>  // For std::stringstream
+
 class Shader
 {
 public:

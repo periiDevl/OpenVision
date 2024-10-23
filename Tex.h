@@ -1,6 +1,6 @@
 #ifndef TEXTURE_CLASS_H
 #define TEXTURE_CLASS_H
-
+#include "Shader.h"
 #include<glad/glad.h>
 #include<stb/stb_image.h>
 #include<iostream>
@@ -10,18 +10,11 @@ class Texture
 public:
 	GLuint ID;
 	const char* type;
-	std::string ImageFile = "Texture not loaded";
-	std::string FullImageFile = "Texture not loaded";
 	GLuint unit;
 
+	Texture(const char* image, const char* texType, GLuint slot);
 	Texture(const char* image);
-	void SetFilteringMode(GLenum minFilter, GLenum magFilter) {
-		glBindTexture(GL_TEXTURE_2D, ID);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, minFilter);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, magFilter);
-		glBindTexture(GL_TEXTURE_2D, 0);
-	}
-	void texUnit(GLuint shader, const char* uniform);
+	void texUnit(Shader& shader, const char* uniform, GLuint unit);
 	void Bind();
 	void Unbind();
 	void Delete();

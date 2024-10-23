@@ -7,7 +7,7 @@
 #include "glfw3.h"
 #include "VAO.h"
 #include "EBO.h"
-#include "Camera.h"
+#include "Camera2D.h"
 #include "Shader.h"
 #include <vector>
 
@@ -49,7 +49,7 @@ public:
         VBO->Unbind();
         EBO.Unbind();
     }
-    void Overlap(Camera cam) {
+    void Overlap(Camera2D cam) {
         camera = cam;
     }
 
@@ -234,7 +234,7 @@ public:
         return Dragging != "";
     }
 private:
-    Camera camera;
+    Camera2D camera;
     Shader unlit_shader;
     std::vector<Vertex> vertices;
     std::vector<GLuint> indices;
