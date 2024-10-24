@@ -160,15 +160,17 @@ public:
     InputSystem(GLFWwindow* window);
     ~InputSystem();
 
-    static bool getDown(const Inputs& key);
-    static bool getUp(const Inputs& key);
-    static bool getHold(const Inputs& key);
+    static bool getDown(const Inputs key);
+    static bool getUp(const Inputs key);
+    static bool getHold(const Inputs key);
 
-    static int getAxis(const Inputs& negative, const Inputs& positive);
+    static int getAxis(const Inputs negative, const Inputs positive);
 
     static void setCursorMode(InputCursor cursor);
 
     static glm::vec2 getMousePosition();
+
+    static glm::vec2 getScrollWheel();
 
     static void update();
     
@@ -179,9 +181,11 @@ private:
 
     static void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
     static void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
+    static void scrollWheelCallback(GLFWwindow* window, double xoffset, double yoffset);
 
     std::unordered_map<Inputs, InputState> curKeys;
     std::unordered_map<Inputs, InputState> prevKeys;
+    glm::vec2 scrollWheel;
 };
 
 #endif
