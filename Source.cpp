@@ -22,8 +22,8 @@
 // Function declarations
 CSV vert;
 CSF frag;
-float far = 400.0f;
-glm::vec3 lightPos = glm::vec3(0.5f, 1.0f, -1.0f);
+float far = 300.000f;
+glm::vec3 lightPos = glm::vec3(0.5f, 0.8f, 0.5f);
 int main() {
     // Timers
     Timer fpsTimer, updateFPSTimer;
@@ -76,17 +76,17 @@ int main() {
 
     glUniform1f(glGetUniformLocation(shaderProgram.ID, "avgShadow"), 1.0f);
     glUniform4f(glGetUniformLocation(shaderProgram.ID, "lightColor"), 1, 1, 1, 1);
-    glUniform3f(glGetUniformLocation(shaderProgram.ID, "lightPos"), 0.5f, 0.5f, 0.5f);
+    glUniform3f(glGetUniformLocation(shaderProgram.ID, "lightPos"), lightPos.x, lightPos.y, lightPos.z);
     glUniform1f(glGetUniformLocation(shaderProgram.ID, "near"), 0.1f);
-    glUniform1f(glGetUniformLocation(shaderProgram.ID, "far"), 100);
+    glUniform1f(glGetUniformLocation(shaderProgram.ID, "far"), far);
 
     glUniform1i(glGetUniformLocation(shaderProgram.ID, "BPL_Lighting"), true);
 
 
-    glUniform1f(glGetUniformLocation(shaderProgram.ID, "worldRadius"), 500);
+    glUniform1f(glGetUniformLocation(shaderProgram.ID, "worldRadius"), 800);
 
-    glUniform1f(glGetUniformLocation(shaderProgram.ID, "bias1"), 0.01f);
-    glUniform1f(glGetUniformLocation(shaderProgram.ID, "bias2"), 0.01f);
+    glUniform1f(glGetUniformLocation(shaderProgram.ID, "bias1"), 0.005f); // maximum bias
+    glUniform1f(glGetUniformLocation(shaderProgram.ID, "bias2"), 0.0005f); // minimum bias
 
 
     glUniform1i(glGetUniformLocation(shaderProgram.ID, "sampleRadius"), 1);
@@ -96,32 +96,18 @@ int main() {
     //Shadow framebuffer
 
 
-    unsigned int shadowMapFBO;
-    glGenFramebuffers(1, &shadowMapFBO);
+// Create shadow map framebuffer using the updated Framebuffer class
+    int shadowMapWidth = 1000;
+    int shadowMapHeight = 1000;
+    Framebuffer shadowFramebuffer(shadowMapWidth, shadowMapHeight, true); // 'true' for depth-only
 
-    unsigned int shadowMap;
-    glGenTextures(1, &shadowMap);
-    glBindTexture(GL_TEXTURE_2D, shadowMap);
-    int shadowMapWidth = 2000;
-    int	shadowMapHeight = 2000;
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, shadowMapWidth, shadowMapHeight, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
-    float clampColor[] = { 1.0f, 1.0f, 1.0f, 1.0f };
-    glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, clampColor);
-
-    glBindFramebuffer(GL_FRAMEBUFFER, shadowMapFBO);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, shadowMap, 0);
-    glDrawBuffer(GL_NONE);
-    glReadBuffer(GL_NONE);
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-    glm::mat4 orthgonalProjection = glm::ortho(-500.0f, 500.0f, -500.0f, 500.0f, 0.01f, far);
+    glm::mat4 orthgonalProjection = glm::ortho(-50.0f, 50.0f, -50.0f, 50.0f, 0.01f, far);
     glm::mat4 lightView = glm::lookAt(20.0f * lightPos, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
     glm::mat4 lightProjection = orthgonalProjection * lightView;
 
+
+    shadowMapProgram.Activate();
+    glUniformMatrix4fv(glGetUniformLocation(shadowMapProgram.ID, "lightProjection"), 1, GL_FALSE, glm::value_ptr(lightProjection));
 
 
 
@@ -138,24 +124,49 @@ int main() {
     std::vector<TextureRenderer> detectableObjects = { renderer, renderer2 };
     int selectedObj = -1;
 
-    Model gird("models/mapone/scene.gltf");
+    Model gird("models/cube/scene.gltf");
+    Model gird1("models/cube/scene.gltf");
     while (window.windowRunning()) {
+        //orthgonalProjection = glm::ortho(-500.0f, 500.0f, -500.0f, 500.0f, 0.0f, far);
+        //lightView = glm::lookAt(1300.0f * lightPos, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        //flightProjection = orthgonalProjection * lightView;
+
+        camera1.updateMatrix(0.1f, far);
+        camera3D.updateMatrix3D(60, 0.1f, far);
         mainFramebuffer.bind();
         window.clear();
         fpsTimer.start();
         mouseDetectionFramebuffer.resize(window.width, window.height);
+
         mainFramebuffer.resize(window.width, window.height);
-        
+
         glEnable(GL_DEPTH_TEST);
         glUniform2f(glGetUniformLocation(frameBufferShader.ID, "resolution"), window.width, window.height);
+        shadowMapProgram.Activate();
+        glUniformMatrix4fv(glGetUniformLocation(shadowMapProgram.ID, "lightProjection"), 1, GL_FALSE, glm::value_ptr(lightProjection));
 
+        shadowFramebuffer.bind();
+        glViewport(0, 0, shadowMapWidth, shadowMapHeight);
+        glClear(GL_DEPTH_BUFFER_BIT);
+        shadowMapProgram.Activate();
 
+        gird.Draw(shadowMapProgram, camera3D, 1, glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), glm::vec3(10.0f));
+        gird1.Draw(shadowMapProgram, camera3D, 1, glm::vec3(0, -10, 0), glm::vec3(0, 0, 0), glm::vec3(20.0f, 5.0f, 20.0f));
 
-        camera1.updateMatrix(0.1f, far);
-        camera3D.updateMatrix3D(60, 0.1f, 1000.0f);
+        mainFramebuffer.bind();
+        glViewport(0, 0, window.width, window.height);
+
         glEnable(GL_DEPTH_TEST);
-        gird.Draw(shaderProgram, camera3D, 1, glm::vec3(0,0,0), glm::vec3(0,0,0), glm::vec3(10.0f));
+        shaderProgram.Activate();
+        glUniformMatrix4fv(glGetUniformLocation(shaderProgram.ID, "lightProjection"), 1, GL_FALSE, glm::value_ptr(lightProjection));
 
+        glActiveTexture(GL_TEXTURE0 + 2);
+        glBindTexture(GL_TEXTURE_2D, shadowFramebuffer.getTexture());
+        glUniform1i(glGetUniformLocation(shaderProgram.ID, "shadowMap"), 2);
+
+        glEnable(GL_DEPTH_TEST);
+        gird.Draw(shaderProgram, camera3D, 1, glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), glm::vec3(10.0f));
+        gird1.Draw(shaderProgram, camera3D, 1, glm::vec3(0, -10, 0), glm::vec3(0, 0, 0), glm::vec3(20.0f, 5.0f, 20.0f));
 
 
 
@@ -164,11 +175,16 @@ int main() {
         camera3D.Mouse(window.getWindow());
 
 
+        if (InputSystem::getHold(Inputs::KeyF)) {
+            mainFramebuffer.textureColorBuffer = shadowFramebuffer.getTexture();
+        }
+
 
         // Render objects
         glm::vec2 mousePos = window.mouseAsWorldPosition(camera1);
         renderer.setShader(classicShader);
         renderer.draw(camera1);
+        renderer.tex = Texture(shadowFramebuffer.getTexture(), 0);
         renderer2.setShader(classicShader);
         renderer2.draw(camera1);
         gird.scale = glm::vec3(0.5f);
@@ -179,7 +195,7 @@ int main() {
             selectedObj = mouseDetect.ID_OVER_OBJECT(window, mouseDetectionFramebuffer, unlitShader, camera1, objects);
         }
         if (selectedObj != -1) {
-            
+
             gizmos.scaleTextureGizmos(*objects[selectedObj], mousePos, window);
             gizmos.worldGimzo(*objects[selectedObj], mousePos, window);
             gizmos.Overlap(camera1);
@@ -192,12 +208,12 @@ int main() {
         // GJK collision check
         coll.position = obj.transform->position;
         coll2.position = obj2.transform->position;
-        
+
         Simplex simplex;
-        if (GJK::isTouching(coll, coll2, simplex)) 
+        if (GJK::isTouching(coll, coll2, simplex))
         {
             auto result = EPA::getResolution(coll, coll2, simplex);
-        
+
             if (InputSystem::getDown(Inputs::KeySpace))
             {
                 obj.transform->position -= (float)result.depth * result.normal * 0.5f;
@@ -205,10 +221,8 @@ int main() {
 
             }
         }
-
         gizmos.line(glm::vec2(0, .01), glm::vec2(0, -.01), 12, glm::vec3(0));
         gizmos.line(glm::vec2(.01, 0), glm::vec2(-.01, 0), 12, glm::vec3(0));
-
         mainFramebuffer.DRAW_SCENE_AS_MAIN_FRAMEBUFFER(frameBufferShader);
         window.update();
 
