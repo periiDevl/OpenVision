@@ -96,6 +96,19 @@ Texture::Texture(const char* image)
 
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
+Texture::Texture(GLuint framebufferTexture, GLuint slot)
+{
+	ID = framebufferTexture;  // Use the texture ID from the framebuffer
+
+	glActiveTexture(GL_TEXTURE0 + slot);  // Activate the specified texture slot
+	unit = slot;
+
+	glBindTexture(GL_TEXTURE_2D, ID);  // Bind the framebuffer's texture
+
+	// No need to set texture parameters or load an image because the texture is already generated
+
+	glBindTexture(GL_TEXTURE_2D, 0);  // Unbind the texture
+}
 void Texture::texUnit(Shader& shader, const char* uniform, GLuint unit)
 {
 	GLuint texUni = glGetUniformLocation(shader.ID, uniform);

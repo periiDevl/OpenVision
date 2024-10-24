@@ -114,7 +114,7 @@ vec4 direcLight()
         lightCoords = (lightCoords + 1.0f) / 2.0f;
         float currentDepth = lightCoords.z;
 
-        float bias = max((bias1 / 1000) * (1.0f - dot(normal, lightDirection)), (bias2 / 30000));
+        float bias = max((bias1) * (1.0f - dot(normal, lightDirection)), (bias2));
         vec2 pixelSize = 1.0 / textureSize(shadowMap, 0);
 
         for (int y = -sampleRadius; y <= sampleRadius; y++)

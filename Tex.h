@@ -14,6 +14,8 @@ public:
 
 	Texture(const char* image, const char* texType, GLuint slot);
 	Texture(const char* image);
+	Texture(GLuint framebufferTexture, GLuint slot);
+
 	void texUnit(Shader& shader, const char* uniform, GLuint unit);
 	void Bind();
 	void Unbind();
