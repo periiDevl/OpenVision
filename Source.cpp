@@ -163,6 +163,7 @@ int main() {
         glActiveTexture(GL_TEXTURE0 + 2);
         glBindTexture(GL_TEXTURE_2D, shadowFramebuffer.getTexture());
         glUniform1i(glGetUniformLocation(shaderProgram.ID, "shadowMap"), 2);
+        window.clear();
 
         glEnable(GL_DEPTH_TEST);
         gird.Draw(shaderProgram, camera3D, 1, glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), glm::vec3(10.0f));
@@ -221,8 +222,8 @@ int main() {
 
             }
         }
-        gizmos.line(glm::vec2(0, .01), glm::vec2(0, -.01), 12, glm::vec3(0));
-        gizmos.line(glm::vec2(.01, 0), glm::vec2(-.01, 0), 12, glm::vec3(0));
+        gizmos.line(glm::vec2(0, .05), glm::vec2(0, -.05), 4, glm::vec3(0));
+        gizmos.line(glm::vec2(.05, 0), glm::vec2(-.05, 0), 4, glm::vec3(0));
         mainFramebuffer.DRAW_SCENE_AS_MAIN_FRAMEBUFFER(frameBufferShader);
         window.update();
 

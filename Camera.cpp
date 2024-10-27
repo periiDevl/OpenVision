@@ -46,6 +46,7 @@ void Camera::Matrix(Shader& shader, const char* uniform)
 
 void Camera::Mouse(GLFWwindow* window)
 {
+
 	if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
 	{
 		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
@@ -79,6 +80,8 @@ void Camera::Mouse(GLFWwindow* window)
 		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 		firstClick = true;
 	}
+
+	
 }
 
 
@@ -135,44 +138,57 @@ void Camera::TrackBallMouse(GLFWwindow* window)
 
 void Camera::Inputs(GLFWwindow* window, float normalSpeed, float highSpeed)
 {
-	if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
+	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
 	{
-		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-		{
-			Position += speed * getDirection(Orientation, false);
-		}
-		if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-		{
-			Position += speed * -getDirection(Orientation, false);
-		}
-		if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-		{
-			Position += speed * -getDirection(glm::cross(Orientation, Up), false);
-		}
-		if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-		{
-			Position += speed * getDirection(glm::cross(Orientation, Up), false);
-		}
-		if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
-		{
-			Position += speed * getDirection(Up, false);
-		}
-		if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
-		{
-			Position += speed * -getDirection(Up, false);
-		}
-
-
-		if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
-		{
-			speed = highSpeed;
-		}
-		else if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_RELEASE)
-		{
-			speed = normalSpeed;
-		}
+		Position += speed * getDirection(Orientation, false);
+	}
+	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+	{
+		Position += speed * -getDirection(Orientation, false);
+	}
+	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+	{
+		Position += speed * -getDirection(glm::cross(Orientation, Up), false);
+	}
+	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+	{
+		Position += speed * getDirection(glm::cross(Orientation, Up), false);
+	}
+	if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
+	{
+		Position += speed * getDirection(Up, false);
+	}
+	if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
+	{
+		Position += speed * -getDirection(Up, false);
 	}
 
+
+	if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
+	{
+		speed = highSpeed;
+	}
+	else if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_RELEASE)
+	{
+		speed = normalSpeed;
+	}
+	float rotationAmount = 0.7f;  // Adjust rotation sensitivity as needed
+	if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
+	{
+		Orientation = glm::rotate(Orientation, glm::radians(rotationAmount), Up);
+	}
+	if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
+	{
+		Orientation = glm::rotate(Orientation, glm::radians(-rotationAmount), Up);
+	}
+	if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
+	{
+		Orientation = glm::rotate(Orientation, glm::radians(rotationAmount), glm::normalize(glm::cross(Orientation, Up)));
+	}
+	if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
+	{
+		Orientation = glm::rotate(Orientation, glm::radians(-rotationAmount), glm::normalize(glm::cross(Orientation, Up)));
+	}
 }
 void Camera::Trackaballmovement(GLFWwindow* window, float normalSpeed, float highSpeed)
 {
