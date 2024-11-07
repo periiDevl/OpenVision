@@ -21,7 +21,7 @@ Model::Model(const char* fl,
 	traverseNode(0);
 }
 
-void Model::Draw(Shader& shader, Camera& camera, float worldSize)
+void Model::Draw(Shader& shader, Camera& camera)
 {
 	shader.Activate();
 	glUniform4f(glGetUniformLocation(shader.ID, "tint"), tint.x * tintMult, tint.y * tintMult, tint.z * tintMult, tint.w * tintMult);
@@ -30,11 +30,11 @@ void Model::Draw(Shader& shader, Camera& camera, float worldSize)
 		for (unsigned int i = 0; i < meshes.size(); i++)
 		{
 
-			meshes[i].Mesh::Draw(shader, camera, matricesMeshes[i], translation, rotation, scale / glm::vec3(worldSize));
+			meshes[i].Mesh::Draw(shader, camera, matricesMeshes[i], translation, rotation, scale);
 		}
 	}
 }
-void Model::Draw(Shader& shader, Camera& camera, float worldSize, glm::vec3 position, glm::vec3 rot, glm::vec3 scale)
+void Model::Draw(Shader& shader, Camera& camera,glm::vec3 position, glm::vec3 rot, glm::vec3 scale)
 {
 	shader.Activate();
 	glUniform4f(glGetUniformLocation(shader.ID, "tint"), tint.x * tintMult, tint.y * tintMult, tint.z * tintMult, tint.w * tintMult);
@@ -42,7 +42,7 @@ void Model::Draw(Shader& shader, Camera& camera, float worldSize, glm::vec3 posi
 	for (unsigned int i = 0; i < meshes.size(); i++)
 	{
 
-		meshes[i].Mesh::Draw(shader, camera, matricesMeshes[i], position, rot, scale / glm::vec3(worldSize));
+		meshes[i].Mesh::Draw(shader, camera, matricesMeshes[i], position, rot, scale);
 	}
 
 }

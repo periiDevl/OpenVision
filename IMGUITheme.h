@@ -10,6 +10,7 @@
 #define MY_THEME_COLOR_HEADER       ImVec4(0.15f, 0.15f, 0.15f, 1.0f)
 #define MY_THEME_COLOR_COLLAPSED    ImVec4(0.3f, 0.3f, 0.3f, 0.6f)
 #define MY_THEME_COLOR_HOVER        ImVec4(0.25f, 0.25f, 0.25f, 1.0f)
+#define MY_THEME_COLOR_KEY        ImVec4(0.35f, 0.35f, 0.75f, 1.0f)
 
 void DefaultTheme()
 {
@@ -20,7 +21,7 @@ void DefaultTheme()
     style.WindowPadding = ImVec2(4, 4);
     style.WindowRounding = 1.0f;
     style.FrameRounding = 1.0f;
-    style.GrabRounding = 4.0f;
+    style.GrabRounding = 2.0f;
     style.ScrollbarRounding = 4.0f;
     style.FrameBorderSize = 1.0f;
     style.WindowTitleAlign = ImVec2(0.5f, 0.5f);
@@ -44,8 +45,8 @@ void DefaultTheme()
     colors[ImGuiCol_ScrollbarGrabHovered] = MY_THEME_COLOR_HOVER;
     colors[ImGuiCol_ScrollbarGrabActive] = MY_THEME_COLOR_PRIMARY;
     colors[ImGuiCol_CheckMark] = MY_THEME_COLOR_PRIMARY;
-    colors[ImGuiCol_SliderGrab] = MY_THEME_COLOR_PRIMARY;
-    colors[ImGuiCol_SliderGrabActive] = MY_THEME_COLOR_PRIMARY;
+    colors[ImGuiCol_SliderGrab] = MY_THEME_COLOR_KEY;
+    colors[ImGuiCol_SliderGrabActive] = MY_THEME_COLOR_KEY;
     colors[ImGuiCol_Button] = MY_THEME_COLOR_PRIMARY;
     colors[ImGuiCol_ButtonHovered] = MY_THEME_COLOR_HOVER;
     colors[ImGuiCol_ButtonActive] = MY_THEME_COLOR_PRIMARY;
