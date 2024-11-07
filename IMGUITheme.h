@@ -17,9 +17,9 @@ void DefaultTheme()
     ImVec4* colors = style.Colors;
 
     // Modify ImGui style settings
-    style.WindowPadding = ImVec2(10, 10);
-    style.WindowRounding = 4.0f;
-    style.FrameRounding = 4.0f;
+    style.WindowPadding = ImVec2(4, 4);
+    style.WindowRounding = 1.0f;
+    style.FrameRounding = 1.0f;
     style.GrabRounding = 4.0f;
     style.ScrollbarRounding = 4.0f;
     style.FrameBorderSize = 1.0f;

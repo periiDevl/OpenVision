@@ -50,7 +50,7 @@ public:
         detectionFramebuffer.unbind();
 
         // Convert pixel color to an object index
-        if (pixel[0] * 256 * 256 + pixel[1] * 256 + pixel[2] == 16777215)
+        if (pixel[0] * 256 * 256 + pixel[1] * 256 + pixel[2] == 16744447)
         {
             return -1;
         }

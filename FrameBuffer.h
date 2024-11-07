@@ -105,6 +105,17 @@ public:
         glBindTexture(GL_TEXTURE_2D,textureColorBuffer);
         glDrawArrays(GL_TRIANGLES, 0, 6);
     }
+    void DRAW_SCENE_AS_MAIN_FRAMEBUFFER(Shader frameBufferShader, GLuint AltFramebuffer, unsigned int pingpongBuffer[2], bool horizontal) {
+        unbind();
+        frameBufferShader.Activate();
+        glBindVertexArray(rectVAO);
+        glDisable(GL_DEPTH_TEST);
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, AltFramebuffer);
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, pingpongBuffer[!horizontal]);
+        glDrawArrays(GL_TRIANGLES, 0, 6);
+    }
     GLuint getTexture() const {
         return textureColorBuffer;
     }
