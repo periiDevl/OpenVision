@@ -3,7 +3,7 @@
 
 #include"json/json.h"
 #include"Mesh.h"
-#include<bullet/btBulletDynamicsCommon.h>
+//#include<bullet/btBulletDynamicsCommon.h>
 #include"Functions.h"
 using json = nlohmann::json;
 
@@ -20,7 +20,7 @@ public:
 	bool bindedphysics = true;
 	bool semi_transparent = false;
 	bool shadowAppro = true;
-	btRigidBody* boxRigidBody = nullptr;
+//	btRigidBody* boxRigidBody = nullptr;
 	glm::vec3 translation = glm::vec3(0);
 	glm::vec3 rotation = glm::vec3(0, 0, 0);
 	glm::vec3 scale = glm::vec3(0);
@@ -47,7 +47,7 @@ public:
 		Camera& camera,
 		glm::vec3 position, glm::vec3 rot, glm::vec3 scale
 	);
-
+	/*
 	btTriangleMesh* getVerticesFromFile(const char* filePath, float divideValue)
 	{
 		btTriangleMesh* triangleMesh = new btTriangleMesh();
@@ -145,7 +145,7 @@ public:
 	}
 
 
-
+	*/
 
 
 	std::string To_string()

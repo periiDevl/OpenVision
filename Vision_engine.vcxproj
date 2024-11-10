@@ -92,7 +92,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>DynaLL;imgui;C:\Users\User\Documents\Programing\OpenVision\Libraries\include\GLFW</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
@@ -102,7 +102,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>opengl32.lib;DynaLL.lib;Winmm.lib;glfw3.lib;glfw3_mt.lib;glfw3dll.lib;gdi32.lib;user32.lib;kernel32.lib;advapi32.lib;shell32.lib</AdditionalDependencies>
+      <AdditionalDependencies>DynaLL.lib;glfw3.lib;glfw3_mt.lib;glfw3dll.lib;opengl32.lib;steam_api.lib;Winmm.lib;gdi32.lib;user32.lib;kernel32.lib;advapi32.lib;shell32.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>C:\Users\User\Documents\Programing\OpenVision\Libraries\lib;Libraries\lib;$(LibraryPath)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
@@ -132,7 +132,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>DynaLL;imgui;C:\Users\User\Documents\Programing\OpenVision\Libraries\include\GLFW</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
@@ -142,7 +142,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>opengl32.lib;DynaLL.lib;Winmm.lib;glfw3.lib;glfw3_mt.lib;glfw3dll.lib;gdi32.lib;user32.lib;kernel32.lib;advapi32.lib;shell32.lib</AdditionalDependencies>
+      <AdditionalDependencies>DynaLL.lib;glfw3.lib;glfw3_mt.lib;glfw3dll.lib;opengl32.lib;steam_api.lib;Winmm.lib;gdi32.lib;user32.lib;kernel32.lib;advapi32.lib;shell32.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>C:\Users\User\Documents\Programing\OpenVision\Libraries\lib;Libraries\lib;$(LibraryPath)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>

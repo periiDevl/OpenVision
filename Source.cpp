@@ -48,9 +48,9 @@ int main() {
 
     GameObject& obj = *objects[0];
     GameObject& obj2 = *objects[1];
-    obj.transform->position = { 1.2, 0 };
+    obj.transform->position = { 2, .5 };
     obj.transform->scale = { 1, 1 };
-    obj2.transform->position = { 0, 0 };
+    obj2.transform->position = { 1.8, -.5 };
     obj2.transform->scale = { 1, 1 };
 
 
@@ -163,7 +163,8 @@ int main() {
     ImGui_ImplOpenGL3_Init("#version 330");
     DefaultTheme();
     ImGuiStyle& style = ImGui::GetStyle();
-    while (window.windowRunning()) {
+    while (window.windowRunning()) 
+    {
         //orthgonalProjection = glm::ortho(-500.0f, 500.0f, -500.0f, 500.0f, 0.0f, far);
         //lightView = glm::lookAt(1300.0f * lightPos, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
         //flightProjection = orthgonalProjection * lightView;
@@ -247,16 +248,17 @@ int main() {
         renderer.tex = Texture(shadowFramebuffer.getTexture(), 0);
         renderer2.setShader(classicShader);
         renderer2.draw(camera1);
-        if (InputSystem::getDown(Inputs::MouseLeft) && !gizmos.isDragging()) {
+        
+        if (InputSystem::getDown(Inputs::MouseLeft) && !gizmos.isDragging()) 
+        {
             selectedObj = mouseDetect.ID_OVER_OBJECT(window, mouseDetectionFramebuffer, unlitShader, camera1, objects);
         }
-        if (selectedObj > -1) {
-
-            gizmos.scaleTextureGizmos(*objects[selectedObj], mousePos, window);
-            gizmos.worldGimzo(*objects[selectedObj], mousePos, window);
+        if (selectedObj > -1) 
+        {
+            gizmos.scaleTextureGizmos(*objects[selectedObj].get(), mousePos, window);
+            gizmos.worldGimzo(*objects[selectedObj].get(), mousePos, window);
             gizmos.Overlap(camera1);
         }
-
 
         coll.position = obj.transform->position;
         coll2.position = obj2.transform->position;

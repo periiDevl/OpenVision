@@ -21,12 +21,12 @@ public:
 	{
 		transform = addComponent<Transform>();
 	}
-	GameObject(std::string name) :
+	GameObject(const std::string& name) :
 		name(name), isActive(true)
 	{
 		transform = addComponent<Transform>();
 	}
-	GameObject(std::string name, bool isActive) :
+	GameObject(const std::string& name, bool isActive) :
 		name(name), isActive(isActive)
 	{
 		transform = addComponent<Transform>();
