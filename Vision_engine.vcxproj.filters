@@ -70,6 +70,8 @@
     <ClCompile Include="Window.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="SampleApplication.cpp" />
+    <ClCompile Include="ShaderManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera2D.h">
@@ -219,6 +221,8 @@
     <ClInclude Include="Window.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="SampleApplication.h" />
+    <ClInclude Include="ShaderManager.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Header Files">

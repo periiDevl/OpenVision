@@ -185,7 +185,9 @@
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="Model.cpp" />
     <ClCompile Include="MyMain.cpp" />
+    <ClCompile Include="SampleApplication.cpp" />
     <ClCompile Include="SaveSystem.cpp" />
+    <ClCompile Include="ShaderManager.cpp" />
     <ClCompile Include="Source.cpp" />
     <ClCompile Include="stb.cpp" />
     <ClCompile Include="Tex.cpp" />
@@ -231,7 +233,9 @@
     <ClInclude Include="OVscriptHandaling.h" />
     <ClInclude Include="PhysHelper.h" />
     <ClInclude Include="Polytope.h" />
+    <ClInclude Include="SampleApplication.h" />
     <ClInclude Include="Shader.h" />
+    <ClInclude Include="ShaderManager.h" />
     <ClInclude Include="Simplex.h" />
     <ClInclude Include="Window.h" />
     <ClInclude Include="Presave.h" />

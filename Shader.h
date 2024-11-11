@@ -9,7 +9,8 @@ class Shader
 {
 public:
 	GLuint ID;
-	Shader(const char* vertexFile, const char* fragmentFile) {
+	Shader(const char* vertexFile, const char* fragmentFile) 
+	{
 
 
 		std::string vertexCode = vertexFile;
