@@ -17,7 +17,7 @@ public:
     GLFWwindow* window;
 
     OverDepth()
-        : unlit_shader(vertexShaderSource, unlitFrag), camera(glm::vec3(0.0f, 0.0f, 0.2f), 1280, 800)
+        : unlit_shader(vertexShaderSource, unlitFrag), camera(glm::vec3(0.0f, 0.0f, 0.2f), 1280, 800), renderer(middle)
 
     {
         Vertex vert[] =
@@ -189,51 +189,51 @@ public:
         line(object.transform->position, glm::vec2(object.transform->position.x + 0.3, object.transform->position.y), 8, glm::vec3(1, 0, 0));
         line(object.transform->position, glm::vec2(object.transform->position.x, object.transform->position.y + 0.3), 8, glm::vec3(0, 1, 0));
         glUniform3f(glGetUniformLocation(unlit_shader.ID, "color"), 0.4, 0.4, 0.4);
-        GameObject middle;
-        TextureRenderer renderer(middle);
-       // renderer.draw(camera, glm::vec3(object.transform->position, 0), glm::vec3(0.1, 0.1, 0), unlit_shader);
-       // middle.transform->position = object.transform->position;
-       // middle.transform->scale = glm::vec2(0.1f, 0.1f);
-       // if (InputSystem::getUp(Inputs::MouseLeft))
-       // {
-       //     Dragging = "";
-       //     object.getComponent<TextureRenderer>().releaseMouse();
-       //     window.setCursor(Window::Cursors::ArrowCursor);
-       //
-       //
-       // }
-       // if (Dragging != "SX" && Dragging != "SY") {
-       //     if (renderer.checkMouseBoundry(mousePos, window.width, window.height) || Dragging == "MD")
-       //     {
-       //         if (InputSystem::getHold(Inputs::MouseLeft) || Dragging == "MD")
-       //         {
-       //             object.getComponent<TextureRenderer>().snapToMouse(mousePos);
-       //             Dragging = "MD";
-       //         }
-       //     }
-       //     else if (checkMouseBoundary(object.transform->position, glm::vec2(object.transform->position.x + 0.3, object.transform->position.y), 10, mousePos) || Dragging == "ML")
-       //     {
-       //         if (InputSystem::getHold(Inputs::MouseLeft) || Dragging == "ML")
-       //         {
-       //             object.getComponent<TextureRenderer>().snapToMouseX(mousePos);
-       //             Dragging = "ML";
-       //         }
-       //     }
-       //     else if (checkMouseBoundary(object.transform->position, glm::vec2(object.transform->position.x, object.transform->position.y + 0.3), 10, mousePos) || Dragging == "MU")
-       //     {
-       //         if (InputSystem::getHold(Inputs::MouseLeft))
-       //         {
-       //             object.getComponent<TextureRenderer>().snapToMouseY(mousePos);
-       //             Dragging = "MU";
-       //         }
-       //     }
-       //
-       // }
+        renderer.draw(camera, glm::vec3(object.transform->position, 0), glm::vec3(0.1, 0.1, 0), unlit_shader);
+        middle.transform->position = object.transform->position;
+        middle.transform->scale = glm::vec2(0.1f, 0.1f);
+        if (InputSystem::getUp(Inputs::MouseLeft))
+        {
+            Dragging = "";
+            object.getComponent<TextureRenderer>().releaseMouse();
+            window.setCursor(Window::Cursors::ArrowCursor);
+       
+       
+        }
+        if (Dragging != "SX" && Dragging != "SY") {
+            if (renderer.checkMouseBoundry(mousePos, window.width, window.height) || Dragging == "MD")
+            {
+                if (InputSystem::getHold(Inputs::MouseLeft) || Dragging == "MD")
+                {
+                    object.getComponent<TextureRenderer>().snapToMouse(mousePos);
+                    Dragging = "MD";
+                }
+            }
+            else if (checkMouseBoundary(object.transform->position, glm::vec2(object.transform->position.x + 0.3, object.transform->position.y), 10, mousePos) || Dragging == "ML")
+            {
+                if (InputSystem::getHold(Inputs::MouseLeft) || Dragging == "ML")
+                {
+                    object.getComponent<TextureRenderer>().snapToMouseX(mousePos);
+                    Dragging = "ML";
+                }
+            }
+            else if (checkMouseBoundary(object.transform->position, glm::vec2(object.transform->position.x, object.transform->position.y + 0.3), 10, mousePos) || Dragging == "MU")
+            {
+                if (InputSystem::getHold(Inputs::MouseLeft))
+                {
+                    object.getComponent<TextureRenderer>().snapToMouseY(mousePos);
+                    Dragging = "MU";
+                }
+            }
+       
+        }
     }
     bool isDragging() {
         return Dragging != "";
     }
 private:
+    GameObject middle;
+    TextureRenderer renderer;
     Camera2D camera;
     Shader unlit_shader;
     std::vector<Vertex> vertices;

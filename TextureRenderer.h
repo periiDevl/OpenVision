@@ -20,36 +20,35 @@ public:
 	TextureRenderer(GameObject& owner) 
 		: Component(owner)
 	{
-		// RENDERING ERROR <- Peri fix it
-		//Vertex vert[] =
-		//{
-		//	Vertex{glm::vec3(-0.5f,  0.5f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec2(0.0f, 0.0f)},
-		//	Vertex{glm::vec3(-0.5f, -0.5f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec2(0.0f, -1.0f)},
-		//	Vertex{glm::vec3(0.5f, -0.5f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec2(1.0f, -1.0f)},
-		//	Vertex{glm::vec3(0.5f,  0.5f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec2(1.0f, 0.0f)}
-		//};
-		//
-		//GLuint indi[] =
-		//{
-		//	0, 1, 2,
-		//	0, 2, 3
-		//};
-		//
-		//vertices = std::vector <Vertex>(vert, vert + sizeof(vert) / sizeof(Vertex));
-		//indices = std::vector <GLuint>(indi, indi + sizeof(indi) / sizeof(GLuint));
-		//
-		//
-		//VAO.Bind();
-		//VBO VBO(vertices);
-		//EBO EBO(indices);
-		//VAO.LinkAttrib(VBO, 0, 3, GL_FLOAT, sizeof(Vertex), (void*)0);
-		//VAO.LinkAttrib(VBO, 1, 3, GL_FLOAT, sizeof(Vertex), (void*)(3 * sizeof(float)));
-		//VAO.LinkAttrib(VBO, 2, 3, GL_FLOAT, sizeof(Vertex), (void*)(6 * sizeof(float)));
-		//VAO.LinkAttrib(VBO, 3, 2, GL_FLOAT, sizeof(Vertex), (void*)(9 * sizeof(float)));
-		////gameObject.transform->position
-		//VAO.Unbind();
-		//VBO.Unbind();
-		//EBO.Unbind();
+		Vertex vert[] =
+		{
+			Vertex{glm::vec3(-0.5f,  0.5f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec2(0.0f, 0.0f)},
+			Vertex{glm::vec3(-0.5f, -0.5f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec2(0.0f, -1.0f)},
+			Vertex{glm::vec3(0.5f, -0.5f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec2(1.0f, -1.0f)},
+			Vertex{glm::vec3(0.5f,  0.5f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec2(1.0f, 0.0f)}
+		};
+		
+		GLuint indi[] =
+		{
+			0, 1, 2,
+			0, 2, 3
+		};
+		
+		vertices = std::vector <Vertex>(vert, vert + sizeof(vert) / sizeof(Vertex));
+		indices = std::vector <GLuint>(indi, indi + sizeof(indi) / sizeof(GLuint));
+		
+		
+		VAO.Bind();
+		VBO VBO(vertices);
+		EBO EBO(indices);
+		VAO.LinkAttrib(VBO, 0, 3, GL_FLOAT, sizeof(Vertex), (void*)0);
+		VAO.LinkAttrib(VBO, 1, 3, GL_FLOAT, sizeof(Vertex), (void*)(3 * sizeof(float)));
+		VAO.LinkAttrib(VBO, 2, 3, GL_FLOAT, sizeof(Vertex), (void*)(6 * sizeof(float)));
+		VAO.LinkAttrib(VBO, 3, 2, GL_FLOAT, sizeof(Vertex), (void*)(9 * sizeof(float)));
+		//gameObject.transform->position
+		VAO.Unbind();
+		VBO.Unbind();
+		EBO.Unbind();
 	}
 
 	Texture tex = Texture("");

@@ -48,7 +48,7 @@ int main() {
 
     GameObject& obj = *objects[0];
     GameObject& obj2 = *objects[1];
-    obj.transform->position = { 2, .5 };
+    obj.transform->position = { 0, .5 };
     obj.transform->scale = { 1, 1 };
     obj2.transform->position = { 1.8, -.5 };
     obj2.transform->scale = { 1, 1 };
