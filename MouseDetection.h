@@ -19,7 +19,7 @@ public:
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         // Activate shader for color picking
-        colorIdShader.Activate();
+        colorIdShader.activate();
 
         // Render each detectable object with a unique color
         for (int i = 0; i < detectableObjects.size(); i++) {

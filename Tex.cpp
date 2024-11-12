@@ -112,7 +112,7 @@ Texture::Texture(GLuint framebufferTexture, GLuint slot)
 void Texture::texUnit(Shader& shader, const char* uniform, GLuint unit)
 {
 	GLuint texUni = glGetUniformLocation(shader.ID, uniform);
-	shader.Activate();
+	shader.activate();
 	glUniform1i(texUni, unit);
 }
 

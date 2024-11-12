@@ -24,6 +24,8 @@
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
+#include "ShaderManager.h"
+#include "EventManager.h"
 // Function declarations
 CSV vert;
 CSF frag;
@@ -31,15 +33,20 @@ float far = 300.000f;
 glm::vec3 lightPos = glm::vec3(0.5f, 0.8f, 0.5f);
 
 float gamma = 1.6f;
-int main() {
+int main() 
+{
+    EventManager::initialize();
+
     // Timers
     Timer fpsTimer, updateFPSTimer;
     updateFPSTimer.start();
 
     // Camera and window setup
-    Camera camera3D(1280, 800, glm::vec3(0.0f, 0.0f, 0.2f));
-    Camera2D camera1(glm::vec3(0.0f, 0.0f, 0.2f), 1280, 800);
-    Window window(camera1);
+    Window window = Window();
+    Camera3D camera3D(1280, 800, glm::vec3(0.0f, 0.0f, 0.2f));
+    Camera2D camera2D(glm::vec3(0.0f, 0.0f, 0.2f), 1280, 800);
+    
+
     // Game objects
 
     std::vector<std::unique_ptr<GameObject>> objects;
@@ -55,26 +62,25 @@ int main() {
 
 
     // Renderer and texture setup
-    TextureRenderer& renderer = *obj.addComponent<TextureRenderer>();
-    TextureRenderer& renderer2 = *obj2.addComponent<TextureRenderer>();
-    Texture EngineOVObjectIconGui("Assets/background.png");
-    renderer.tex = EngineOVObjectIconGui;
-    renderer2.tex = EngineOVObjectIconGui;
+    TextureRenderer& renderer = *obj.addComponent<TextureRenderer>("Assets/background.png");
+    TextureRenderer& renderer2 = *obj2.addComponent<TextureRenderer>("Assets/background.png");
 
     // Colliders
     CircleCollider coll(obj.transform->position, 0.5f);
     CircleCollider coll2(obj2.transform->position, 0.5f);
 
     // Shaders
-    Shader classicShader(vertexShaderSource, fragmentShaderSource);
-    Shader unlitShader(vertexShaderSource, unlitFrag);
-    Shader frameBufferShader(vert.Frame, frag.Frame);
-    Shader frameBufferShader2D(FrameBufferVert, FrameBufferFrag);
-    Shader shaderProgram(vert.Default, frag.Default);
-    Shader shadowMapProgram(vert.ShadowMap, frag.NONE);
-    Shader blurProgram(vert.Frame, frag.Blur);
+    ShaderManager shaders;
+    Shader& classicShader = shaders.addShader("classic", vertexShaderSource, fragmentShaderSource);
+    Shader& unlitShader = shaders.addShader("unlit", vertexShaderSource, unlitFrag);
+    Shader& frameBufferShader = shaders.addShader("frameBuffer", vert.Frame, frag.Frame);
+    Shader& frameBufferShader2D = shaders.addShader("frameBuffer2D", FrameBufferVert, FrameBufferFrag);
+    Shader& shaderProgram = shaders.addShader("shaderProgram", vert.Default, frag.Default);
+    Shader& shadowMapProgram = shaders.addShader("shadowMapProgram", vert.ShadowMap, frag.NONE);
+    Shader& blurProgram = shaders.addShader("blurProgram", vert.Frame, frag.Blur);
+
     // Framebuffer settings
-    frameBufferShader.Activate();
+    frameBufferShader.activate();
     glUniform1i(glGetUniformLocation(frameBufferShader.ID, "screenTexture"), 0);
     glUniform1i(glGetUniformLocation(frameBufferShader.ID, "bloomTexture"), 1);
     glUniform1f(glGetUniformLocation(frameBufferShader.ID, "radius"), 1.0);
@@ -88,7 +94,7 @@ int main() {
 
     glUniform2f(glGetUniformLocation(frameBufferShader.ID, "resolution"), window.width, window.height);
 
-    shaderProgram.Activate();
+    shaderProgram.activate();
 
     glUniform1f(glGetUniformLocation(shaderProgram.ID, "avgShadow"), 1.0f);
     glUniform4f(glGetUniformLocation(shaderProgram.ID, "lightColor"), 1, 1, 1, 1);
@@ -107,7 +113,7 @@ int main() {
 
     glUniform1i(glGetUniformLocation(shaderProgram.ID, "sampleRadius"), 1);
 
-    blurProgram.Activate();
+    blurProgram.activate();
     glUniform1i(glGetUniformLocation(blurProgram.ID, "screenTexture"), 0);
     glUniform1f(glGetUniformLocation(blurProgram.ID, "spreadBlur"), 1.7f);
 
@@ -120,7 +126,7 @@ int main() {
     // Framebuffer instances
 
 
-// Create shadow map framebuffer using the updated Framebuffer class
+    // Create shadow map framebuffer using the updated Framebuffer class
     Framebuffer mainFramebuffer(window.width, window.height);
     Framebuffer mouseDetectionFramebuffer(window.width, window.height);
     PostProcessingFramebuffer postProcessingFramebuffer(window.width, window.height);
@@ -135,10 +141,10 @@ int main() {
     glm::mat4 lightProjection = orthgonalProjection * lightView;
 
 
-    shadowMapProgram.Activate();
+    shadowMapProgram.activate();
     glUniformMatrix4fv(glGetUniformLocation(shadowMapProgram.ID, "lightProjection"), 1, GL_FALSE, glm::value_ptr(lightProjection));
 
-    glm::vec2 mousePos = window.mouseAsWorldPosition(camera1);
+    glm::vec2 mousePos = camera2D.mouseAsWorldPosition();
 
     // Gizmos
     OverDepth gizmos;
@@ -173,7 +179,7 @@ int main() {
         lightView = glm::lookAt(20.0f * lightPos, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
         lightProjection = orthgonalProjection * lightView;
         
-        camera1.updateMatrix(0.1f, far);
+        //camera2D.updateMatrix(0.1f, far);
         camera3D.updateMatrix3D(60, 0.1f, far);
         mainFramebuffer.bind();
         window.clear();
@@ -184,12 +190,12 @@ int main() {
 
         glEnable(GL_DEPTH_TEST);
         glUniform2f(glGetUniformLocation(frameBufferShader.ID, "resolution"), window.width, window.height);
-        shadowMapProgram.Activate();
+        shadowMapProgram.activate();
         glUniformMatrix4fv(glGetUniformLocation(shadowMapProgram.ID, "lightProjection"), 1, GL_FALSE, glm::value_ptr(lightProjection));
         shadowFramebuffer.bind();
         glViewport(0, 0, shadowMapWidth, shadowMapHeight);
         glClear(GL_DEPTH_BUFFER_BIT);
-        shadowMapProgram.Activate();
+        shadowMapProgram.activate();
         if (renderShadows) {
             gird.Draw(shadowMapProgram, camera3D,glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), glm::vec3(10.0f));
             gird1.Draw(shadowMapProgram, camera3D,glm::vec3(0, -10, 0), glm::vec3(0, 0, 0), glm::vec3(20.0f, 5.0f, 20.0f));
@@ -198,7 +204,7 @@ int main() {
         glViewport(0, 0, window.width, window.height);
 
         glEnable(GL_DEPTH_TEST);
-        shaderProgram.Activate();
+        shaderProgram.activate();
         glUniformMatrix4fv(glGetUniformLocation(shaderProgram.ID, "lightProjection"), 1, GL_FALSE, glm::value_ptr(lightProjection));
         glUniform3f(glGetUniformLocation(shaderProgram.ID, "lightPos"), lightPos.x, lightPos.y, lightPos.z);
         glActiveTexture(GL_TEXTURE0 + 2);
@@ -221,7 +227,7 @@ int main() {
         glBindFramebuffer(GL_DRAW_FRAMEBUFFER, postProcessingFramebuffer.FBO);
         glBlitFramebuffer(0, 0, window.width, window.height, 0, 0, window.width, window.height, GL_COLOR_BUFFER_BIT, GL_NEAREST);
         bool horizontal = true, first_iteration = true;
-        blurProgram.Activate();
+        blurProgram.activate();
         int Blur_amount = 8;
         for (unsigned int i = 0; i < Blur_amount; i++) {
             glBindFramebuffer(GL_FRAMEBUFFER, postProcessingFramebuffer.pingpongFBO[horizontal]);
@@ -242,22 +248,22 @@ int main() {
 
 
 
-        glm::vec2 mousePos = window.mouseAsWorldPosition(camera1);
+        glm::vec2 mousePos = camera2D.mouseAsWorldPosition();
         renderer.setShader(classicShader);
-        renderer.draw(camera1);
+        renderer.draw(camera2D);
         renderer.tex = Texture(shadowFramebuffer.getTexture(), 0);
         renderer2.setShader(classicShader);
-        renderer2.draw(camera1);
+        renderer2.draw(camera2D);
         
         if (InputSystem::getDown(Inputs::MouseLeft) && !gizmos.isDragging()) 
         {
-            selectedObj = mouseDetect.ID_OVER_OBJECT(window, mouseDetectionFramebuffer, unlitShader, camera1, objects);
+            selectedObj = mouseDetect.ID_OVER_OBJECT(window, mouseDetectionFramebuffer, unlitShader, camera2D, objects);
         }
         if (selectedObj > -1) 
         {
             gizmos.scaleTextureGizmos(*objects[selectedObj].get(), mousePos, window);
             gizmos.worldGimzo(*objects[selectedObj].get(), mousePos, window);
-            gizmos.Overlap(camera1);
+            gizmos.Overlap(camera2D);
         }
 
         coll.position = obj.transform->position;

@@ -93,7 +93,7 @@ public:
 
     void DRAW_SCENE_AS_MAIN_FRAMEBUFFER(Shader frameBufferShader) {
         unbind();
-        frameBufferShader.Activate();
+        frameBufferShader.activate();
         glBindVertexArray(rectVAO);
         glDisable(GL_DEPTH_TEST);
         glBindTexture(GL_TEXTURE_2D,textureColorBuffer);
@@ -101,7 +101,7 @@ public:
     }
     void DRAW_SCENE_AS_MAIN_FRAMEBUFFER(Shader frameBufferShader, GLuint AltFramebuffer, unsigned int pingpongBuffer[2], bool horizontal) {
         unbind();
-        frameBufferShader.Activate();
+        frameBufferShader.activate();
         glBindVertexArray(rectVAO);
         glDisable(GL_DEPTH_TEST);
         glActiveTexture(GL_TEXTURE0);

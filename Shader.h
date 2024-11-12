@@ -40,12 +40,12 @@ public:
 		glDeleteShader(fragmentShader);
 	}
 
-	void Activate()
+	void activate()
 	{
 		glUseProgram(ID);
 	}
 
-	void Delete()
+	void dispose()
 	{
 		glDeleteProgram(ID);
 	}

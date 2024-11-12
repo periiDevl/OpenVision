@@ -11,12 +11,21 @@
 #include"Camera2D.h"
 #include"Tex.h"
 #include "Shader.h"
+
 class TextureRenderer : public Component
 {
 public:
 	using Component::Component;
 	GLuint shader;
 	
+	TextureRenderer(GameObject& owner, const std::string& texturePath) : TextureRenderer(owner, texturePath.c_str())
+	{ }
+
+	TextureRenderer(GameObject& owner, const char* texturePath) : TextureRenderer(owner)
+	{
+		tex = Texture(texturePath);
+	}
+
 	TextureRenderer(GameObject& owner) 
 		: Component(owner)
 	{
