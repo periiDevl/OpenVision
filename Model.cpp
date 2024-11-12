@@ -21,7 +21,7 @@ Model::Model(const char* fl,
 	traverseNode(0);
 }
 
-void Model::Draw(Shader& shader, Camera& camera)
+void Model::Draw(Shader& shader, Camera3D& camera)
 {
 	shader.Activate();
 	glUniform4f(glGetUniformLocation(shader.ID, "tint"), tint.x * tintMult, tint.y * tintMult, tint.z * tintMult, tint.w * tintMult);
@@ -34,7 +34,7 @@ void Model::Draw(Shader& shader, Camera& camera)
 		}
 	}
 }
-void Model::Draw(Shader& shader, Camera& camera,glm::vec3 position, glm::vec3 rot, glm::vec3 scale)
+void Model::Draw(Shader& shader, Camera3D& camera,glm::vec3 position, glm::vec3 rot, glm::vec3 scale)
 {
 	shader.Activate();
 	glUniform4f(glGetUniformLocation(shader.ID, "tint"), tint.x * tintMult, tint.y * tintMult, tint.z * tintMult, tint.w * tintMult);

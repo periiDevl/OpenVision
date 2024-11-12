@@ -72,6 +72,7 @@
     </ClCompile>
     <ClCompile Include="SampleApplication.cpp" />
     <ClCompile Include="ShaderManager.cpp" />
+    <ClCompile Include="EventManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera2D.h">
@@ -223,6 +224,7 @@
     </ClInclude>
     <ClInclude Include="SampleApplication.h" />
     <ClInclude Include="ShaderManager.h" />
+    <ClInclude Include="EventManager.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Header Files">

@@ -2,17 +2,19 @@
 #define OV_WINDOW_CLASS_H
 
 #include <iostream>
-#include "Camera2D.h"
 #include <stb/stb_image.h>
 #include "glfw3.h"
 #include "glad/glad.h"
 #include "InputSystem.h"
-/*
-void framebuffer_size_callback(GLFWwindow* window, int width, int height)
-{
-	glViewport(0, 0, width, height);
-}*/
+#include "EventManager.h"
 
+class Window;
+
+struct EventWindowResize
+{
+	Window* window;
+	int width, height;
+};
 
 class Window
 {
@@ -20,7 +22,7 @@ public:
 	int width = 1280;
 	int height = 800;
 
-	Window(Camera2D& camera)
+	Window()
 	{
 		glfwInit();
 
@@ -42,22 +44,30 @@ public:
 		//glfwSetWindowAttrib(window, GLFW_RESIZABLE, GLFW_FALSE);
 		//glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 		//glfwSetScrollCallback(window, scroll_callback);
-		Window::s_camera = &camera;
 		glfwSetWindowUserPointer(window, this);
+
+		EventManager::addEvent<EventWindowResize>();
+
+		EventManager::addCallback<EventWindowResize>(
+			[&](const EventWindowResize* resizeEvent)
+			{
+				std::cout << "The new window size is: " << resizeEvent->width << " : " << resizeEvent->height << "\n";
+			}
+		);
 
 		glfwSetWindowSizeCallback(window,
 			[](GLFWwindow* window, int newWidth, int newHeight)
 			{
+				Window* windowObject = static_cast<Window*>(glfwGetWindowUserPointer(window));
+				EventManager::callCallback<EventWindowResize>({windowObject, newWidth, newHeight});
+
 				// Update width and height in the Window class
-				Window::s_camera->setAspectRatio(newWidth, newHeight);
-				Window* win = static_cast<Window*>(glfwGetWindowUserPointer(window));
-				win->width = newWidth;
-				win->height = newHeight;
+				windowObject->width = newWidth;
+				windowObject->height = newHeight;
 
 				glViewport(0, 0, newWidth, newHeight);
-
-
-			});
+			}
+		);
 
 
 		// disable VSync
@@ -76,6 +86,8 @@ public:
 
 		gladLoadGL();
 		glViewport(0, 0, width, height);
+
+		//EventManager::addEvent<EventWindowResize>();
 
 		inputSystem = std::make_unique<InputSystem>(window);
 	}
@@ -132,30 +144,6 @@ public:
 		return !glfwWindowShouldClose(window);
 	}
 
-	glm::vec2 mouseAsWorldPosition(Camera2D& cam)
-	{
-		glm::vec2 mousePos = InputSystem::getMousePosition();
-
-		cam.updateMatrix(0.1, 100);
-
-		float ndcX = (2.0f * mousePos.x) / width - 1.0f;
-		float ndcY = 1.0f - (2.0f * mousePos.y) / height; // Y is inverted in GLFW
-
-		// Step 3: Transform NDC to world coordinates using the inverse projection matrix
-		// Set up the orthographic projection matrix, as before
-		float orthoSize = 1.0f; // Example orthographic size
-		float aspectRatio = static_cast<float>(width) / static_cast<float>(height);
-
-		// Invert the orthographic projection matrix to convert NDC to world coordinates
-		glm::mat4 inverseProjection = glm::inverse(cam.cameraMatrix);
-		glm::vec4 ndcPosition = glm::vec4(ndcX, ndcY, 0.0f, 1.0f);
-		glm::vec4 worldPosition = inverseProjection * ndcPosition;
-
-		// Extract the X and Y world coordinates from the result
-		glm::vec2 worldCoords = glm::vec2(worldPosition.x, worldPosition.y);
-
-		return worldCoords;
-	}
 
 	~Window()
 	{
@@ -167,8 +155,6 @@ public:
 	{
 		return window;
 	}
-
-	static Camera2D* s_camera;
 
 	enum class Cursors
 	{

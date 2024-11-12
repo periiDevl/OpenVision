@@ -2,15 +2,15 @@
 
 
 
-Camera::Camera(int width, int height, glm::vec3 position)
+Camera3D::Camera3D(int width, int height, glm::vec3 position)
 {
-	Camera::width = width;
-	Camera::height = height;
+	Camera3D::width = width;
+	Camera3D::height = height;
 	Position = position;
 }
 
 
-void Camera::updateMatrix2D(float scale, float nearPlane, float farPlane) {
+void Camera3D::updateMatrix2D(float scale, float nearPlane, float farPlane) {
 	glm::mat4 view = glm::mat4(1.0f);
 	glm::mat4 projection = glm::mat4(1.0f);
 
@@ -29,7 +29,7 @@ void Camera::updateMatrix2D(float scale, float nearPlane, float farPlane) {
 
 
 
-void Camera::updateMatrix3D(float FOVdeg, float nearPlane, float farPlane)
+void Camera3D::updateMatrix3D(float FOVdeg, float nearPlane, float farPlane)
 {
 	glm::mat4 view = glm::mat4(1.0f);
 	glm::mat4 projection = glm::mat4(1.0f);
@@ -39,12 +39,12 @@ void Camera::updateMatrix3D(float FOVdeg, float nearPlane, float farPlane)
 
 	cameraMatrix = projection * view;
 }
-void Camera::Matrix(Shader& shader, const char* uniform)
+void Camera3D::Matrix(Shader& shader, const char* uniform)
 {
 	glUniformMatrix4fv(glGetUniformLocation(shader.ID, uniform), 1, GL_FALSE, glm::value_ptr(cameraMatrix));
 }
 
-void Camera::Mouse(GLFWwindow* window)
+void Camera3D::Mouse(GLFWwindow* window)
 {
 
 	if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
@@ -85,7 +85,7 @@ void Camera::Mouse(GLFWwindow* window)
 }
 
 
-void Camera::TrackBallMouse(GLFWwindow* window)
+void Camera3D::TrackBallMouse(GLFWwindow* window)
 {
 
 	if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
@@ -136,7 +136,7 @@ void Camera::TrackBallMouse(GLFWwindow* window)
 }
 
 
-void Camera::Inputs(GLFWwindow* window, float normalSpeed, float highSpeed)
+void Camera3D::Inputs(GLFWwindow* window, float normalSpeed, float highSpeed)
 {
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
 	{
@@ -190,7 +190,7 @@ void Camera::Inputs(GLFWwindow* window, float normalSpeed, float highSpeed)
 		Orientation = glm::rotate(Orientation, glm::radians(-rotationAmount), glm::normalize(glm::cross(Orientation, Up)));
 	}
 }
-void Camera::Trackaballmovement(GLFWwindow* window, float normalSpeed, float highSpeed)
+void Camera3D::Trackaballmovement(GLFWwindow* window, float normalSpeed, float highSpeed)
 {
 
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)

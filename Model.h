@@ -39,12 +39,12 @@ public:
 	void Draw
 	(
 		Shader& shader,
-		Camera& camera
+		Camera3D& camera
 	);
 	void Draw
 	(
 		Shader& shader,
-		Camera& camera,
+		Camera3D& camera,
 		glm::vec3 position, glm::vec3 rot, glm::vec3 scale
 	);
 	/*

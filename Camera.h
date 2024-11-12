@@ -11,7 +11,7 @@
 
 #include"Shader.h"
 
-class Camera
+class Camera3D
 {
 public:
 	glm::vec3 Position;
@@ -39,7 +39,7 @@ public:
 	float speed = 0.1f;
 	float sensitivity = 100.0f;
 
-	Camera(int width, int height, glm::vec3 position);
+	Camera3D(int width, int height, glm::vec3 position);
 	void updateMatrix3D(float FOVdeg, float nearPlane, float frPlane);
 	void updateMatrix2D(float scale, float nearPlane, float farPlane);
 	void Matrix(Shader& shader, const char* uniform);

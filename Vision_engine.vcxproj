@@ -172,6 +172,7 @@
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Camera2D.cpp" />
     <ClCompile Include="EBO.cpp" />
+    <ClCompile Include="EventManager.cpp" />
     <ClCompile Include="glad.c" />
     <ClCompile Include="imgui\imgui.cpp" />
     <ClCompile Include="imgui\imgui_demo.cpp" />
@@ -207,6 +208,7 @@
     <ClInclude Include="CSV.h" />
     <ClInclude Include="EBO.h" />
     <ClInclude Include="EPA.h" />
+    <ClInclude Include="EventManager.h" />
     <ClInclude Include="FileFunctions.h" />
     <ClInclude Include="FrameBuffer.h" />
     <ClInclude Include="Functions.h" />

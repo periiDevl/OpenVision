@@ -8,6 +8,7 @@
 #include<glm/gtc/type_ptr.hpp>
 #include<glm/gtx/rotate_vector.hpp>
 #include<glm/gtx/vector_angle.hpp>
+#include "Window.h"
 
 class Camera2D
 {
@@ -26,5 +27,7 @@ public:
 	glm::mat4 getProjectionMatrix(float FOVdeg, float nearPlane, float farPlane);
 	void updateMatrix(float nearPlane, float farPlane);
 	void Matrix(GLuint shader, const char* uniform);
+
+	glm::vec2 mouseAsWorldPosition();
 };
 #endif
