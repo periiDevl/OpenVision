@@ -9,7 +9,9 @@
 #include<glm/gtx/rotate_vector.hpp>
 #include<glm/gtx/vector_angle.hpp>
 
-#include"Shader.h"
+#include "EventManager.h"
+#include "Window.h"
+#include "Shader.h"
 
 class Camera3D
 {

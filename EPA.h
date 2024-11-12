@@ -11,7 +11,7 @@
 #include "OverDepth.h"
 
 #define EPA_TOLERANCE 0.00001
-#define EPA_MAX_ITERATIONS 250
+#define EPA_MAX_ITERATIONS 20
 
 static void drawPolytope(const Polytope& polytope, OverDepth& gizmos)
 {
