@@ -33,6 +33,7 @@ float far = 300.000f;
 glm::vec3 lightPos = glm::vec3(0.5f, 0.8f, 0.5f);
 
 float gamma = 1.6f;
+float exposure = 1.0f;
 int main() 
 {
     EventManager::initialize();
@@ -90,7 +91,7 @@ int main()
     glUniform1f(glGetUniformLocation(frameBufferShader.ID, "maximumEdgeDetection"), 128);
 
     glUniform1f(glGetUniformLocation(frameBufferShader.ID, "gamma"), gamma);
-    glUniform1f(glGetUniformLocation(frameBufferShader.ID, "exposure"), 1);
+    glUniform1f(glGetUniformLocation(frameBufferShader.ID, "exposure"), exposure);
 
     glUniform2f(glGetUniformLocation(frameBufferShader.ID, "resolution"), window.width, window.height);
 
@@ -187,7 +188,7 @@ int main()
         mouseDetectionFramebuffer.resize(window.width, window.height);
 
         mainFramebuffer.resize(window.width, window.height);
-
+        postProcessingFramebuffer.resize(window.width, window.height);
         glEnable(GL_DEPTH_TEST);
         glUniform2f(glGetUniformLocation(frameBufferShader.ID, "resolution"), window.width, window.height);
         shadowMapProgram.activate();
@@ -292,7 +293,21 @@ int main()
 
         //UI
         ImGui::Begin("Lighting");
+        ImGui::Text("OpenVision 3D graphics :");
+        ImGui::Text("Default settings are fine, but in case of more control over the graphical");
+        ImGui::Text("fidelity, there are several settings in this window to improve or change");
+        ImGui::Text("the graphics. Make sure your hardware is capable of running such settings.");
 
+        ImGui::Separator();
+        ImGui::SetNextItemWidth(80.0f);
+        frameBufferShader.activate();
+        ImGui::InputFloat("Gamma", &gamma);
+        glUniform1f(glGetUniformLocation(frameBufferShader.ID, "gamma"), gamma);
+        ImGui::SetNextItemWidth(80.0f);
+        ImGui::InputFloat("Exposure", &exposure);
+        glUniform1f(glGetUniformLocation(frameBufferShader.ID, "exposure"), exposure);
+
+        ImGui::Separator();
         // Display the shadow texture on the left
         ImGui::BeginGroup();
 
@@ -303,7 +318,11 @@ int main()
 
         ImGui::Image((ImTextureID)shadowFramebuffer.getTexture(), ImVec2(200, 200), ImVec2(0, 1), ImVec2(1, 0));
         ImGui::SameLine();
+        
         ImGui::VSliderFloat("Y", ImVec2(20, 200), &lightY, -1.57f * 100, 1.57f * 100);  // Rotation around X-axis (restricted range)
+        ImGui::SameLine();
+        ImGui::Image((ImTextureID)postProcessingFramebuffer.pingpongBuffer[!horizontal], ImVec2(70, 70), ImVec2(0, 1), ImVec2(1, 0));
+
         ImGui::SetNextItemWidth(200);
         ImGui::SliderFloat("X", &lightX, -3.14f * 10, 3.14f * 10);  // Rotation around Y-axis
         // Rotation speed (this controls how fast the light moves without affecting the slider values)
@@ -344,7 +363,6 @@ int main()
         ImGui::InputInt("ShadowMap Y", &shadowMapHeight,0);
         ImGui::EndGroup();              
         ImGui::Separator();
-        ImGui::Image((ImTextureID)postProcessingFramebuffer.pingpongBuffer[!horizontal], ImVec2(100, 150), ImVec2(0, 1), ImVec2(1, 0));
 
 
         ImGui::End();                   
