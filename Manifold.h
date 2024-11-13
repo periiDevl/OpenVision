@@ -2,15 +2,17 @@
 #define MANIFOLD_H
 
 #include <glm/glm.hpp>
-
-struct Manifold
+namespace physics2D
 {
-	Manifold() {}
+	struct Manifold
+	{
+		Manifold() {}
 
-	glm::vec2 normal;
-	double depth;
+		glm::vec2 normal;
+		double depth;
 
-	glm::vec2 mtv;
-};
+		glm::vec2 mtv;
+	};
+}
 
 #endif

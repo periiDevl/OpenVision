@@ -3,10 +3,13 @@
 
 #include "Component.h"
 
-class Collider : public Component
+namespace physics2D
 {
-	using Component::Component;
+	class Collider : public Component
+	{
+		using Component::Component;
 
-};
+	};
 
+}
 #endif

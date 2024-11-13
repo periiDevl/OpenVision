@@ -7,9 +7,6 @@ Camera3D::Camera3D(int width, int height, glm::vec3 position) : width(width), he
 	EventManager::addCallback<EventWindowResize>(
 		[&](const EventWindowResize* windowResizeData)
 		{
-			width = windowResizeData->width;
-			height = windowResizeData->width;
-
 			// some update . . .
 		}
 	);

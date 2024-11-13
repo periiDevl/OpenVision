@@ -3,20 +3,18 @@
 
 #include "BaseCollider.h"
 
-class CircleCollider : public BaseCollider
+namespace physics2D
 {
-public:
-	CircleCollider(glm::vec2 position, float radius) : radius(radius)
+	class CircleCollider : public BaseCollider
 	{
-		this->position = position;
-	}
+	public:
+		CircleCollider(const glm::vec2 position, float radius);
 
-	float radius;
-
-	glm::vec2 findFurthestPoint(const glm::vec2& direction) const override
-	{
-		return position + direction * radius;
-	}
-};
+		glm::vec2 findFurthestPoint(const glm::vec2& direction) const override;
+	
+	private:
+		float radius;
+	};
+}
 
 #endif

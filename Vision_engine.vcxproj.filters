@@ -76,6 +76,19 @@
     <ClCompile Include="EventManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="EPA.cpp">
+      <Filter>Source Files\Physics</Filter>
+    </ClCompile>
+    <ClCompile Include="PhysicsBody.cpp">
+      <Filter>Source Files\Physics</Filter>
+    </ClCompile>
+    <ClCompile Include="GJK.cpp">
+      <Filter>Source Files\Physics</Filter>
+    </ClCompile>
+    <ClCompile Include="CircleCollider.cpp">
+      <Filter>Source Files\Physics</Filter>
+    </ClCompile>
+    <ClCompile Include="PhysHelper.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Presave.h">
@@ -231,6 +244,9 @@
     <ClInclude Include="EventManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="PhysicsBody.h">
+      <Filter>Header Files\Physics</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Header Files">
@@ -265,6 +281,9 @@
     </Filter>
     <Filter Include="Source Files\Graphics">
       <UniqueIdentifier>{6b0cd5c8-1d03-4310-a2fb-b6b8d556e5de}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Physics">
+      <UniqueIdentifier>{f3569a3d-d9f7-49f5-8751-4884d815f38b}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>
