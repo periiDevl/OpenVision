@@ -171,8 +171,11 @@
   <ItemGroup>
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Camera2D.cpp" />
+    <ClCompile Include="CircleCollider.cpp" />
     <ClCompile Include="EBO.cpp" />
+    <ClCompile Include="EPA.cpp" />
     <ClCompile Include="EventManager.cpp" />
+    <ClCompile Include="GJK.cpp" />
     <ClCompile Include="glad.c" />
     <ClCompile Include="imgui\imgui.cpp" />
     <ClCompile Include="imgui\imgui_demo.cpp" />
@@ -186,6 +189,8 @@
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="Model.cpp" />
     <ClCompile Include="MyMain.cpp" />
+    <ClCompile Include="PhysHelper.cpp" />
+    <ClCompile Include="PhysicsBody.cpp" />
     <ClCompile Include="SaveSystem.cpp" />
     <ClCompile Include="ShaderManager.cpp" />
     <ClCompile Include="Source.cpp" />
@@ -233,6 +238,7 @@
     <ClInclude Include="OV.h" />
     <ClInclude Include="OVscriptHandaling.h" />
     <ClInclude Include="PhysHelper.h" />
+    <ClInclude Include="PhysicsBody.h" />
     <ClInclude Include="Polytope.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="ShaderManager.h" />

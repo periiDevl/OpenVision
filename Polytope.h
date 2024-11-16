@@ -5,49 +5,49 @@
 #include <glm/glm.hpp>
 #include "Simplex.h"
 
-struct Edge
+namespace physics2D
 {
-	Edge() {
 
-	}
-
-	// distance from origin
-	double distance;
-	
-	// the normal to the out of the shape
-	glm::vec2 normal;
-
-	// index of the second point on the polytope
-	int index;
-};
-
-class Polytope
-{
-public:
-
-	Polytope(const Simplex& simplex) : points(simplex.begin(), simplex.end())
+	struct Edge
 	{
-		
-	}
+		Edge() : distance(0), index(-1), normal{0, 0} {}
 
-	void insertAt(const glm::vec2& newPoint, const int& index)
+		// distance from origin
+		double distance;
+
+		// the normal to the out of the shape
+		glm::vec2 normal;
+
+		// index of the second point on the polytope
+		int index;
+	};
+
+	class Polytope
 	{
-		points.emplace(points.begin() + index, newPoint);
-	}
+	public:
 
-	unsigned int getLength() const
-	{
-		return points.size();
-	}
+		Polytope(const Simplex& simplex) : points(simplex.begin(), simplex.end())
+		{ }
 
-	const glm::vec2& operator[](int index) const
-	{
-		return points[index];
-	}
+		void insertAt(const glm::vec2& newPoint, const int& index)
+		{
+			points.emplace(points.begin() + index, newPoint);
+		}
 
-private:
-	std::vector<glm::vec2> points;
-};
+		std::size_t getLength() const
+		{
+			return points.size();
+		}
 
+		const glm::vec2& operator[](int index) const
+		{
+			return points[index];
+		}
+
+	private:
+		std::vector<glm::vec2> points;
+	};
+
+}
 
 #endif

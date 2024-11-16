@@ -3,12 +3,20 @@
 
 #include <glm/glm.hpp>
 
-class BaseCollider
+namespace physics2D
 {
-public:
-	glm::vec2 position;
+	class BaseCollider
+	{
+	protected:
+		BaseCollider(const glm::vec2 position) : position(position) {}
 
-	virtual glm::vec2 findFurthestPoint(const glm::vec2& direction) const = 0;
-};
+	public:
+		virtual glm::vec2 findFurthestPoint(const glm::vec2& direction) const = 0;
+	
+	public:
+		glm::vec2 position;
+
+	};
+}
 
 #endif

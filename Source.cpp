@@ -139,8 +139,8 @@ int main()
     TextureRenderer& renderer2 = *obj2.addComponent<TextureRenderer>("Assets/background.png");
 
     // Colliders
-    CircleCollider coll(obj.transform->position, 0.5f);
-    CircleCollider coll2(obj2.transform->position, 0.5f);
+    physics2D::CircleCollider coll(obj.transform->position, 0.5f);
+    physics2D::CircleCollider coll2(obj2.transform->position, 0.5f);
 
     // Shaders
     ShaderManager shaders;
@@ -351,10 +351,10 @@ int main()
         coll.position = obj.transform->position;
         coll2.position = obj2.transform->position;
 
-        Simplex simplex;
-        if (GJK::isTouching(coll, coll2, simplex))
+        physics2D::Simplex simplex;
+        if (physics2D::GJK::isTouching(coll, coll2, simplex))
         {
-            auto result = EPA::getResolution(coll, coll2, simplex);
+            auto result = physics2D::EPA::getResolution(coll, coll2, simplex);
 
             if (InputSystem::getDown(Inputs::KeySpace))
             {
