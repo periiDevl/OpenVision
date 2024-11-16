@@ -33,6 +33,8 @@ public:
             // Get a reference to the TextureRenderer instead of copying it
             detectableObjects[i]->getComponent<TextureRenderer>().setShader(colorIdShader);
             detectableObjects[i]->getComponent<TextureRenderer>().draw(camera, glm::vec3(detectableObjects[i]->transform->position,0), glm::vec3(detectableObjects[i]->transform->scale + glm::vec2(0.1f), 0), colorIdShader);
+            //models[i].Draw(colorIdShader, cam3d);
+
         }
 
         // Get mouse position in the window

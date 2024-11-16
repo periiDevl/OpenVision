@@ -47,6 +47,30 @@ public:
 	void Inputs(GLFWwindow* window, float ctrlSpeed, float norSpeed);
 	void Mouse(GLFWwindow* window);
 	void TrackBallMouse(GLFWwindow* window);
+	glm::vec3 screenToWorldRay(float mouseX, float mouseY) {
+		// Convert mouse coordinates to normalized device coordinates (NDC)
+		float x = (2.0f * mouseX) / width - 1.0f;
+		float y = 1.0f - (2.0f * mouseY) / height; // Invert y-axis to match OpenGL's convention
+
+		// Create the Ray in world space (start and direction)
+		glm::vec4 ray_clip(x, y, -1.0f, 1.0f); // z = -1 (near plane), w = 1 (homogeneous coordinates)
+
+		// Calculate the inverse of the projection * view matrix
+		glm::mat4 inverse_proj_view = glm::inverse(cameraMatrix);
+
+		// Transform the ray from clip space to world space
+		glm::vec4 ray_eye = inverse_proj_view * ray_clip;
+		ray_eye /= ray_eye.w; // Normalize by the w component (homogeneous division)
+
+		// Calculate the direction of the ray (normalized)
+		glm::vec3 ray_world = glm::normalize(glm::vec3(ray_eye));
+
+		// Ray origin is the camera's position
+		glm::vec3 ray_origin = Position;
+
+		// Return the ray origin and direction as a pair (or modify as needed)
+		return ray_origin + ray_world * 100.0f;  // Adjust 100.0f based on desired range
+	}
 
 private:
 	glm::vec2 mouse;
