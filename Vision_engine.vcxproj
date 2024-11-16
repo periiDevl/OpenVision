@@ -173,6 +173,7 @@
     <ClCompile Include="Camera2D.cpp" />
     <ClCompile Include="CircleCollider.cpp" />
     <ClCompile Include="EBO.cpp" />
+    <ClCompile Include="Entity.cpp" />
     <ClCompile Include="EPA.cpp" />
     <ClCompile Include="EventManager.cpp" />
     <ClCompile Include="GJK.cpp" />
@@ -201,16 +202,19 @@
     <ClCompile Include="Window.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Archetype.h" />
     <ClInclude Include="BaseCollider.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Camera2D.h" />
     <ClInclude Include="CircleCollider.h" />
     <ClInclude Include="Collider.h" />
     <ClInclude Include="Component.h" />
+    <ClInclude Include="ComponentList.h" />
     <ClInclude Include="Console.h" />
     <ClInclude Include="CSF.h" />
     <ClInclude Include="CSV.h" />
     <ClInclude Include="EBO.h" />
+    <ClInclude Include="Entity.h" />
     <ClInclude Include="EPA.h" />
     <ClInclude Include="EventManager.h" />
     <ClInclude Include="FileFunctions.h" />
@@ -243,6 +247,7 @@
     <ClInclude Include="Shader.h" />
     <ClInclude Include="ShaderManager.h" />
     <ClInclude Include="Simplex.h" />
+    <ClInclude Include="UUID.h" />
     <ClInclude Include="Window.h" />
     <ClInclude Include="Presave.h" />
     <ClInclude Include="SaveSystem.h" />

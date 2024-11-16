@@ -89,6 +89,7 @@
       <Filter>Source Files\Physics</Filter>
     </ClCompile>
     <ClCompile Include="PhysHelper.cpp" />
+    <ClCompile Include="Entity.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Presave.h">
@@ -247,6 +248,18 @@
     <ClInclude Include="PhysicsBody.h">
       <Filter>Header Files\Physics</Filter>
     </ClInclude>
+    <ClInclude Include="UUID.h">
+      <Filter>Header Files\Helper</Filter>
+    </ClInclude>
+    <ClInclude Include="Entity.h">
+      <Filter>Header Files\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="Archetype.h">
+      <Filter>Header Files\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="ComponentList.h">
+      <Filter>Header Files\Components</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Header Files">
@@ -284,6 +297,9 @@
     </Filter>
     <Filter Include="Source Files\Physics">
       <UniqueIdentifier>{f3569a3d-d9f7-49f5-8751-4884d815f38b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Components">
+      <UniqueIdentifier>{7ea90f8b-26a0-48ea-8b7e-d1316cd87bd4}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>
