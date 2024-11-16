@@ -31,6 +31,78 @@ CSV vert;
 CSF frag;
 float far = 300.000f;
 glm::vec3 lightPos = glm::vec3(0.5f, 0.8f, 0.5f);
+void moveObjectAlongMouse(
+    Camera3D& camera3D,
+    glm::vec3& obj,
+    glm::vec2 mouseDelta,
+    int screenWidth,
+    int screenHeight,
+    bool moveAlongX,
+    bool moveAlongY,
+    bool moveAlongZ)
+{
+    // Sensitivity to scale mouse movement
+    float sensitivity = 0.01f; // Adjust as needed
+    glm::vec2 normalizedDelta = mouseDelta * sensitivity;
+
+    // Get camera directions (right, up, forward)
+    glm::vec3 rightDirection = glm::normalize(glm::cross(camera3D.Orientation, camera3D.Up)); // Camera right (X direction)
+    glm::vec3 upDirection = glm::normalize(camera3D.Up); // Camera up (Y direction)
+    glm::vec3 forwardDirection = glm::normalize(camera3D.Orientation); // Camera forward (Z direction)
+
+    // Compute movement vector based on mouse delta
+    glm::vec3 movement(0.0f, 0.0f, 0.0f);
+
+    // Calculate dot products for determining parallelism (how much the vectors are aligned)
+    float dotRight = glm::dot(rightDirection, forwardDirection);  // Parallelism with forward (X-axis)
+    float dotUp = glm::dot(upDirection, forwardDirection);        // Parallelism with forward (Y-axis)
+    float dotForward = glm::dot(forwardDirection, forwardDirection); // Just 1 (always parallel)
+
+    // Sensitivity adjustment based on parallelism (closer to parallel -> smaller sensitivity)
+    float xSensitivity = 1.0f - fabs(dotRight);  // The more parallel, the less movement is along X
+    float ySensitivity = 1.0f - fabs(dotUp);     // The more parallel, the less movement is along Y
+    float zSensitivity = 1.0f - fabs(dotForward); // The more parallel, the less movement is along Z
+
+    // Threshold for parallelism to include Y influence for X and X influence for Z
+
+    // Movement along the X axis
+    if (moveAlongX) {
+        // Basic movement along X based on the mouse X
+        movement.x = rightDirection.x * normalizedDelta.x * xSensitivity;
+
+        if (forwardDirection.x < 0.0f) {
+            movement.x -= normalizedDelta.y * xSensitivity; // Invert Y influence
+        }
+        else {
+            movement.x += normalizedDelta.y * xSensitivity; // Normal Y influence
+        }
+    }
+
+    // Movement along the Y axis
+    if (moveAlongY) {
+        movement.y = upDirection.y * normalizedDelta.y * ySensitivity;
+    }
+
+    // Movement along the Z axis
+    if (moveAlongZ) {
+
+
+        if (forwardDirection.x < 0.0f) {
+            movement.z -= normalizedDelta.y * xSensitivity; // Invert Y influence
+            movement.z = -rightDirection.x * normalizedDelta.x * xSensitivity;
+        }
+        else {
+            movement.z += normalizedDelta.y * xSensitivity; // Normal Y influence
+            movement.z = rightDirection.x * normalizedDelta.x * xSensitivity;
+        }
+    }
+
+
+    // Scale movement by screen dimensions
+    movement *= glm::vec3(screenWidth * 8.0f, screenHeight * 8.0f, screenWidth * 8.0f);
+    obj += movement;
+}
+
 
 float gamma = 1.6f;
 float exposure = 1.0f;
@@ -155,7 +227,6 @@ int main()
     // Main loop
 
     MouseDetection mouseDetect;
-    std::vector<TextureRenderer> detectableObjects = { renderer, renderer2 };
     int selectedObj = -1;
 
     Model gird("models/cube/scene.gltf");
@@ -170,6 +241,10 @@ int main()
     ImGui_ImplOpenGL3_Init("#version 330");
     DefaultTheme();
     ImGuiStyle& style = ImGui::GetStyle();
+    glm::vec3 camPos;
+    std::vector<Model> models;
+    models.push_back(gird);
+    models.push_back(grass);
     while (window.windowRunning()) 
     {
         //orthgonalProjection = glm::ortho(-500.0f, 500.0f, -500.0f, 500.0f, 0.0f, far);
@@ -186,7 +261,6 @@ int main()
         window.clear();
         fpsTimer.start();
         mouseDetectionFramebuffer.resize(window.width, window.height);
-
         mainFramebuffer.resize(window.width, window.height);
         postProcessingFramebuffer.resize(window.width, window.height);
         glEnable(GL_DEPTH_TEST);
@@ -214,7 +288,7 @@ int main()
         window.clear();
 
         glEnable(GL_DEPTH_TEST);
-        gird.Draw(shaderProgram, camera3D, glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), glm::vec3(10.0f));
+        gird.Draw(shaderProgram, camera3D, camPos, glm::vec3(0, 0, 0), glm::vec3(10.0f));
         gird.Draw(shaderProgram, camera3D, glm::vec3(0, 21, 0), glm::vec3(0, 0, 0), glm::vec3(10.0f));
         grass.Draw(shaderProgram, camera3D, glm::vec3(0, -10, 0), glm::vec3(0, 0, 0), glm::vec3(5.0f));
         gird1.Draw(shaderProgram, camera3D, glm::vec3(0, -10, 0), glm::vec3(0, 0, 0), glm::vec3(20.0f, 5.0f, 20.0f));
@@ -258,6 +332,7 @@ int main()
         
         if (InputSystem::getDown(Inputs::MouseLeft) && !gizmos.isDragging()) 
         {
+            
             selectedObj = mouseDetect.ID_OVER_OBJECT(window, mouseDetectionFramebuffer, unlitShader, camera2D, objects);
         }
         if (selectedObj > -1) 
@@ -266,7 +341,13 @@ int main()
             gizmos.worldGimzo(*objects[selectedObj].get(), mousePos, window);
             gizmos.Overlap(camera2D);
         }
+        static glm::vec2 lastMousePos(0.0f, 0.0f);
 
+        // Calculate mouse delta
+        glm::vec2 mouseDelta = mousePos - lastMousePos;
+        lastMousePos = mousePos;
+        moveObjectAlongMouse(camera3D, camPos,mouseDelta, window.width, window.height, false, false, true) ;
+        
         coll.position = obj.transform->position;
         coll2.position = obj2.transform->position;
 
@@ -363,7 +444,7 @@ int main()
         ImGui::InputInt("ShadowMap Y", &shadowMapHeight,0);
         ImGui::EndGroup();              
         ImGui::Separator();
-
+        std::cout << selectedObj << std::endl;
 
         ImGui::End();                   
                                         
