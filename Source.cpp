@@ -31,77 +31,6 @@ CSV vert;
 CSF frag;
 float far = 300.000f;
 glm::vec3 lightPos = glm::vec3(0.5f, 0.8f, 0.5f);
-void moveObjectAlongMouse(
-    Camera3D& camera3D,
-    glm::vec3& obj,
-    glm::vec2 mouseDelta,
-    int screenWidth,
-    int screenHeight,
-    bool moveAlongX,
-    bool moveAlongY,
-    bool moveAlongZ)
-{
-    // Sensitivity to scale mouse movement
-    float sensitivity = 0.01f; // Adjust as needed
-    glm::vec2 normalizedDelta = mouseDelta * sensitivity;
-
-    // Get camera directions (right, up, forward)
-    glm::vec3 rightDirection = glm::normalize(glm::cross(camera3D.Orientation, camera3D.Up)); // Camera right (X direction)
-    glm::vec3 upDirection = glm::normalize(camera3D.Up); // Camera up (Y direction)
-    glm::vec3 forwardDirection = glm::normalize(camera3D.Orientation); // Camera forward (Z direction)
-
-    // Compute movement vector based on mouse delta
-    glm::vec3 movement(0.0f, 0.0f, 0.0f);
-
-    // Calculate dot products for determining parallelism (how much the vectors are aligned)
-    float dotRight = glm::dot(rightDirection, forwardDirection);  // Parallelism with forward (X-axis)
-    float dotUp = glm::dot(upDirection, forwardDirection);        // Parallelism with forward (Y-axis)
-    float dotForward = glm::dot(forwardDirection, forwardDirection); // Just 1 (always parallel)
-
-    // Sensitivity adjustment based on parallelism (closer to parallel -> smaller sensitivity)
-    float xSensitivity = 1.0f - fabs(dotRight);  // The more parallel, the less movement is along X
-    float ySensitivity = 1.0f - fabs(dotUp);     // The more parallel, the less movement is along Y
-    float zSensitivity = 1.0f - fabs(dotForward); // The more parallel, the less movement is along Z
-
-    // Threshold for parallelism to include Y influence for X and X influence for Z
-
-    // Movement along the X axis
-    if (moveAlongX) {
-        // Basic movement along X based on the mouse X
-        movement.x = rightDirection.x * normalizedDelta.x * xSensitivity;
-
-        if (forwardDirection.x < 0.0f) {
-            movement.x -= normalizedDelta.y * xSensitivity; // Invert Y influence
-        }
-        else {
-            movement.x += normalizedDelta.y * xSensitivity; // Normal Y influence
-        }
-    }
-
-    // Movement along the Y axis
-    if (moveAlongY) {
-        movement.y = upDirection.y * normalizedDelta.y * ySensitivity;
-    }
-
-    // Movement along the Z axis
-    if (moveAlongZ) {
-
-
-        if (forwardDirection.x < 0.0f) {
-            movement.z -= normalizedDelta.y * xSensitivity; // Invert Y influence
-            movement.z = -rightDirection.x * normalizedDelta.x * xSensitivity;
-        }
-        else {
-            movement.z += normalizedDelta.y * xSensitivity; // Normal Y influence
-            movement.z = rightDirection.x * normalizedDelta.x * xSensitivity;
-        }
-    }
-
-
-    // Scale movement by screen dimensions
-    movement *= glm::vec3(screenWidth * 8.0f, screenHeight * 8.0f, screenWidth * 8.0f);
-    obj += movement;
-}
 
 
 float gamma = 1.6f;
@@ -346,23 +275,13 @@ int main()
         // Calculate mouse delta
         glm::vec2 mouseDelta = mousePos - lastMousePos;
         lastMousePos = mousePos;
-        moveObjectAlongMouse(camera3D, camPos,mouseDelta, window.width, window.height, false, false, true) ;
+        //moveObjectAlongMouse(camera3D, camPos,mouseDelta, window.width, window.height, false, false, false) ;
         
         coll.position = obj.transform->position;
         coll2.position = obj2.transform->position;
 
         physics2D::Simplex simplex;
-        if (physics2D::GJK::isTouching(coll, coll2, simplex))
-        {
-            auto result = physics2D::EPA::getResolution(coll, coll2, simplex);
-
-            if (InputSystem::getDown(Inputs::KeySpace))
-            {
-                obj.transform->position -= (float)result.depth * result.normal * 0.5f;
-                obj2.transform->position += (float)result.depth * result.normal * 0.5f;
-
-            }
-        }
+        
         gizmos.line(glm::vec2(0, .05), glm::vec2(0, -.05), 4, glm::vec3(0));
         gizmos.line(glm::vec2(.05, 0), glm::vec2(-.05, 0), 4, glm::vec3(0));
 

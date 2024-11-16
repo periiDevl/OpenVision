@@ -52,6 +52,67 @@ public:
     void Overlap(Camera2D cam) {
         camera = cam;
     }
+    void moveObjectAlongMouse(
+        Camera3D& camera3D,
+        glm::vec3& obj,
+        glm::vec2 mouseDelta,
+        int screenWidth,
+        int screenHeight,
+        bool moveAlongX,
+        bool moveAlongY,
+        bool moveAlongZ)
+    {
+        float sensitivity = 0.01f;
+        glm::vec2 normalizedDelta = mouseDelta * sensitivity;
+
+        glm::vec3 rightDirection = glm::normalize(glm::cross(camera3D.Orientation, camera3D.Up));
+        glm::vec3 upDirection = glm::normalize(camera3D.Up);
+        glm::vec3 forwardDirection = glm::normalize(camera3D.Orientation);
+
+        glm::vec3 movement(0.0f, 0.0f, 0.0f);
+
+        float dotRight = glm::dot(rightDirection, forwardDirection);
+        float dotUp = glm::dot(upDirection, forwardDirection);
+        float dotForward = glm::dot(forwardDirection, forwardDirection);
+
+        float xSensitivity = 1.0f - fabs(dotRight);
+        float ySensitivity = 1.0f - fabs(dotUp);
+        float zSensitivity = 1.0f - fabs(dotForward);
+
+        if (moveAlongX) {
+            movement.x = rightDirection.x * normalizedDelta.x * xSensitivity;
+
+            if (forwardDirection.x < 0.0f) {
+                movement.x -= normalizedDelta.y * xSensitivity;
+            }
+            else {
+                movement.x += normalizedDelta.y * xSensitivity;
+            }
+        }
+
+        if (moveAlongY) {
+            movement.y = upDirection.y * normalizedDelta.y * ySensitivity;
+        }
+
+        if (moveAlongZ) {
+
+            movement.z = forwardDirection.x * normalizedDelta.x * xSensitivity;
+
+            if (rightDirection.x < 0.0f) {
+                movement.z = normalizedDelta.y * xSensitivity;
+            }
+            else {
+                movement.z -= normalizedDelta.y * xSensitivity;
+
+            }
+
+
+        }
+
+
+        movement *= glm::vec3((screenWidth / screenHeight) * 10000);
+        obj += movement;
+    }
 
     void line(glm::vec2 start, glm::vec2 end, float thickness, glm::vec3 color)
     {
