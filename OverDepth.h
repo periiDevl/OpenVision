@@ -10,7 +10,7 @@
 #include "Camera2D.h"
 #include "Shader.h"
 #include <vector>
-
+#include "Camera.h"
 class OverDepth
 {
 public:
@@ -52,68 +52,7 @@ public:
     void Overlap(Camera2D cam) {
         camera = cam;
     }
-    void moveObjectAlongMouse(
-        Camera3D& camera3D,
-        glm::vec3& obj,
-        glm::vec2 mouseDelta,
-        int screenWidth,
-        int screenHeight,
-        bool moveAlongX,
-        bool moveAlongY,
-        bool moveAlongZ)
-    {
-        float sensitivity = 0.01f;
-        glm::vec2 normalizedDelta = mouseDelta * sensitivity;
-
-        glm::vec3 rightDirection = glm::normalize(glm::cross(camera3D.Orientation, camera3D.Up));
-        glm::vec3 upDirection = glm::normalize(camera3D.Up);
-        glm::vec3 forwardDirection = glm::normalize(camera3D.Orientation);
-
-        glm::vec3 movement(0.0f, 0.0f, 0.0f);
-
-        float dotRight = glm::dot(rightDirection, forwardDirection);
-        float dotUp = glm::dot(upDirection, forwardDirection);
-        float dotForward = glm::dot(forwardDirection, forwardDirection);
-
-        float xSensitivity = 1.0f - fabs(dotRight);
-        float ySensitivity = 1.0f - fabs(dotUp);
-        float zSensitivity = 1.0f - fabs(dotForward);
-
-        if (moveAlongX) {
-            movement.x = rightDirection.x * normalizedDelta.x * xSensitivity;
-
-            if (forwardDirection.x < 0.0f) {
-                movement.x -= normalizedDelta.y * xSensitivity;
-            }
-            else {
-                movement.x += normalizedDelta.y * xSensitivity;
-            }
-        }
-
-        if (moveAlongY) {
-            movement.y = upDirection.y * normalizedDelta.y * ySensitivity;
-        }
-
-        if (moveAlongZ) {
-
-            movement.z = forwardDirection.x * normalizedDelta.x * xSensitivity;
-
-            if (rightDirection.x < 0.0f) {
-                movement.z = normalizedDelta.y * xSensitivity;
-            }
-            else {
-                movement.z -= normalizedDelta.y * xSensitivity;
-
-            }
-
-
-        }
-
-
-        movement *= glm::vec3((screenWidth / screenHeight) * 10000);
-        obj += movement;
-    }
-
+    
     void line(glm::vec2 start, glm::vec2 end, float thickness, glm::vec3 color)
     {
         glLineWidth(thickness);
@@ -154,6 +93,65 @@ public:
 
         VAO.Unbind();
     }
+    void line(glm::vec3 start, glm::vec3 end, float thickness, glm::vec3 color,
+        Camera3D camera, int screenWidth, int screenHeight, float FOVdeg, float nearPlane, float frPlane)
+    {
+        glLineWidth(thickness);
+        glDisable(GL_DEPTH_TEST);
+        glClear(GL_DEPTH_BUFFER_BIT);
+
+        glUseProgram(unlit_shader.ID);
+        VAO.Bind();
+
+        // Update line start and end positions
+        vertices[0].position = start;
+        vertices[1].position = end;
+
+        // Update the VBO with new vertex data
+        VBO->Bind();
+        glBufferSubData(GL_ARRAY_BUFFER, 0, vertices.size() * sizeof(Vertex), vertices.data());
+        VBO->Unbind();
+
+        // Get model, view, and projection matrices from the Camera3D object
+        glm::mat4 model = glm::mat4(1.0f); // Assuming no additional transformations
+        glm::mat4 view = camera.getViewMatrix();
+        glm::mat4 projection = camera.getProjectionMatrix(60.0f, 0.1f, 100.0f);
+
+        // Combine matrices
+        glm::mat4 mvp = projection * view * model;
+
+        // Project 3D points to screen space
+        glm::vec4 clipStart = mvp * glm::vec4(start, 1.0f);
+        glm::vec4 clipEnd = mvp * glm::vec4(end, 1.0f);
+
+        glm::vec2 screenStart = glm::vec2(
+            (clipStart.x / clipStart.w * 0.5f + 0.5f) * 1280,
+            (1.0f - (clipStart.y / clipStart.w * 0.5f + 0.5f)) * 800 // Flip Y-axis
+        );
+
+        glm::vec2 screenEnd = glm::vec2(
+            (clipEnd.x / clipEnd.w * 0.5f + 0.5f) * 1280,
+            (1.0f - (clipEnd.y / clipEnd.w * 0.5f + 0.5f)) * 800
+        );
+
+        // Send uniforms to the shader
+        glUniformMatrix4fv(glGetUniformLocation(unlit_shader.ID, "model"), 1, GL_FALSE, glm::value_ptr(model));
+        glUniform3f(glGetUniformLocation(unlit_shader.ID, "camPos"), camera.Position.x, camera.Position.y, camera.Position.z);
+        camera.Matrix(unlit_shader, "camMatrix");
+        glUniform3f(glGetUniformLocation(unlit_shader.ID, "color"), color.x, color.y, color.z);
+
+        // Draw the line
+        glDrawElements(GL_LINES, indices.size(), GL_UNSIGNED_INT, 0);
+
+        glEnable(GL_DEPTH_TEST);
+        VAO.Unbind();
+
+        // Debug or use the calculated screen positions
+        std::cout << "Screen Start: (" << screenStart.x << ", " << screenStart.y << ")\n";
+        std::cout << "Screen End: (" << screenEnd.x << ", " << screenEnd.y << ")\n";
+    }
+
+
 
     bool checkMouseBoundary(glm::vec2 start, glm::vec2 end, float thickness__line, glm::vec2 mousePos)
     {

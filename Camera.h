@@ -73,7 +73,15 @@ public:
 		// Return the ray origin and direction as a pair (or modify as needed)
 		return ray_origin + ray_world * 100.0f;  // Adjust 100.0f based on desired range
 	}
+	// Method to retrieve the view matrix
+	glm::mat4 getViewMatrix() const {
+		return glm::lookAt(Position, Position + Orientation, Up);
+	}
 
+	// Method to retrieve the projection matrix
+	glm::mat4 getProjectionMatrix(float FOVdeg, float nearPlane, float farPlane) const {
+		return glm::perspective(glm::radians(FOVdeg), (float)width / height, nearPlane, farPlane);
+	}
 private:
 	glm::vec2 mouse;
 };
