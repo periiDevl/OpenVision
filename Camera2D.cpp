@@ -65,6 +65,39 @@ glm::vec2 Camera2D::mouseAsWorldPosition()
 
 	return worldCoords;
 }
+glm::vec2 Camera2D::worldToScreen(glm::vec2 worldPosition)
+{
+    // Convert world position to homogeneous coordinates
+    glm::vec4 worldPos = glm::vec4(worldPosition, 0.0f, 1.0f);
+
+    // Transform world coordinates to clip space using the camera matrix
+    glm::vec4 clipSpacePosition = cameraMatrix * worldPos;
+
+    // Convert clip space to normalized device coordinates (NDC)
+    glm::vec3 ndcPosition = glm::vec3(clipSpacePosition) / clipSpacePosition.w;
+
+    // Convert NDC to screen coordinates
+    float screenX = ((ndcPosition.x + 1.0f) / 2.0f) * width;
+    float screenY = ((1.0f - ndcPosition.y) / 2.0f) * height; // Y-axis is inverted
+
+    return glm::vec2(screenX, screenY);
+}
+glm::vec2 Camera2D::screenToWorld(glm::vec2 screenPosition)
+{
+    // Convert screen coordinates to normalized device coordinates (NDC)
+    float ndcX = (2.0f * screenPosition.x) / width - 1.0f;
+    float ndcY = 1.0f - (2.0f * screenPosition.y) / height; // Y-axis is inverted
+
+    // Convert NDC to clip space (homogeneous coordinates)
+    glm::vec4 clipSpacePosition = glm::vec4(ndcX, ndcY, 0.0f, 1.0f);
+
+    // Transform clip space to world coordinates using the inverse camera matrix
+    glm::mat4 inverseCameraMatrix = glm::inverse(cameraMatrix);
+    glm::vec4 worldPosition = inverseCameraMatrix * clipSpacePosition;
+
+    // Return the world position as a 2D vector
+    return glm::vec2(worldPosition.x, worldPosition.y);
+}
 
 glm::mat4 Camera2D::getViewMatrix()
 {

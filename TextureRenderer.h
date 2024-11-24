@@ -293,6 +293,36 @@ public:
 	{
 		offset = glm::vec2(0.0f, 0.0f); // Reset offset when the mouse button is released
 	}
+	glm::vec3 windowToObjectPosition(glm::vec2 windowPos, int windowWidth, int windowHeight, Camera2D& camera) {
+		// Convert window position to Normalized Device Coordinates (NDC)
+		float xNDC = (2.0f * windowPos.x) / windowWidth - 1.0f;
+		float yNDC = 1.0f - (2.0f * windowPos.y) / windowHeight; // Invert Y-axis
+		glm::vec4 ndcCoords = glm::vec4(xNDC, yNDC, 0.0f, 1.0f); // Z is 0 for 2D
+
+		// Get the inverse of the camera's transformation matrix
+		glm::mat4 invCamMatrix = glm::inverse(camera.cameraMatrix);
+
+		// Transform the NDC coordinates to world space
+		glm::vec4 worldCoords = invCamMatrix * ndcCoords;
+
+		// Return the world position
+		return glm::vec3(worldCoords.x, worldCoords.y, 0.0f);
+	}
+	glm::vec2 worldToWindowPosition(glm::vec3 worldPos, int windowWidth, int windowHeight, Camera2D& camera) {
+		// Get the camera's transformation matrix
+
+		// Transform the world position to clip space
+		glm::vec4 clipSpace = camera.cameraMatrix * glm::vec4(worldPos, 1.0f);
+
+		// Perform perspective divide to get Normalized Device Coordinates (NDC)
+		glm::vec3 ndc = glm::vec3(clipSpace) / clipSpace.w;
+
+		// Convert NDC to window coordinates
+		float xWindow = (ndc.x + 1.0f) * 0.5f * windowWidth;
+		float yWindow = (1.0f - ndc.y) * 0.5f * windowHeight; // Invert Y-axis for window coordinates
+
+		return glm::vec2(xWindow, yWindow);
+	}
 
 
 private:

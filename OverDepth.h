@@ -52,7 +52,7 @@ public:
     void Overlap(Camera2D cam) {
         camera = cam;
     }
-    
+ 
     void line(glm::vec2 start, glm::vec2 end, float thickness, glm::vec3 color)
     {
         glLineWidth(thickness);
@@ -93,8 +93,9 @@ public:
 
         VAO.Unbind();
     }
+
     void line(glm::vec3 start, glm::vec3 end, float thickness, glm::vec3 color,
-        Camera3D camera, int screenWidth, int screenHeight, float FOVdeg, float nearPlane, float frPlane)
+        Camera3D camera, int screenWidth, int screenHeight, float FOVdeg, float nearPlane, float frPlane, Camera2D cam2d, glm::vec2 mousePos,float& interX)
     {
         glLineWidth(thickness);
         glDisable(GL_DEPTH_TEST);
@@ -125,13 +126,14 @@ public:
         glm::vec4 clipEnd = mvp * glm::vec4(end, 1.0f);
 
         glm::vec2 screenStart = glm::vec2(
-            (clipStart.x / clipStart.w * 0.5f + 0.5f) * 1280,
-            (1.0f - (clipStart.y / clipStart.w * 0.5f + 0.5f)) * 800 // Flip Y-axis
+            (clipStart.x / clipStart.w * 0.5f + 0.5f) * screenWidth,
+            (1.0f - (clipStart.y / clipStart.w * 0.5f + 0.5f)) * screenHeight // Flip Y-axis
         );
 
+
         glm::vec2 screenEnd = glm::vec2(
-            (clipEnd.x / clipEnd.w * 0.5f + 0.5f) * 1280,
-            (1.0f - (clipEnd.y / clipEnd.w * 0.5f + 0.5f)) * 800
+            (clipEnd.x / clipEnd.w * 0.5f + 0.5f) * screenWidth,
+            (1.0f - (clipEnd.y / clipEnd.w * 0.5f + 0.5f)) * screenHeight
         );
 
         // Send uniforms to the shader
@@ -147,8 +149,48 @@ public:
         VAO.Unbind();
 
         // Debug or use the calculated screen positions
-        std::cout << "Screen Start: (" << screenStart.x << ", " << screenStart.y << ")\n";
-        std::cout << "Screen End: (" << screenEnd.x << ", " << screenEnd.y << ")\n";
+        //std::cout << "Screen Start: (" << screenStart.x << ", " << screenStart.y << ")\n";
+        //std::cout << "Screen End: (" << screenEnd.x << ", " << screenEnd.y << ")\n";
+        line(cam2d.screenToWorld(screenEnd), cam2d.screenToWorld(glm::vec2(screenEnd.x, screenStart.y)), thickness, glm::vec3(1, 0, 0));
+        line(cam2d.screenToWorld(glm::vec2(screenEnd.x, screenStart.y)), cam2d.screenToWorld(screenStart), thickness, glm::vec3(0, 0, 1));
+
+
+        // Ensure the start and end points are correctly ordered
+        float ex = screenEnd.x - screenStart.x;
+        float ey = screenEnd.y - screenStart.y;
+
+        
+
+
+        float m = (ey / ex); 
+
+        float b = screenStart.y - m * screenStart.x;
+
+
+        /*
+        std::cout << "Equation of the line: y = " <<- m << "x + " << b << "\n";
+        */
+        glm::vec2 mouseScreen = cam2d.worldToScreen(mousePos);
+
+
+        float inverted_m = -1.0f / m;
+
+        float perpendicular_b = mouseScreen.y - inverted_m * mouseScreen.x;
+
+        float xIntersection = (perpendicular_b - b) / (m - inverted_m);
+
+        float yIntersection = m * xIntersection + b;
+
+        glm::vec2 intersectionScreen(xIntersection, yIntersection);
+        glm::vec2 intersectionWorld = cam2d.screenToWorld(intersectionScreen);
+        std::cout << "Intersection at: (" << intersectionWorld.x << ", " << intersectionWorld.y << ")\n";
+        
+        interX = cam2d.screenToWorld(intersectionScreen).x * 80;
+        line(mousePos, cam2d.screenToWorld(intersectionScreen), thickness, glm::vec3(1, 0, 1));
+        line(cam2d.screenToWorld(screenStart), cam2d.screenToWorld(screenEnd), thickness, glm::vec3(1, 1, 0));
+
+        
+
     }
 
 

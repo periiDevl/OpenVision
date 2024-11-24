@@ -170,10 +170,10 @@ int main()
     ImGui_ImplOpenGL3_Init("#version 330");
     DefaultTheme();
     ImGuiStyle& style = ImGui::GetStyle();
-    glm::vec3 camPos;
     std::vector<Model> models;
     models.push_back(gird);
     models.push_back(grass);
+    float interX = 0;
     while (window.windowRunning()) 
     {
         //orthgonalProjection = glm::ortho(-500.0f, 500.0f, -500.0f, 500.0f, 0.0f, far);
@@ -217,7 +217,7 @@ int main()
         window.clear();
 
         glEnable(GL_DEPTH_TEST);
-        gird.Draw(shaderProgram, camera3D, camPos, glm::vec3(0, 0, 0), glm::vec3(10.0f));
+        gird.Draw(shaderProgram, camera3D, glm::vec3(interX, 0,0), glm::vec3(0, 0, 0), glm::vec3(10.0f));
         gird.Draw(shaderProgram, camera3D, glm::vec3(0, 21, 0), glm::vec3(0, 0, 0), glm::vec3(10.0f));
         grass.Draw(shaderProgram, camera3D, glm::vec3(0, -10, 0), glm::vec3(0, 0, 0), glm::vec3(5.0f));
         gird1.Draw(shaderProgram, camera3D, glm::vec3(0, -10, 0), glm::vec3(0, 0, 0), glm::vec3(20.0f, 5.0f, 20.0f));
@@ -270,12 +270,7 @@ int main()
             gizmos.worldGimzo(*objects[selectedObj].get(), mousePos, window);
             gizmos.Overlap(camera2D);
         }
-        static glm::vec2 lastMousePos(0.0f, 0.0f);
 
-        // Calculate mouse delta
-        glm::vec2 mouseDelta = mousePos - lastMousePos;
-        lastMousePos = mousePos;
-        //moveObjectAlongMouse(camera3D, camPos,mouseDelta, window.width, window.height, false, false, false) ;
         
         coll.position = obj.transform->position;
         coll2.position = obj2.transform->position;
@@ -284,7 +279,7 @@ int main()
         
         gizmos.line(glm::vec2(0, .05), glm::vec2(0, -.05), 4, glm::vec3(0));
         gizmos.line(glm::vec2(.05, 0), glm::vec2(-.05, 0), 4, glm::vec3(0));
-        gizmos.line(glm::vec3(0), glm::vec3(10), 4, glm::vec3(1), camera3D, window.width, window.height, 60, 0.1f, 100.0f);
+        gizmos.line(glm::vec3(0), glm::vec3(10,0,0), 4, glm::vec3(1), camera3D, window.width, window.height, 60, 0.1f, 100.0f, camera2D, mousePos, interX);
 
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
