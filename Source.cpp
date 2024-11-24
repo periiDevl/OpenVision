@@ -281,7 +281,7 @@ int main()
         gizmos.line(glm::vec2(.05, 0), glm::vec2(-.05, 0), 4, glm::vec3(0));
 
 
-        gizmos.line(glm::vec3(0), glm::vec3(10,10,0), 4, glm::vec3(1), camera3D, window.width, window.height, 60, 0.1f, 100.0f, camera2D, mousePos, interX);
+        gizmos.line(glm::vec3(0), glm::vec3(10,10,0), 4, glm::vec3(1), camera3D, window.width, window.height, 60, 0.1f, 100.0f, camera2D, mousePos,window.getWindow(), interX);
 
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();

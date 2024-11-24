@@ -96,7 +96,7 @@ public:
     void line(
         glm::vec3 start, glm::vec3 end, float thickness, glm::vec3 color,
         Camera3D camera, int screenWidth, int screenHeight, float FOVdeg,
-        float nearPlane, float farPlane, Camera2D cam2d, glm::vec2 mousePos,
+        float nearPlane, float farPlane, Camera2D cam2d, glm::vec2 mousePos, GLFWwindow* window,
         float& interX)
     {
         glLineWidth(thickness);
@@ -157,20 +157,30 @@ public:
         glm::vec3 intersectionPoint = start + t * direction;
 
         glm::vec2 intersectionScreen = cam2d.worldToScreen(intersectionPoint);
-
-        if (positive_m) {
-            interX = -intersectionPoint.x * screenWidth / (2.0f * 2.0f);
+        if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS && checkMouseBoundary(cam2d.screenToWorld(screenStart), cam2d.screenToWorld(screenEnd), thickness * 2, mousePos))
+        {
+            lineDragging3D = true;
+            printf("AHHH");
         }
-        else {
-
-            interX = intersectionPoint.x * screenWidth / (2.0f * 2.0f);
+        if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_RELEASE)
+        {
+            lineDragging3D = false;
         }
+        if (lineDragging3D) {
+            if (positive_m) {
+                interX = -intersectionPoint.x * screenWidth / (2.0f * 2.0f);
+            }
+            else {
 
+                interX = intersectionPoint.x * screenWidth / (2.0f * 2.0f);
+            }
+        }
         line(mousePos,
             cam2d.screenToWorld(intersectionScreen), thickness, glm::vec3(0.5f, 1.0f, 0.5f));
 
         line(cam2d.screenToWorld(screenStart),
             cam2d.screenToWorld(screenEnd), thickness, glm::vec3(1.0f, 1.0f, 0.0f));
+
     }
 
 
@@ -313,6 +323,7 @@ public:
         return Dragging != "";
     }
 private:
+    bool lineDragging3D = false;
     GameObject middle;
     TextureRenderer renderer;
     Camera2D camera;
