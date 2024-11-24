@@ -155,38 +155,32 @@ public:
         line(cam2d.screenToWorld(glm::vec2(screenEnd.x, screenStart.y)), cam2d.screenToWorld(screenStart), thickness, glm::vec3(0, 0, 1));
 
 
-        // Ensure the start and end points are correctly ordered
+        bool positive_m;
+        if (screenStart.x >= screenEnd.x) { positive_m = true; }
+        else { positive_m = false; }
         float ex = screenEnd.x - screenStart.x;
         float ey = screenEnd.y - screenStart.y;
-
-        
-
-
         float m = (ey / ex); 
-
         float b = screenStart.y - m * screenStart.x;
-
-
         /*
         std::cout << "Equation of the line: y = " <<- m << "x + " << b << "\n";
         */
         glm::vec2 mouseScreen = cam2d.worldToScreen(mousePos);
+        if (positive_m) {
+            mouseScreen = cam2d.worldToScreen(-mousePos);
 
-
+        }
         float inverted_m = -1.0f / m;
-
         float perpendicular_b = mouseScreen.y - inverted_m * mouseScreen.x;
-
         float xIntersection = (perpendicular_b - b) / (m - inverted_m);
-
         float yIntersection = m * xIntersection + b;
-
         glm::vec2 intersectionScreen(xIntersection, yIntersection);
         glm::vec2 intersectionWorld = cam2d.screenToWorld(intersectionScreen);
-        std::cout << "Intersection at: (" << intersectionWorld.x << ", " << intersectionWorld.y << ")\n";
+        //std::cout << "Intersection at: (" << intersectionWorld.x << ", " << intersectionWorld.y << ")\n";
         
-        interX = cam2d.screenToWorld(intersectionScreen).x * 80;
-        line(mousePos, cam2d.screenToWorld(intersectionScreen), thickness, glm::vec3(1, 0, 1));
+        interX = cam2d.screenToWorld(intersectionScreen).x * screenHeight / 4;
+        line(cam2d.screenToWorld(mouseScreen), cam2d.screenToWorld(intersectionScreen), thickness, glm::vec3(0.5f, 1, 0.5f));
+        
         line(cam2d.screenToWorld(screenStart), cam2d.screenToWorld(screenEnd), thickness, glm::vec3(1, 1, 0));
 
         
