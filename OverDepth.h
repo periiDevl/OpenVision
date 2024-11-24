@@ -108,7 +108,6 @@ public:
 
         vertices[0].position = start;
         vertices[1].position = end;
-
         VBO->Bind();
         glBufferSubData(GL_ARRAY_BUFFER, 0, vertices.size() * sizeof(Vertex), vertices.data());
         VBO->Unbind();
@@ -157,29 +156,62 @@ public:
         glm::vec3 intersectionPoint = start + t * direction;
 
         glm::vec2 intersectionScreen = cam2d.worldToScreen(intersectionPoint);
-        if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS && checkMouseBoundary(cam2d.screenToWorld(screenStart), cam2d.screenToWorld(screenEnd), thickness * 2, mousePos))
+        static float initialClickX = 0.0f; 
+        static bool draggingInitialized = false; 
+
+        if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS &&
+            checkMouseBoundary(cam2d.screenToWorld(screenStart), cam2d.screenToWorld(screenEnd), thickness * 2, mousePos))
         {
-            lineDragging3D = true;
-            printf("AHHH");
+            if (!lineDragging3D) {
+                lineDragging3D = true;
+
+                if (!draggingInitialized) {
+                    glm::vec3 direction = glm::normalize(end - start);
+                    glm::vec3 toMouse = glm::vec3(mousePos, 0.0f) - start;
+
+                    float t = glm::dot(toMouse, direction) / glm::dot(direction, direction);
+                    glm::vec3 intersectionPoint = start + t * direction;
+
+                    if (positive_m) {
+                        initialClickX = interX - (-intersectionPoint.x * screenWidth / (2.0f * 2.0f));
+                    }
+                    else {
+                        initialClickX = interX - (intersectionPoint.x * screenWidth / (2.0f * 2.0f));
+                    }
+
+                    draggingInitialized = true;
+                }
+            }
         }
-        if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_RELEASE)
-        {
+
+        if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_RELEASE) {
             lineDragging3D = false;
+            draggingInitialized = false;
         }
+
         if (lineDragging3D) {
+            glm::vec3 direction = glm::normalize(end - start);
+            glm::vec3 toMouse = glm::vec3(mousePos, 0.0f) - start;
+
+            float t = glm::dot(toMouse, direction) / glm::dot(direction, direction);
+            glm::vec3 intersectionPoint = start + t * direction;
+
             if (positive_m) {
-                interX = -intersectionPoint.x * screenWidth / (2.0f * 2.0f);
+                interX = initialClickX - intersectionPoint.x * screenWidth / (2.0f * 2.0f);
             }
             else {
-
-                interX = intersectionPoint.x * screenWidth / (2.0f * 2.0f);
+                interX = initialClickX + intersectionPoint.x * screenWidth / (2.0f * 2.0f);
             }
         }
+
+
         line(mousePos,
             cam2d.screenToWorld(intersectionScreen), thickness, glm::vec3(0.5f, 1.0f, 0.5f));
 
         line(cam2d.screenToWorld(screenStart),
             cam2d.screenToWorld(screenEnd), thickness, glm::vec3(1.0f, 1.0f, 0.0f));
+
+
 
     }
 
