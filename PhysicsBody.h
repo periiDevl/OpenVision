@@ -47,6 +47,11 @@ namespace physics2D
 			m_velocity = val;
 		}
 
+		void applyForce(const glm::vec2 force)
+		{
+			m_force += force;
+		}
+
 	private:
 		BaseCollider& m_collider;
 	

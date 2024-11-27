@@ -10,6 +10,12 @@ namespace physics2D
 	class PhysicsWorld
 	{
 	public:
+		PhysicsWorld() : m_gravity(0, -10)
+		{ }
+
+		PhysicsWorld(const glm::vec2 gravity) : m_gravity(gravity)
+		{ }
+
 		void addBody(const PhysicsBody& body);
 
 		template<typename ...Args>
@@ -19,6 +25,7 @@ namespace physics2D
 		{
 			for (PhysicsBody& body : bodies)
 			{
+				body.applyForce(m_gravity * body.mass());
 				body.fixedUpdate(deltaTime);
 			}
 		}
@@ -34,6 +41,7 @@ namespace physics2D
 
 	private:
 		std::vector<PhysicsBody> bodies;
+		glm::vec2 m_gravity;
 	};
 	
 	template<typename ...Args>

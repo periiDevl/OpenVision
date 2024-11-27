@@ -73,8 +73,8 @@ int main()
     CircleCollider coll(obj.transform->position, 0, 0.5f);
     CircleCollider coll2(obj2.transform->position, 0, 0.5f);
 
-    PhysicsWorld world;
-    world.addBody(coll, 2);
+    PhysicsWorld world({0, -10});
+    world.addBody(coll, 10);
     world.addBody(coll2, 2);
 
 
@@ -186,7 +186,7 @@ int main()
         coll.m_position = obj.transform->position;
         coll2.m_position = obj2.transform->position;
 
-        world.fixedUpdate(0.001);
+        world.fixedUpdate(0.001); // will change to fixed delta time
 
         obj.transform->position = coll.m_position;
         obj2.transform->position = coll2.m_position;
