@@ -38,6 +38,8 @@ Manifold EPA::getResolution(const BaseCollider& collA, const BaseCollider& collB
 		{
 			result.normal = edge.normal;
 			result.depth = dis;
+			result.mtv = (float)result.depth * result.normal;
+
 			return result;
 		}
 		else

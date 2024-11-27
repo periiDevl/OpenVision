@@ -12,7 +12,7 @@ bool GJK::isTouching(const BaseCollider& collA, const BaseCollider& collB)
 bool GJK::isTouching(const BaseCollider& collA, const BaseCollider& collB, Simplex& simplex)
 {
 	// direction will be used for the entire of this function
-	glm::vec2 direction = glm::normalize(collB.position - collA.position);
+	glm::vec2 direction = glm::normalize(collB.m_position - collA.m_position);
 
 	simplex.add(PhysHelper::support(collA, collB, direction));
 

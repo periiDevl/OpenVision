@@ -7,15 +7,16 @@ namespace physics2D
 {
 	class BaseCollider
 	{
-	protected:
-		BaseCollider(const glm::vec2 position) : position(position) {}
-
 	public:
+
+		BaseCollider(const glm::vec2 position, const float rotation) 
+			: m_position(position), m_rotation(rotation) {}
+
 		virtual glm::vec2 findFurthestPoint(const glm::vec2& direction) const = 0;
-	
+		
 	public:
-		glm::vec2 position;
-
+		glm::vec2 m_position;
+		float m_rotation;
 	};
 }
 

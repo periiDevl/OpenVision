@@ -192,6 +192,7 @@
     <ClCompile Include="MyMain.cpp" />
     <ClCompile Include="PhysHelper.cpp" />
     <ClCompile Include="PhysicsBody.cpp" />
+    <ClCompile Include="PhysicsWorld.cpp" />
     <ClCompile Include="SaveSystem.cpp" />
     <ClCompile Include="ShaderManager.cpp" />
     <ClCompile Include="Source.cpp" />
@@ -203,6 +204,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Archetype.h" />
+    <ClInclude Include="ArchetypeManager.h" />
     <ClInclude Include="BaseCollider.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Camera2D.h" />
@@ -210,6 +212,7 @@
     <ClInclude Include="Collider.h" />
     <ClInclude Include="Component.h" />
     <ClInclude Include="ComponentList.h" />
+    <ClInclude Include="ComponentTypes.h" />
     <ClInclude Include="Console.h" />
     <ClInclude Include="CSF.h" />
     <ClInclude Include="CSV.h" />
@@ -243,6 +246,7 @@
     <ClInclude Include="OVscriptHandaling.h" />
     <ClInclude Include="PhysHelper.h" />
     <ClInclude Include="PhysicsBody.h" />
+    <ClInclude Include="PhysicsWorld.h" />
     <ClInclude Include="Polytope.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="ShaderManager.h" />

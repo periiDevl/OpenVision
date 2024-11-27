@@ -2,10 +2,11 @@
 
 using namespace physics2D;
 
-CircleCollider::CircleCollider(const glm::vec2 position, float radius) : BaseCollider(position), radius(radius)
+CircleCollider::CircleCollider(const glm::vec2 position, const float rotation, float radius) 
+	: BaseCollider(position, rotation), m_radius(radius)
 { }
 
 glm::vec2 CircleCollider::findFurthestPoint(const glm::vec2& direction) const
 {
-	return position + direction * radius;
+	return m_position + direction * m_radius;
 }

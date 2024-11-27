@@ -90,6 +90,7 @@
     </ClCompile>
     <ClCompile Include="PhysHelper.cpp" />
     <ClCompile Include="Entity.cpp" />
+    <ClCompile Include="PhysicsWorld.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Presave.h">
@@ -259,6 +260,15 @@
     </ClInclude>
     <ClInclude Include="ComponentList.h">
       <Filter>Header Files\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="ArchetypeManager.h">
+      <Filter>Header Files\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="ComponentTypes.h">
+      <Filter>Header Files\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="PhysicsWorld.h">
+      <Filter>Header Files\Physics</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

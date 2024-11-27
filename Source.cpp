@@ -19,6 +19,7 @@
 #include "Model.h"
 #include "CSV.h"
 #include "CSF.h"
+#include "PhysicsWorld.h"
 
 #include "IMGUITheme.h"
 #include "imgui.h"
@@ -32,6 +33,7 @@ CSF frag;
 float far = 300.000f;
 glm::vec3 lightPos = glm::vec3(0.5f, 0.8f, 0.5f);
 
+using namespace physics2D;
 
 float gamma = 1.6f;
 float exposure = 1.0f;
@@ -59,7 +61,7 @@ int main()
     GameObject& obj2 = *objects[1];
     obj.transform->position = { 0, .5 };
     obj.transform->scale = { 1, 1 };
-    obj2.transform->position = { 1.8, -.5 };
+    obj2.transform->position = { 0.2, -.5 };
     obj2.transform->scale = { 1, 1 };
 
 
@@ -68,8 +70,13 @@ int main()
     TextureRenderer& renderer2 = *obj2.addComponent<TextureRenderer>("Assets/background.png");
 
     // Colliders
-    physics2D::CircleCollider coll(obj.transform->position, 0.5f);
-    physics2D::CircleCollider coll2(obj2.transform->position, 0.5f);
+    CircleCollider coll(obj.transform->position, 0, 0.5f);
+    CircleCollider coll2(obj2.transform->position, 0, 0.5f);
+
+    PhysicsWorld world;
+    world.addBody(coll, 2);
+    world.addBody(coll2, 2);
+
 
     // Shaders
     ShaderManager shaders;
@@ -176,6 +183,18 @@ int main()
     float interX = 0;
     while (window.windowRunning()) 
     {
+        coll.m_position = obj.transform->position;
+        coll2.m_position = obj2.transform->position;
+
+        world.fixedUpdate(0.001);
+
+        obj.transform->position = coll.m_position;
+        obj2.transform->position = coll2.m_position;
+
+        if (InputSystem::getDown(Inputs::KeyO))
+        {
+            world.jump();
+        }
         //orthgonalProjection = glm::ortho(-500.0f, 500.0f, -500.0f, 500.0f, 0.0f, far);
         //lightView = glm::lookAt(1300.0f * lightPos, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
         //flightProjection = orthgonalProjection * lightView;
@@ -271,11 +290,6 @@ int main()
             gizmos.Overlap(camera2D);
         }
 
-        
-        coll.position = obj.transform->position;
-        coll2.position = obj2.transform->position;
-
-        physics2D::Simplex simplex;
         
         gizmos.line(glm::vec2(0, .05), glm::vec2(0, -.05), 4, glm::vec3(0));
         gizmos.line(glm::vec2(.05, 0), glm::vec2(-.05, 0), 4, glm::vec3(0));
