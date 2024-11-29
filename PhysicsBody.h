@@ -30,75 +30,22 @@ namespace physics2D
 			this->mass(m_mass); // set invmass automatically with is static
 		}
 		
-		void fixedUpdate(float deltaTime)
-		{
-			// apply acceleration, velocity and change to position
-			m_acceleration = m_force * m_invMass; // a = F / m
-			
-			if (m_force != glm::vec2(0, -1))
-			{
-				std::cout << glm::to_string(m_velocity) << std::endl;
-				m_velocity += m_acceleration * deltaTime; // v = v + a * dt
-				std::cout << glm::to_string(m_velocity) << std::endl;
-			}
-			else
-			{ 
-				m_velocity += m_acceleration * deltaTime; // v = v + a * dt
-			}
+		void fixedUpdate(float deltaTime);
 
-			m_collider.m_position += m_velocity * deltaTime; // x = x + v * dt
-			
+		void mass(float val);
+		float mass() const;
+		float invMass() const;
 
-			// reset force
-			m_force = glm::vec2(0.0f);
+		void applyImpulse(const glm::vec2 impulse);
+		glm::vec2 velocity();
+		void velocity(const glm::vec2 val);
 
-		}
+		void applyForce(const glm::vec2 force);
 
-		void mass(float val)
-		{
-			m_mass = (val <= 0.0f) ? 0.0f : val;
-			m_invMass = (m_mass == 0.0f) ? 0.0f : 1.0f / m_mass;
-		}
-		float mass() const 
-		{ 
-			return m_mass; 
-		}
-		float invMass() const 
-		{
-			return m_invMass; 
-		}
+		bool isStatic() const;
+		void isStatic(bool val);
 
-
-		glm::vec2 velocity()
-		{
-			if (isStatic())
-				return glm::vec2(0);
-
-			return m_velocity;
-		}
-		void velocity(const glm::vec2 val)
-		{
-			m_velocity = val;
-		}
-
-		void applyForce(const glm::vec2 force)
-		{
-			m_force += force;
-		}
-
-		bool isStatic() const
-		{
-			return m_isStatic;
-		}
-		void isStatic(bool val)
-		{
-			m_isStatic = val;
-		}
-
-		BaseCollider& getCollider() const
-		{
-			return m_collider;
-		}
+		BaseCollider& getCollider() const;
 
 	private:
 		BaseCollider& m_collider;

@@ -20,21 +20,28 @@ bool CollisionManager::isCollide(const PhysicsBody& body1, const PhysicsBody& bo
 
 void CollisionManager::resolveManifold(Manifold& manifold)
 {
+	// Get bodies
     PhysicsBody& body1 = *manifold.body1;
     PhysicsBody& body2 = *manifold.body2;
 
-    // For now full elastic materials
-    float elasticity = 1;
+	// For now elasticity is constant
+	float elasticity = .5;
 
-    glm::vec2 relVel = body1.velocity() - body2.velocity();
+	glm::vec2 relVel = body1.velocity() - body2.velocity();
 
-    float impulseMagnitude = 
-        (-elasticity * glm::dot(relVel, manifold.normal) - glm::dot(relVel, manifold.normal)) 
-        / (body1.invMass() + body2.invMass());
-    glm::vec2 impulseDirection = manifold.normal;
+	// inverse mass (for static objects)
+	float invMass1 = body1.isStatic() ? 0.0f : body1.invMass();
+	float invMass2 = body2.isStatic() ? 0.0f : body2.invMass();
 
-    glm::vec2 impulse = impulseDirection * impulseMagnitude;
+	// Calculating impulse magnitude
+	// Physics Formula:
+	// J = -(1 + e) * (relativeVelocity * normal) / (1/mass1 + 1/mass2)
+	float impulseMagnitude =
+		(-(1 + elasticity) * glm::dot(relVel, manifold.normal))
+		/ (invMass1 + invMass2);
 
-    body1.applyForce(-impulse);
-    body2.applyForce( impulse);
+	glm::vec2 impulse = manifold.normal * impulseMagnitude;
+
+	body1.applyImpulse(impulse);
+	body2.applyImpulse(-impulse);
 }

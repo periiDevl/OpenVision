@@ -183,11 +183,10 @@ int main()
     float interX = 0;
     while (window.windowRunning()) 
     {
-
         coll.m_position = obj.transform->position;
         coll2.m_position = obj2.transform->position;
 
-        world.fixedUpdate(0.01); // will change to fixed delta time
+        world.fixedUpdate(0.003); // will change to fixed delta time
 
         obj.transform->position = coll.m_position;
         obj2.transform->position = coll2.m_position;

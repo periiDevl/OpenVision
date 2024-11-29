@@ -53,22 +53,7 @@ void PhysicsWorld::fixedUpdate(float deltaTime)
 			body2.getCollider().m_position -= manifold.mtv * 0.5f;
 		}
 
-
-		// For now full elastic materials
-		float elasticity = 1;
-
-		glm::vec2 relVel = body1.velocity() - body2.velocity();
-
-		float invMass1 = body1.isStatic() ? 0.0f : body1.invMass();
-		float invMass2 = body2.isStatic() ? 0.0f : body2.invMass();
-
-		float impulseMagnitude = (-(1 + elasticity) * glm::dot(relVel, manifold.normal)) / (invMass1 + invMass2);
-		glm::vec2 impulseDirection = manifold.normal;
-
-		glm::vec2 impulse = impulseDirection * impulseMagnitude;
-
-		body1.velocity(body1.velocity() + impulse);
-		body2.velocity(body2.velocity() - impulse);
+		CollisionManager::resolveManifold(manifold);
 	}
 
 	for (size_t i = 0; i < bodies.size(); i++)
