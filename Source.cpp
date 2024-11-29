@@ -59,9 +59,9 @@ int main()
 
     GameObject& obj = *objects[0];
     GameObject& obj2 = *objects[1];
-    obj.transform->position = { 0, .5 };
+    obj.transform->position = { 0, 1 };
     obj.transform->scale = { 1, 1 };
-    obj2.transform->position = { 0.2, -.5 };
+    obj2.transform->position = { 0, -1 };
     obj2.transform->scale = { 1, 1 };
 
 
@@ -73,9 +73,9 @@ int main()
     CircleCollider coll(obj.transform->position, 0, 0.5f);
     CircleCollider coll2(obj2.transform->position, 0, 0.5f);
 
-    PhysicsWorld world({0, -10});
-    world.addBody(coll, 10);
-    world.addBody(coll2, 2);
+    PhysicsWorld world({0, -1});
+    world.addBody(coll, 1);
+    world.addBody(coll2, 1, true);
 
 
     // Shaders
@@ -183,10 +183,11 @@ int main()
     float interX = 0;
     while (window.windowRunning()) 
     {
+
         coll.m_position = obj.transform->position;
         coll2.m_position = obj2.transform->position;
 
-        world.fixedUpdate(0.001); // will change to fixed delta time
+        world.fixedUpdate(0.01); // will change to fixed delta time
 
         obj.transform->position = coll.m_position;
         obj2.transform->position = coll2.m_position;

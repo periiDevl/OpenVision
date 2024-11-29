@@ -36,7 +36,7 @@ Manifold EPA::getResolution(const BaseCollider& collA, const BaseCollider& collB
 
 		if (dis - edge.distance < EPA_TOLERANCE)
 		{
-			result.normal = edge.normal;
+			result.normal = -edge.normal;
 			result.depth = dis;
 			result.mtv = (float)result.depth * result.normal;
 

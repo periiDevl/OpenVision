@@ -11,15 +11,6 @@ void PhysicsWorld::addBody(const PhysicsBody& body)
 void PhysicsWorld::fixedUpdate(float deltaTime)
 {
 	std::vector<Manifold> manifolds;
-	for (size_t i = 0; i < bodies.size(); i++)
-	{
-		if (bodies[i].isStatic())
-			continue;
-
-		bodies[i].applyForce(m_gravity * bodies[i].mass());
-		bodies[i].fixedUpdate(deltaTime);
-	}
-
 	manifolds.clear();
 	Manifold curManifold;
 
@@ -27,6 +18,11 @@ void PhysicsWorld::fixedUpdate(float deltaTime)
 	{
 		for (size_t j = i+1; j < bodies.size(); j++)
 		{
+			if (bodies[i].isStatic() && bodies[j].isStatic())
+			{
+				continue;
+			}
+
 			if (!CollisionManager::isCollide(bodies[i], bodies[j], curManifold))
 			{
 				continue;
@@ -41,7 +37,47 @@ void PhysicsWorld::fixedUpdate(float deltaTime)
 
 	for (Manifold& manifold : manifolds)
 	{
-		manifold.body1->getCollider().m_position -= manifold.mtv * 0.5f;
-		manifold.body2->getCollider().m_position += manifold.mtv * 0.5f;
+		PhysicsBody& body1 = *manifold.body1;
+		PhysicsBody& body2 = *manifold.body2;
+		if (body1.isStatic())
+		{
+			body2.getCollider().m_position -= manifold.mtv;
+		}
+		else if (body2.isStatic())
+		{
+			body1.getCollider().m_position += manifold.mtv;
+		}
+		else
+		{
+			body1.getCollider().m_position += manifold.mtv * 0.5f;
+			body2.getCollider().m_position -= manifold.mtv * 0.5f;
+		}
+
+
+		// For now full elastic materials
+		float elasticity = 1;
+
+		glm::vec2 relVel = body1.velocity() - body2.velocity();
+
+		float invMass1 = body1.isStatic() ? 0.0f : body1.invMass();
+		float invMass2 = body2.isStatic() ? 0.0f : body2.invMass();
+
+		float impulseMagnitude = (-(1 + elasticity) * glm::dot(relVel, manifold.normal)) / (invMass1 + invMass2);
+		glm::vec2 impulseDirection = manifold.normal;
+
+		glm::vec2 impulse = impulseDirection * impulseMagnitude;
+
+		body1.velocity(body1.velocity() + impulse);
+		body2.velocity(body2.velocity() - impulse);
 	}
+
+	for (size_t i = 0; i < bodies.size(); i++)
+	{
+		if (bodies[i].isStatic())
+			continue;
+
+		bodies[i].applyForce(m_gravity * bodies[i].mass());
+		bodies[i].fixedUpdate(deltaTime);
+	}
+
 }
