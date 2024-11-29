@@ -27,6 +27,7 @@
 #include "imgui_impl_opengl3.h"
 #include "ShaderManager.h"
 #include "EventManager.h"
+#include "BoxCollider.h"
 // Function declarations
 CSV vert;
 CSF frag;
@@ -59,7 +60,7 @@ int main()
 
     GameObject& obj = *objects[0];
     GameObject& obj2 = *objects[1];
-    obj.transform->position = { 0, 1 };
+    obj.transform->position = { -1, 1 };
     obj.transform->scale = { 1, 1 };
     obj2.transform->position = { 0, -1 };
     obj2.transform->scale = { 1, 1 };
@@ -70,8 +71,8 @@ int main()
     TextureRenderer& renderer2 = *obj2.addComponent<TextureRenderer>("Assets/background.png");
 
     // Colliders
-    CircleCollider coll(obj.transform->position, 0, 0.5f);
-    CircleCollider coll2(obj2.transform->position, 0, 0.5f);
+    BoxCollider coll(obj.transform->position, 0, {1, 1});
+    BoxCollider coll2(obj2.transform->position, 0, { 1, 1 });
 
     PhysicsWorld world({0, -1});
     world.addBody(coll, 1);
