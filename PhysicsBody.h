@@ -11,11 +11,11 @@ namespace physics2D
 	public:
 		PhysicsBody() = default;
 		PhysicsBody(BaseCollider& collider) : m_collider(collider),
-			m_force(0), m_acceleration(0), m_velocity(0), m_mass(2.0), m_invMass(1/2.0)
+			m_force(0), m_acceleration(0), m_velocity(0), m_mass(2.0), m_invMass(1/2.0), m_isStatic(false)
 		{ }
 
 		PhysicsBody(BaseCollider& collider, float mass) : m_collider(collider),
-			m_force(0), m_acceleration(0), m_velocity(0), m_mass(mass), m_invMass(1 / mass)
+			m_force(0), m_acceleration(0), m_velocity(0), m_mass(mass), m_invMass(1 / mass), m_isStatic(false)
 		{ }
 		
 		void fixedUpdate(float deltaTime)
@@ -38,6 +38,7 @@ namespace physics2D
 		{
 			return m_mass;
 		}
+
 		glm::vec2 velocity()
 		{
 			return m_velocity;
@@ -52,9 +53,25 @@ namespace physics2D
 			m_force += force;
 		}
 
+		bool isStatic()
+		{
+			return m_isStatic;
+		}
+		void isStatic(bool val)
+		{
+			m_isStatic = val;
+		}
+
+		BaseCollider& getCollider() const
+		{
+			return m_collider;
+		}
+
 	private:
 		BaseCollider& m_collider;
 	
+		bool m_isStatic = false;
+
 		float m_mass = 2;
 		float m_invMass = 2;
 

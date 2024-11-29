@@ -2,6 +2,9 @@
 #define MANIFOLD_H
 
 #include <glm/glm.hpp>
+
+class PhysicsBody;
+
 namespace physics2D
 {
 	struct Manifold
@@ -12,6 +15,9 @@ namespace physics2D
 		double depth;
 
 		glm::vec2 mtv;
+
+		PhysicsBody* body1;
+		PhysicsBody* body2;
 	};
 }
 

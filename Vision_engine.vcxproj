@@ -172,6 +172,7 @@
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Camera2D.cpp" />
     <ClCompile Include="CircleCollider.cpp" />
+    <ClCompile Include="CollisionManager.cpp" />
     <ClCompile Include="EBO.cpp" />
     <ClCompile Include="Entity.cpp" />
     <ClCompile Include="EPA.cpp" />
@@ -210,6 +211,7 @@
     <ClInclude Include="Camera2D.h" />
     <ClInclude Include="CircleCollider.h" />
     <ClInclude Include="Collider.h" />
+    <ClInclude Include="CollisionManager.h" />
     <ClInclude Include="Component.h" />
     <ClInclude Include="ComponentList.h" />
     <ClInclude Include="ComponentTypes.h" />

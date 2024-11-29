@@ -3,6 +3,7 @@
 
 #include <vector>
 #include "PhysicsBody.h"
+#include "Manifold.h"
 
 
 namespace physics2D
@@ -21,14 +22,7 @@ namespace physics2D
 		template<typename ...Args>
 		void addBody(Args&&... args);
 
-		void fixedUpdate(float deltaTime)
-		{
-			for (PhysicsBody& body : bodies)
-			{
-				body.applyForce(m_gravity * body.mass());
-				body.fixedUpdate(deltaTime);
-			}
-		}
+		void fixedUpdate(float deltaTime);
 
 		void jump()
 		{
@@ -38,6 +32,7 @@ namespace physics2D
 			}
 		}
 
+		
 
 	private:
 		std::vector<PhysicsBody> bodies;

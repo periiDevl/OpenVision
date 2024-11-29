@@ -18,10 +18,8 @@ namespace physics2D
 			Triangle = 3,
 		};
 
-		Simplex()
-		{
-			length = 0;
-		}
+		Simplex() : length(0)
+		{ }
 
 		Simplex(const glm::vec2& point) : length(1)
 		{
