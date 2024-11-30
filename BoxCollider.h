@@ -19,10 +19,10 @@ namespace physics2D
 		/// <returns>Furthest point</returns>
 		glm::vec2 findFurthestPoint(const glm::vec2& direction) const override;
 
+		glm::vec2 m_scale;
 	private:
 		const static size_t BOX_POINTS_SIZE = 4;
 		constexpr static double DEG_TO_RED = 0.017453292519943295769236907684886f;
-		glm::vec2 m_scale;
 	};
 }
 

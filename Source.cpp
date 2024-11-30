@@ -57,27 +57,35 @@ int main()
     std::vector<std::unique_ptr<GameObject>> objects;
     objects.push_back(std::make_unique<GameObject>());
     objects.push_back(std::make_unique<GameObject>());
+    objects.push_back(std::make_unique<GameObject>());
 
     GameObject& obj = *objects[0];
     GameObject& obj2 = *objects[1];
-    obj.transform->position = { -1, 1 };
+    GameObject& obj3 = *objects[2];
+    obj.transform->position = { 0, 2 };
     obj.transform->scale = { 1, 1 };
     obj2.transform->position = { 0, -1 };
-    obj2.transform->scale = { 1, 1 };
+    obj2.transform->scale = { 3, 1 };
+    obj3.transform->position = { 0, .5};
+    obj3.transform->scale = { 1, 1 };
 
 
     // Renderer and texture setup
     TextureRenderer& renderer = *obj.addComponent<TextureRenderer>("Assets/background.png");
     TextureRenderer& renderer2 = *obj2.addComponent<TextureRenderer>("Assets/background.png");
+    TextureRenderer& renderer3 = *obj3.addComponent<TextureRenderer>("Assets/background.png");
 
     // Colliders
-    BoxCollider coll(obj.transform->position, 0, {1, 1});
-    BoxCollider coll2(obj2.transform->position, 0, { 1, 1 });
+    BoxCollider coll(obj.transform->position, 0, { .5, .5 });// {1, 1});
+    BoxCollider coll2(obj2.transform->position, 0, {1.5, .5});
+    BoxCollider coll3(obj3.transform->position, 0, { .5, .5 }); 
 
-    PhysicsWorld world({0, -1});
+    PhysicsWorld world({0, -10});
     world.addBody(coll, 1);
     world.addBody(coll2, 1, true);
+    world.addBody(coll3, 1);
 
+    
 
     // Shaders
     ShaderManager shaders;
@@ -182,15 +190,20 @@ int main()
     models.push_back(gird);
     models.push_back(grass);
     float interX = 0;
+    camera2D.zoom = .4;
     while (window.windowRunning()) 
     {
         coll.m_position = obj.transform->position;
         coll2.m_position = obj2.transform->position;
+        coll3.m_position = obj3.transform->position;
 
+        std::cout << glm::to_string(coll2.m_scale) << std::endl;
+         
         world.fixedUpdate(0.003); // will change to fixed delta time
 
         obj.transform->position = coll.m_position;
         obj2.transform->position = coll2.m_position;
+        obj3.transform->position = coll3.m_position;
 
         if (InputSystem::getDown(Inputs::KeyO))
         {
@@ -278,7 +291,9 @@ int main()
         renderer.tex = Texture(shadowFramebuffer.getTexture(), 0);
         renderer2.setShader(classicShader);
         renderer2.draw(camera2D);
-        
+        renderer3.setShader(classicShader);
+        renderer3.draw(camera2D);
+
         if (InputSystem::getDown(Inputs::MouseLeft) && !gizmos.isDragging()) 
         {
             
