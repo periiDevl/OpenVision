@@ -48,9 +48,9 @@ int main()
 
     // Camera and window setup
     Window window = Window();
-    window.setVieportSize(window.width / 2.5f, window.height / 2.0f);
+    window.setVieportSize(window.width / 3.0f, window.height / 3.0f);
     Camera3D camera3D(window.v_width, window.v_height, glm::vec3(0.0f, 0.0f, 0.2f));
-    Camera2D camera2D(glm::vec3(0.0f, 0.0f, 0.2f), window.v_width, window.v_height);
+    Camera2D camera2D(glm::vec3(0.0f, 0.0f, 0.2f), window.width, window.height);
     
 
     // Game objects
