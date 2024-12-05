@@ -169,6 +169,7 @@ public:
     static void setCursorMode(InputCursor cursor);
 
     static glm::vec2 getMousePosition();
+    static glm::vec2 getNDCMousePosition();
 
     static glm::vec2 getScrollWheel();
 

@@ -56,8 +56,6 @@ glm::vec2 InputSystem::getMousePosition()
 {
     assert(instance, "The Input System has been terminated");
  
-    int width, height;
-    glfwGetWindowSize(instance->window, &width, &height);
     double x = 0;
     double y = 0;
 
@@ -65,7 +63,20 @@ glm::vec2 InputSystem::getMousePosition()
 
     return { x , y};
 }
+
+glm::vec2 InputSystem::getNDCMousePosition()
+{
+    assert(instance, "The Input System has been terminated");
 
+    int width, height;
+    glfwGetWindowSize(instance->window, &width, &height);
+    
+    double x = 0;
+    double y = 0;
+    glfwGetCursorPos(instance->window, &x, &y);
+
+    return { 2 * (x / width) - 1 , 1 - 2 * (y / height) };
+}
 glm::vec2 InputSystem::getScrollWheel()
 {
     return instance->scrollWheel;
