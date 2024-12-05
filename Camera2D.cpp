@@ -41,14 +41,14 @@ void Camera2D::Matrix(GLuint shader, const char* uniform)
     glUniformMatrix4fv(glGetUniformLocation(shader, uniform), 1, GL_FALSE, glm::value_ptr(cameraMatrix));
 }
 
-glm::vec2 Camera2D::mouseAsWorldPosition()
+glm::vec2 Camera2D::mouseAsWorldPosition(glm::vec2 viewportSize)
 {
 	glm::vec2 mousePos = InputSystem::getMousePosition();
 
 	updateMatrix(0.1, 100);
-
+    
 	float ndcX = (2.0f * mousePos.x) / width - 1.0f;
-	float ndcY = 1.0f - (2.0f * mousePos.y) / height; // Y is inverted in GLFW
+	float ndcY = 1.0f - (2.0f * (mousePos.y - viewportSize.y)) / viewportSize.y; // Y is inverted in GLFW
 
 	// Step 3: Transform NDC to world coordinates using the inverse projection matrix
 	// Set up the orthographic projection matrix, as before

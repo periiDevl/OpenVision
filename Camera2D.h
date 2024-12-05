@@ -28,7 +28,7 @@ public:
 	void updateMatrix(float nearPlane, float farPlane);
 	void Matrix(GLuint shader, const char* uniform);
 
-	glm::vec2 mouseAsWorldPosition();
+	glm::vec2 mouseAsWorldPosition(glm::vec2 viewportSize);
 	glm::vec2 worldToScreen(glm::vec2 worldPosition);
 	glm::vec2 screenToWorld(glm::vec2 screenPosition);
 };

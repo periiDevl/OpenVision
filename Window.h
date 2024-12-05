@@ -21,7 +21,8 @@ class Window
 public:
 	int width = 1280;
 	int height = 800;
-
+	int v_width = 1280;
+	int v_height = 800;
 	Window()
 	{
 		glfwInit();
@@ -32,7 +33,7 @@ public:
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 		window = glfwCreateWindow(width, height, "Loading...", NULL, NULL);
-
+		
 		if (window == NULL)
 		{
 			std::cout << "Failed to create GLFW window" << std::endl;
@@ -65,7 +66,7 @@ public:
 				windowObject->width = newWidth;
 				windowObject->height = newHeight;
 
-				glViewport(0, 0, newWidth, newHeight);
+				glViewport(0,0, newWidth, newHeight);
 			}
 		);
 
@@ -90,6 +91,11 @@ public:
 		//EventManager::addEvent<EventWindowResize>();
 
 		inputSystem = std::make_unique<InputSystem>(window);
+	}
+	void setVieportSize(int w, int h)
+	{
+		v_width = w;
+		v_height = h;
 	}
 	// Delete copy constructor and copy assignment operator
 	Window(const Window&) = delete;

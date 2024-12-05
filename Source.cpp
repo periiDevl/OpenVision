@@ -48,8 +48,9 @@ int main()
 
     // Camera and window setup
     Window window = Window();
-    Camera3D camera3D(1280, 800, glm::vec3(0.0f, 0.0f, 0.2f));
-    Camera2D camera2D(glm::vec3(0.0f, 0.0f, 0.2f), 1280, 800);
+    window.setVieportSize(window.width / 2.5f, window.height / 2.0f);
+    Camera3D camera3D(window.v_width, window.v_height, glm::vec3(0.0f, 0.0f, 0.2f));
+    Camera2D camera2D(glm::vec3(0.0f, 0.0f, 0.2f), window.v_width, window.v_height);
     
 
     // Game objects
@@ -110,7 +111,7 @@ int main()
     glUniform1f(glGetUniformLocation(frameBufferShader.ID, "gamma"), gamma);
     glUniform1f(glGetUniformLocation(frameBufferShader.ID, "exposure"), exposure);
 
-    glUniform2f(glGetUniformLocation(frameBufferShader.ID, "resolution"), window.width, window.height);
+    glUniform2f(glGetUniformLocation(frameBufferShader.ID, "resolution"), window.v_width, window.v_height);
 
     shaderProgram.activate();
 
@@ -145,9 +146,9 @@ int main()
 
 
     // Create shadow map framebuffer using the updated Framebuffer class
-    Framebuffer mainFramebuffer(window.width, window.height);
-    Framebuffer mouseDetectionFramebuffer(window.width, window.height);
-    PostProcessingFramebuffer postProcessingFramebuffer(window.width, window.height);
+    Framebuffer mainFramebuffer(window.v_width, window.v_height);
+    Framebuffer mouseDetectionFramebuffer(window.v_width, window.v_height);
+    PostProcessingFramebuffer postProcessingFramebuffer(window.v_width, window.v_height);
     //Shadow framebuffer
     bool renderShadows = true;
     int shadowMapWidth = 1000;
@@ -162,7 +163,6 @@ int main()
     shadowMapProgram.activate();
     glUniformMatrix4fv(glGetUniformLocation(shadowMapProgram.ID, "lightProjection"), 1, GL_FALSE, glm::value_ptr(lightProjection));
 
-    glm::vec2 mousePos = camera2D.mouseAsWorldPosition();
 
     // Gizmos
     OverDepth gizmos;
@@ -193,6 +193,8 @@ int main()
     camera2D.zoom = .4;
     while (window.windowRunning()) 
     {
+        glm::vec2 mousePos = camera2D.mouseAsWorldPosition(glm::vec2(window.v_width, window.v_height));
+
         coll.m_position = obj.transform->position;
         coll2.m_position = obj2.transform->position;
         coll3.m_position = obj3.transform->position;
@@ -222,11 +224,11 @@ int main()
         mainFramebuffer.bind();
         window.clear();
         fpsTimer.start();
-        mouseDetectionFramebuffer.resize(window.width, window.height);
-        mainFramebuffer.resize(window.width, window.height);
-        postProcessingFramebuffer.resize(window.width, window.height);
+        mouseDetectionFramebuffer.resize(window.v_width, window.v_height);
+        mainFramebuffer.resize(window.v_width, window.v_height);
+        postProcessingFramebuffer.resize(window.v_width, window.v_height);
         glEnable(GL_DEPTH_TEST);
-        glUniform2f(glGetUniformLocation(frameBufferShader.ID, "resolution"), window.width, window.height);
+        glUniform2f(glGetUniformLocation(frameBufferShader.ID, "resolution"), window.v_width, window.v_height);
         shadowMapProgram.activate();
         glUniformMatrix4fv(glGetUniformLocation(shadowMapProgram.ID, "lightProjection"), 1, GL_FALSE, glm::value_ptr(lightProjection));
         shadowFramebuffer.bind();
@@ -238,7 +240,7 @@ int main()
             gird1.Draw(shadowMapProgram, camera3D,glm::vec3(0, -10, 0), glm::vec3(0, 0, 0), glm::vec3(20.0f, 5.0f, 20.0f));
         }
         mainFramebuffer.bind();
-        glViewport(0, 0, window.width, window.height);
+        glViewport(0, 0, window.v_width, window.v_height);
 
         glEnable(GL_DEPTH_TEST);
         shaderProgram.activate();
@@ -262,7 +264,7 @@ int main()
         // Blit to post-processing framebuffer
         glBindFramebuffer(GL_READ_FRAMEBUFFER, mainFramebuffer.FBO);
         glBindFramebuffer(GL_DRAW_FRAMEBUFFER, postProcessingFramebuffer.FBO);
-        glBlitFramebuffer(0, 0, window.width, window.height, 0, 0, window.width, window.height, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+        glBlitFramebuffer(0, 0, window.v_width, window.v_height, 0, 0, window.v_width, window.v_height, GL_COLOR_BUFFER_BIT, GL_NEAREST);
         bool horizontal = true, first_iteration = true;
         blurProgram.activate();
         int Blur_amount = 8;
@@ -285,7 +287,6 @@ int main()
 
 
 
-        glm::vec2 mousePos = camera2D.mouseAsWorldPosition();
         renderer.setShader(classicShader);
         renderer.draw(camera2D);
         renderer.tex = Texture(shadowFramebuffer.getTexture(), 0);
@@ -299,7 +300,7 @@ int main()
             
             selectedObj = mouseDetect.ID_OVER_OBJECT(window, mouseDetectionFramebuffer, unlitShader, camera2D, objects);
         }
-        if (selectedObj > -1) 
+        if (selectedObj != -1) 
         {
             gizmos.scaleTextureGizmos(*objects[selectedObj].get(), mousePos, window);
             gizmos.worldGimzo(*objects[selectedObj].get(), mousePos, window);
@@ -311,7 +312,7 @@ int main()
         gizmos.line(glm::vec2(.05, 0), glm::vec2(-.05, 0), 4, glm::vec3(0));
 
 
-        gizmos.line(glm::vec3(0), glm::vec3(10,10,0), 4, glm::vec3(1), camera3D, window.width, window.height, 60, 0.1f, 100.0f, camera2D, mousePos,window.getWindow(), interX);
+        gizmos.line(glm::vec3(interX, 0, 0), glm::vec3(interX + 10, 0, 0), 4, glm::vec3(1), camera3D, window.v_width, window.v_height, 60, 0.1f, 100.0f, camera2D, mousePos,window.getWindow(), interX);
 
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
@@ -319,6 +320,14 @@ int main()
 
 
         //UI
+        ImGui::Begin("Scripts");
+        ImGui::End();
+        ImGui::Begin("Packages");
+        ImGui::Text("Ctrl-p to search open");
+        ImGui::End();
+        ImGui::Begin("Objects");
+        ImGui::End();
+
         ImGui::Begin("Lighting");
         ImGui::Text("OpenVision 3D graphics :");
         ImGui::Text("Default settings are fine, but in case of more control over the graphical");

@@ -58,13 +58,12 @@ glm::vec2 InputSystem::getMousePosition()
  
     int width, height;
     glfwGetWindowSize(instance->window, &width, &height);
-
     double x = 0;
     double y = 0;
 
     glfwGetCursorPos(instance->window, &x, &y);
 
-    return { x , y };
+    return { x , y};
 }
 
 glm::vec2 InputSystem::getScrollWheel()
