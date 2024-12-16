@@ -80,16 +80,16 @@ glm::vec2 Camera2D::worldToScreen(glm::vec2 worldPosition)
     glm::vec3 ndcPosition = glm::vec3(clipSpacePosition) / clipSpacePosition.w;
 
     // Convert NDC to screen coordinates
-    float screenX = ((ndcPosition.x + 1.0f) / 2.0f) * width;
-    float screenY = ((1.0f - ndcPosition.y) / 2.0f) * height; // Y-axis is inverted
+    float screenX = ((ndcPosition.x + 1.0f) / 2.0f) * v_width;
+    float screenY = ((1.0f - ndcPosition.y) / 2.0f) * v_height; // Y-axis is inverted
 
     return glm::vec2(screenX, screenY);
 }
 glm::vec2 Camera2D::screenToWorld(glm::vec2 screenPosition)
 {
     // Convert screen coordinates to normalized device coordinates (NDC)
-    float ndcX = (2.0f * screenPosition.x) / width - 1.0f;
-    float ndcY = 1.0f - (2.0f * screenPosition.y) / height; // Y-axis is inverted
+    float ndcX = (2.0f * screenPosition.x) / v_width - 1.0f;
+    float ndcY = 1.0f - (2.0f * screenPosition.y) / v_height; // Y-axis is inverted
 
     // Convert NDC to clip space (homogeneous coordinates)
     glm::vec4 clipSpacePosition = glm::vec4(ndcX, ndcY, 0.0f, 1.0f);

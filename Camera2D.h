@@ -19,17 +19,20 @@ public:
 	float zoom = 1;
 	int width;
 	int height;
-
-
 	Camera2D(glm::vec3 position, int width, int height);
 	glm::mat4 getViewMatrix();
 	void setAspectRatio(int newWidth, int newHeight);
 	glm::mat4 getProjectionMatrix(float FOVdeg, float nearPlane, float farPlane);
 	void updateMatrix(float nearPlane, float farPlane);
 	void Matrix(GLuint shader, const char* uniform);
-
+	void setVieportSize(int w, int h) { v_width = w; v_height = h; }
 	glm::vec2 mouseAsWorldPosition(glm::vec2 viewportSize);
 	glm::vec2 worldToScreen(glm::vec2 worldPosition);
 	glm::vec2 screenToWorld(glm::vec2 screenPosition);
+private:
+	int v_width;
+	int v_height;
+	
+
 };
 #endif
