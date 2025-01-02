@@ -258,6 +258,7 @@ public:
         glm::vec2 pivotRightUp = glm::vec2(object.transform->position.x + object.transform->scale.x / 2, object.transform->position.y + object.transform->scale.y / 2);
         glm::vec2 pivotRightBottom = glm::vec2(object.transform->position.x + object.transform->scale.x / 2, object.transform->position.y - object.transform->scale.y / 2);
         //glm::vec2 pivotLeftUp(object.transform->position.x - object.transform->scale.x / 2, object.transform->position.y + object.transform->scale.y / 2);
+        
         float blackThickness = 7.0f;
         float whiteThickness = 3.0f;
         line(pivotLeftBottom, pivotLeftUp, blackThickness, glm::vec3(0, 0, 0));
@@ -275,29 +276,29 @@ public:
         line(pivotRightBottom, pivotLeftBottom, whiteThickness, glm::vec3(1));
         if (InputSystem::getUp(Inputs::MouseLeft))
         {
-            Dragging = "";
+            dragging = Dragging::null;
             object.getComponent<TextureRenderer>().releaseMouse();
             window.setCursor(Window::Cursors::ArrowCursor);
 
 
         }
-        if (Dragging != "MD" && Dragging != "ML" && Dragging != "MU") {
+        if (dragging != Dragging::MD && dragging != Dragging::ML && dragging != Dragging::MU) {
             
-            if (checkMouseBoundary(pivotLeftBottom, pivotLeftUp, 5, mousePos) || checkMouseBoundary(pivotRightUp, pivotRightBottom, 5, mousePos) || Dragging == "SX") {
+            if (checkMouseBoundary(pivotLeftBottom, pivotLeftUp, 5, mousePos) || checkMouseBoundary(pivotRightUp, pivotRightBottom, 5, mousePos) || dragging == Dragging::SX) {
                 window.setCursor(Window::Cursors::HResizeCursor);
-                if (InputSystem::getHold(Inputs::MouseLeft) || Dragging == "SX")
+                if (InputSystem::getHold(Inputs::MouseLeft) || dragging == Dragging::SX)
                 {
                     object.getComponent<TextureRenderer>().snapScaleToMouseX(mousePos);
-                    Dragging = "SX";
+                    dragging = Dragging::SX;
                 }
             }
-            else if (checkMouseBoundary(pivotLeftUp, pivotRightUp, 5, mousePos) || checkMouseBoundary(pivotRightBottom, pivotLeftBottom, 5, mousePos) || Dragging == "SY")
+            else if (checkMouseBoundary(pivotLeftUp, pivotRightUp, 5, mousePos) || checkMouseBoundary(pivotRightBottom, pivotLeftBottom, 5, mousePos) || dragging == Dragging::SY)
             {
                 window.setCursor(Window::Cursors::VResizeCursor);
-                if (InputSystem::getHold(Inputs::MouseLeft) || Dragging == "SY")
+                if (InputSystem::getHold(Inputs::MouseLeft) || dragging == Dragging::SY)
                 {
                     object.getComponent<TextureRenderer>().snapScaleToMouseY(mousePos);
-                    Dragging = "SY";
+                    dragging = Dragging::SY;
                 }
             }
             else { window.setCursor(Window::Cursors::ArrowCursor); }
@@ -316,42 +317,42 @@ public:
         middle.transform->scale = glm::vec2(0.1f, 0.1f);
         if (InputSystem::getUp(Inputs::MouseLeft))
         {
-            Dragging = "";
+            dragging = Dragging::null;
             object.getComponent<TextureRenderer>().releaseMouse();
             window.setCursor(Window::Cursors::ArrowCursor);
        
        
         }
-        if (Dragging != "SX" && Dragging != "SY") {
-            if (renderer.checkMouseBoundry(mousePos, window.width, window.height) || Dragging == "MD")
+        if (dragging != Dragging::SX && dragging != Dragging::SY) {
+            if (renderer.checkMouseBoundry(mousePos, window.width, window.height) || dragging == Dragging::MD)
             {
-                if (InputSystem::getHold(Inputs::MouseLeft) || Dragging == "MD")
+                if (InputSystem::getHold(Inputs::MouseLeft) || dragging == Dragging::MD)
                 {
                     object.getComponent<TextureRenderer>().snapToMouse(mousePos);
-                    Dragging = "MD";
+                    dragging = Dragging::MD;
                 }
             }
-            else if (checkMouseBoundary(object.transform->position, glm::vec2(object.transform->position.x + 0.3, object.transform->position.y), 10, mousePos) || Dragging == "ML")
+            else if (checkMouseBoundary(object.transform->position, glm::vec2(object.transform->position.x + 0.3, object.transform->position.y), 10, mousePos) || dragging == Dragging::ML)
             {
-                if (InputSystem::getHold(Inputs::MouseLeft) || Dragging == "ML")
+                if (InputSystem::getHold(Inputs::MouseLeft) || dragging == Dragging::ML)
                 {
                     object.getComponent<TextureRenderer>().snapToMouseX(mousePos);
-                    Dragging = "ML";
+                    dragging = Dragging::ML;
                 }
             }
-            else if (checkMouseBoundary(object.transform->position, glm::vec2(object.transform->position.x, object.transform->position.y + 0.3), 10, mousePos) || Dragging == "MU")
+            else if (checkMouseBoundary(object.transform->position, glm::vec2(object.transform->position.x, object.transform->position.y + 0.3), 10, mousePos) || dragging == Dragging::MU)
             {
                 if (InputSystem::getHold(Inputs::MouseLeft))
                 {
                     object.getComponent<TextureRenderer>().snapToMouseY(mousePos);
-                    Dragging = "MU";
+                    dragging = Dragging::MU;
                 }
             }
        
         }
     }
     bool isDragging() {
-        return Dragging != "";
+        return dragging != Dragging::null;
     }
 private:
     bool lineDragging3D = false;
@@ -369,7 +370,17 @@ private:
     {
         return radians * 3.14159f / 180;
     }
-    std::string Dragging = "";
+    enum Dragging
+    {
+        null,
+        MD,
+        MU,
+        ML,
+        SX,
+        SY,
+
+    };
+    Dragging dragging = Dragging::null;
 };
 
 #endif

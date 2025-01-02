@@ -255,7 +255,7 @@ int main()
         gird.Draw(shaderProgram, camera3D, glm::vec3(interX, 0, 0), glm::vec3(0, 0, 0), glm::vec3(10.0f));
 
         gird.Draw(shaderProgram, camera3D, glm::vec3(11, 0,0), glm::vec3(0, 0, 0), glm::vec3(10.0f));
-
+        
         gird.Draw(shaderProgram, camera3D, glm::vec3(0, 11, 0), glm::vec3(0, 0, 0), glm::vec3(10.0f));
         gird.Draw(shaderProgram, camera3D, glm::vec3(0, -11, 0), glm::vec3(0, 0, 0), glm::vec3(10.0f));
         grass.Draw(shaderProgram, camera3D, glm::vec3(0, -10, 0), glm::vec3(0, 0, 0), glm::vec3(5.0f));
@@ -304,11 +304,11 @@ int main()
             
             selectedObj = mouseDetect.ID_OVER_OBJECT(window, mouseDetectionFramebuffer, unlitShader, camera2D, objects);
         }
-        if (selectedObj != -1) 
+        if (selectedObj != -1)
         {
-            gizmos.scaleTextureGizmos(*objects[selectedObj].get(), mousePos, window);
-            gizmos.worldGimzo(*objects[selectedObj].get(), mousePos, window);
             gizmos.Overlap(camera2D);
+            gizmos.worldGimzo(*objects[selectedObj].get(), mousePos, window);
+            gizmos.scaleTextureGizmos(*objects[selectedObj].get(), mousePos, window);
         }
 
         
