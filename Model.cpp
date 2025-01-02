@@ -30,7 +30,7 @@ void Model::Draw(Shader& shader, Camera3D& camera)
 		for (unsigned int i = 0; i < meshes.size(); i++)
 		{
 
-			meshes[i].Mesh::Draw(shader, camera, matricesMeshes[i], translation, rotation, scale);
+			meshes[i].Mesh::Draw(shader, camera, matricesMeshes[i], translation * glm::vec3(2), rotation, scale);
 		}
 	}
 }
@@ -42,7 +42,7 @@ void Model::Draw(Shader& shader, Camera3D& camera,glm::vec3 position, glm::vec3 
 	for (unsigned int i = 0; i < meshes.size(); i++)
 	{
 
-		meshes[i].Mesh::Draw(shader, camera, matricesMeshes[i], position, rot, scale);
+		meshes[i].Mesh::Draw(shader, camera, matricesMeshes[i], position * glm::vec3(2), rot, scale);
 	}
 
 }

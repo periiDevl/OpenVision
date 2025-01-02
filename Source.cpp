@@ -252,10 +252,14 @@ int main()
         window.clear();
 
         glEnable(GL_DEPTH_TEST);
-        gird.Draw(shaderProgram, camera3D, glm::vec3(interX, 0,0), glm::vec3(0, 0, 0), glm::vec3(10.0f));
-        gird.Draw(shaderProgram, camera3D, glm::vec3(0, 21, 0), glm::vec3(0, 0, 0), glm::vec3(10.0f));
+        gird.Draw(shaderProgram, camera3D, glm::vec3(interX, 0, 0), glm::vec3(0, 0, 0), glm::vec3(10.0f));
+
+        gird.Draw(shaderProgram, camera3D, glm::vec3(11, 0,0), glm::vec3(0, 0, 0), glm::vec3(10.0f));
+
+        gird.Draw(shaderProgram, camera3D, glm::vec3(0, 11, 0), glm::vec3(0, 0, 0), glm::vec3(10.0f));
+        gird.Draw(shaderProgram, camera3D, glm::vec3(0, -11, 0), glm::vec3(0, 0, 0), glm::vec3(10.0f));
         grass.Draw(shaderProgram, camera3D, glm::vec3(0, -10, 0), glm::vec3(0, 0, 0), glm::vec3(5.0f));
-        gird1.Draw(shaderProgram, camera3D, glm::vec3(0, -10, 0), glm::vec3(0, 0, 0), glm::vec3(20.0f, 5.0f, 20.0f));
+        //gird1.Draw(shaderProgram, camera3D, glm::vec3(0, -5, 0), glm::vec3(0, 0, 0), glm::vec3(20.0f, 5.0f, 20.0f));
 
 
         camera3D.Inputs(window.getWindow(), 1, 2);
