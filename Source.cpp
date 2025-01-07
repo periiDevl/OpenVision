@@ -199,7 +199,7 @@ int main()
         coll2.m_position = obj2.transform->position;
         coll3.m_position = obj3.transform->position;
 
-        std::cout << glm::to_string(coll2.m_scale) << std::endl;
+        //std::cout << glm::to_string(coll2.m_scale) << std::endl;
          
         world.fixedUpdate(0.003); // will change to fixed delta time
 
@@ -298,20 +298,19 @@ int main()
         renderer2.draw(camera2D);
         renderer3.setShader(classicShader);
         renderer3.draw(camera2D);
+        if (InputSystem::getMousePosition().y - (window.v_height / 2) <= window.v_height && InputSystem::getMousePosition().x <= window.v_width) {
+            if (InputSystem::getDown(Inputs::MouseLeft) && !gizmos.isDragging())
+            {
 
-        if (InputSystem::getDown(Inputs::MouseLeft) && !gizmos.isDragging()) 
-        {
-            
-            selectedObj = mouseDetect.ID_OVER_OBJECT(window, mouseDetectionFramebuffer, unlitShader, camera2D, objects);
+                selectedObj = mouseDetect.ID_OVER_OBJECT(window, mouseDetectionFramebuffer, unlitShader, camera2D, objects);
+            }
+            if (selectedObj != -1)
+            {
+                gizmos.Overlap(camera2D);
+                gizmos.worldGimzo(*objects[selectedObj].get(), mousePos, window);
+                gizmos.scaleTextureGizmos(*objects[selectedObj].get(), mousePos, window);
+            }
         }
-        if (selectedObj != -1)
-        {
-            gizmos.Overlap(camera2D);
-            gizmos.worldGimzo(*objects[selectedObj].get(), mousePos, window);
-            gizmos.scaleTextureGizmos(*objects[selectedObj].get(), mousePos, window);
-        }
-
-        
         gizmos.line(glm::vec2(0, .05), glm::vec2(0, -.05), 4, glm::vec3(0));
         gizmos.line(glm::vec2(.05, 0), glm::vec2(-.05, 0), 4, glm::vec3(0));
 

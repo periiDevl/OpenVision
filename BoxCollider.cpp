@@ -38,7 +38,7 @@ glm::vec2 BoxCollider::findFurthestPoint(const glm::vec2 & direction) const
 		}
 	}
 
-	std::cout << glm::to_string(points[maxIndex]) << ", " << glm::to_string(m_position) << std::endl;
+	//std::cout << glm::to_string(points[maxIndex]) << ", " << glm::to_string(m_position) << std::endl;
 
 	return points[maxIndex] + m_position;
 }

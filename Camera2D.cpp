@@ -47,12 +47,12 @@ glm::vec2 Camera2D::mouseAsWorldPosition(glm::vec2 viewportSize)
 
 	updateMatrix(0.1, 100);
     
-    std::cout << "Mouse: " << mousePos.x << ", " << mousePos.y << std::endl;
-    std::cout << "Size: " << width << ", " << height << std::endl;
-    std::cout << "V Size: " << viewportSize.x << ", " << viewportSize.y << std::endl;
+    //std::cout << "Mouse: " << mousePos.x << ", " << mousePos.y << std::endl;
+    //std::cout << "Size: " << width << ", " << height << std::endl;
+    //std::cout << "V Size: " << viewportSize.x << ", " << viewportSize.y << std::endl;
 	float ndcX = (2.0f * mousePos.x) / viewportSize.x - 1.0f;
 	float ndcY = 1.0f - 2.0f * ( mousePos.y - (height - viewportSize.y)) / viewportSize.y; // Y is inverted in GLFW
-
+    
 	// Step 3: Transform NDC to world coordinates using the inverse projection matrix
 	// Set up the orthographic projection matrix, as before
 	float orthoSize = 1.0f; // Example orthographic size
