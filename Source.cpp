@@ -252,7 +252,7 @@ int main()
         window.clear();
 
         glEnable(GL_DEPTH_TEST);
-        gird.Draw(shaderProgram, camera3D, glm::vec3(interX, 0, 0), glm::vec3(0, 0, 0), glm::vec3(10.0f));
+        gird.Draw(shaderProgram, camera3D, glm::vec3(interX / 2, 0, 0), glm::vec3(0, 0, 0), glm::vec3(10.0f));
 
         gird.Draw(shaderProgram, camera3D, glm::vec3(11, 0,0), glm::vec3(0, 0, 0), glm::vec3(10.0f));
         

@@ -130,7 +130,7 @@ public:
             (clipEnd.x / clipEnd.w * 0.5f + 0.5f) * screenWidth,
             (1.0f - (clipEnd.y / clipEnd.w * 0.5f + 0.5f)) * screenHeight
         );
-
+        float speed = 8.0f;
         glUniformMatrix4fv(glGetUniformLocation(unlit_shader.ID, "model"), 1, GL_FALSE, glm::value_ptr(model));
         glUniform3f(glGetUniformLocation(unlit_shader.ID, "camPos"), camera.Position.x, camera.Position.y, camera.Position.z);
         camera.Matrix(unlit_shader, "camMatrix");
@@ -172,10 +172,10 @@ public:
                 glm::vec3 intersectionPoint = start + t * direction;
 
                 if (positive_m) {
-                    initialClickX = interX - (-intersectionPoint.x * screenWidth / (2.0f * 2.0f));
+                    initialClickX = interX - (-intersectionPoint.x * speed);
                 }
                 else {
-                    initialClickX = interX - (intersectionPoint.x * screenWidth / (2.0f * 2.0f));
+                    initialClickX = interX - (intersectionPoint.x * speed);
                 }
 
                 draggingInitialized = true;
@@ -196,10 +196,10 @@ public:
             glm::vec3 intersectionPoint = start + t * direction;
 
             if (positive_m) {
-                interX = initialClickX - intersectionPoint.x * screenWidth / (2.0f * 2.0f);
+                interX = initialClickX - intersectionPoint.x * speed;
             }
             else {
-                interX = initialClickX + intersectionPoint.x * screenWidth / (2.0f * 2.0f);
+                interX = initialClickX + intersectionPoint.x * speed;
             }
         }
 
