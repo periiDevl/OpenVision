@@ -13,6 +13,18 @@ struct Ov_Object
 	float x, y, scale_x, scale_y, index;
 	bool acc = false;
 };
+//Testing String ret
+extern "C" {
+	_declspec(dllexport) const char* getStringFromDLL() {
+		static std::string str = "Hello";
+		return str.c_str();
+	}
+	__declspec(dllexport) void printStringFromMain(const char* str) {
+		std::cout << "Received string in DLL: " << str << std::endl;
+	}
+}
+
+
 extern "C" OVLIB_API void ScriptStart();
 extern "C" OVLIB_API void ScriptUpdate();
 extern "C" OVLIB_API void ScriptExit();

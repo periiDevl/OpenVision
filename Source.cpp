@@ -28,10 +28,11 @@
 #include "ShaderManager.h"
 #include "EventManager.h"
 #include "BoxCollider.h"
+#include "DLL.h"
 // Function declarations
 CSV vert;
 CSF frag;
-float far = 300.000f;
+float farFOV = 300.000f;
 glm::vec3 lightPos = glm::vec3(0.5f, 0.8f, 0.5f);
 
 using namespace physics2D;
@@ -40,6 +41,8 @@ float gamma = 1.6f;
 float exposure = 1.0f;
 int main() 
 {
+    DLL dynaLL;
+    dynaLL.loadDLL("DynaLL/x64/Debug/DynaLL.dll");
     EventManager::initialize();
 
     // Timers
@@ -116,7 +119,7 @@ int main()
     shaderProgram.setVec4("lightColor", glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
     shaderProgram.setVec3("lightPos", lightPos);
     shaderProgram.setFloat("near", 0.1f);
-    shaderProgram.setFloat("far", far);
+    shaderProgram.setFloat("far", farFOV);
     shaderProgram.setBool("BPL_Lighting", true);
 
     shaderProgram.setFloat("worldRadius", 800.0f);
@@ -150,7 +153,7 @@ int main()
     int shadowMapHeight = 1000;
     Framebuffer shadowFramebuffer(shadowMapWidth, shadowMapHeight, true); // 'true' for depth-only
 
-    glm::mat4 orthgonalProjection = glm::ortho(-50.0f, 50.0f, -50.0f, 50.0f, 0.01f, far);
+    glm::mat4 orthgonalProjection = glm::ortho(-50.0f, 50.0f, -50.0f, 50.0f, 0.01f, farFOV);
     glm::mat4 lightView = glm::lookAt(20.0f * lightPos, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
     glm::mat4 lightProjection = orthgonalProjection * lightView;
 
@@ -188,6 +191,8 @@ int main()
     camera2D.zoom = .4;
     while (window.windowRunning()) 
     {
+        std::cout << dynaLL.ReciveStringDLL() << std::endl;
+        dynaLL.SendStringToDll("Hello");
         glm::vec2 mousePos = camera2D.mouseAsWorldPosition(glm::vec2(window.v_width, window.v_height));
 
         coll.m_position = obj.transform->position;
@@ -210,12 +215,12 @@ int main()
         //lightView = glm::lookAt(1300.0f * lightPos, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
         //flightProjection = orthgonalProjection * lightView;
        
-        orthgonalProjection = glm::ortho(-50.0f, 50.0f, -50.0f, 50.0f, 0.0f, far);
+        orthgonalProjection = glm::ortho(-50.0f, 50.0f, -50.0f, 50.0f, 0.0f, farFOV);
         lightView = glm::lookAt(20.0f * lightPos, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
         lightProjection = orthgonalProjection * lightView;
         
         //camera2D.updateMatrix(0.1f, far);
-        camera3D.updateMatrix3D(60, 0.1f, far);
+        camera3D.updateMatrix3D(60, 0.1f, farFOV);
         mainFramebuffer.bind();
         window.clear();
         fpsTimer.start();
@@ -231,8 +236,13 @@ int main()
         glClear(GL_DEPTH_BUFFER_BIT);
         shadowMapProgram.activate();
         if (renderShadows) {
-            gird.Draw(shadowMapProgram, camera3D,glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), glm::vec3(10.0f));
-            gird1.Draw(shadowMapProgram, camera3D,glm::vec3(0, -10, 0), glm::vec3(0, 0, 0), glm::vec3(20.0f, 5.0f, 20.0f));
+            gird.Draw(shadowMapProgram, camera3D, glm::vec3(interX / 2, 0, 0), glm::vec3(0, 0, 0), glm::vec3(10.0f));
+
+            gird.Draw(shadowMapProgram, camera3D, glm::vec3(11, 0, 0), glm::vec3(0, 0, 0), glm::vec3(10.0f));
+
+            gird.Draw(shadowMapProgram, camera3D, glm::vec3(0, 11, 0), glm::vec3(0, 0, 0), glm::vec3(10.0f));
+            gird.Draw(shadowMapProgram, camera3D, glm::vec3(0, -11, 0), glm::vec3(0, 0, 0), glm::vec3(10.0f));
+            grass.Draw(shadowMapProgram, camera3D, glm::vec3(0, -10, 0), glm::vec3(0, 0, 0), glm::vec3(5.0f));
         }
         mainFramebuffer.bind();
         glViewport(0, 0, window.v_width, window.v_height);
@@ -411,7 +421,7 @@ int main()
         while (fpsTimer.getElapsedNanoSeconds() < 5000000);
     }                                   
                                         
-                                        
+    dynaLL.clean();
     return 0;                           
 }                                       
                                         
