@@ -98,43 +98,38 @@ int main()
     Shader& shadowMapProgram = shaders.addShader("shadowMapProgram", vert.ShadowMap, frag.NONE);
     Shader& blurProgram = shaders.addShader("blurProgram", vert.Frame, frag.Blur);
 
-    // Framebuffer settings
     frameBufferShader.activate();
-    glUniform1i(glGetUniformLocation(frameBufferShader.ID, "screenTexture"), 0);
-    glUniform1i(glGetUniformLocation(frameBufferShader.ID, "bloomTexture"), 1);
-    glUniform1f(glGetUniformLocation(frameBufferShader.ID, "radius"), 1.0);
-    glUniform1f(glGetUniformLocation(frameBufferShader.ID, "softness"), 0.2f);
-    glUniform1f(glGetUniformLocation(frameBufferShader.ID, "minEdgeContrast"), 128);
-    glUniform1f(glGetUniformLocation(frameBufferShader.ID, "subPixelAliasing"), 8);
-    glUniform1f(glGetUniformLocation(frameBufferShader.ID, "maximumEdgeDetection"), 128);
+    frameBufferShader.setInt("screenTexture", 0);
+    frameBufferShader.setInt("bloomTexture", 1);
+    frameBufferShader.setFloat("radius", 1.0f);
+    frameBufferShader.setFloat("softness", 0.2f);
+    frameBufferShader.setFloat("minEdgeContrast", 128.0f);
+    frameBufferShader.setFloat("subPixelAliasing", 8.0f);
+    frameBufferShader.setFloat("maximumEdgeDetection", 128.0f);
 
-    glUniform1f(glGetUniformLocation(frameBufferShader.ID, "gamma"), gamma);
-    glUniform1f(glGetUniformLocation(frameBufferShader.ID, "exposure"), exposure);
-
-    glUniform2f(glGetUniformLocation(frameBufferShader.ID, "resolution"), window.v_width, window.v_height);
+    frameBufferShader.setFloat("gamma", gamma);
+    frameBufferShader.setFloat("exposure", exposure);
+    frameBufferShader.setVec2("resolution", glm::vec2(window.v_width, window.v_height));
 
     shaderProgram.activate();
+    shaderProgram.setFloat("avgShadow", 1.0f);
+    shaderProgram.setVec4("lightColor", glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+    shaderProgram.setVec3("lightPos", lightPos);
+    shaderProgram.setFloat("near", 0.1f);
+    shaderProgram.setFloat("far", far);
+    shaderProgram.setBool("BPL_Lighting", true);
 
-    glUniform1f(glGetUniformLocation(shaderProgram.ID, "avgShadow"), 1.0f);
-    glUniform4f(glGetUniformLocation(shaderProgram.ID, "lightColor"), 1, 1, 1, 1);
-    glUniform3f(glGetUniformLocation(shaderProgram.ID, "lightPos"), lightPos.x, lightPos.y, lightPos.z);
-    glUniform1f(glGetUniformLocation(shaderProgram.ID, "near"), 0.1f);
-    glUniform1f(glGetUniformLocation(shaderProgram.ID, "far"), far);
+    shaderProgram.setFloat("worldRadius", 800.0f);
 
-    glUniform1i(glGetUniformLocation(shaderProgram.ID, "BPL_Lighting"), true);
+    shaderProgram.setFloat("bias1", 0.005f);
+    shaderProgram.setFloat("bias2", 0.0005f);
 
-
-    glUniform1f(glGetUniformLocation(shaderProgram.ID, "worldRadius"), 800);
-
-    glUniform1f(glGetUniformLocation(shaderProgram.ID, "bias1"), 0.005f); // maximum bias
-    glUniform1f(glGetUniformLocation(shaderProgram.ID, "bias2"), 0.0005f); // minimum bias
-
-
-    glUniform1i(glGetUniformLocation(shaderProgram.ID, "sampleRadius"), 1);
+    shaderProgram.setInt("sampleRadius", 1);
 
     blurProgram.activate();
-    glUniform1i(glGetUniformLocation(blurProgram.ID, "screenTexture"), 0);
-    glUniform1f(glGetUniformLocation(blurProgram.ID, "spreadBlur"), 1.7f);
+    blurProgram.setInt("screenTexture", 0);
+    blurProgram.setFloat("spreadBlur", 1.7f);
+
 
     // Error checking framebuffer
     auto fboStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);
@@ -391,7 +386,7 @@ int main()
                    
         ImGui::SetNextItemWidth(80.0f);
 
-        
+
         // Optionally, you can adjust the sun's angle based on timeOfDay if you want to simulate the sun's position:
         // (For example, set the light rotation to correspond to the time of day)
         // For simplicity, the `lightPos.x` can already be used to control the sun's position via `adjustedLightX`.
