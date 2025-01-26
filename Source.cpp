@@ -39,6 +39,7 @@ using namespace physics2D;
 
 float gamma = 1.6f;
 float exposure = 1.0f;
+float camShadowDistance = 500;
 int main() 
 {
     DLL dynaLL;
@@ -149,8 +150,8 @@ int main()
     PostProcessingFramebuffer postProcessingFramebuffer(window.v_width, window.v_height);
     //Shadow framebuffer
     bool renderShadows = true;
-    int shadowMapWidth = 1000;
-    int shadowMapHeight = 1000;
+    int shadowMapWidth = 3000;
+    int shadowMapHeight = 3000;
     Framebuffer shadowFramebuffer(shadowMapWidth, shadowMapHeight, true); // 'true' for depth-only
 
     glm::mat4 orthgonalProjection = glm::ortho(-50.0f, 50.0f, -50.0f, 50.0f, 0.01f, farFOV);
@@ -214,11 +215,17 @@ int main()
         //orthgonalProjection = glm::ortho(-500.0f, 500.0f, -500.0f, 500.0f, 0.0f, far);
         //lightView = glm::lookAt(1300.0f * lightPos, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
         //flightProjection = orthgonalProjection * lightView;
-       
-        orthgonalProjection = glm::ortho(-50.0f, 50.0f, -50.0f, 50.0f, 0.0f, farFOV);
+        
         lightView = glm::lookAt(20.0f * lightPos, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
         lightProjection = orthgonalProjection * lightView;
-        
+        orthgonalProjection = glm::ortho(
+            -camShadowDistance + camera3D.Position.x,
+            camShadowDistance + camera3D.Position.x,
+            -camShadowDistance + camera3D.Position.y,
+            camShadowDistance + camera3D.Position.y,
+            -camShadowDistance + camera3D.Position.z,
+            camShadowDistance + camera3D.Position.z
+        );
         //camera2D.updateMatrix(0.1f, far);
         camera3D.updateMatrix3D(60, 0.1f, farFOV);
         mainFramebuffer.bind();
@@ -350,7 +357,11 @@ int main()
         ImGui::SetNextItemWidth(80.0f);
         ImGui::InputFloat("Exposure", &exposure);
         glUniform1f(glGetUniformLocation(frameBufferShader.ID, "exposure"), exposure);
-
+        ImGui::SetNextItemWidth(80.0f);
+        ImGui::InputFloat("i:", &camShadowDistance);
+        ImGui::SameLine();
+        ImGui::SetNextItemWidth(300.0f);
+        ImGui::SliderFloat("Camera Shadow Draw Distance", &camShadowDistance, 300, 5000);
         ImGui::Separator();
         // Display the shadow texture on the left
         ImGui::BeginGroup();
