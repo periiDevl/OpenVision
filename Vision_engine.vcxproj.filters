@@ -292,6 +292,7 @@
     <ClInclude Include="DLL.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="DirectionalLight.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Header Files">

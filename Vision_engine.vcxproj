@@ -221,6 +221,7 @@
     <ClInclude Include="Console.h" />
     <ClInclude Include="CSF.h" />
     <ClInclude Include="CSV.h" />
+    <ClInclude Include="DirectionalLight.h" />
     <ClInclude Include="DLL.h" />
     <ClInclude Include="EBO.h" />
     <ClInclude Include="Entity.h" />

@@ -20,7 +20,7 @@
 #include "CSV.h"
 #include "CSF.h"
 #include "PhysicsWorld.h"
-
+#include "DirectionalLight.h"
 #include "IMGUITheme.h"
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
@@ -33,15 +33,15 @@
 CSV vert;
 CSF frag;
 float farFOV = 300.000f;
-glm::vec3 lightPos = glm::vec3(0.5f, 0.8f, 0.5f);
 
 using namespace physics2D;
 
 float gamma = 1.6f;
 float exposure = 1.0f;
-float camShadowDistance = 500;
 int main() 
 {
+    DirectionalLight direcLight;
+
     DLL dynaLL;
     dynaLL.loadDLL("DynaLL/x64/Debug/DynaLL.dll");
     EventManager::initialize();
@@ -118,7 +118,7 @@ int main()
     shaderProgram.activate();
     shaderProgram.setFloat("avgShadow", 1.0f);
     shaderProgram.setVec4("lightColor", glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
-    shaderProgram.setVec3("lightPos", lightPos);
+    shaderProgram.setVec3("lightPos", direcLight.getRawLightPosition());
     shaderProgram.setFloat("near", 0.1f);
     shaderProgram.setFloat("far", farFOV);
     shaderProgram.setBool("BPL_Lighting", true);
@@ -148,19 +148,10 @@ int main()
     Framebuffer mainFramebuffer(window.v_width, window.v_height);
     Framebuffer mouseDetectionFramebuffer(window.v_width, window.v_height);
     PostProcessingFramebuffer postProcessingFramebuffer(window.v_width, window.v_height);
-    //Shadow framebuffer
-    bool renderShadows = true;
-    int shadowMapWidth = 3000;
-    int shadowMapHeight = 3000;
-    Framebuffer shadowFramebuffer(shadowMapWidth, shadowMapHeight, true); // 'true' for depth-only
-
-    glm::mat4 orthgonalProjection = glm::ortho(-50.0f, 50.0f, -50.0f, 50.0f, 0.01f, farFOV);
-    glm::mat4 lightView = glm::lookAt(20.0f * lightPos, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-    glm::mat4 lightProjection = orthgonalProjection * lightView;
+    Framebuffer shadowFramebuffer(direcLight.shadowMapWidth, direcLight.shadowMapHeight, true); // 'true' for depth-only
+    direcLight.shaderSetup(shaderProgram);
 
 
-    shadowMapProgram.activate();
-    glUniformMatrix4fv(glGetUniformLocation(shadowMapProgram.ID, "lightProjection"), 1, GL_FALSE, glm::value_ptr(lightProjection));
 
 
     // Gizmos
@@ -216,16 +207,8 @@ int main()
         //lightView = glm::lookAt(1300.0f * lightPos, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
         //flightProjection = orthgonalProjection * lightView;
         
-        lightView = glm::lookAt(20.0f * lightPos, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-        lightProjection = orthgonalProjection * lightView;
-        orthgonalProjection = glm::ortho(
-            -camShadowDistance + camera3D.Position.x,
-            camShadowDistance + camera3D.Position.x,
-            -camShadowDistance + camera3D.Position.y,
-            camShadowDistance + camera3D.Position.y,
-            -camShadowDistance + camera3D.Position.z,
-            camShadowDistance + camera3D.Position.z
-        );
+        direcLight.calculateShadowsProj(camera3D);
+
         //camera2D.updateMatrix(0.1f, far);
         camera3D.updateMatrix3D(60, 0.1f, farFOV);
         mainFramebuffer.bind();
@@ -237,12 +220,12 @@ int main()
         glEnable(GL_DEPTH_TEST);
         glUniform2f(glGetUniformLocation(frameBufferShader.ID, "resolution"), window.v_width, window.v_height);
         shadowMapProgram.activate();
-        glUniformMatrix4fv(glGetUniformLocation(shadowMapProgram.ID, "lightProjection"), 1, GL_FALSE, glm::value_ptr(lightProjection));
+        glUniformMatrix4fv(glGetUniformLocation(shadowMapProgram.ID, "lightProjection"), 1, GL_FALSE, glm::value_ptr(direcLight.getLightProjection()));
         shadowFramebuffer.bind();
-        glViewport(0, 0, shadowMapWidth, shadowMapHeight);
+        glViewport(0, 0, direcLight.shadowMapWidth, direcLight.shadowMapHeight);
         glClear(GL_DEPTH_BUFFER_BIT);
         shadowMapProgram.activate();
-        if (renderShadows) {
+        if (direcLight.renderShadows) {
             gird.Draw(shadowMapProgram, camera3D, glm::vec3(interX / 2, 0, 0), glm::vec3(0, 0, 0), glm::vec3(10.0f));
 
             gird.Draw(shadowMapProgram, camera3D, glm::vec3(11, 0, 0), glm::vec3(0, 0, 0), glm::vec3(10.0f));
@@ -256,8 +239,8 @@ int main()
 
         glEnable(GL_DEPTH_TEST);
         shaderProgram.activate();
-        glUniformMatrix4fv(glGetUniformLocation(shaderProgram.ID, "lightProjection"), 1, GL_FALSE, glm::value_ptr(lightProjection));
-        glUniform3f(glGetUniformLocation(shaderProgram.ID, "lightPos"), lightPos.x, lightPos.y, lightPos.z);
+        glUniformMatrix4fv(glGetUniformLocation(shaderProgram.ID, "lightProjection"), 1, GL_FALSE, glm::value_ptr(direcLight.getLightProjection()));
+        glUniform3f(glGetUniformLocation(shaderProgram.ID, "lightPos"),direcLight.getRawLightPosition().x, direcLight.getRawLightPosition().y, direcLight.getRawLightPosition().z);
         glActiveTexture(GL_TEXTURE0 + 2);
         glBindTexture(GL_TEXTURE_2D, shadowFramebuffer.getTexture());
         glUniform1i(glGetUniformLocation(shaderProgram.ID, "shadowMap"), 2);
@@ -310,7 +293,8 @@ int main()
         renderer2.draw(camera2D);
         renderer3.setShader(classicShader);
         renderer3.draw(camera2D);
-        if (InputSystem::getMousePosition().y - (window.v_height / 2) <= window.v_height && InputSystem::getMousePosition().x <= window.v_width) {
+        if (mousePos.y > 0 || InputSystem::getMousePosition().x < window.v_width)
+        {
             if (InputSystem::getDown(Inputs::MouseLeft) && !gizmos.isDragging())
             {
 
@@ -358,43 +342,25 @@ int main()
         ImGui::InputFloat("Exposure", &exposure);
         glUniform1f(glGetUniformLocation(frameBufferShader.ID, "exposure"), exposure);
         ImGui::SetNextItemWidth(80.0f);
-        ImGui::InputFloat("i:", &camShadowDistance);
+        ImGui::InputFloat("i:", &direcLight.camShadowDistance);
         ImGui::SameLine();
         ImGui::SetNextItemWidth(300.0f);
-        ImGui::SliderFloat("Camera Shadow Draw Distance", &camShadowDistance, 300, 5000);
+        ImGui::SliderFloat("Camera Shadow Draw Distance", &direcLight.camShadowDistance, 300, 5000);
         ImGui::Separator();
         // Display the shadow texture on the left
         ImGui::BeginGroup();
 
-        // Add sliders with proper alignment
-        float lightX;
-        float lightY;
-        // Sliders to control light position
 
         ImGui::Image((ImTextureID)shadowFramebuffer.getTexture(), ImVec2(200, 200), ImVec2(0, 1), ImVec2(1, 0));
         ImGui::SameLine();
         
-        ImGui::VSliderFloat("Y", ImVec2(20, 200), &lightY, -1.57f * 100, 1.57f * 100);  // Rotation around X-axis (restricted range)
+        ImGui::VSliderFloat("Y", ImVec2(20, 200), &direcLight.Y, -1.57f * 100, 1.57f * 100);  // Rotation around X-axis (restricted range)
         ImGui::SameLine();
         ImGui::Image((ImTextureID)postProcessingFramebuffer.pingpongBuffer[!horizontal], ImVec2(70, 70), ImVec2(0, 1), ImVec2(1, 0));
 
         ImGui::SetNextItemWidth(200);
-        ImGui::SliderFloat("X", &lightX, -3.14f * 10, 3.14f * 10);  // Rotation around Y-axis
-        // Rotation speed (this controls how fast the light moves without affecting the slider values)
-        float rotationSpeed = 0.1f;  // You can adjust this for smoothness
-        float adjustedLightX = lightX * rotationSpeed;  // Adjusted rotation for X (around the Y-axis)
-        float adjustedLightY = lightY * rotationSpeed;  // Adjusted rotation for Y (around the X-axis)
-
-        // Set the radius of light's circular path
-        float radius = 5.0f;  // Distance from the origin (this can be adjusted)
-
-        // Rotate the light around the Y-axis (X controls the angle here)
-        lightPos.x = radius * cos(adjustedLightX);  // X position based on the angle
-        lightPos.z = radius * sin(adjustedLightX);  // Z position based on the angle
-
-        // Rotate the light around the X-axis (Y controls the vertical angle here)
-        lightPos.y = adjustedLightY;  // Y position based on the height (vertical rotation)
-
+        ImGui::SliderFloat("X", &direcLight.X, -3.14f * 10, 3.14f * 10);  // Rotation around Y-axis
+        direcLight.calculateLightRawToCoords();
         ImGui::EndGroup();
 
         ImGui::SameLine(); // Move to the same row but keep in a new column
@@ -403,7 +369,7 @@ int main()
         ImGui::BeginGroup();
         ImGui::Text("Render Shadows (disable FrameBuffer)");
         ImGui::SameLine();
-        ImGui::Checkbox("", &renderShadows);
+        ImGui::Checkbox("", &direcLight.renderShadows);
                    
         ImGui::SetNextItemWidth(80.0f);
 
@@ -413,9 +379,9 @@ int main()
         // For simplicity, the `lightPos.x` can already be used to control the sun's position via `adjustedLightX`.
 
         ImGui::SetNextItemWidth(60.0f);
-        ImGui::InputInt("ShadowMap X", &shadowMapWidth,0);
+        ImGui::InputInt("ShadowMap X", &direcLight.shadowMapWidth,0);
         ImGui::SetNextItemWidth(60.0f);
-        ImGui::InputInt("ShadowMap Y", &shadowMapHeight,0);
+        ImGui::InputInt("ShadowMap Y", &direcLight.shadowMapHeight,0);
         ImGui::EndGroup();              
         ImGui::Separator();
 
