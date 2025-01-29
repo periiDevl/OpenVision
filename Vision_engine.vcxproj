@@ -314,6 +314,7 @@
     <ClInclude Include="Transform.h" />
     <ClInclude Include="VAO.h" />
     <ClInclude Include="VBO.h" />
+    <ClInclude Include="WorkshopUploader.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="steam_api.json" />

@@ -428,6 +428,7 @@
     <ClInclude Include="isteamgamecoordinator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="WorkshopUploader.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Header Files">

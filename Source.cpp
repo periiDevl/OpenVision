@@ -30,6 +30,7 @@
 #include "BoxCollider.h"
 #include "DLL.h"
 #include "steam_api.h"
+#include "WorkshopUploader.h"
 // Function declarations
 CSV vert;
 CSF frag;
@@ -40,46 +41,15 @@ using namespace physics2D;
 float gamma = 1.6f;
 float exposure = 1.0f;
 
-bool CreateWorkshopItem(const char* title, const char* description, const char* previewImagePath)
-{
-    if (!SteamAPI_Init()) {
-        return false;  // Steam failed to initialize
-    }
-
-    // Create new Workshop item
-    SteamAPICall_t createCall = SteamUGC()->CreateItem(2472350, k_EWorkshopFileTypeCommunity);
-
-    if (createCall == k_UGCUpdateHandleInvalid)
-    {
-        return false;  // Handle error - invalid handle
-    }
-
-    // Get the update handle
-    UGCUpdateHandle_t updateHandle = SteamUGC()->StartItemUpdate(2472350, createCall);
-
-    // Set the basic properties
-    bool success = true;
-    success &= SteamUGC()->SetItemTitle(updateHandle, title);
-    success &= SteamUGC()->SetItemDescription(updateHandle, description);
-    success &= SteamUGC()->SetItemPreview(updateHandle, previewImagePath);
-    success &= SteamUGC()->SetItemVisibility(updateHandle, k_ERemoteStoragePublishedFileVisibilityPublic);
-
-    if (!success)
-    {
-        return false;  // Failed to set properties
-    }
-
-    // Submit the item
-    SteamAPICall_t submitCall = SteamUGC()->SubmitItemUpdate(updateHandle, "Initial version");
-
-    // You might want to handle the callback for submission results here
-
-    return true;
-}
 int main() 
 {
-    CreateWorkshopItem("Hello world", "Hello desc", "F:/Development/C++/OpenVision/OpenVision(Engine)/EngineAssets/OvTrashIcon.png");
-    
+    SteamAPI_Init();
+    WorkshopUploader wu;
+    wu.CreateWorkshopItem("Hellworld23", "Hello desc", "F:/Development/C++/OpenVision/OpenVision(Engine)/EngineAssets/OvTrashIcon.png", "F:/Development/C++/OpenVision/OpenVision(Engine)/EngineAssets");
+    while (!wu.IsUpdateCompleted()) {
+        SteamAPI_RunCallbacks();
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    }
     DirectionalLight direcLight;
 
     DLL dynaLL;
@@ -223,6 +193,7 @@ int main()
     camera2D.zoom = .4;
     while (window.windowRunning()) 
     {
+        SteamAPI_RunCallbacks();
         std::cout << dynaLL.ReciveStringDLL() << std::endl;
         dynaLL.SendStringToDll("Hello");
         glm::vec2 mousePos = camera2D.mouseAsWorldPosition(glm::vec2(window.v_width, window.v_height));
