@@ -125,7 +125,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>opengl32.lib;DynaLL.lib;Winmm.lib;glfw3.lib;glfw3_mt.lib;glfw3dll.lib;gdi32.lib;user32.lib;kernel32.lib;advapi32.lib;shell32.lib;steam_api64.lib</AdditionalDependencies>
-      <AdditionalLibraryDirectories>C:\Users\User\Documents\Programing\OpenVision\Libraries\lib;Libraries\lib;$(LibraryPath)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>F:\Development\C++\OpenVision\OpenVision%28Engine%29;C:\Users\User\Documents\Programing\OpenVision\Libraries\lib;Libraries\lib;$(LibraryPath)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -165,7 +165,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>opengl32.lib;DynaLL.lib;Winmm.lib;glfw3.lib;glfw3_mt.lib;glfw3dll.lib;gdi32.lib;user32.lib;kernel32.lib;advapi32.lib;shell32.lib;steam_api64.lib</AdditionalDependencies>
-      <AdditionalLibraryDirectories>Libraries\lib;Libraries\lib;$(LibraryPath)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>F:\Development\C++\OpenVision\OpenVision%28Engine%29;Libraries\lib;Libraries\lib;$(LibraryPath)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -242,6 +242,38 @@
     <ClInclude Include="imgui\imstb_textedit.h" />
     <ClInclude Include="imgui\imstb_truetype.h" />
     <ClInclude Include="InputSystem.h" />
+    <ClInclude Include="isteamapps.h" />
+    <ClInclude Include="isteamappticket.h" />
+    <ClInclude Include="isteamclient.h" />
+    <ClInclude Include="isteamcontroller.h" />
+    <ClInclude Include="isteamdualsense.h" />
+    <ClInclude Include="isteamfriends.h" />
+    <ClInclude Include="isteamgamecoordinator.h" />
+    <ClInclude Include="isteamgameserver.h" />
+    <ClInclude Include="isteamgameserverstats.h" />
+    <ClInclude Include="isteamhtmlsurface.h" />
+    <ClInclude Include="isteamhttp.h" />
+    <ClInclude Include="isteaminput.h" />
+    <ClInclude Include="isteaminventory.h" />
+    <ClInclude Include="isteammatchmaking.h" />
+    <ClInclude Include="isteammusic.h" />
+    <ClInclude Include="isteammusicremote.h" />
+    <ClInclude Include="isteamnetworking.h" />
+    <ClInclude Include="isteamnetworkingmessages.h" />
+    <ClInclude Include="isteamnetworkingsockets.h" />
+    <ClInclude Include="isteamnetworkingutils.h" />
+    <ClInclude Include="isteamparentalsettings.h" />
+    <ClInclude Include="isteamps3overlayrenderer.h" />
+    <ClInclude Include="isteamremoteplay.h" />
+    <ClInclude Include="isteamremotestorage.h" />
+    <ClInclude Include="isteamscreenshots.h" />
+    <ClInclude Include="isteamtimeline.h" />
+    <ClInclude Include="isteamugc.h" />
+    <ClInclude Include="isteamuser.h" />
+    <ClInclude Include="isteamuserstats.h" />
+    <ClInclude Include="isteamutils.h" />
+    <ClInclude Include="isteamvideo.h" />
+    <ClInclude Include="matchmakingtypes.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="Model.h" />
     <ClInclude Include="MouseDetection.h" />
@@ -258,6 +290,19 @@
     <ClInclude Include="Shader.h" />
     <ClInclude Include="ShaderManager.h" />
     <ClInclude Include="Simplex.h" />
+    <ClInclude Include="steamclientpublic.h" />
+    <ClInclude Include="steamencryptedappticket.h" />
+    <ClInclude Include="steamhttpenums.h" />
+    <ClInclude Include="steamnetworkingfakeip.h" />
+    <ClInclude Include="steamnetworkingtypes.h" />
+    <ClInclude Include="steamps3params.h" />
+    <ClInclude Include="steamtypes.h" />
+    <ClInclude Include="steamuniverse.h" />
+    <ClInclude Include="steam_api.h" />
+    <ClInclude Include="steam_api_common.h" />
+    <ClInclude Include="steam_api_flat.h" />
+    <ClInclude Include="steam_api_internal.h" />
+    <ClInclude Include="steam_gameserver.h" />
     <ClInclude Include="UUID.h" />
     <ClInclude Include="Window.h" />
     <ClInclude Include="Presave.h" />
@@ -269,6 +314,13 @@
     <ClInclude Include="Transform.h" />
     <ClInclude Include="VAO.h" />
     <ClInclude Include="VBO.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="steam_api.json" />
+    <None Include="steam_api64.dll" />
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="steam_api64.lib" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
