@@ -224,6 +224,7 @@
     <ClInclude Include="DirectionalLight.h" />
     <ClInclude Include="DLL.h" />
     <ClInclude Include="EBO.h" />
+    <ClInclude Include="EngineValues.h" />
     <ClInclude Include="Entity.h" />
     <ClInclude Include="EPA.h" />
     <ClInclude Include="EventManager.h" />
@@ -283,6 +284,7 @@
     <ClInclude Include="MenuItems.h" />
     <ClInclude Include="OV.h" />
     <ClInclude Include="OVscriptHandaling.h" />
+    <ClInclude Include="PackagesSystem.h" />
     <ClInclude Include="PhysHelper.h" />
     <ClInclude Include="PhysicsBody.h" />
     <ClInclude Include="PhysicsWorld.h" />
@@ -314,7 +316,7 @@
     <ClInclude Include="Transform.h" />
     <ClInclude Include="VAO.h" />
     <ClInclude Include="VBO.h" />
-    <ClInclude Include="WorkshopUploader.h" />
+    <ClInclude Include="SteamWorkshop.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="steam_api.json" />

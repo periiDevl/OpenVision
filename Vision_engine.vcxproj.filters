@@ -428,7 +428,15 @@
     <ClInclude Include="isteamgamecoordinator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="WorkshopUploader.h" />
+    <ClInclude Include="EngineValues.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SteamWorkshop.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PackagesSystem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Header Files">

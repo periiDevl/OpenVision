@@ -30,7 +30,8 @@
 #include "BoxCollider.h"
 #include "DLL.h"
 #include "steam_api.h"
-#include "WorkshopUploader.h"
+#include "EngineValues.h"
+#include "PackagesSystem.h"
 // Function declarations
 CSV vert;
 CSF frag;
@@ -43,13 +44,10 @@ float exposure = 1.0f;
 
 int main() 
 {
+    Values values;
     SteamAPI_Init();
-    WorkshopUploader wu;
-    wu.CreateWorkshopItem("Hellworld23", "Hello desc", "F:/Development/C++/OpenVision/OpenVision(Engine)/EngineAssets/OvTrashIcon.png", "F:/Development/C++/OpenVision/OpenVision(Engine)/EngineAssets");
-    while (!wu.IsUpdateCompleted()) {
-        SteamAPI_RunCallbacks();
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
-    }
+    PackageSystem packageSystem;
+
     DirectionalLight direcLight;
 
     DLL dynaLL;
@@ -194,8 +192,8 @@ int main()
     while (window.windowRunning()) 
     {
         SteamAPI_RunCallbacks();
-        std::cout << dynaLL.ReciveStringDLL() << std::endl;
-        dynaLL.SendStringToDll("Hello");
+        //std::cout << dynaLL.ReciveStringDLL() << std::endl;
+        //dynaLL.SendStringToDll("Hello");
         glm::vec2 mousePos = camera2D.mouseAsWorldPosition(glm::vec2(window.v_width, window.v_height));
 
         coll.m_position = obj.transform->position;
@@ -304,7 +302,7 @@ int main()
         renderer2.draw(camera2D);
         renderer3.setShader(classicShader);
         renderer3.draw(camera2D);
-        if (mousePos.y > 0 || InputSystem::getMousePosition().x < window.v_width)
+        if (mousePos.y > 0 && InputSystem::getMousePosition().x < window.v_width)
         {
             if (InputSystem::getDown(Inputs::MouseLeft) && !gizmos.isDragging())
             {
@@ -332,9 +330,15 @@ int main()
         //UI
         ImGui::Begin("Scripts");
         ImGui::End();
-        ImGui::Begin("Packages");
-        ImGui::Text("Ctrl-p to search open");
+
+        packageSystem.GUI();
+        ImGui::Separator();
+        if (ImGui::Button("Create Item"))
+        {
+            packageSystem.createItem("Hellworld23", "Hello desc", "F:/Development/C++/OpenVision/OpenVision(Engine)/EngineAssets/mmsicon.png", "F:/Development/C++/OpenVision/OpenVision(Engine)/EngineAssets");
+        }
         ImGui::End();
+
         ImGui::Begin("Objects");
         ImGui::End();
 
@@ -343,28 +347,15 @@ int main()
         ImGui::Text("Default settings are fine, but in case of more control over the graphical");
         ImGui::Text("fidelity, there are several settings in this window to improve or change");
         ImGui::Text("the graphics. Make sure your hardware is capable of running such settings.");
+        values.GammaAndExposureUI(frameBufferShader);
+        values.antiAliasingUI(frameBufferShader);
+        //values.VignetteUI(frameBufferShader);
 
-        ImGui::Separator();
-        ImGui::SetNextItemWidth(80.0f);
-        frameBufferShader.activate();
-        ImGui::InputFloat("Gamma", &gamma);
-        glUniform1f(glGetUniformLocation(frameBufferShader.ID, "gamma"), gamma);
-        ImGui::SetNextItemWidth(80.0f);
-        ImGui::InputFloat("Exposure", &exposure);
-        glUniform1f(glGetUniformLocation(frameBufferShader.ID, "exposure"), exposure);
-        ImGui::SetNextItemWidth(80.0f);
-        ImGui::InputFloat("i:", &direcLight.camShadowDistance);
-        ImGui::SameLine();
-        ImGui::SetNextItemWidth(300.0f);
-        ImGui::SliderFloat("Camera Shadow Draw Distance", &direcLight.camShadowDistance, 300, 5000);
-        ImGui::Separator();
-        // Display the shadow texture on the left
         ImGui::BeginGroup();
-
 
         ImGui::Image((ImTextureID)shadowFramebuffer.getTexture(), ImVec2(200, 200), ImVec2(0, 1), ImVec2(1, 0));
         ImGui::SameLine();
-        
+
         ImGui::VSliderFloat("Y", ImVec2(20, 200), &direcLight.Y, -1.57f * 100, 1.57f * 100);  // Rotation around X-axis (restricted range)
         ImGui::SameLine();
         ImGui::Image((ImTextureID)postProcessingFramebuffer.pingpongBuffer[!horizontal], ImVec2(70, 70), ImVec2(0, 1), ImVec2(1, 0));
@@ -375,25 +366,9 @@ int main()
         ImGui::EndGroup();
 
         ImGui::SameLine(); // Move to the same row but keep in a new column
-
-        // Begin the group of controls in a separate column to the right of the texture
-        ImGui::BeginGroup();
-        ImGui::Text("Render Shadows (disable FrameBuffer)");
-        ImGui::SameLine();
-        ImGui::Checkbox("", &direcLight.renderShadows);
-                   
-        ImGui::SetNextItemWidth(80.0f);
-
-
-        // Optionally, you can adjust the sun's angle based on timeOfDay if you want to simulate the sun's position:
-        // (For example, set the light rotation to correspond to the time of day)
-        // For simplicity, the `lightPos.x` can already be used to control the sun's position via `adjustedLightX`.
-
-        ImGui::SetNextItemWidth(60.0f);
-        ImGui::InputInt("ShadowMap X", &direcLight.shadowMapWidth,0);
-        ImGui::SetNextItemWidth(60.0f);
-        ImGui::InputInt("ShadowMap Y", &direcLight.shadowMapHeight,0);
-        ImGui::EndGroup();              
+        ImGui::Separator();
+        values.ShadowUI(shaderProgram, direcLight);
+        ImGui::EndGroup();
         ImGui::Separator();
 
         ImGui::End();                   
