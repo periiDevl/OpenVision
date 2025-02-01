@@ -5,7 +5,8 @@
 #include "SteamWorkshop.h"
 #include <thread>
 #include <atomic>
-
+#include "Tex.h"
+#include "InputSystem.h"
 class PackageSystem
 {
 public:
@@ -14,7 +15,7 @@ public:
 	void GUI();
 	void createItem(const std::string& title, const std::string& description,
 		const std::string& previewPath, const std::string& contentPath);
-
+    void GUIOpenVision();
 private:
     SteamWorkshop workshop;
     std::atomic<float> progress; // Tracks upload progress
@@ -22,14 +23,33 @@ private:
 
     std::vector<SteamUGCDetails_t> subscribedItems; // Store retrieved items
     bool isRetrievingItems = false;  // Track retrieval state
-
+    bool open = false;
+    bool moveWindow = true;
     void retrieveSubscribedItems(); // Function to get items
 };
+void PackageSystem::GUIOpenVision()
+{
+    if (open) {
+        if (moveWindow) {
+            ImGui::SetNextWindowPos(ImVec2(300, 200), ImGuiCond_Always); // Force position update
+            moveWindow = false;
+        }
+        GUI();
+    }
+    else {
+        moveWindow = true;
+    }
+    if (InputSystem::getHold(Inputs::KeyLeftShift) && InputSystem::getHold(Inputs::KeyP)) {
+        open = true;
+    }
+}
 
 void PackageSystem::GUI() {
-    ImGui::Begin("Packages");
+    ImGui::Begin("Packages", &open, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse);
     ImGui::Text("Ctrl-p to search open");
-
+    static Texture bannerTexture("EngineAssets/SteamWorkshop_banner.png");
+    static ImTextureID texture = reinterpret_cast<ImTextureID>(static_cast<intptr_t>(bannerTexture.ID));
+    ImGui::Image(texture, ImVec2(1920 / 6, 620 / 6), ImVec2(0, 1), ImVec2(1, 0));
     // Show progress bar if uploading
     if (isUploading) {
         ImGui::Text("Uploading Item...");

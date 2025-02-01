@@ -82,7 +82,7 @@ int main()
     obj3.transform->position = { 0, .5};
     obj3.transform->scale = { 1, 1 };
 
-
+    
     // Renderer and texture setup
     TextureRenderer& renderer = *obj.addComponent<TextureRenderer>("Assets/background.png");
     TextureRenderer& renderer2 = *obj2.addComponent<TextureRenderer>("Assets/background.png");
@@ -187,7 +187,9 @@ int main()
     std::vector<Model> models;
     models.push_back(gird);
     models.push_back(grass);
-    float interX = 0;
+    float GuiX = 0;
+    float GuiY = 0;
+    float GuiZ = 0;
     camera2D.zoom = .4;
     while (window.windowRunning()) 
     {
@@ -235,7 +237,7 @@ int main()
         glClear(GL_DEPTH_BUFFER_BIT);
         shadowMapProgram.activate();
         if (direcLight.renderShadows) {
-            gird.Draw(shadowMapProgram, camera3D, glm::vec3(interX / 2, 0, 0), glm::vec3(0, 0, 0), glm::vec3(10.0f));
+            gird.Draw(shadowMapProgram, camera3D, glm::vec3(GuiX / 2, GuiY/2, GuiZ/2), glm::vec3(0, 0, 0), glm::vec3(10.0f));
 
             gird.Draw(shadowMapProgram, camera3D, glm::vec3(11, 0, 0), glm::vec3(0, 0, 0), glm::vec3(10.0f));
 
@@ -256,7 +258,7 @@ int main()
         window.clear();
 
         glEnable(GL_DEPTH_TEST);
-        gird.Draw(shaderProgram, camera3D, glm::vec3(interX / 2, 0, 0), glm::vec3(0, 0, 0), glm::vec3(10.0f));
+        gird.Draw(shaderProgram, camera3D, glm::vec3(GuiX/2, GuiY/2, GuiZ/2), glm::vec3(0, 0, 0), glm::vec3(10.0f));
 
         gird.Draw(shaderProgram, camera3D, glm::vec3(11, 0,0), glm::vec3(0, 0, 0), glm::vec3(10.0f));
         
@@ -302,7 +304,7 @@ int main()
         renderer2.draw(camera2D);
         renderer3.setShader(classicShader);
         renderer3.draw(camera2D);
-        if (mousePos.y > 0 && InputSystem::getMousePosition().x < window.v_width)
+        if (InputSystem::getMousePosition().y > (window.height - window.v_height) && InputSystem::getMousePosition().x < window.v_width)
         {
             if (InputSystem::getDown(Inputs::MouseLeft) && !gizmos.isDragging())
             {
@@ -320,7 +322,9 @@ int main()
         gizmos.line(glm::vec2(.05, 0), glm::vec2(-.05, 0), 4, glm::vec3(0));
 
 
-        gizmos.line(glm::vec3(interX, 0, 0), glm::vec3(interX + 10, 0, 0), 4, glm::vec3(1), camera3D, window.v_width, window.v_height, 60, 0.1f, 100.0f, camera2D, mousePos,window.getWindow(), interX);
+        gizmos.line(glm::vec3(GuiX, 0, 0), glm::vec3(GuiX + 10, 0, 0), 4, glm::vec3(1), camera3D, window.v_width, window.v_height, 60, 0.1f, 100.0f, camera2D, mousePos, window.getWindow(), GuiX, glm::vec3(1, 0, 0));
+        gizmos.line(glm::vec3(0,GuiY, 0), glm::vec3(0,GuiY + 10, 0), 4, glm::vec3(1), camera3D, window.v_width, window.v_height, 60, 0.1f, 100.0f, camera2D, mousePos, window.getWindow(), GuiY, glm::vec3(0, 1, 0));
+        gizmos.line(glm::vec3(0,0,GuiZ), glm::vec3(0, 0, GuiZ + 10), 4, glm::vec3(1), camera3D, window.v_width, window.v_height, 60, 0.1f, 100.0f, camera2D, mousePos,window.getWindow(), GuiZ, glm::vec3(0, 0,1));
 
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
@@ -331,7 +335,7 @@ int main()
         ImGui::Begin("Scripts");
         ImGui::End();
 
-        packageSystem.GUI();
+        packageSystem.GUIOpenVision();
         ImGui::Separator();
         if (ImGui::Button("Create Item"))
         {
