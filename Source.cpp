@@ -32,15 +32,41 @@
 #include "steam_api.h"
 #include "EngineValues.h"
 #include "PackagesSystem.h"
+#include "OverDepth.h"
 // Function declarations
 CSV vert;
 CSF frag;
-float farFOV = 300.000f;
+
 
 using namespace physics2D;
+float skyboxVertices[] =
+{
+    //   Coordinates
+    -1.0f, -1.0f,  1.0f,//        7--------6
+     1.0f, -1.0f,  1.0f,//       /|       /|
+     1.0f, -1.0f, -1.0f,//      4--------5 |
+    -1.0f, -1.0f, -1.0f,//      | |      | |
+    -1.0f,  1.0f,  1.0f,//      | 3------|-2
+     1.0f,  1.0f,  1.0f,//      |/       |/
+     1.0f,  1.0f, -1.0f,//      0--------1
+    -1.0f,  1.0f, -1.0f
+};
 
-float gamma = 1.6f;
-float exposure = 1.0f;
+unsigned int skyboxIndices[] =
+{
+    1, 2, 6,
+    6, 5, 1,
+    0, 4, 7,
+    7, 3, 0,
+    4, 5, 6,
+    6, 7, 4,
+    0, 3, 2,
+    2, 1, 0,
+    0, 1, 5,
+    5, 4, 0,
+    3, 7, 6,
+    6, 2, 3
+};
 
 int main() 
 {
@@ -109,34 +135,20 @@ int main()
     Shader& shaderProgram = shaders.addShader("shaderProgram", vert.Default, frag.Default);
     Shader& shadowMapProgram = shaders.addShader("shadowMapProgram", vert.ShadowMap, frag.NONE);
     Shader& blurProgram = shaders.addShader("blurProgram", vert.Frame, frag.Blur);
+    Shader skyboxShader(vert.Skybox, frag.Skybox);
+    skyboxShader.activate();
+    glUniform1i(glGetUniformLocation(skyboxShader.ID, "skybox"), 0);
 
     frameBufferShader.activate();
     frameBufferShader.setInt("screenTexture", 0);
     frameBufferShader.setInt("bloomTexture", 1);
-    frameBufferShader.setFloat("radius", 1.0f);
-    frameBufferShader.setFloat("softness", 0.2f);
-    frameBufferShader.setFloat("minEdgeContrast", 128.0f);
-    frameBufferShader.setFloat("subPixelAliasing", 8.0f);
-    frameBufferShader.setFloat("maximumEdgeDetection", 128.0f);
 
-    frameBufferShader.setFloat("gamma", gamma);
-    frameBufferShader.setFloat("exposure", exposure);
     frameBufferShader.setVec2("resolution", glm::vec2(window.v_width, window.v_height));
 
     shaderProgram.activate();
-    shaderProgram.setFloat("avgShadow", 1.0f);
-    shaderProgram.setVec4("lightColor", glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
-    shaderProgram.setVec3("lightPos", direcLight.getRawLightPosition());
-    shaderProgram.setFloat("near", 0.1f);
-    shaderProgram.setFloat("far", farFOV);
-    shaderProgram.setBool("BPL_Lighting", true);
-
+    
     shaderProgram.setFloat("worldRadius", 800.0f);
 
-    shaderProgram.setFloat("bias1", 0.005f);
-    shaderProgram.setFloat("bias2", 0.0005f);
-
-    shaderProgram.setInt("sampleRadius", 1);
 
     blurProgram.activate();
     blurProgram.setInt("screenTexture", 0);
@@ -173,7 +185,7 @@ int main()
     int selectedObj = -1;
 
     Model gird("models/cube/scene.gltf");
-    Model gird1("models/cube/scene.gltf");
+    Model gird1("models/mapone/scene.gltf");
     Model grass("models/grass/scene.gltf");
 
     IMGUI_CHECKVERSION();
@@ -191,6 +203,70 @@ int main()
     float GuiY = 0;
     float GuiZ = 0;
     camera2D.zoom = .4;
+
+    unsigned int skyboxVAO, skyboxVBO, skyboxEBO;
+    glGenVertexArrays(1, &skyboxVAO);
+    glGenBuffers(1, &skyboxVBO);
+    glGenBuffers(1, &skyboxEBO);
+    glBindVertexArray(skyboxVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, skyboxVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(skyboxVertices), &skyboxVertices, GL_STATIC_DRAW);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, skyboxEBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(skyboxIndices), &skyboxIndices, GL_STATIC_DRAW);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+
+    std::string facesCubemap[6] =
+    {
+        "skybox/sky/right.jpg",
+        "skybox/sky/left.jpg",
+        "skybox/sky/top.jpg",
+        "skybox/sky/bottom.jpg",
+        "skybox/sky/front.jpg",
+        "skybox/sky/back.jpg"
+    };
+
+    unsigned int cubemapTexture;
+    glGenTextures(1, &cubemapTexture);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+    for (unsigned int i = 0; i < 6; i++)
+    {
+        int width, height, nrChannels;
+        unsigned char* data = stbi_load(facesCubemap[i].c_str(), &width, &height, &nrChannels, 0);
+        if (data)
+        {
+            stbi_set_flip_vertically_on_load(false);
+            glTexImage2D
+            (
+                GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
+                0,
+                GL_RGB,
+                width,
+                height,
+                0,
+                GL_RGB,
+                GL_UNSIGNED_BYTE,
+                data
+            );
+            stbi_image_free(data);
+        }
+        else
+        {
+
+            std::cout << "Failed to load texture: " << facesCubemap[i] << std::endl;
+            stbi_image_free(data);
+        }
+    }
+
     while (window.windowRunning()) 
     {
         SteamAPI_RunCallbacks();
@@ -221,7 +297,7 @@ int main()
         direcLight.calculateShadowsProj(camera3D);
 
         //camera2D.updateMatrix(0.1f, far);
-        camera3D.updateMatrix3D(60, 0.1f, farFOV);
+        camera3D.updateMatrix3D(60, 0.1f, values.camFar);
         mainFramebuffer.bind();
         window.clear();
         fpsTimer.start();
@@ -251,7 +327,7 @@ int main()
         glEnable(GL_DEPTH_TEST);
         shaderProgram.activate();
         glUniformMatrix4fv(glGetUniformLocation(shaderProgram.ID, "lightProjection"), 1, GL_FALSE, glm::value_ptr(direcLight.getLightProjection()));
-        glUniform3f(glGetUniformLocation(shaderProgram.ID, "lightPos"),direcLight.getRawLightPosition().x, direcLight.getRawLightPosition().y, direcLight.getRawLightPosition().z);
+        shaderProgram.setVec3("lightPos", direcLight.getRawLightPosition());
         glActiveTexture(GL_TEXTURE0 + 2);
         glBindTexture(GL_TEXTURE_2D, shadowFramebuffer.getTexture());
         glUniform1i(glGetUniformLocation(shaderProgram.ID, "shadowMap"), 2);
@@ -265,19 +341,36 @@ int main()
         gird.Draw(shaderProgram, camera3D, glm::vec3(0, 11, 0), glm::vec3(0, 0, 0), glm::vec3(10.0f));
         gird.Draw(shaderProgram, camera3D, glm::vec3(0, -11, 0), glm::vec3(0, 0, 0), glm::vec3(10.0f));
         grass.Draw(shaderProgram, camera3D, glm::vec3(0, -10, 0), glm::vec3(0, 0, 0), glm::vec3(5.0f));
-        //gird1.Draw(shaderProgram, camera3D, glm::vec3(0, -5, 0), glm::vec3(0, 0, 0), glm::vec3(20.0f, 5.0f, 20.0f));
+        gird1.Draw(shaderProgram, camera3D, glm::vec3(0, -20, 0), glm::vec3(0, 0, 0), glm::vec3(20.0f, 20.0f, 20.0f));
 
 
         camera3D.Inputs(window.getWindow(), 1, 2);
         camera3D.Mouse(window.getWindow());
+        glDepthFunc(GL_LEQUAL);
+        glm::mat4 view = glm::mat4(1.0f);
+        glm::mat4 projection = glm::mat4(1.0f);
+        view = glm::mat4(glm::mat3(glm::lookAt(camera3D.Position, camera3D.Position + camera3D.Orientation, camera3D.Up)));
+        projection = glm::perspective(glm::radians(60.0f), (float)window.v_width / window.v_height, 0.1f, values.camFar);
 
+        skyboxShader.activate();
+
+        glUniformMatrix4fv(glGetUniformLocation(skyboxShader.ID, "view"), 1, GL_FALSE, glm::value_ptr(view));
+        glUniformMatrix4fv(glGetUniformLocation(skyboxShader.ID, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+
+        glBindVertexArray(skyboxVAO);
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
+        glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+        glBindVertexArray(0);
+
+        glDepthFunc(GL_LESS);
         // Blit to post-processing framebuffer
         glBindFramebuffer(GL_READ_FRAMEBUFFER, mainFramebuffer.FBO);
         glBindFramebuffer(GL_DRAW_FRAMEBUFFER, postProcessingFramebuffer.FBO);
         glBlitFramebuffer(0, 0, window.v_width, window.v_height, 0, 0, window.v_width, window.v_height, GL_COLOR_BUFFER_BIT, GL_NEAREST);
         bool horizontal = true, first_iteration = true;
         blurProgram.activate();
-        int Blur_amount = 8;
+        int Blur_amount = 12;
         for (unsigned int i = 0; i < Blur_amount; i++) {
             glBindFramebuffer(GL_FRAMEBUFFER, postProcessingFramebuffer.pingpongFBO[horizontal]);
             glUniform1i(glGetUniformLocation(blurProgram.ID, "horizontal"), horizontal);
@@ -351,6 +444,7 @@ int main()
         ImGui::Text("Default settings are fine, but in case of more control over the graphical");
         ImGui::Text("fidelity, there are several settings in this window to improve or change");
         ImGui::Text("the graphics. Make sure your hardware is capable of running such settings.");
+        values.GeneralLightingValues(shaderProgram, direcLight);
         values.GammaAndExposureUI(frameBufferShader);
         values.antiAliasingUI(frameBufferShader);
         //values.VignetteUI(frameBufferShader);

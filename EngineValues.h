@@ -25,21 +25,43 @@ public:
 
 	void GammaAndExposureValues(Shader shader);
 	void GammaAndExposureUI(Shader shader);
-	float gamma = 1.6f;
-	float exposure = 1.0f;
+	float gamma = 2.0f;
+	float exposure = 0.8f;
 
 
 	void ShadowValues(Shader shader);
 	void ShadowUI(Shader shader, DirectionalLight& dLight);
-	float avgShadow = 1.0f;
+	float avgShadow = 0.84f;
 	float bias1 = 0.005f;
 	float bias2 = 0.0005f;
 	int sampleRadius = 2;
 
-
+	void GeneralLightingValues(Shader shader, DirectionalLight& dLight);
+	void GeneralLightingValuesUI(Shader shader, DirectionalLight& dLight);
+	bool blinnPhongLighting = true;
+	float camFar = 300.000f;
+	float camNear = 0.1f;
+	glm::vec4 lightColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
 private:
 
 };
+void Values::GeneralLightingValues(Shader shader, DirectionalLight& dLight) {
+	shader.activate();
+	shader.setVec4("lightColor", lightColor);
+	//shader.setVec3("lightPos", dLight.getRawLightPosition());
+	shader.setFloat("near", camNear);
+	shader.setFloat("far", camFar);
+	shader.setBool("BPL_Lighting", blinnPhongLighting);
+
+}
+void Values::GeneralLightingValuesUI(Shader shader, DirectionalLight& dLight) {
+	ImGui::Text("General values : ");
+	ImGui::InputFloat("near ", &camNear);
+	ImGui::SameLine();
+	ImGui::InputFloat("far ", &camFar);
+	ImGui::Text("Light : ");
+	ImGui::Checkbox("Blinn-Phong Lighting", &blinnPhongLighting);
+}
 //Shadow
 void Values::ShadowValues(Shader shader)
 {
@@ -72,7 +94,7 @@ void Values::ShadowUI(Shader shader, DirectionalLight& dLight)
 	ImGui::BeginGroup();
 	ImGui::Text("Render Shadows (disable FrameBuffer)");
 	ImGui::SameLine();
-	ImGui::Checkbox("", &dLight.renderShadows);
+	ImGui::Checkbox("Render Shadows", &dLight.renderShadows);
 	ImGui::SetNextItemWidth(60.0f);
 	ImGui::InputInt("ShadowMap X", &dLight.shadowMapWidth, 0);
 	ImGui::SetNextItemWidth(60.0f);
