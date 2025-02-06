@@ -138,6 +138,7 @@ int main()
     Shader skyboxShader(vert.Skybox, frag.Skybox);
     skyboxShader.activate();
     glUniform1i(glGetUniformLocation(skyboxShader.ID, "skybox"), 0);
+    values.GeneralLightingValues(shaderProgram, direcLight);
 
     frameBufferShader.activate();
     frameBufferShader.setInt("screenTexture", 0);
@@ -185,7 +186,7 @@ int main()
     int selectedObj = -1;
 
     Model gird("models/cube/scene.gltf");
-    Model gird1("models/mapone/scene.gltf");
+    Model mapone("models/mapone/scene.gltf");
     Model grass("models/grass/scene.gltf");
 
     IMGUI_CHECKVERSION();
@@ -202,6 +203,7 @@ int main()
     float GuiX = 0;
     float GuiY = 0;
     float GuiZ = 0;
+    glm::vec3 objectPosition = glm::vec3(0);
     camera2D.zoom = .4;
 
     unsigned int skyboxVAO, skyboxVBO, skyboxEBO;
@@ -320,6 +322,8 @@ int main()
             gird.Draw(shadowMapProgram, camera3D, glm::vec3(0, 11, 0), glm::vec3(0, 0, 0), glm::vec3(10.0f));
             gird.Draw(shadowMapProgram, camera3D, glm::vec3(0, -11, 0), glm::vec3(0, 0, 0), glm::vec3(10.0f));
             grass.Draw(shadowMapProgram, camera3D, glm::vec3(0, -10, 0), glm::vec3(0, 0, 0), glm::vec3(5.0f));
+            mapone.Draw(shadowMapProgram, camera3D, glm::vec3(0, -160, 0), glm::vec3(0, 0, 0), glm::vec3(20.0f, 20.0f, 20.0f));
+
         }
         mainFramebuffer.bind();
         glViewport(0, 0, window.v_width, window.v_height);
@@ -334,14 +338,14 @@ int main()
         window.clear();
 
         glEnable(GL_DEPTH_TEST);
-        gird.Draw(shaderProgram, camera3D, glm::vec3(GuiX/2, GuiY/2, GuiZ/2), glm::vec3(0, 0, 0), glm::vec3(10.0f));
+        gird.Draw(shaderProgram, camera3D, glm::vec3(objectPosition), glm::vec3(0, 0, 0), glm::vec3(10.0f));
 
         gird.Draw(shaderProgram, camera3D, glm::vec3(11, 0,0), glm::vec3(0, 0, 0), glm::vec3(10.0f));
         
         gird.Draw(shaderProgram, camera3D, glm::vec3(0, 11, 0), glm::vec3(0, 0, 0), glm::vec3(10.0f));
         gird.Draw(shaderProgram, camera3D, glm::vec3(0, -11, 0), glm::vec3(0, 0, 0), glm::vec3(10.0f));
         grass.Draw(shaderProgram, camera3D, glm::vec3(0, -10, 0), glm::vec3(0, 0, 0), glm::vec3(5.0f));
-        gird1.Draw(shaderProgram, camera3D, glm::vec3(0, -20, 0), glm::vec3(0, 0, 0), glm::vec3(20.0f, 20.0f, 20.0f));
+        mapone.Draw(shaderProgram, camera3D, glm::vec3(0, -160, 0), glm::vec3(0, 0, 0), glm::vec3(20.0f, 20.0f, 20.0f));
 
 
         camera3D.Inputs(window.getWindow(), 1, 2);
@@ -415,9 +419,13 @@ int main()
         gizmos.line(glm::vec2(.05, 0), glm::vec2(-.05, 0), 4, glm::vec3(0));
 
 
-        gizmos.line(glm::vec3(GuiX, 0, 0), glm::vec3(GuiX + 10, 0, 0), 4, glm::vec3(1), camera3D, window.v_width, window.v_height, 60, 0.1f, 100.0f, camera2D, mousePos, window.getWindow(), GuiX, glm::vec3(1, 0, 0));
-        gizmos.line(glm::vec3(0,GuiY, 0), glm::vec3(0,GuiY + 10, 0), 4, glm::vec3(1), camera3D, window.v_width, window.v_height, 60, 0.1f, 100.0f, camera2D, mousePos, window.getWindow(), GuiY, glm::vec3(0, 1, 0));
-        gizmos.line(glm::vec3(0,0,GuiZ), glm::vec3(0, 0, GuiZ + 10), 4, glm::vec3(1), camera3D, window.v_width, window.v_height, 60, 0.1f, 100.0f, camera2D, mousePos,window.getWindow(), GuiZ, glm::vec3(0, 0,1));
+        ///gizmos.line(glm::vec3(GuiX, 0, 0), glm::vec3(GuiX + 10, 0, 0), 4, glm::vec3(1), camera3D, window.v_width, window.v_height, 60, 0.1f, 100.0f, camera2D, mousePos, window.getWindow(), GuiX, glm::vec3(1, 0, 0));
+        //gizmos.line(glm::vec3(0,GuiY, 0), glm::vec3(0,GuiY + 10, 0), 4, glm::vec3(1), camera3D, window.v_width, window.v_height, 60, 0.1f, 100.0f, camera2D, mousePos, window.getWindow(), GuiY, glm::vec3(0, 1, 0));
+        //gizmos.line(glm::vec3(0,0,GuiZ), glm::vec3(0, 0, GuiZ + 10), 4, glm::vec3(1), camera3D, window.v_width, window.v_height, 60, 0.1f, values.camFar, camera2D, mousePos,window.getWindow(), GuiZ, glm::vec3(0, 0,1));
+        gizmos.moveObject(objectPosition, glm::vec3(0.1f, 0.0f, 0.0f),mousePos, camera3D); // Moves along X-axis
+        std::cout << objectPosition.x << std::endl;
+        //gizmos.moveObject(objectPosition, glm::vec3(0.0f, 1.0f, 0.0f), mousePos, window.getWindow(), camera3D); // Moves along Y-axis
+        //gizmos.moveObject(objectPosition, glm::vec3(0.0f, 0.0f, 1.0f), mousePos, window.getWindow(), camera3D); // Moves along Z-axis
 
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
@@ -444,7 +452,7 @@ int main()
         ImGui::Text("Default settings are fine, but in case of more control over the graphical");
         ImGui::Text("fidelity, there are several settings in this window to improve or change");
         ImGui::Text("the graphics. Make sure your hardware is capable of running such settings.");
-        values.GeneralLightingValues(shaderProgram, direcLight);
+        values.GeneralLightingValuesUI(shaderProgram, direcLight);
         values.GammaAndExposureUI(frameBufferShader);
         values.antiAliasingUI(frameBufferShader);
         //values.VignetteUI(frameBufferShader);

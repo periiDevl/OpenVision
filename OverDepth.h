@@ -203,6 +203,24 @@ public:
 
 
 
+    void moveObject(glm::vec3& position, glm::vec3 movementAxis, glm::vec2 mousePos, Camera3D& camera) {
+        float speed = 6.1f;
+
+        // Calculate the vector from the camera to the object
+        glm::vec3 cameraDirection = glm::normalize(position - camera.Position);
+
+        // Calculate the vector from the object to the mouse (in 2D, ignoring Z)
+        glm::vec2 mouseDelta = mousePos - glm::vec2(position.x, position.y);
+
+        // If the camera is behind the object (reverse the direction of movement)
+        if (glm::dot(cameraDirection, movementAxis) < 0.0f) {
+            movementAxis = -movementAxis; // Reverse movement axis if the camera is behind
+        }
+
+        // Move the object along the specified axis based on mouse movement
+        position = glm::vec3(mouseDelta, 0.0f) * movementAxis * speed;
+    }
+
 
 
     bool checkMouseBoundary(glm::vec2 start, glm::vec2 end, float thickness__line, glm::vec2 mousePos)

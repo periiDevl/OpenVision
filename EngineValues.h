@@ -56,8 +56,10 @@ void Values::GeneralLightingValues(Shader shader, DirectionalLight& dLight) {
 }
 void Values::GeneralLightingValuesUI(Shader shader, DirectionalLight& dLight) {
 	ImGui::Text("General values : ");
+	ImGui::SetNextItemWidth(80.0f);
 	ImGui::InputFloat("near ", &camNear);
 	ImGui::SameLine();
+	ImGui::SetNextItemWidth(80.0f);
 	ImGui::InputFloat("far ", &camFar);
 	ImGui::Text("Light : ");
 	ImGui::Checkbox("Blinn-Phong Lighting", &blinnPhongLighting);
