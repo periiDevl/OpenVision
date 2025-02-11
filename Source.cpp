@@ -68,6 +68,125 @@ unsigned int skyboxIndices[] =
     6, 2, 3
 };
 
+bool isMouseDragging = true;
+glm::vec2 initialMousePosition;
+
+
+void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
+    if (button == GLFW_MOUSE_BUTTON_LEFT) {
+        if (action == GLFW_PRESS) {
+            double xpos, ypos;
+            glfwGetCursorPos(window, &xpos, &ypos);
+            initialMousePosition = glm::vec2(xpos, ypos);
+            isMouseDragging = true;
+        }
+        else if (action == GLFW_RELEASE) {
+
+            isMouseDragging = false;
+
+        }
+    }
+}
+glm::vec3 moveObjectInXAxis(GLFWwindow* window, const glm::vec3& objectPosition, const glm::vec3& cameraOrientation, const glm::vec3& cameraPosition) {
+    if (!isMouseDragging) {
+        return objectPosition;
+    }
+
+    double xpos, ypos;
+    glfwGetCursorPos(window, &xpos, &ypos);
+    glm::vec2 currentMousePosition(xpos, ypos);
+
+    double deltaX = -1.0 * (currentMousePosition.x - initialMousePosition.x);
+
+    float distance = glm::distance(objectPosition, cameraPosition);
+
+    float sensitivity = 0.0024f * (distance / 2);
+
+    glm::mat4 cameraRotation = glm::mat4(glm::quat(glm::radians(cameraOrientation)));
+    glm::vec3 cameraForward = glm::normalize(cameraPosition - objectPosition);
+    glm::vec3 cameraRight = glm::normalize(glm::cross(cameraForward, glm::vec3(0.0f, 1.0f, 0.0f)));
+    glm::vec3 cameraUp = glm::cross(cameraRight, cameraForward);
+
+    glm::vec3 localDelta(deltaX * sensitivity, 0.0f, 0.0f);
+    glm::vec3 globalDelta = glm::vec3(cameraRotation * glm::vec4(localDelta, 0.0f));
+
+    glm::vec3 delta = globalDelta.x * cameraRight;
+
+    glm::vec3 updatedObjectPosition = objectPosition + delta;
+
+    initialMousePosition = currentMousePosition;
+
+    return updatedObjectPosition;
+}
+
+glm::vec3 moveObjectInZAxis(GLFWwindow* window, const glm::vec3& objectPosition, const glm::vec3& cameraOrientation, const glm::vec3& cameraPosition) {
+    if (!isMouseDragging) {
+        return objectPosition;
+    }
+
+    double xpos, ypos;
+    glfwGetCursorPos(window, &xpos, &ypos);
+    glm::vec2 currentMousePosition(xpos, ypos);
+
+    glm::vec2 deltaXY = currentMousePosition - initialMousePosition;
+
+    float distance = glm::distance(objectPosition, cameraPosition);
+
+    float sensitivity = 0.000645f * (distance * 2);
+
+    glm::mat4 cameraRotation = glm::mat4(glm::quat(glm::radians(cameraOrientation)));
+
+    glm::vec3 localDelta = glm::vec3(deltaXY.x, deltaXY.y, 0.0f) * sensitivity;
+    glm::vec3 globalDelta = glm::vec3(cameraRotation * glm::vec4(localDelta, 0.0f));
+
+    glm::vec3 cameraForward = glm::normalize(cameraPosition - objectPosition);
+    glm::vec3 cameraRight = glm::normalize(glm::cross(cameraForward, glm::vec3(0.0f, 1.0f, 0.0f)));
+    glm::vec3 cameraUp = glm::cross(cameraRight, cameraForward);
+
+    float elevationAngle = glm::degrees(std::asin(cameraUp.y));
+
+    glm::vec2 projectedDelta(glm::dot(deltaXY, glm::vec2(cameraRight.x, cameraUp.x)),
+        glm::dot(deltaXY, glm::vec2(cameraRight.y, cameraUp.y)));
+
+    projectedDelta.y *= std::cos(glm::radians(elevationAngle));
+
+    glm::vec3 delta = globalDelta.x * cameraRight + globalDelta.y * cameraUp;
+
+    delta.z = -glm::dot(deltaXY, glm::normalize(glm::vec2(cameraForward.x, cameraForward.y))) * sensitivity;
+
+    glm::vec3 updatedObjectPosition = objectPosition + delta;
+
+    initialMousePosition = currentMousePosition;
+
+    return updatedObjectPosition;
+}
+
+
+glm::vec3 moveObjectInYAxis(GLFWwindow* window, const glm::vec3& objectPosition, const glm::vec3& cameraOrientation, const glm::vec3& cameraPosition) {
+    if (!isMouseDragging) {
+        return objectPosition;
+    }
+
+    double xpos, ypos;
+    glfwGetCursorPos(window, &xpos, &ypos);
+    glm::vec2 currentMousePosition(xpos, ypos);
+
+    double deltaY = currentMousePosition.y - initialMousePosition.y;
+
+    float distance = glm::distance(objectPosition, cameraPosition);
+
+    float sensitivity = 0.0024f * (distance / 2);
+
+    glm::vec3 updatedObjectPosition = objectPosition;
+
+    // Scale delta for the Y-axis
+    updatedObjectPosition.y -= static_cast<float>(deltaY * sensitivity);
+
+    initialMousePosition = currentMousePosition;
+
+    return updatedObjectPosition;
+}
+
 int main() 
 {
     Values values;
@@ -269,8 +388,10 @@ int main()
         }
     }
 
+
     while (window.windowRunning()) 
     {
+        std::cout << objectPosition.x << std::endl;
         SteamAPI_RunCallbacks();
         //std::cout << dynaLL.ReciveStringDLL() << std::endl;
         //dynaLL.SendStringToDll("Hello");
@@ -411,7 +532,8 @@ int main()
             if (selectedObj != -1)
             {
                 gizmos.Overlap(camera2D);
-                gizmos.worldGimzo(*objects[selectedObj].get(), mousePos, window);
+                gizmos.worldGimzo(*objects[selectedObj].get()
+                    , mousePos, window);
                 gizmos.scaleTextureGizmos(*objects[selectedObj].get(), mousePos, window);
             }
         }
@@ -422,7 +544,7 @@ int main()
         ///gizmos.line(glm::vec3(GuiX, 0, 0), glm::vec3(GuiX + 10, 0, 0), 4, glm::vec3(1), camera3D, window.v_width, window.v_height, 60, 0.1f, 100.0f, camera2D, mousePos, window.getWindow(), GuiX, glm::vec3(1, 0, 0));
         //gizmos.line(glm::vec3(0,GuiY, 0), glm::vec3(0,GuiY + 10, 0), 4, glm::vec3(1), camera3D, window.v_width, window.v_height, 60, 0.1f, 100.0f, camera2D, mousePos, window.getWindow(), GuiY, glm::vec3(0, 1, 0));
         //gizmos.line(glm::vec3(0,0,GuiZ), glm::vec3(0, 0, GuiZ + 10), 4, glm::vec3(1), camera3D, window.v_width, window.v_height, 60, 0.1f, values.camFar, camera2D, mousePos,window.getWindow(), GuiZ, glm::vec3(0, 0,1));
-        gizmos.moveObject(objectPosition, glm::vec3(0.1f, 0.0f, 0.0f),mousePos, camera3D); // Moves along X-axis
+        objectPosition.x = moveObjectInXAxis(window.getWindow(), objectPosition, camera3D.Orientation, camera3D.Position).x;
         std::cout << objectPosition.x << std::endl;
         //gizmos.moveObject(objectPosition, glm::vec3(0.0f, 1.0f, 0.0f), mousePos, window.getWindow(), camera3D); // Moves along Y-axis
         //gizmos.moveObject(objectPosition, glm::vec3(0.0f, 0.0f, 1.0f), mousePos, window.getWindow(), camera3D); // Moves along Z-axis
@@ -485,7 +607,8 @@ int main()
         ImGui::Render();                
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
         window.update();                
-                                        
+        glfwSetMouseButtonCallback(window.getWindow(), mouseButtonCallback);
+
                                         
         while (fpsTimer.getElapsedNanoSeconds() < 5000000);
     }                                   
