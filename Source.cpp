@@ -1,4 +1,4 @@
-#include <iostream>
+﻿#include <iostream>
 #include <chrono>
 #include <thread>
 #include "TextureRenderer.h"
@@ -87,6 +87,24 @@ void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
         }
     }
 }
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtx/norm.hpp>
+#include <GLFW/glfw3.h>
+
+// Assuming these are globally accessible or passed in another way
+extern bool isMouseDragging;
+extern glm::vec2 initialMousePosition;
+
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtx/norm.hpp>
+#include <GLFW/glfw3.h>
+
+// Assuming these are globally accessible or passed in another way
+extern bool isMouseDragging;
+extern glm::vec2 initialMousePosition;
+
 glm::vec3 moveObjectInXAxis(GLFWwindow* window, const glm::vec3& objectPosition, const glm::vec3& cameraOrientation, const glm::vec3& cameraPosition) {
     if (!isMouseDragging) {
         return objectPosition;
@@ -96,25 +114,71 @@ glm::vec3 moveObjectInXAxis(GLFWwindow* window, const glm::vec3& objectPosition,
     glfwGetCursorPos(window, &xpos, &ypos);
     glm::vec2 currentMousePosition(xpos, ypos);
 
-    double deltaX = -1.0 * (currentMousePosition.x - initialMousePosition.x);
+    double deltaX = (currentMousePosition.x - initialMousePosition.x);
+    double deltaY = (currentMousePosition.y - initialMousePosition.y);
 
     float distance = glm::distance(objectPosition, cameraPosition);
-
     float sensitivity = 0.0024f * (distance / 2);
 
-    glm::mat4 cameraRotation = glm::mat4(glm::quat(glm::radians(cameraOrientation)));
-    glm::vec3 cameraForward = glm::normalize(cameraPosition - objectPosition);
-    glm::vec3 cameraRight = glm::normalize(glm::cross(cameraForward, glm::vec3(0.0f, 1.0f, 0.0f)));
-    glm::vec3 cameraUp = glm::cross(cameraRight, cameraForward);
+    // Get the camera's actual forward direction.
+    // Use the provided cameraOrientation.
+    glm::vec3 actualCameraForward = glm::normalize(cameraOrientation);
 
-    glm::vec3 localDelta(deltaX * sensitivity, 0.0f, 0.0f);
-    glm::vec3 globalDelta = glm::vec3(cameraRotation * glm::vec4(localDelta, 0.0f));
+    glm::vec3 worldUp = glm::vec3(0.0f, 1.0f, 0.0f);
 
-    glm::vec3 delta = globalDelta.x * cameraRight;
+    // Project camera's forward direction onto the horizontal plane (world XZ plane).
+    glm::vec3 cameraForwardHorizontal = glm::normalize(glm::vec3(actualCameraForward.x, 0.0f, actualCameraForward.z));
 
-    glm::vec3 updatedObjectPosition = objectPosition + delta;
+    // Calculate the camera's horizontal right vector.
+    glm::vec3 cameraRightHorizontal = glm::normalize(glm::cross(cameraForwardHorizontal, worldUp));
 
-    initialMousePosition = currentMousePosition;
+    // Handle edge cases where cameraForwardHorizontal is near zero (camera looking straight up or down).
+    // This defines the "horizontal" forward/right based on world axes when camera's own horizontal direction is ambiguous.
+    if (glm::length2(cameraForwardHorizontal) < 0.0001f) {
+        // Camera is looking almost straight up or down.
+        if (actualCameraForward.y > 0) { // Looking generally upwards
+            cameraForwardHorizontal = glm::vec3(0.0f, 0.0f, -1.0f); // Default to world -Z
+            cameraRightHorizontal = glm::vec3(1.0f, 0.0f, 0.0f);    // Default to world +X
+        }
+        else { // Looking generally downwards
+            cameraForwardHorizontal = glm::vec3(0.0f, 0.0f, 1.0f);  // Default to world +Z
+            cameraRightHorizontal = glm::vec3(-1.0f, 0.0f, 0.0f);   // Default to world -X
+        }
+    }
+    else {
+        // Safety check for cameraRightHorizontal if cross product is tiny
+        if (glm::length2(cameraRightHorizontal) < 0.0001f) {
+            cameraRightHorizontal = glm::vec3(1.0f, 0.0f, 0.0f);
+        }
+    }
+
+    glm::vec3 totalMovement = glm::vec3(0.0f);
+    double effectiveDeltaY = -deltaY; // Default: mouse up (negative deltaY) moves forward
+
+    // --- REVERSE DIRECTION FOR MOUSE Y WHEN LOOKING UPWARDS ---
+    // If the camera is looking primarily upwards (actualCameraForward.y > 0) AND
+    // its horizontal forward was ambiguous (i.e., we hit the length2 < 0.0001f case and defined world -Z as forward),
+    // then we reverse the sign of deltaY to make it consistent.
+    // This specific condition ensures that when the camera is "above" the object and looking down upon it,
+    // mouse up still makes it move "away" from the camera in the world Z sense.
+    if (actualCameraForward.y > 0 && glm::length2(glm::vec3(actualCameraForward.x, 0.0f, actualCameraForward.z)) < 0.0001f) {
+        effectiveDeltaY = deltaY; // Reverse the sign of deltaY
+    }
+
+    // Determine which mouse movement axis is dominant and apply only that movement.
+    if (glm::abs(deltaX) > glm::abs(deltaY)) {
+        // Mouse X is dominant: Move object left/right relative to the camera's horizontal view.
+        totalMovement = static_cast<float>(deltaX) * sensitivity * cameraRightHorizontal;
+        // Mouse Y movement is ignored.
+    }
+    else {
+        // Mouse Y is dominant (or equal, or both are zero): Move object forward/backward relative to the camera's horizontal view.
+        totalMovement = static_cast<float>(effectiveDeltaY) * sensitivity * cameraForwardHorizontal;
+        // Mouse X movement is ignored.
+    }
+
+    glm::vec3 updatedObjectPosition = objectPosition + totalMovement;
+    initialMousePosition = currentMousePosition; // Update initial mouse position for the next frame
 
     return updatedObjectPosition;
 }
@@ -190,13 +254,15 @@ glm::vec3 moveObjectInYAxis(GLFWwindow* window, const glm::vec3& objectPosition,
 int main() 
 {
     Values values;
-    SteamAPI_Init();
+    //SteamAPI_Init();
     PackageSystem packageSystem;
 
     DirectionalLight direcLight;
 
     DLL dynaLL;
-    dynaLL.loadDLL("DynaLL/x64/Debug/DynaLL.dll");
+    
+    dynaLL.loadDLL(".\\DynaLL.dll"); // Relative to the executable’s directory
+
     EventManager::initialize();
 
     // Timers
@@ -391,12 +457,12 @@ int main()
 
     while (window.windowRunning()) 
     {
-        std::cout << objectPosition.x << std::endl;
-        SteamAPI_RunCallbacks();
-        //std::cout << dynaLL.ReciveStringDLL() << std::endl;
+        //std::cout << objectPosition.x << std::endl;
+        //SteamAPI_RunCallbacks();
+        std::cout << dynaLL.ReciveStringDLL() << std::endl;
         //dynaLL.SendStringToDll("Hello");
         glm::vec2 mousePos = camera2D.mouseAsWorldPosition(glm::vec2(window.v_width, window.v_height));
-
+        //dynaLL.ReciveStringDLL();
         coll.m_position = obj.transform->position;
         coll2.m_position = obj2.transform->position;
         coll3.m_position = obj3.transform->position;
@@ -545,7 +611,7 @@ int main()
         //gizmos.line(glm::vec3(0,GuiY, 0), glm::vec3(0,GuiY + 10, 0), 4, glm::vec3(1), camera3D, window.v_width, window.v_height, 60, 0.1f, 100.0f, camera2D, mousePos, window.getWindow(), GuiY, glm::vec3(0, 1, 0));
         //gizmos.line(glm::vec3(0,0,GuiZ), glm::vec3(0, 0, GuiZ + 10), 4, glm::vec3(1), camera3D, window.v_width, window.v_height, 60, 0.1f, values.camFar, camera2D, mousePos,window.getWindow(), GuiZ, glm::vec3(0, 0,1));
         objectPosition.x = moveObjectInXAxis(window.getWindow(), objectPosition, camera3D.Orientation, camera3D.Position).x;
-        std::cout << objectPosition.x << std::endl;
+        //std::cout << objectPosition.x << std::endl;
         //gizmos.moveObject(objectPosition, glm::vec3(0.0f, 1.0f, 0.0f), mousePos, window.getWindow(), camera3D); // Moves along Y-axis
         //gizmos.moveObject(objectPosition, glm::vec3(0.0f, 0.0f, 1.0f), mousePos, window.getWindow(), camera3D); // Moves along Z-axis
 
@@ -607,7 +673,7 @@ int main()
         ImGui::Render();                
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
         window.update();                
-        glfwSetMouseButtonCallback(window.getWindow(), mouseButtonCallback);
+        //glfwSetMouseButtonCallback(window.getWindow(), mouseButtonCallback);
 
                                         
         while (fpsTimer.getElapsedNanoSeconds() < 5000000);

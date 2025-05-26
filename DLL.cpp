@@ -5,15 +5,16 @@ DLL::DLL()
 {
 	
 }
-
 void DLL::loadDLL(std::string name) {
+    std::wstring wname = stringToWString(name);
+    hDLL = LoadLibrary(wname.c_str());
 
-	LPCWSTR libname = LPCWSTR(name.c_str());
-	hDLL = LoadLibrary(libname);
-	if (!hDLL) { std::cout << "Failed to load dll";  return; }
-
+    if (!hDLL) {
+        std::cout << "Failed to load DLL: " << name << "\n";
+        std::cout << "Error code: " << GetLastError() << "\n";
+        return;
+    }
 }
-
 const char* DLL::ReciveStringDLL() {
 
 	getStringFromDLL getStringDll = (getStringFromDLL)GetProcAddress(hDLL, "getStringFromDLL");

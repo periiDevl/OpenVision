@@ -4,7 +4,7 @@
 #include "GameObject.h"
 #include "Component.h"
 #include "ResourceManager.h"
-#include "glfw3.h"
+#include "GLFW/glfw3.h"
 #include "VAO.h"
 #include "EBO.h"
 #include "Camera2D.h"

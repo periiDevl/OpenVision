@@ -3,7 +3,7 @@
 
 #include <iostream>
 #include <stb/stb_image.h>
-#include "glfw3.h"
+#include "GLFW/glfw3.h"
 #include "glad/glad.h"
 #include "InputSystem.h"
 #include "EventManager.h"
