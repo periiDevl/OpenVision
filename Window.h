@@ -1,12 +1,25 @@
 #ifndef OV_WINDOW_CLASS_H
 #define OV_WINDOW_CLASS_H
-
+#pragma once
 #include <iostream>
 #include <stb/stb_image.h>
-#include "GLFW/glfw3.h"
 #include "glad/glad.h"
 #include "InputSystem.h"
 #include "EventManager.h"
+
+#define GLFW_EXPOSE_NATIVE_WIN32
+#include <windows.h>
+#include <dwmapi.h>
+#include <GLFW/glfw3native.h> // For glfwGetWin32Window
+#pragma comment(lib, "dwmapi.lib")
+inline void EnableDarkTitleBar(GLFWwindow* glfwWindow)
+{
+	HWND hwnd = glfwGetWin32Window(glfwWindow);
+	BOOL useDarkMode = TRUE;
+	const DWORD DWMWA_USE_IMMERSIVE_DARK_MODE = 20;
+	DwmSetWindowAttribute(hwnd, DWMWA_USE_IMMERSIVE_DARK_MODE, &useDarkMode, sizeof(useDarkMode));
+}
+
 
 class Window;
 
@@ -39,7 +52,7 @@ public:
 			std::cout << "Failed to create GLFW window" << std::endl;
 			glfwTerminate();
 		}
-
+		EnableDarkTitleBar(window);
 		glfwMakeContextCurrent(window);
 		//glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 		//glfwSetWindowAttrib(window, GLFW_RESIZABLE, GLFW_FALSE);
