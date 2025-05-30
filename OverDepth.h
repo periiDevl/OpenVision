@@ -93,12 +93,8 @@ public:
 
         VAO.Unbind();
     }
-    void line(
-        glm::vec3 start, glm::vec3 end, float thickness, glm::vec3 color,
-        Camera3D camera, int screenWidth, int screenHeight, float FOVdeg,
-        float nearPlane, float farPlane, Camera2D cam2d, glm::vec2 mousePos, GLFWwindow* window,
-        float& interX, glm::vec3 movementAxis) // Added movement axis
-    {
+    // Simple 3D line rendering function
+    void line3D(glm::vec3 start, glm::vec3 end, float thickness, glm::vec3 color, Camera3D camera, float fov) {
         glLineWidth(thickness);
         glDisable(GL_DEPTH_TEST);
         glClear(GL_DEPTH_BUFFER_BIT);
@@ -106,20 +102,48 @@ public:
         glUseProgram(unlit_shader.ID);
         VAO.Bind();
 
+        // Update vertex positions
         vertices[0].position = start;
         vertices[1].position = end;
         VBO->Bind();
         glBufferSubData(GL_ARRAY_BUFFER, 0, vertices.size() * sizeof(Vertex), vertices.data());
         VBO->Unbind();
 
+        // Set up matrices
+        glm::mat4 model = glm::mat4(1.0f);
+        glm::mat4 view = camera.getViewMatrix();
+        glm::mat4 projection = camera.getProjectionMatrix(fov, 0.1f, 100);
+
+        // Set uniforms
+        glUniformMatrix4fv(glGetUniformLocation(unlit_shader.ID, "model"), 1, GL_FALSE, glm::value_ptr(model));
+        glUniform3f(glGetUniformLocation(unlit_shader.ID, "camPos"), camera.Position.x, camera.Position.y, camera.Position.z);
+        camera.Matrix(unlit_shader, "camMatrix");
+        glUniform3f(glGetUniformLocation(unlit_shader.ID, "color"), color.x, color.y, color.z);
+
+        // Draw the line
+        glDrawElements(GL_LINES, indices.size(), GL_UNSIGNED_INT, 0);
+
+        glEnable(GL_DEPTH_TEST);
+        VAO.Unbind();
+    }
+
+    // Check if mouse is hovering over a 3D line (projected to screen space)
+    bool isMouseOverLine3D(glm::vec3 start, glm::vec3 end, float thickness,
+        glm::vec2 mousePos, Camera3D camera,
+        int screenWidth, int screenHeight,
+        float FOVdeg, float nearPlane, float farPlane) {
+
+        // Transform 3D line points to screen space
         glm::mat4 model = glm::mat4(1.0f);
         glm::mat4 view = camera.getViewMatrix();
         glm::mat4 projection = camera.getProjectionMatrix(FOVdeg, nearPlane, farPlane);
         glm::mat4 mvp = projection * view * model;
 
+        // Project start and end points to clip space
         glm::vec4 clipStart = mvp * glm::vec4(start, 1.0f);
         glm::vec4 clipEnd = mvp * glm::vec4(end, 1.0f);
 
+        // Convert to screen coordinates
         glm::vec2 screenStart = glm::vec2(
             (clipStart.x / clipStart.w * 0.5f + 0.5f) * screenWidth,
             (1.0f - (clipStart.y / clipStart.w * 0.5f + 0.5f)) * screenHeight
@@ -130,75 +154,8 @@ public:
             (1.0f - (clipEnd.y / clipEnd.w * 0.5f + 0.5f)) * screenHeight
         );
 
-        float speed = 8.0f;
-        glUniformMatrix4fv(glGetUniformLocation(unlit_shader.ID, "model"), 1, GL_FALSE, glm::value_ptr(model));
-        glUniform3f(glGetUniformLocation(unlit_shader.ID, "camPos"), camera.Position.x, camera.Position.y, camera.Position.z);
-        camera.Matrix(unlit_shader, "camMatrix");
-        glUniform3f(glGetUniformLocation(unlit_shader.ID, "color"), color.x, color.y, color.z);
-
-        glDrawElements(GL_LINES, indices.size(), GL_UNSIGNED_INT, 0);
-        glEnable(GL_DEPTH_TEST);
-        VAO.Unbind();
-
-        bool positive_m = screenStart.x >= screenEnd.x;
-        glm::vec3 direction = end - start;
-        glm::vec3 toMouse = glm::vec3(mousePos, 0.0f) - start;
-
-        glm::vec3 cameraDirection = glm::normalize(camera.Position - start);
-        if (glm::dot(direction, cameraDirection) < 0) {
-            direction = -direction;
-        }
-        direction = glm::normalize(direction);
-
-        // Project movement onto the specified axis
-        direction = glm::normalize(movementAxis);
-
-        float t = glm::dot(toMouse, direction) / glm::dot(direction, direction);
-        glm::vec3 intersectionPoint = start + t * direction;
-
-        glm::vec2 intersectionScreen = cam2d.worldToScreen(intersectionPoint);
-        static float initialClickPos = 0.0f;
-        static bool draggingInitialized = false;
-
-        if (!lineDragging3D && checkMouseBoundary(
-            cam2d.screenToWorld(screenStart), cam2d.screenToWorld(screenEnd), thickness * 2, mousePos))
-        {
-            lineDragging3D = true;
-
-            if (!draggingInitialized) {
-                float t = glm::dot(toMouse, direction) / glm::dot(direction, direction);
-                glm::vec3 intersectionPoint = start + t * direction;
-
-                if (positive_m) {
-                    initialClickPos = interX - (-glm::dot(intersectionPoint, movementAxis) * speed);
-                }
-                else {
-                    initialClickPos = interX - (glm::dot(intersectionPoint, movementAxis) * speed);
-                }
-
-                draggingInitialized = true;
-            }
-        }
-
-        if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_RELEASE) {
-            lineDragging3D = false;
-            draggingInitialized = false;
-        }
-
-        if (lineDragging3D) {
-            float t = glm::dot(toMouse, direction) / glm::dot(direction, direction);
-            glm::vec3 intersectionPoint = start + t * direction;
-
-            if (positive_m) {
-                interX = initialClickPos - glm::dot(intersectionPoint, movementAxis) * speed;
-            }
-            else {
-                interX = initialClickPos + glm::dot(intersectionPoint, movementAxis) * speed;
-            }
-        }
-
-        line(mousePos, cam2d.screenToWorld(intersectionScreen), thickness, glm::vec3(0.5f, 1.0f, 0.5f));
-        line(cam2d.screenToWorld(screenStart), cam2d.screenToWorld(screenEnd), thickness, glm::vec3(1.0f, 1.0f, 0.0f));
+        // Use the existing 2D line boundary check
+        return checkMouseBoundary(screenStart, screenEnd, thickness, mousePos);
     }
 
 

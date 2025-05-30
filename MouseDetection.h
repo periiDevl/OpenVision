@@ -6,11 +6,55 @@
 #include "GameObject.h"
 #include "TextureRenderer.h"
 #include "Window.h"
-
+#include "Model.h"
 class MouseDetection {
 public:
     
+    int ID_OVER_OBJECT_MODELS(Window& window, Framebuffer& detectionFramebuffer, Shader& colorIdShader, Camera3D& camera, std::vector<Model> detectableObjects) {
+        // No copy happens, objects are passed by reference.
 
+        // Bind framebuffer and clear it
+        detectionFramebuffer.bind();
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        // Activate shader for color picking
+        colorIdShader.activate();
+
+        // Render each detectable object with a unique color
+        for (int i = 0; i < detectableObjects.size(); i++) {
+            float redValue = float((i / (256 * 256)) % 256) / 255.0f;
+            float greenValue = float((i / 256) % 256) / 255.0f;
+            float blueValue = float(i % 256) / 255.0f;
+
+            // Set color for object picking
+            glUniform3f(glGetUniformLocation(colorIdShader.ID, "color"), redValue, greenValue, blueValue);
+
+            // Get a reference to the TextureRenderer instead of copying it
+            detectableObjects[i].Draw(colorIdShader, camera);
+
+        }
+
+        // Get mouse position in the window
+        double xpos, ypos;
+        glfwGetCursorPos(window.getWindow(), &xpos, &ypos);
+
+        // Get window size and calculate pixel position
+        int windowWidth, windowHeight;
+        glfwGetWindowSize(window.getWindow(), &windowWidth, &windowHeight);
+
+        // Read the pixel color under the mouse cursor
+        glReadPixels((int)xpos, windowHeight - (int)ypos, 1, 1, GL_RGB, GL_UNSIGNED_BYTE, pixel);
+
+        // Unbind framebuffer
+        detectionFramebuffer.unbind();
+
+        // Convert pixel color to an object index
+        if (pixel[0] * 256 * 256 + pixel[1] * 256 + pixel[2] == 16744447)
+        {
+            return -1;
+        }
+        return pixel[0] * 256 * 256 + pixel[1] * 256 + pixel[2];
+    }
     int ID_OVER_OBJECT(Window& window, Framebuffer& detectionFramebuffer, Shader& colorIdShader, Camera2D& camera, std::vector<std::unique_ptr<GameObject>>& detectableObjects) {
         // No copy happens, objects are passed by reference.
 

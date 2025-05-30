@@ -1,25 +1,7 @@
 #include <json/json.h>
 #include"Model.h"
 #include "Shader.h"
-Model::Model(const char* fl,
-	glm::vec3 trans,
-	glm::vec3 rot,
-	glm::vec3 sca,
-	glm::vec3 id)
-{
-	translation = trans;
-	rotation = rot;
-	scale = sca;
-	ID = id;
-	file = fl;
-	std::string text = get_file_contents(file.c_str());
-	JSON = json::parse(text);
 
-	Model::file = file;
-	data = getData();
-
-	traverseNode(0);
-}
 
 void Model::Draw(Shader& shader, Camera3D& camera)
 {

@@ -168,16 +168,16 @@ void main()
 
 	)";
 
-		const char* Unlit =
-			R"(
+        const char* Unlit = R"(
 #version 330 core
 out vec4 FragColor;
-uniform vec4 color;
+uniform vec3 color;
 void main()
 {
-   FragColor = color;
+   FragColor = vec4(color, 1.0);
 }
-	)";
+)";
+
 
 		const char* Frame =
 			R"(

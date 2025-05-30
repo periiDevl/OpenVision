@@ -33,271 +33,28 @@
 #include "EngineValues.h"
 #include "PackagesSystem.h"
 #include "OverDepth.h"
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtx/norm.hpp>
+#include <GLFW/glfw3.h>
 // Function declarations
 CSV vert;
 CSF frag;
 
-
 using namespace physics2D;
-float skyboxVertices[] =
-{
-    //   Coordinates
-    -1.0f, -1.0f,  1.0f,//        7--------6
-     1.0f, -1.0f,  1.0f,//       /|       /|
-     1.0f, -1.0f, -1.0f,//      4--------5 |
-    -1.0f, -1.0f, -1.0f,//      | |      | |
-    -1.0f,  1.0f,  1.0f,//      | 3------|-2
-     1.0f,  1.0f,  1.0f,//      |/       |/
-     1.0f,  1.0f, -1.0f,//      0--------1
-    -1.0f,  1.0f, -1.0f
-};
-
-unsigned int skyboxIndices[] =
-{
-    1, 2, 6,
-    6, 5, 1,
-    0, 4, 7,
-    7, 3, 0,
-    4, 5, 6,
-    6, 7, 4,
-    0, 3, 2,
-    2, 1, 0,
-    0, 1, 5,
-    5, 4, 0,
-    3, 7, 6,
-    6, 2, 3
-};
-
-bool isMouseDragging = true;
-glm::vec2 initialMousePosition;
-
-
-void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
-    if (button == GLFW_MOUSE_BUTTON_LEFT) {
-        if (action == GLFW_PRESS) {
-            double xpos, ypos;
-            glfwGetCursorPos(window, &xpos, &ypos);
-            initialMousePosition = glm::vec2(xpos, ypos);
-            isMouseDragging = true;
-        }
-        else if (action == GLFW_RELEASE) {
-
-            isMouseDragging = false;
-
-        }
-    }
-}
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtx/norm.hpp>
-#include <GLFW/glfw3.h>
-
-// Assuming these are globally accessible or passed in another way
-extern bool isMouseDragging;
-extern glm::vec2 initialMousePosition;
-
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtx/norm.hpp>
-#include <GLFW/glfw3.h>
-
-// Assuming these are globally accessible or passed in another way
-extern bool isMouseDragging;
-extern glm::vec2 initialMousePosition;
-glm::vec3 moveObjectInXAxis(GLFWwindow* window, const glm::vec3& objectPosition, const glm::vec3& cameraOrientation, const glm::vec3& cameraPosition) {
-    if (!isMouseDragging) {
-        return objectPosition;
-    }
-
-    double xpos, ypos;
-    glfwGetCursorPos(window, &xpos, &ypos);
-    glm::vec2 currentMousePosition(xpos, ypos);
-
-    double deltaX = (currentMousePosition.x - initialMousePosition.x);
-    double deltaY = (currentMousePosition.y - initialMousePosition.y);
-
-    float distance = glm::distance(objectPosition, cameraPosition);
-    float sensitivity = 0.0024f * (distance / 2);
-
-    // Get the camera's actual forward direction.
-    glm::vec3 actualCameraForward = glm::normalize(cameraOrientation);
-
-    glm::vec3 worldUp = glm::vec3(0.0f, 1.0f, 0.0f);
-
-    // Project camera's forward direction onto the horizontal plane (world XZ plane).
-    glm::vec3 cameraForwardHorizontal = glm::normalize(glm::vec3(actualCameraForward.x, 0.0f, actualCameraForward.z));
-
-    // Calculate the camera's horizontal right vector.
-    glm::vec3 cameraRightHorizontal = glm::normalize(glm::cross(cameraForwardHorizontal, worldUp));
-
-    // Handle edge cases where cameraForwardHorizontal is near zero (camera looking straight up or down).
-    if (glm::length2(cameraForwardHorizontal) < 0.0001f) {
-        // Camera is looking almost straight up or down.
-        // Use a consistent world-aligned coordinate system
-        cameraForwardHorizontal = glm::vec3(0.0f, 0.0f, -1.0f); // Always use world -Z as forward
-        cameraRightHorizontal = glm::vec3(1.0f, 0.0f, 0.0f);    // Always use world +X as right
-    }
-    else {
-        // Safety check for cameraRightHorizontal if cross product is tiny
-        if (glm::length2(cameraRightHorizontal) < 0.0001f) {
-            cameraRightHorizontal = glm::vec3(1.0f, 0.0f, 0.0f);
-        }
-    }
-
-    glm::vec3 totalMovement = glm::vec3(0.0f);
-
-    double effectiveDeltaY = -deltaY; // Default: mouse up (negative deltaY) moves forward
-
-    // --- REVERSE DIRECTION FOR MOUSE Y WHEN CAMERA IS PARALLEL AND LOOKING UPWARDS ---
-    // If the camera is looking upwards (positive Y component) while being roughly parallel,
-    // reverse the movement direction for more intuitive control
-    if (actualCameraForward.y > 0.1f) { // Camera is looking upwards (adjust threshold as needed)
-        effectiveDeltaY = deltaY; // Reverse the sign of deltaY
-    }
-
-    // Determine which mouse movement axis is dominant and apply only that movement.
-    if (glm::abs(deltaX) > glm::abs(deltaY)) {
-        // Mouse X is dominant: Move object left/right relative to the camera's horizontal view.
-        totalMovement = static_cast<float>(deltaX) * sensitivity * cameraRightHorizontal;
-    }
-    else {
-        // Mouse Y is dominant: Move object forward/backward relative to the camera's horizontal view.
-        totalMovement = static_cast<float>(effectiveDeltaY) * sensitivity * cameraForwardHorizontal;
-    }
-
-    glm::vec3 updatedObjectPosition = objectPosition + totalMovement;
-    initialMousePosition = currentMousePosition; // Update initial mouse position for the next frame
-
-    return updatedObjectPosition;
-}
-glm::vec3 moveObjectInZAxis(GLFWwindow* window, const glm::vec3& objectPosition, const glm::vec3& cameraOrientation, const glm::vec3& cameraPosition) {
-    if (!isMouseDragging) {
-        return objectPosition;
-    }
-
-    double xpos, ypos;
-    glfwGetCursorPos(window, &xpos, &ypos);
-    glm::vec2 currentMousePosition(xpos, ypos);
-
-    double deltaX = (currentMousePosition.x - initialMousePosition.x);
-    double deltaY = (currentMousePosition.y - initialMousePosition.y);
-
-    float distance = glm::distance(objectPosition, cameraPosition);
-    float sensitivity = 0.0024f * (distance / 2);
-
-    // Get the camera's actual forward direction.
-    glm::vec3 actualCameraForward = glm::normalize(cameraOrientation);
-
-    glm::vec3 worldRight = glm::vec3(1.0f, 0.0f, 0.0f); // World X-axis for reference
-
-    // Project camera's forward direction onto the vertical plane (world YZ plane).
-    glm::vec3 cameraForwardVertical = glm::normalize(glm::vec3(0.0f, actualCameraForward.y, actualCameraForward.z));
-
-    // Calculate the camera's vertical right vector (which is the Y-axis in YZ plane).
-    glm::vec3 cameraRightVertical = glm::normalize(glm::cross(cameraForwardVertical, worldRight));
-
-    // Handle edge cases where cameraForwardVertical is near zero (camera looking straight left or right).
-    if (glm::length2(cameraForwardVertical) < 0.0001f) {
-        // Camera is looking almost straight left or right.
-        // Use a consistent world-aligned coordinate system
-        cameraForwardVertical = glm::vec3(0.0f, 0.0f, -1.0f); // Always use world -Z as forward
-        cameraRightVertical = glm::vec3(0.0f, 1.0f, 0.0f);    // Always use world +Y as right
-    }
-    else {
-        // Safety check for cameraRightVertical if cross product is tiny
-        if (glm::length2(cameraRightVertical) < 0.0001f) {
-            cameraRightVertical = glm::vec3(0.0f, 1.0f, 0.0f);
-        }
-    }
-
-    glm::vec3 totalMovement = glm::vec3(0.0f);
-
-    double effectiveDeltaY = -deltaY; // Default: mouse up (negative deltaY) moves forward
-
-    // --- REVERSE DIRECTION FOR MOUSE Y WHEN CAMERA IS LOOKING UPWARDS ---
-    if (actualCameraForward.y > 0.1f) { // Camera is looking upwards
-        effectiveDeltaY = deltaY; // Reverse the sign of deltaY
-    }
-
-    double effectiveDeltaX = deltaX; // Default mouse X direction
-
-    // --- REVERSE DIRECTION FOR MOUSE X WHEN CAMERA IS LOOKING FROM CERTAIN SIDES ---
-    // If the camera's X component is negative (looking from the left side), reverse mouse X
-    if (actualCameraForward.x < -0.1f) { // Camera is looking from the left side
-        effectiveDeltaX = -deltaX; // Reverse the sign of deltaX
-    }
-
-    // Determine which mouse movement axis is dominant and apply only that movement.
-    if (glm::abs(deltaX) > glm::abs(deltaY)) {
-        // Mouse X is dominant: Move object up/down relative to the camera's vertical view.
-        totalMovement = static_cast<float>(effectiveDeltaX) * sensitivity * cameraRightVertical;
-    }
-    else {
-        // Mouse Y is dominant: Move object forward/backward in Z relative to the camera's vertical view.
-        totalMovement = static_cast<float>(effectiveDeltaY) * sensitivity * cameraForwardVertical;
-    }
-
-    glm::vec3 updatedObjectPosition = objectPosition + totalMovement;
-    initialMousePosition = currentMousePosition; // Update initial mouse position for the next frame
-
-    return updatedObjectPosition;
-}
-
-
-glm::vec3 moveObjectInYAxis(GLFWwindow* window, const glm::vec3& objectPosition, const glm::vec3& cameraOrientation, const glm::vec3& cameraPosition) {
-    if (!isMouseDragging) {
-        return objectPosition;
-    }
-
-    double xpos, ypos;
-    glfwGetCursorPos(window, &xpos, &ypos);
-    glm::vec2 currentMousePosition(xpos, ypos);
-
-    double deltaX = (currentMousePosition.x - initialMousePosition.x);
-    double deltaY = (currentMousePosition.y - initialMousePosition.y);
-
-    float distance = glm::distance(objectPosition, cameraPosition);
-    float sensitivity = 0.0024f * (distance / 2);
-
-    glm::vec3 totalMovement = glm::vec3(0.0f);
-    glm::vec3 worldUp = glm::vec3(0.0f, 1.0f, 0.0f);
-
-    // For Y-axis movement, we always move along the world Y axis (up/down)
-    // Determine which mouse movement axis is dominant
-    if (glm::abs(deltaX) > glm::abs(deltaY)) {
-        // Mouse X is dominant: Move object up/down based on X movement
-        totalMovement = static_cast<float>(deltaX) * sensitivity * worldUp;
-    }
-    else {
-        // Mouse Y is dominant: Move object up/down based on Y movement
-        // Note: negative deltaY means mouse moved up, so we want object to move up (positive Y)
-        totalMovement = static_cast<float>(-deltaY) * sensitivity * worldUp;
-    }
-
-    glm::vec3 updatedObjectPosition = objectPosition + totalMovement;
-    initialMousePosition = currentMousePosition;
-
-    return updatedObjectPosition;
-}
 
 int main() 
 {
     Values values;
     //SteamAPI_Init();
     PackageSystem packageSystem;
-
     DirectionalLight direcLight;
-
     DLL dynaLL;
-    
     dynaLL.loadDLL(".\\DynaLL.dll"); // Relative to the executable’s directory
-
     EventManager::initialize();
-
     // Timers
     Timer fpsTimer, updateFPSTimer;
     updateFPSTimer.start();
-
     // Camera and window setup
     Window window = Window();
     window.setVieportSize(window.width / 1.5f, window.height / 1.5f);
@@ -306,23 +63,20 @@ int main()
     camera2D.setVieportSize(window.width / 1.5f, window.height / 1.5f);
 
     // Game objects
-
     std::vector<std::unique_ptr<GameObject>> objects;
     objects.push_back(std::make_unique<GameObject>());
     objects.push_back(std::make_unique<GameObject>());
     objects.push_back(std::make_unique<GameObject>());
-
     GameObject& obj = *objects[0];
     GameObject& obj2 = *objects[1];
     GameObject& obj3 = *objects[2];
-    obj.transform->position = { 0, 2 };
+    obj.transform->position = { 0, 20 };
     obj.transform->scale = { 1, 1 };
-    obj2.transform->position = { 0, -1 };
+    obj2.transform->position = { 0, -10 };
     obj2.transform->scale = { 3, 1 };
-    obj3.transform->position = { 0, .5};
+    obj3.transform->position = { 10, .5};
     obj3.transform->scale = { 1, 1 };
 
-    
     // Renderer and texture setup
     TextureRenderer& renderer = *obj.addComponent<TextureRenderer>("Assets/background.png");
     TextureRenderer& renderer2 = *obj2.addComponent<TextureRenderer>("Assets/background.png");
@@ -338,12 +92,11 @@ int main()
     world.addBody(coll2, 1, true);
     world.addBody(coll3, 1);
 
-    
-
     // Shaders
     ShaderManager shaders;
     Shader& classicShader = shaders.addShader("classic", vertexShaderSource, fragmentShaderSource);
     Shader& unlitShader = shaders.addShader("unlit", vertexShaderSource, unlitFrag);
+    Shader& unlitShader3D = shaders.addShader("unlit",vert.Default, frag.Unlit);
     Shader& frameBufferShader = shaders.addShader("frameBuffer", vert.Frame, frag.Frame);
     Shader& frameBufferShader2D = shaders.addShader("frameBuffer2D", FrameBufferVert, FrameBufferFrag);
     Shader& shaderProgram = shaders.addShader("shaderProgram", vert.Default, frag.Default);
@@ -412,8 +165,9 @@ int main()
     DefaultTheme();
     ImGuiStyle& style = ImGui::GetStyle();
     std::vector<Model> models;
-    models.push_back(gird);
     models.push_back(grass);
+
+    models.push_back(mapone);
     float GuiX = 0;
     float GuiY = 0;
     float GuiZ = 0;
@@ -482,13 +236,14 @@ int main()
             stbi_image_free(data);
         }
     }
-
-
+    
+    
+    Functions functions;
     while (window.windowRunning()) 
     {
         //std::cout << objectPosition.x << std::endl;
         //SteamAPI_RunCallbacks();
-        std::cout << dynaLL.ReciveStringDLL() << std::endl;
+        //std::cout << dynaLL.ReciveStringDLL() << std::endl;
         //dynaLL.SendStringToDll("Hello");
         glm::vec2 mousePos = camera2D.mouseAsWorldPosition(glm::vec2(window.v_width, window.v_height));
         //dynaLL.ReciveStringDLL();
@@ -538,9 +293,10 @@ int main()
             gird.Draw(shadowMapProgram, camera3D, glm::vec3(0, 11, 0), glm::vec3(0, 0, 0), glm::vec3(10.0f));
             gird.Draw(shadowMapProgram, camera3D, glm::vec3(0, -11, 0), glm::vec3(0, 0, 0), glm::vec3(10.0f));
             grass.Draw(shadowMapProgram, camera3D, glm::vec3(0, -10, 0), glm::vec3(0, 0, 0), glm::vec3(5.0f));
-            mapone.Draw(shadowMapProgram, camera3D, glm::vec3(0, -160, 0), glm::vec3(0, 0, 0), glm::vec3(20.0f, 20.0f, 20.0f));
+            models[1].Draw(shadowMapProgram, camera3D);
 
         }
+        
         mainFramebuffer.bind();
         glViewport(0, 0, window.v_width, window.v_height);
 
@@ -554,6 +310,7 @@ int main()
         window.clear();
 
         glEnable(GL_DEPTH_TEST);
+        
         gird.Draw(shaderProgram, camera3D, glm::vec3(objectPosition), glm::vec3(0, 0, 0), glm::vec3(10.0f));
 
         gird.Draw(shaderProgram, camera3D, glm::vec3(11, 0,0), glm::vec3(0, 0, 0), glm::vec3(10.0f));
@@ -561,9 +318,10 @@ int main()
         gird.Draw(shaderProgram, camera3D, glm::vec3(0, 11, 0), glm::vec3(0, 0, 0), glm::vec3(10.0f));
         gird.Draw(shaderProgram, camera3D, glm::vec3(0, -11, 0), glm::vec3(0, 0, 0), glm::vec3(10.0f));
         grass.Draw(shaderProgram, camera3D, glm::vec3(0, -10, 0), glm::vec3(0, 0, 0), glm::vec3(5.0f));
-        mapone.Draw(shaderProgram, camera3D, glm::vec3(0, -160, 0), glm::vec3(0, 0, 0), glm::vec3(20.0f, 20.0f, 20.0f));
-
-
+        models[1].Draw(shaderProgram, camera3D);
+        models[1].translation = glm::vec3(0, -160, 0);
+        models[1].rotation = glm::vec3(0, 0, 0);
+        models[1].scale = glm::vec3(20.0f, 20.0f, 20.0f);
         camera3D.Inputs(window.getWindow(), 1, 2);
         camera3D.Mouse(window.getWindow());
         glDepthFunc(GL_LEQUAL);
@@ -605,9 +363,11 @@ int main()
             horizontal = !horizontal;
         }
 
-
         mainFramebuffer.DRAW_SCENE_AS_MAIN_FRAMEBUFFER(frameBufferShader, postProcessingFramebuffer.texture, postProcessingFramebuffer.pingpongBuffer, horizontal);
 
+        int n = mouseDetect.ID_OVER_OBJECT_MODELS(window, mouseDetectionFramebuffer, unlitShader3D, camera3D, models);
+        std::cout << n << std::endl;
+        
 
 
         renderer.setShader(classicShader);
@@ -617,11 +377,11 @@ int main()
         renderer2.draw(camera2D);
         renderer3.setShader(classicShader);
         renderer3.draw(camera2D);
+        
         if (InputSystem::getMousePosition().y > (window.height - window.v_height) && InputSystem::getMousePosition().x < window.v_width)
         {
             if (InputSystem::getDown(Inputs::MouseLeft) && !gizmos.isDragging())
             {
-
                 selectedObj = mouseDetect.ID_OVER_OBJECT(window, mouseDetectionFramebuffer, unlitShader, camera2D, objects);
             }
             if (selectedObj != -1)
@@ -635,12 +395,10 @@ int main()
         gizmos.line(glm::vec2(0, .05), glm::vec2(0, -.05), 4, glm::vec3(0));
         gizmos.line(glm::vec2(.05, 0), glm::vec2(-.05, 0), 4, glm::vec3(0));
 
-
         //gizmos.line(glm::vec3(GuiX, 0, 0), glm::vec3(GuiX + 10, 0, 0), 4, glm::vec3(1), camera3D, window.v_width, window.v_height, 60, 0.1f, 100.0f, camera2D, mousePos, window.getWindow(), GuiX, glm::vec3(1, 0, 0));
         //gizmos.line(glm::vec3(0,GuiY, 0), glm::vec3(0,GuiY + 10, 0), 4, glm::vec3(1), camera3D, window.v_width, window.v_height, 60, 0.1f, 100.0f, camera2D, mousePos, window.getWindow(), GuiY, glm::vec3(0, 1, 0));
         //gizmos.line(glm::vec3(0,0,GuiZ), glm::vec3(0, 0, GuiZ + 10), 4, glm::vec3(1), camera3D, window.v_width, window.v_height, 60, 0.1f, values.camFar, camera2D, mousePos,window.getWindow(), GuiZ, glm::vec3(0, 0,1));
         //objectPosition.z = moveObjectInZAxis(window.getWindow(), objectPosition, camera3D.Orientation, camera3D.Position).z;
-        //objectPosition.x = moveObjectInXAxis(window.getWindow(), objectPosition, camera3D.Orientation, camera3D.Position).x;
         //objectPosition.y = moveObjectInYAxis(window.getWindow(), objectPosition, camera3D.Orientation, camera3D.Position).y;
         //std::cout << objectPosition.x << std::endl;
         //gizmos.moveObject(objectPosition, glm::vec3(0.0f, 1.0f, 0.0f), mousePos, window.getWindow(), camera3D); // Moves along Y-axis

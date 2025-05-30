@@ -6,7 +6,7 @@
 //#include<bullet/btBulletDynamicsCommon.h>
 #include"Functions.h"
 using json = nlohmann::json;
-
+#include"GameObject.h"
 #include <fstream>  // For std::ifstream
 #include <sstream>  // For std::stringstream
 
@@ -34,8 +34,22 @@ public:
 		glm::vec3 trans = glm::vec3(0.0f, 0.0f, 0.0f),
 		glm::vec3 rot = glm::vec3(0.0f, 0.0f, 0.0f),
 		glm::vec3 sca = glm::vec3(1.0f, 1.0f, 1.0f),
-		glm::vec3 id = glm::vec3(0, 0, 0));
+		glm::vec3 id = glm::vec3(0, 0, 0))
+	{
+		translation = trans;
+		rotation = rot;
+		scale = sca;
+		ID = id;
+		file = fl;
+		std::string text = get_file_contents(file.c_str());
+		JSON = json::parse(text);
 
+		Model::file = file;
+		data = getData();
+
+		traverseNode(0);
+	};
+	
 	void Draw
 	(
 		Shader& shader,
