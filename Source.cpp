@@ -155,6 +155,7 @@ int main()
     Model gird("models/cube/scene.gltf");
     Model mapone("models/mapone/scene.gltf");
     Model grass("models/grass/scene.gltf");
+    Model gizX("models/cube/scene.gltf");
 
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -165,6 +166,9 @@ int main()
     DefaultTheme();
     ImGuiStyle& style = ImGui::GetStyle();
     std::vector<Model> models;
+    models.push_back(gizX);
+    gizX.scale = glm::vec3(20, 6, 6);
+    gizX.tint = glm::vec4(255, 0, 0, 1);
     models.push_back(grass);
 
     models.push_back(mapone);
@@ -293,7 +297,11 @@ int main()
             gird.Draw(shadowMapProgram, camera3D, glm::vec3(0, 11, 0), glm::vec3(0, 0, 0), glm::vec3(10.0f));
             gird.Draw(shadowMapProgram, camera3D, glm::vec3(0, -11, 0), glm::vec3(0, 0, 0), glm::vec3(10.0f));
             grass.Draw(shadowMapProgram, camera3D, glm::vec3(0, -10, 0), glm::vec3(0, 0, 0), glm::vec3(5.0f));
-            models[1].Draw(shadowMapProgram, camera3D);
+            for (size_t i = 0; i < models.size(); i++)
+            {
+                models[i].Draw(shadowMapProgram, camera3D);
+
+            }
 
         }
         
@@ -313,15 +321,16 @@ int main()
         
         gird.Draw(shaderProgram, camera3D, glm::vec3(objectPosition), glm::vec3(0, 0, 0), glm::vec3(10.0f));
 
-        gird.Draw(shaderProgram, camera3D, glm::vec3(11, 0,0), glm::vec3(0, 0, 0), glm::vec3(10.0f));
-        
-        gird.Draw(shaderProgram, camera3D, glm::vec3(0, 11, 0), glm::vec3(0, 0, 0), glm::vec3(10.0f));
-        gird.Draw(shaderProgram, camera3D, glm::vec3(0, -11, 0), glm::vec3(0, 0, 0), glm::vec3(10.0f));
         grass.Draw(shaderProgram, camera3D, glm::vec3(0, -10, 0), glm::vec3(0, 0, 0), glm::vec3(5.0f));
-        models[1].Draw(shaderProgram, camera3D);
+        for (size_t i = 0; i < models.size(); i++)
+        {
+            models[i].Draw(shaderProgram, camera3D);
+
+        }
         models[1].translation = glm::vec3(0, -160, 0);
         models[1].rotation = glm::vec3(0, 0, 0);
         models[1].scale = glm::vec3(20.0f, 20.0f, 20.0f);
+        gizX.Draw(shaderProgram, camera3D);
         camera3D.Inputs(window.getWindow(), 1, 2);
         camera3D.Mouse(window.getWindow());
         glDepthFunc(GL_LEQUAL);
@@ -367,7 +376,7 @@ int main()
 
         int n = mouseDetect.ID_OVER_OBJECT_MODELS(window, mouseDetectionFramebuffer, unlitShader3D, camera3D, models);
         std::cout << n << std::endl;
-        
+
 
 
         renderer.setShader(classicShader);
@@ -394,12 +403,15 @@ int main()
         }
         gizmos.line(glm::vec2(0, .05), glm::vec2(0, -.05), 4, glm::vec3(0));
         gizmos.line(glm::vec2(.05, 0), glm::vec2(-.05, 0), 4, glm::vec3(0));
+        if (InputSystem::getHold(Inputs::MouseLeft) && n == 0)
+        {
+            objectPosition.x = functions.moveObjectInXAxis(window.getWindow(), objectPosition, camera3D.Orientation, camera3D.Position).x;
 
+        }
         //gizmos.line(glm::vec3(GuiX, 0, 0), glm::vec3(GuiX + 10, 0, 0), 4, glm::vec3(1), camera3D, window.v_width, window.v_height, 60, 0.1f, 100.0f, camera2D, mousePos, window.getWindow(), GuiX, glm::vec3(1, 0, 0));
         //gizmos.line(glm::vec3(0,GuiY, 0), glm::vec3(0,GuiY + 10, 0), 4, glm::vec3(1), camera3D, window.v_width, window.v_height, 60, 0.1f, 100.0f, camera2D, mousePos, window.getWindow(), GuiY, glm::vec3(0, 1, 0));
         //gizmos.line(glm::vec3(0,0,GuiZ), glm::vec3(0, 0, GuiZ + 10), 4, glm::vec3(1), camera3D, window.v_width, window.v_height, 60, 0.1f, values.camFar, camera2D, mousePos,window.getWindow(), GuiZ, glm::vec3(0, 0,1));
         //objectPosition.z = moveObjectInZAxis(window.getWindow(), objectPosition, camera3D.Orientation, camera3D.Position).z;
-        //objectPosition.y = moveObjectInYAxis(window.getWindow(), objectPosition, camera3D.Orientation, camera3D.Position).y;
         //std::cout << objectPosition.x << std::endl;
         //gizmos.moveObject(objectPosition, glm::vec3(0.0f, 1.0f, 0.0f), mousePos, window.getWindow(), camera3D); // Moves along Y-axis
         //gizmos.moveObject(objectPosition, glm::vec3(0.0f, 0.0f, 1.0f), mousePos, window.getWindow(), camera3D); // Moves along Z-axis
