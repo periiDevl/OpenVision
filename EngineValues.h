@@ -41,6 +41,8 @@ public:
 	bool blinnPhongLighting = true;
 	float camFar = 300.000f;
 	float camNear = 0.1f;
+
+	float ambientOcc = 0.1f;
 	glm::vec4 lightColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
 private:
 

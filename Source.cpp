@@ -171,6 +171,8 @@ int main()
     gizX.tint = glm::vec4(255, 0, 0, 1);
     models.push_back(grass);
 
+    mapone.scale = glm::vec3(10, 10, 10);
+    mapone.translation = glm::vec3(0, -78.3f, 0);
     models.push_back(mapone);
     float GuiX = 0;
     float GuiY = 0;
@@ -245,6 +247,8 @@ int main()
     Functions functions;
     while (window.windowRunning()) 
     {
+        camera3D.Inputs(window.getWindow(), 1, 2);
+        camera3D.Mouse(window.getWindow());
         //std::cout << objectPosition.x << std::endl;
         //SteamAPI_RunCallbacks();
         //std::cout << dynaLL.ReciveStringDLL() << std::endl;
@@ -272,7 +276,7 @@ int main()
         //flightProjection = orthgonalProjection * lightView;
         
         direcLight.calculateShadowsProj(camera3D);
-
+        grass.tint = glm::vec4(0.2f,0.7f,0.2f,1);
         //camera2D.updateMatrix(0.1f, far);
         camera3D.updateMatrix3D(60, 0.1f, values.camFar);
         mainFramebuffer.bind();
@@ -293,10 +297,11 @@ int main()
             gird.Draw(shadowMapProgram, camera3D, glm::vec3(GuiX / 2, GuiY/2, GuiZ/2), glm::vec3(0, 0, 0), glm::vec3(10.0f));
 
             gird.Draw(shadowMapProgram, camera3D, glm::vec3(11, 0, 0), glm::vec3(0, 0, 0), glm::vec3(10.0f));
-
+            
             gird.Draw(shadowMapProgram, camera3D, glm::vec3(0, 11, 0), glm::vec3(0, 0, 0), glm::vec3(10.0f));
             gird.Draw(shadowMapProgram, camera3D, glm::vec3(0, -11, 0), glm::vec3(0, 0, 0), glm::vec3(10.0f));
             grass.Draw(shadowMapProgram, camera3D, glm::vec3(0, -10, 0), glm::vec3(0, 0, 0), glm::vec3(5.0f));
+            gird.Draw(shadowMapProgram, camera3D, glm::vec3(objectPosition), glm::vec3(0, 0, 0), glm::vec3(10.0f));
             for (size_t i = 0; i < models.size(); i++)
             {
                 models[i].Draw(shadowMapProgram, camera3D);
@@ -331,8 +336,7 @@ int main()
         models[1].rotation = glm::vec3(0, 0, 0);
         models[1].scale = glm::vec3(20.0f, 20.0f, 20.0f);
         gizX.Draw(shaderProgram, camera3D);
-        camera3D.Inputs(window.getWindow(), 1, 2);
-        camera3D.Mouse(window.getWindow());
+        
         glDepthFunc(GL_LEQUAL);
         glm::mat4 view = glm::mat4(1.0f);
         glm::mat4 projection = glm::mat4(1.0f);
@@ -357,7 +361,7 @@ int main()
         glBlitFramebuffer(0, 0, window.v_width, window.v_height, 0, 0, window.v_width, window.v_height, GL_COLOR_BUFFER_BIT, GL_NEAREST);
         bool horizontal = true, first_iteration = true;
         blurProgram.activate();
-        int Blur_amount = 12;
+        int Blur_amount = 15;
         for (unsigned int i = 0; i < Blur_amount; i++) {
             glBindFramebuffer(GL_FRAMEBUFFER, postProcessingFramebuffer.pingpongFBO[horizontal]);
             glUniform1i(glGetUniformLocation(blurProgram.ID, "horizontal"), horizontal);
@@ -403,10 +407,8 @@ int main()
         }
         gizmos.line(glm::vec2(0, .05), glm::vec2(0, -.05), 4, glm::vec3(0));
         gizmos.line(glm::vec2(.05, 0), glm::vec2(-.05, 0), 4, glm::vec3(0));
-        if (InputSystem::getHold(Inputs::MouseLeft) && n == 0)
-        {
+        if (InputSystem::getHold(Inputs::Key2)) {
             objectPosition.x = functions.moveObjectInXAxis(window.getWindow(), objectPosition, camera3D.Orientation, camera3D.Position).x;
-
         }
         //gizmos.line(glm::vec3(GuiX, 0, 0), glm::vec3(GuiX + 10, 0, 0), 4, glm::vec3(1), camera3D, window.v_width, window.v_height, 60, 0.1f, 100.0f, camera2D, mousePos, window.getWindow(), GuiX, glm::vec3(1, 0, 0));
         //gizmos.line(glm::vec3(0,GuiY, 0), glm::vec3(0,GuiY + 10, 0), 4, glm::vec3(1), camera3D, window.v_width, window.v_height, 60, 0.1f, 100.0f, camera2D, mousePos, window.getWindow(), GuiY, glm::vec3(0, 1, 0));

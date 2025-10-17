@@ -150,7 +150,7 @@ void main()
         discard;
     }
 
-    vec4 totalLight = direcLight() * tint + vec4(AmbientOcclusion(gl_FragCoord.z, far / 100, near) * vec3(-1.0f, -1.0f, -1.0f), 1.0f);
+    vec4 totalLight = direcLight() * tint + vec4(AmbientOcclusion(gl_FragCoord.z, far / 100, 0.07f) * vec3(-1.0f, -1.0f, -1.0f), 1.0f);
     
     for (int i = 0; i < numPointLights; i++) {
         totalLight += pointLight(pointLightPositions[i], pointLightColors[i], pointLightIntensities[i]);
